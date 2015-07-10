@@ -1,0 +1,51 @@
+Source language:
+------------------
+
+--> Use a subset of C.
+
+Target language:
+------------------
+
+--> Use C as the target language.
+
+Subset of C as source, even more constrained subset of C as target.
+----------------------------------
+
+Mapping:
+
+Assume there's no loop carried straightline code in the beginning?
+
+Easiest way to solve the partitioning problem:
+
+--> Each instruction is its own table.
+--> Game: Trying to reduce the number of tables.
+
+Instruction selection given the switch instruction set.  And then map into a
+bunch of P4 tables.  Map every instruction into an action while respecting the
+available actions for a specific switch.  Then generate resulting P4 code.
+
+The assumption: Switch can execute an infinite number of tables.
+
+This is a naive solution because it doesn't minimize the number of P4 tables.
+
+Two factors for a naive solution:
+
+-- Infinite tables
+-- Ignore placements
+
+Next thing to do is:
+
+
+Still ignores the placement problem.
+
+-- Looking at consecutive tables and try and consolidate them into a simpler table.
+
+-- Reordering the code to permit more consolidation.
+
+
+Algorithm:
+----------------
+1. If canonicalization: Convert if statements into ternary operators at the source level. DONE
+2. Naive solution: One instruction --> One action --> one table. done
+3. Consecutive action consolidation simply by looking at the variable name.
+4. Reordering actions.

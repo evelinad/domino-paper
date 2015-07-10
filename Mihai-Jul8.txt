@@ -1,0 +1,28 @@
+--> Write code from scratch and not do surgery.
+--> Canonicalization is much simpler if you just generate the code from scratch using
+first principles, instead of using the rewriter API.
+
+So let's see, Mihai thinks there is value to looking at disjoint predicates
+and deciding if two instructions conflict or not.
+
+For instance
+if (x) {
+  a = 1;
+} else {
+  a = 2;
+}
+
+if(x) a = 1;
+and if (!x) a = 2;
+
+can both execute in parallel.
+
+I am just taking the safe conservative approach and not reordering these two
+instructions by saying any two instructions that touch the same output variable
+cannot be reordered.
+
+Mihai's other suggestions:
+
+Convert every statement to the form: if (pred) ? val : ;
+to aggregate predicates into pred using and's and or's
+and to use the GNU extension of the conditional operator.

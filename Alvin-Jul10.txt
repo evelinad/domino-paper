@@ -1,0 +1,68 @@
+Do we mention approximations at the beginning?
+--> Thinning operations, forget for now.
+--> We can approximate cross-stage shared memory using reissuing packets.
+==========================================================
+
+One example where everything works correctly:
+--> Something without approximations first.
+
+Alvin's examples: regexes, strings, hash, and so on
+Showcases of things that are programmable.
+
+Allow a programmer to change the functional form of the hash,
+as opposed to hard coding it:
+
+https://github.com/p4lang/papers/blob/18bb24f73e844c41b659c7741d72742cad52cac9/sosr15/DC.p4/table_definitions/ingress/lag_group.p4#L26
+
+CRC16 as a completely stateless processing primitive.
+Express any kind of hash, not just CRC16.
+
+Could be a first example of how the tool chain works and use that as a running example.
+
+CRC16 ties into George and my previous conversations about encryption and erasure codes.
+
+=================================================
+
+Finding an implementation that actually fits.
+
+CRC16 is a running example through the entire compiler explanation (simple but realistic).
+
+===================================
+
+Evaluation: Approximate evaluation.
+
+Talk about how you can use recirculation either in the compiler section or the
+evaluation section.
+
+Table for name of the algorithm and its performance.
+
+===================================
+
+Alvin's suggestions on the writing:
+----------------------------------
+
+Move the approximation section out of the language and into the evaluation.
+Until we have something principled about the approximation in which case it becomes a discussion of language semantics.
+Pair-wise instructions and VLIW in compiler.
+
+Add advanced idioms subsection to the compiler:
+-------------------------------------
+1. Pipeline wide memory using recirculation primitive.
+2. Tupled Stateful operations: <x, y> <--- f(x, y).
+Make sure that we can talk about this.
+3. Multiply accumulate (MAC).
+
+How the compiler does this is future work.
+
+Compiler section:
+1. Running example of CRC16 and then show how it maps exactly.
+2. Advanced idioms: 2 or 3 of these examples: pipeline wide using recirculation, tupled stateful operations, MAC.
+3. Show the actual generated code.
+
+Evaluation:
+--------------------------
+Maybe just one example of approximate or not so approximate packet processing.
+The advanced idioms just shows us how to do things, not how effective they are.
+How off EWMA-approximated is relative to EWMA-exact.
+Even though we approximate, it's not that bad.
+

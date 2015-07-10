@@ -1,0 +1,10 @@
+1. Relative to Intel's PLDI paper:
+    --> Approximation angle
+    --> New architectures, new tradeoffs, line-rate performance, approximations
+
+2. Relative to Lavanya's paper:
+    --> Higher level abstraction.
+    --> Table mapping is orthogonal to our problem.
+    --> We compile down to P4, Lavanya's paper takes over from there.
+    --> Stateful processing.
+    --> Congestion-control can be expressed in a higher level language. 
