@@ -1,89 +1,62 @@
-Don'ts:
----------------
-1. "We believe that" (No one cares what you believe. It's a rant, like Jonathan says.)
-2. Compile time of the compiler: least interesting problem, imo.
-Use words like "add to the debate".
-
-Introduction:
+Section 1: Introduction:
 -----------------------
 
-Data-plane algorithms\footnote{We use the term algorithm in the same sense
-as Maple's algorithmic policies.}
+Data-plane algorithms today are hand picked carefully.
 
-Definition
-Today, they are hand picked
 Programmable switch architectures could probably change that.
 (Programmability is driven by the realization that it doesn't cost
-too much. The area is already dominated by memories and Serial Link IO.
-Maybe cite Lavanya's talk.)
+too much. The area is already dominated by memories and Serial Link IO.)
 
-Two contributions:
+We observe that these are best expressed as transactions
+--> Which looks very different from the architecture of these programmable switches
+--> The ideal place to bridge this gap is a compiler.
 
-Structure data-plane algorithms as transactions.
-Compiler to translate it into programmable hardware, approximating if and when required.
-Maybe mention a simple example right here as to what approximation means so
-that it doesn't go above people's heads.
-We observe that many algorithms are amenable to approximations.
+Contributions:
+--> The observation that data-plane algorithms be structured as transactions.
+--> Compiler to translate it into programmable hardware.
+--> Maybe third contribution: How does this world-view help us?
 
-Maybe third contribution: How does this world-view help us?
-Research in PL and approximate computing applied to network hardware
-
-Maybe also throw in the fact that we can think about these as programs as opposed
-to fixed algorithms that are going to be unchanged.
-
-Lampshading:
-------------------------
-People are freaked out by approximations, but whether you admit it or not, it's
-already happening. We are just trying to add some principles to an as-yet
-unprincipled area (don't say that).
-
-A Language for data-plane algorithms
+Section 2: Data-plane algorithms:
 --------------------------
-1. Quickly survey Data-plane algorithms:
-Measurement algorithms
-Congestion-control algorithms
+Describe a few examples
+-- Distinguishing characteristics:
+   --> too expressive for P4.
+   --> Intricate control flow.
+   --> best structured as transactions.
+   --> Some can also be approximated (RED, PIE, sketches, no spec).
+   --> Talk about how this is useful to leverage.
 
-2. Language: No loops, no break, no continue, no switch, goto
-
+Section 3: Data-plane algorithms as transactions
+--------------------------
+Language: No loops, no break, no continue, no switch, goto
 Chang's description: O(1) code.
+What we can't do: scans, loops, etc.
 
-What we can't do: encryption, scans, etc.
-Why is approximating the right thing:
-1. People already do that.
-   --> There's no well-defined formal spec for congestion control and queue management, to first order,
-   unlike encryption and decryption.
-2. Any spec that exists is stochastic, not deterministic. Make this point more clear.
-   --> RED is seldom implemented according to the full RFC on switches (ask Anurag).
-   --> PIE is an approximation to CoDel.
-3. Measurement algorithms are often approximated by sketches~\cite{min_sketch}.
-4. Similar deal with RCP and XCP.
-
-The hardware:
+Section 4: The hardware
 -----------------------------
-The RMT model: Provisioned for worst-case performance,
-which provides a simple model, but means several things can't run.
-Stateful registers (Read and Write capability alone)
-Counters
-
-Packet primitives should be explained in the hardware section:
+The RMT model: Provisioned for worst-case performance.
+VLIW packet primitives
 Almost one-to-one mapping from the P4 action primitives to hardware operations.
 
-(Extensions to stateful operations:
-What if the hardware had
-Read-Modify-Write,
-Atomic Increment,
-Multiply Accumulate or
-Conditional Execution)
+Stateful operations:
+--> Read-Modify-Write,
+--> Atomic Increment,
+--> Multiply Accumulate or Conditional Execution
+--> Tupled instructions
 
-Explain recirculation.
+To justify:
+--> Talk about how DSPs support some of these ops.
+--> How we have talked to industry folks about it and so on.
+--> Many of these are already done in fixed form today.
 
-The compiler:
---------------------------
+Section 5: The compiler, with running example of CRC16 + control flow + state
+that maps correctly
+----------------------------------------------------------------------
 Talk about why source-to-source is the right level:
 1. Same levels of abstraction for source and target.
 2. Easier to interpret output (lexically and control flow)
 3. Industry is already investing considerable effort in taking a source language (P4) down to the switch backend.
-This lets us focus on problems that industry doesn't have the time to solve.
+Focus on problems that industry doesn't have the time to solve.
 
 Describe compiler in passes:
 --> scalar replacement (from member expressions to local variables),
@@ -93,46 +66,38 @@ Describe compiler in passes:
 --> partitioning
 --> Convert back into packet primitives
 
-Evaluation:
+Advanced idioms:
+--> Pipeline wide memory using recirculation primitive.
+--> Tupled Stateful operations: <x, y> <--- f(x, y).
+--> Multiply accumulate (MAC).
+
+Show the actual generated code.
+
+Section 6: Evaluation:
 ---------------------
-Tick-based ppeline simulator,
-open-loop Poisson traffic
+Tick-based ppeline simulator, open-loop Poisson traffic
 
-Show how EWMA maps into this framework.
-Show how adding a little bit of stateful processing (like a Multiply-Accumulate instruction)
-dramatically improves things.
+--> Show one correct mapping, just demonstrates correctness.
+--> Present EWMA example. Show how
+    --> Without MAC or tupled instructions, you need to use recirculation,
+        which leverages the approximate nature of some of these instructions.
+    --> With MAC instructions, you can do it exactly.
 
-These thought experiments for stateful processing are reasonable
-because the hardware already has fixed variants of these available today. It's
-just a matter of turning them into programmable, modular blocks.
-
-Related Work:
-------------
-NPUs: Approximation is new here.
-
-Lavanya's work on P4 compiler: Complementary backend.
-Our work goes from C to P4.
-Lavanya's work takes care of the backend.
-
+Section 7: Related Work:
+---------------------------
+NPUs: Tradeoffs are different here. Each stage can do very very little.
+P4 compiler: Complementary backend.
 CMU work on pipelining datapaths: Verilog and circuits.
-
 P4: Too low level.
-
-NetASM: Once P4 needs an IR, NetASM might be a good choice. For now, we are just converting to P4.
-
+NetASM: Once P4 needs an IR, NetASM might be a good choice.
 Click: P4 paper wrote it off. We think its worth revisiting here.
-
 Fastpass or Flexplane: Say that you love the abstraction they propose,
-but would love to do it at higher line rates, but that entails new tradeoffs
-(approximations).
+but would love to do it at higher line rates.
+Maple
 
-Future Work and Outlook:
----------------------
-1. Principled approximations.
-2. Arrays and other aggregates.
-3. Table layout: compiling to P4 and then go down.
-4. TCP traffic and end-to-end evaluation of approximation quality like video quality in approximate computing.
-5. So far our approach to evaluating approximations is empirical, not analytical. Analysis would be awesome, but we 'll have to work much harder to get there.
-
-Don't make it sound too much like the paper is JUST asking questions and not
-proposing any answers.
+Section 8: Future Work and Outlook:
+----------------------------
+Arrays and other aggregates.
+Table layout: compiling to P4 and then go down.
+TCP traffic and end-to-end evaluation of approximation quality like video quality in approximate computing.
+So far our approach to evaluating approximations is empirical, not analytical. Analysis would be awesome.
