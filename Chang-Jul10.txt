@@ -1,0 +1,12 @@
+Add to field with rref is actually a reference to s = s + x type stateful processing.
+Cite P4, TI chips, RMT, FlexPipe, etc as signs of credibility
+along with "we are given to understand, based on conversations with ..."
+
+
+Come up with 3 or 4 sample codes and add examples to these in github or some other
+anon. site
+
+Look at crazy P4 snippets and Steve's notes as a running example through the compiler:
+
+Maybe HULA or CONGA or flowlet or something else.
+Shoudl have state, control flow, and map exactly.
