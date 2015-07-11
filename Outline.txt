@@ -61,8 +61,16 @@ Focus on problems that industry doesn't have the time to solve.
 Describe compiler in passes:
 --> scalar replacement (from member expressions to local variables),
 --> if conversion (from branches to ternary operators)
---> expression flattening
+--> boolean minimization, removing ternary ops if possible
+--> canonicalization to conform to the target architecture:
+      --> Expression flattening for stateful and stateless ops
+      --> rewriting stateful transformations into a form that the hardware can support.
+      --> for instance, x = x + 1 might stay as such or might have to be rewritten into tmp = x; tmp2 = x + 1; x = tmp2
+          depending on what is supported
+      --> I think the invariant at this stage is that:
+          a single packet program runs correctly on the target architecture.
 --> generate dag using dependency analysis (RAW, WAR, WAW)
+--> Recirculate if required. (This is the best we can do for a stream of packets.)
 --> partitioning
 --> Convert back into packet primitives
 
