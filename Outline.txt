@@ -1,28 +1,32 @@
 Section 1: Introduction:
 -----------------------
 
-Data-plane algorithms today are hand picked carefully.
+Data-plane algorithms today are hand picked carefully by switch designers for
+inclusion into a new hardware-based merchant-silicon switch.
 
 Programmable switch architectures could probably change that.
 (Programmability is driven by the realization that it doesn't cost
-too much. The area is already dominated by memories and Serial Link IO.)
+too much. The area is already dominated by memories and Serial Link IO., so
+programmability adds only about 15% net-net)
 
-We observe that these are best expressed as transactions
---> Which looks very different from the architecture of these programmable switches
+Now, looking at data-plane algorithms. We observe that these are best expressed as transactions
+--> Which looks very different from the architecture of these programmable switches (a pipeline)
 --> The ideal place to bridge this gap is a compiler.
 
 Contributions:
 --> The observation that data-plane algorithms be structured as transactions.
 --> Compiler to translate it into programmable hardware.
---> Maybe third contribution: How does this world-view help us?
+--> How this compiler world-view help us longer-term against a landscape of
+    evolving switch architectures.
 
 Section 2: Data-plane algorithms:
 --------------------------
-Describe a few examples
--- Distinguishing characteristics:
+Describe a few examples (CONGA, CoDel, RED, XCP, min. sketch, Bloom Filters)
+--> Distinguishing characteristics:
    --> too expressive for P4.
    --> Intricate control flow.
    --> best structured as transactions.
+--> Approximate nature of some algorithm
    --> Some can also be approximated (RED, PIE, sketches, no spec).
    --> Talk about how this is useful to leverage.
 
@@ -32,11 +36,14 @@ Language: No loops, no break, no continue, no switch, goto
 Chang's description: O(1) code.
 What we can't do: scans, loops, etc.
 
+Show how some examples from the preceding section can be expressed in our
+language.
+
 Section 4: The hardware
 -----------------------------
 The RMT model: Provisioned for worst-case performance.
-VLIW packet primitives
-Almost one-to-one mapping from the P4 action primitives to hardware operations.
+--> VLIW packet primitives
+--> Almost one-to-one mapping from the P4 action primitives to hardware operations.
 
 Stateful operations:
 --> Read-Modify-Write,
@@ -44,10 +51,11 @@ Stateful operations:
 --> Multiply Accumulate or Conditional Execution
 --> Tupled instructions
 
-To justify:
---> Talk about how DSPs support some of these ops.
+To justify and show that this isn't a fantasy model of a switch:
+--> Talk about how DSPs support some of these ops. MAC on TI's DSP, Packed Instructions on Intel's SSE.
 --> How we have talked to industry folks about it and so on.
---> Many of these are already done in fixed form today.
+--> Many of these are already done in fixed form today: counters, EWMA
+--> Talk about how P4 already has primitives for some of these: register references: rref.
 
 Section 5: The compiler, with running example of CRC16 + control flow + state
 that maps correctly
