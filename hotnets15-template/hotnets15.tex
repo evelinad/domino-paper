@@ -1,0 +1,226 @@
+\documentclass{hotnets15}
+
+\usepackage{times}  
+\usepackage{epsfig}
+\usepackage[TABBOTCAP]{subfigure}
+\usepackage{tabularx}
+\usepackage{graphicx} 
+\usepackage{color}
+\usepackage{xspace}
+\usepackage{thumbpdf}
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{colortbl}
+
+\hypersetup{pdfstartview=FitH,pdfpagelayout=SinglePage}
+
+\setlength\paperheight {11in}
+\setlength\paperwidth {8.5in}
+\setlength{\textwidth}{7in}
+\setlength{\textheight}{9.25in}
+\setlength{\oddsidemargin}{-.25in}
+\setlength{\evensidemargin}{-.25in}
+%\setlength{\headsep}{0in}
+%\pagenumbering{arabic}
+
+\begin{document}
+
+\conferenceinfo{HotNets 2015} {}
+\CopyrightYear{2015}
+\crdata{X}
+\date{}
+
+%%%%%%%%%%%% THIS IS WHERE WE PUT IN THE TITLE AND AUTHORS %%%%%%%%%%%%
+
+\title{HotNets 2015 Paper}
+
+\author{Anonymous}
+
+\maketitle
+
+%\thispagestyle{empty}
+
+%%%%%%%%%%%%%  ABSTRACT GOES HERE %%%%%%%%%%%%%%
+\subsection*{Abstract}
+
+Everybody loves TCP~\cite{vanjacobson}. The paper body has two copies
+of the call for papers text to show how a standard text page should be
+formatted.
+
+\section{Call for Papers}
+
+The 14th ACM Workshop on Hot Topics in Networks (HotNets 2015) will
+bring together researchers in computer networks and systems to engage
+in a lively debate on the theory and practice of computer networking.
+HotNets provides a venue for presenting innovative ideas to discuss
+and for debating future research agendas in networking.
+
+We invite researchers and practitioners to submit short position
+papers. The workshop is interested in papers to foster discussions
+that can shape research agendas for the networking community as a
+whole. Thus, we strongly encourage papers that identify fundamental
+open questions, offer a constructive critique of the state of
+networking research, or present and explain new opportunities as well
+as challenges.
+
+We also encourage submissions of early-stage work describing promising
+but unproven ideas. Submissions can, for example, advocate a new
+approach, re-frame or debunk existing work, report unexpected early
+results from a deployment, or propose new evaluation
+methodologies. The paper length limits mean novel ideas are unlikely
+to be supported by full evaluation; well-reasoned arguments or
+preliminary evaluations can support the possibility of the paper's
+claims. If fully developed and supported by more experimental
+evidence, we expect work to be published at fulllength conferences
+such as SIGCOMM, SOSP, OSDI, SenSys, NSDI, MobiCom, MobiSys, PODC,
+CoNEXT, or INFOCOM. Finished work that fits in a short paper is a
+better fit with the short-paper track at CoNEXT or -- in case of a
+measurement-related paper -- the short-paper track at IMC.
+
+HotNets takes a broad view of networking research. This includes new
+ideas relating to (but not limited to) home, enterprise, data-center,
+and wide-area networks using a variety of link media (wired, wireless,
+acoustic), as well as social networks and network architecture. It
+encompasses all aspects of networks, including (but not limited to)
+packet-processing hardware and software, virtualization, mobility,
+provisioning and resource management, performance, energy consumption,
+topology, robustness and security, measurement, diagnosis,
+verification, cybercrime, economics and evolution, technical
+implications of government policy, applications and interactions with
+applications, usability of underlying networking technologies.
+
+Position papers will be selected based on originality, likelihood of
+stimulating insightful discussion at the workshop, and technical
+merit. Accepted papers will be posted online prior to the workshop and
+will be published in the ACM Digital Library, thereby widely
+disseminating the ideas discussed at the workshop.
+
+\section{Workshop Participation}
+
+HotNets attendance is limited to roughly 80 people to facilitate
+lively discussion. Invitations will be allocated first to one author
+of each paper, HotNets organizers and committee members, and
+conference sponsors. To promote a more inclusive workshop, HotNets
+will also make a limited number of open registration slots available
+to the community.  Submission Instructions
+
+Submitted papers must be no longer than 6 pages (10 point font, 12
+point leading, 1 inch margins) including all content except
+references. Authors can take up to one extra page for references
+beyond the 6 pages. The submission site will provide a style file and
+example paper so authors can check that their paper matches in
+formatting. All submissions must be blind: submissions must not
+indicate the names or affiliations of the authors in the paper. Only
+electronic submissions in PDF will be accepted. Submissions must be
+written in English, render without error using standard tools (e.g.,
+Acrobat Reader), and print on US Letter paper. Papers must contain
+novel ideas and must differ significantly in content from previously
+published papers and papers under simultaneous submission.
+
+\section{Important Dates}
+
+{
+\small 
+\begin{tabular}{ll}
+Abstract registration: 	        & July 10, 2015 (11:59PM GMT) \\
+Paper submission: 	        & July 17, 2015 (11:59PM GMT) \\
+Notification of decision: 	& September 21, 2015 \\
+Camera-ready submission: 	& October 16, 2015 \\
+Workshop dates: 	        & November 16-17, 2015 \\
+\end{tabular}
+}
+\section{Call for Papers}
+
+The 14th ACM Workshop on Hot Topics in Networks (HotNets 2015) will
+bring together researchers in computer networks and systems to engage
+in a lively debate on the theory and practice of computer networking.
+HotNets provides a venue for presenting innovative ideas to discuss
+and for debating future research agendas in networking.
+
+We invite researchers and practitioners to submit short position
+papers. The workshop is interested in papers to foster discussions
+that can shape research agendas for the networking community as a
+whole. Thus, we strongly encourage papers that identify fundamental
+open questions, offer a constructive critique of the state of
+networking research, or present and explain new opportunities as well
+as challenges.
+
+We also encourage submissions of early-stage work describing promising
+but unproven ideas. Submissions can, for example, advocate a new
+approach, re-frame or debunk existing work, report unexpected early
+results from a deployment, or propose new evaluation
+methodologies. The paper length limits mean novel ideas are unlikely
+to be supported by full evaluation; well-reasoned arguments or
+preliminary evaluations can support the possibility of the paper's
+claims. If fully developed and supported by more experimental
+evidence, we expect work to be published at fulllength conferences
+such as SIGCOMM, SOSP, OSDI, SenSys, NSDI, MobiCom, MobiSys, PODC,
+CoNEXT, or INFOCOM. Finished work that fits in a short paper is a
+better fit with the short-paper track at CoNEXT or -- in case of a
+measurement-related paper -- the short-paper track at IMC.
+
+HotNets takes a broad view of networking research. This includes new
+ideas relating to (but not limited to) home, enterprise, data-center,
+and wide-area networks using a variety of link media (wired, wireless,
+acoustic), as well as social networks and network architecture. It
+encompasses all aspects of networks, including (but not limited to)
+packet-processing hardware and software, virtualization, mobility,
+provisioning and resource management, performance, energy consumption,
+topology, robustness and security, measurement, diagnosis,
+verification, cybercrime, economics and evolution, technical
+implications of government policy, applications and interactions with
+applications, usability of underlying networking technologies.
+
+Position papers will be selected based on originality, likelihood of
+stimulating insightful discussion at the workshop, and technical
+merit. Accepted papers will be posted online prior to the workshop and
+will be published in the ACM Digital Library, thereby widely
+disseminating the ideas discussed at the workshop.
+
+\section{Workshop Participation}
+
+HotNets attendance is limited to roughly 80 people to facilitate
+lively discussion. Invitations will be allocated first to one author
+of each paper, HotNets organizers and committee members, and
+conference sponsors. To promote a more inclusive workshop, HotNets
+will also make a limited number of open registration slots available
+to the community.  Submission Instructions
+
+Submitted papers must be no longer than 6 pages (10 point font, 12
+point leading, 1 inch margins) including all content except
+references. Authors can take up to one extra page for references
+beyond the 6 pages. The submission site will provide a style file and
+example paper so authors can check that their paper matches in
+formatting. All submissions must be blind: submissions must not
+indicate the names or affiliations of the authors in the paper. Only
+electronic submissions in PDF will be accepted. Submissions must be
+written in English, render without error using standard tools (e.g.,
+Acrobat Reader), and print on US Letter paper. Papers must contain
+novel ideas and must differ significantly in content from previously
+published papers and papers under simultaneous submission.
+
+\section{Important Dates}
+
+{
+\small
+\begin{tabular}{ll}
+Abstract registration: 	        & July 10, 2015 (11:59PM GMT) \\
+Paper submission: 	        & July 17, 2015 (11:59PM GMT) \\
+Notification of decision: 	& September 21, 2015 \\
+Camera-ready submission: 	& October 16, 2015 \\
+Workshop dates: 	        & November 16-17, 2015 \\
+\end{tabular}
+}
+
+\section*{Acknowledgments}
+
+\bibliographystyle{abbrv} 
+\begin{small}
+\bibliography{hotnets15}
+\end{small}
+\label{last-page}
+
+\end{document}
+
