@@ -1,0 +1,16 @@
+\section{Related work}
+\label{s:related}
+NPUs: Tradeoffs are different here. Each stage can do very very little on a switch relative to an NPU. NPUs are Turing-complete; here, on a switch, programs either fit or don't. If they don't fit, you need to approximate.
+
+P4 compiler (Lavanya's work): Complementary backend.
+
+CMU work on pipelining datapaths: Verilog and circuits.
+
+P4 itself: Too low level. NetASM: Once P4 needs an IR, NetASM might be a good choice.
+
+Click: P4 paper wrote it off. We think its worth revisiting here.
+
+Fastpass or Flexplane: Say that you love the abstraction they propose,
+but would love to do it at higher line rates.
+
+Click, Maple, Flexplane: Proposed transactions first. We are inspired by them.

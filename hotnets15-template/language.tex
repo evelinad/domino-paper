@@ -1,0 +1,15 @@
+\section{A Language for data-plane algorithms}
+\label{s:language}
+
+Now that we have talked about using transactions, we fill in the details of how we restrict transactions to be useful enough to express line-rate processing. I think that's really the core contribution: using transactions, but making the language within the transaction simple enough to be practical on line-rate switches.
+
+here's the language:
+
+Language: No loops, no break, no continue, no switch, goto
+Chang's description: O(1) code.
+What we can't do: scans, loops, etc.
+
+Show how some examples from the preceding section can be expressed in our
+language.
+
+Maybe write out the BNF for the language.

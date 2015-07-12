@@ -1,0 +1,19 @@
+\section{Data-plane algorithms}
+\label{s:dataplane}
+Describe a few examples (CONGA, CoDel, RED, XCP, min. sketch, Bloom Filters)
+
+\subsection{Distinguishing characteristics}
+1. too expressive for P4.
+2. Intricate control flow.
+3. Best structured as transactions. Inspired by the use of transactions to structure other kinds of network programs: Click uses it for everything,
+Maple uses it for control programs,
+The Intel paper uses it for NPU programs.
+The Linux qdisc system uses it as well.
+
+I think, this way, we directly defend against criticism that transactions are an old idea, even for networking. All we are claiming is that transactions are the right way to structure data-plane algorithms---even those running at line rate. Our contribution relative to these prior systems is that we show how transactions can be compiled down to line-rate switches.
+
+
+\subsection{Approximate nature of some algorithms}
+1. Some can also be approximated (RED, PIE, sketches, no spec).
+2. In fact, already happens today (RED @ CISCO is different from the RED spec), and PIE is CISCO's simplified version of CoDel.
+3. Briefly mention, how this is useful to leverage.

@@ -1,0 +1,28 @@
+\section{The architecture of a programmable switch}
+\label{s:architecture}
+Talk about shared-memory switches and how they are almost always provisioned for worst-case performance.
+
+The RMT model: From a fixed switch to a programmable one.
+--> VLIW packet primitives
+--> Almost one-to-one mapping from the P4 action
+primitives to hardware operations.
+
+Stateful operations:
+--> Read-Modify-Write,
+--> Atomic Increment,
+--> Multiply Accumulate.
+--> Conditional Execution
+--> Tupled instructions
+
+To justify and show that this isn't a fantasy model of a switch:
+--> Talk about how DSPs support some of these ops.
+    MAC on TI's DSP,
+    Packed Instructions on Intel's SSE.
+--> How we have talked to industry folks about it.
+--> Many of these are already done in fixed form today:
+    counters, EWMA
+--> Talk about how P4 already has primitives for some of these:
+    register references: rref.
+
+Also, caveat everything by saying these will evolve in the
+future.

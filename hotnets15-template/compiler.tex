@@ -1,0 +1,30 @@
+\section{Compiling data-plane algorithms}
+\label{s:compiler}
+Running example of CRC16 + control flow + state
+that maps correctly
+
+\subsection{Source-to-source compilation}
+Talk about why source-to-source is the right level:
+1. Same levels of abstraction for source and target.
+2. Easier to interpret output (lexically and control flow)
+3. Industry is already investing considerable effort in taking a source language (P4) down to the switch backend.
+Focus on problems that industry doesn't have the time to solve.
+
+\subsection{The compiler}
+Describe compiler in passes:
+1. scalar replacement (from member expressions to local variables),
+2. if conversion (from branches to ternary operators)
+3. boolean minimization, removing ternary ops if possible
+4. canonicalization to conform to the target architecture:
+ * Expression flattening for stateful and stateless ops
+ * rewriting stateful transformations into a form that the hardware can support. For instance, x = x + 1 might stay as such or might have to be rewritten into tmp = x; tmp2 = x + 1; x = tmp2, depending on what is supported
+5. generate dag using dependency analysis (RAW, WAR, WAW) and partition per the DAG to create a one-packet compiler. I think the invariant at this stage is that: a single packet program runs correctly on the target architecture.
+6. Scan to determine whether there is pipeline-wide shared memory. If there isn't, we are done. If there is, recirculate and patch program.
+7. Convert back into packet primitives
+
+Advanced idioms:
+--> Pipeline wide memory using recirculation primitive.
+--> Tupled Stateful operations: <x, y> <--- f(x, y).
+--> Multiply accumulate (MAC).
+
+Show the actual generated code.

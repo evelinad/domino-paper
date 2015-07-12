@@ -1,0 +1,18 @@
+\section{Introduction}
+\label{s:intro}
+Data-plane algorithms today are hand picked carefully by switch designers for
+inclusion into a new hardware-based merchant-silicon switch.
+
+Programmable switch architectures could probably change that.
+(Programmability is driven by the realization that it doesn't cost
+too much. The area is already dominated by memories and Serial Link IO., so
+programmability adds only about 15\% net-net)
+
+Now, looking at data-plane algorithms. We observe that these are best expressed as transactions
+Which looks very different from the architecture of these programmable switches (a pipeline)
+The ideal place to bridge this gap is a compiler.
+
+Contributions:
+1. A way to express data-plane algorithms as transactions, while considerably restricting the code within the transaction to make them feasible on line-rate switches.
+2. Compiler to translate it into programmable hardware.
+3. How this compiler world-view help us longer-term against a landscape of currently evolving switch architectures and perenially evolving algorithms.
