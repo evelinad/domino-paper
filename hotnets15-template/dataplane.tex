@@ -1,19 +1,40 @@
 \section{Data-plane algorithms}
 \label{s:dataplane}
-Describe a few examples (CONGA, CoDel, RED, XCP, min. sketch, Bloom Filters)
 
-\subsection{Distinguishing characteristics}
-1. too expressive for P4.
-2. Intricate control flow.
-3. Best structured as transactions. Inspired by the use of transactions to structure other kinds of network programs: Click uses it for everything,
-Maple uses it for control programs,
-The Intel paper uses it for NPU programs.
-The Linux qdisc system uses it as well.
+Data-plane algorithms are algorithms in a switch that operate on every packet
+independently.  Notably, we don't include scheduling algorithms such as pFabric
+within our definition of data-plane algorithms. Scheduling, by definition,
+requires looking at multiple packets together to make a decision on what packet
+to schedule next, while data-plane algorithms operate independenly on each
+packet.
 
-I think, this way, we directly defend against criticism that transactions are an old idea, even for networking. All we are claiming is that transactions are the right way to structure data-plane algorithms---even those running at line rate. Our contribution relative to these prior systems is that we show how transactions can be compiled down to line-rate switches.
+Traditional examples include forwarding algorithms based on
+longest prefix matching and TCAM-based matching. These examples are
+characterized by a regular structure that applies an identical stateless
+operation on every packet, making them amenable to high-speed hardware
+implementations~\cite{georges_papers_on_the_topic}. The success of the OpenFlow
+interface is in part due to the widespread availability of these forwarding
+abstractions (longest-prefix and ternary match) across most switches today.
 
+ Here, we focus on data-plane algorithms that aren't widely available on all
+switches today because of the considerable engineering effort required for
+hardware implementations. For instance, load-balancing algorithms such as
+CONGA~\cite{conga} are available on only a specific line of CISCO switches.
+Active queue-management algorithms such as CoDel~\cite{codel} need to be
+extensively modified~\cite{pie} to suit the architecture of a hardware switch.
+Explicit congestion-control algorithms such as RCP~\cite{rcp} and
+XCP~\cite{xcp}, and measurement algorithms such as OpenSketch~\cite{opensketch}
+have been evaluated only in FPGA-based platforms.
 
-\subsection{Approximate nature of some algorithms}
-1. Some can also be approximated (RED, PIE, sketches, no spec).
-2. In fact, already happens today (RED @ CISCO is different from the RED spec), and PIE is CISCO's simplified version of CoDel.
-3. Briefly mention, how this is useful to leverage.
+Taken together, the data-plane algorithms we consider share two main
+characteristics: an irregular control flow (for active-queue management and
+explicit congestion-control algorithms) and the use of persistent state (to
+track metrics such as average queue size and link utilization).
+
+Additionally, many data-plane algorithms that we consider are amenable to
+approximation. As examples: CONGA only needs very coarse-grained information (3
+bits) to track link utilization, CoDel employs a square-root computation that
+can be approximated ~\cite{codel_notes}, and measurement algorithms such as
+OpenSketch~\cite{opensketch} employ sketches to tradeoff accuracy for lower
+memory usage. \S\ref{ss:approximation} shows how approximating can facilitate
+the implementation of these algorithms.
