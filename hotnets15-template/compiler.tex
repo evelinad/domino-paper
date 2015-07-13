@@ -15,9 +15,11 @@ Describe compiler in passes:
 1. scalar replacement (from member expressions to local variables),
 2. if conversion (from branches to ternary operators)
 3. boolean minimization, removing ternary ops if possible
-4. canonicalization to conform to the target architecture:
+4. canonicalization to conform to the target architecture, this is the equivalent of instruction selection in many ways.
  * Expression flattening for stateful and stateless ops
  * rewriting stateful transformations into a form that the hardware can support. For instance, x = x + 1 might stay as such or might have to be rewritten into tmp = x; tmp2 = x + 1; x = tmp2, depending on what is supported
+ * Combining instructions into tupled or packed instructions
+ * Creating predicated instructions
 5. generate dag using dependency analysis (RAW, WAR, WAW) and partition per the DAG to create a one-packet compiler. I think the invariant at this stage is that: a single packet program runs correctly on the target architecture.
 6. Scan to determine whether there is pipeline-wide shared memory. If there isn't, we are done. If there is, recirculate and patch program.
 7. Convert back into packet primitives
