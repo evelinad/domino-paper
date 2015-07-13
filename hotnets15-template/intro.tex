@@ -1,18 +1,48 @@
 \section{Introduction}
 \label{s:intro}
-Data-plane algorithms today are hand picked carefully by switch designers for
-inclusion into a new hardware-based merchant-silicon switch.
+Data-plane algorithms~\cite{cestan} are algorithms running within a switch that
+operate on every data packet, either transforming the packet or some state on
+the switch itself. Examples of such algorithms include prefix lookup, deep
+packet inspection, measurement algorithms~\cite{minsketch}, load-balancing
+algorithms~\cite{conga}, and in-network congestion-control algorithms.
 
-Programmable switch architectures could probably change that.
-(Programmability is driven by the realization that it doesn't cost
-too much. The area is already dominated by memories and Serial Link IO., so
-programmability adds only about 15\% net-net)
+Today, switch designers go to painstaking lengths to engineer hardware
+implementations for a chosen few of these algorithms. Because these algorithms
+are carefully curated by a switch designer for inclusion into a hardware
+switch, most data-plane algorithms invariably don't find their way into a
+switch. At the same time, there is no dearth of academic proposals for new
+data-plane algorithms~\cite{minsketch, codel, pdq}.
 
-Now, looking at data-plane algorithms. We observe that these are best expressed as transactions
-Which looks very different from the architecture of these programmable switches (a pipeline)
-The ideal place to bridge this gap is a compiler.
+Emerging programmable switch architectures~\cite{flexpipe, xpliant, rmt} allow
+line-rate packet processing to be expressed as a program in a domain-specific
+programming language~\cite{p4}.  This program specifies packet processing as a
+sequence of match-action tables where both the match and action components are
+highly flexible. The match key can be any combination of header fields
+including user-defined header fields, while the action is built up from a small
+core set of programmable packet processing primitives.
 
-Contributions:
-1. A way to express data-plane algorithms as transactions, while considerably restricting the code within the transaction to make them feasible on line-rate switches.
-2. Compiler to translate it into programmable hardware.
-3. How this compiler world-view help us longer-term against a landscape of currently evolving switch architectures and perenially evolving algorithms.
+With the advent of programmable switch architectures, this paper asks if
+data-plane algorithms can be implemented as programs on programmable line-rate
+switches. Answering this question positively would allow us to view data-plane
+algorithms as software, resulting in much faster iteration between algorithms
+than was previously possible.
+
+We begin this paper by surveying several data-plane
+algorithms~(\S\ref{s:dataplane}) for shared characteristics. Based on these
+observations, we propose a language for data-plane
+algorithms~(\S\ref{s:language}) that expresses data-plane algorithms as
+transactions~\cite{transactions}: blocks of code that run to completion without
+any interruptions. Our use of transactions is inspired by the widespread use of
+the transactional style in expressing packet-processing code in software
+routers and NPUs~\cite{click, intel, qdisc}.
+
+While transactions are a natural way for programmers to express code, there is
+a large semantic gap between the high-level language of transactions and the
+low-level programmable pipeline~(\S\ref{s:architecture} exposed by programmable
+switches today. We bridge this gap by building a compiler ~(\S\ref{s:compiler})
+that automatically pipelines transactional code. In many cases, the compiler
+can take advantage of the approximate nature of many data-plane algorithms
+~(\S\ref{ss:advanced}). We evaluate~(\S\ref{s:evaluation}) the pipelined code
+and conclude by outlining several areas of future work~(\S\ref{s:conclusion}).
+
+% TODO: Reiterate contributions if we need to. Most HotNets papers don't do this.
