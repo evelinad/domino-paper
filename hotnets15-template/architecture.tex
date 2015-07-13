@@ -1,28 +1,96 @@
 \section{The architecture of a programmable switch}
 \label{s:architecture}
-Talk about shared-memory switches and how they are almost always provisioned for worst-case performance.
 
-The RMT model: From a fixed switch to a programmable one.
---> VLIW packet primitives
---> Almost one-to-one mapping from the P4 action
-primitives to hardware operations.
+\subsection{Single-chip shared-memory switches}
 
-Stateful operations:
---> Read-Modify-Write,
---> Atomic Increment,
---> Multiply Accumulate.
---> Conditional Execution
---> Tupled instructions
+Most switching today is done by single-chip shared-memory switches: ASICs that
+are purpose built for processing and forwarding packets. To reduce chip area
+and power, almost all resources on these chips are shared across all ports
+(Figure~\ref{fig:architecture}):
+\begin{enumerate}
+\item A sequence of packet-processing stages make up the shared ingress pipeline, which
+ does ingress packet processing across all input ports.
+\item The ingress pipeline enqueues packets into a shared buffer that holds data packets
+from all ports in a single shared memory buffer.
+\item Another sequence of packet-processing stages make up the shared egress pipeline, which
+does egress packet processing across all output ports.
+\end{enumerate}
 
-To justify and show that this isn't a fantasy model of a switch:
---> Talk about how DSPs support some of these ops.
-    MAC on TI's DSP,
-    Packed Instructions on Intel's SSE.
---> How we have talked to industry folks about it.
---> Many of these are already done in fixed form today:
-    counters, EWMA
---> Talk about how P4 already has primitives for some of these:
-    register references: rref.
+\subsection{Fixed function and programmable switches}
 
-Also, caveat everything by saying these will evolve in the
-future.
+In a fixed-function switch such as the Broadcom Trident~\cite{trident} or
+Tomahawk~\cite{tomahawk}, the packet-processing stages in the ingress and
+egress pipelines are purpose built to process specific packets. For
+instance, an IP table can implement only IP forwarding and nothing else and a
+MAC table can process only implement MAC switching.
+
+In a programmable switch such as the Reconfigurable Match-Action Table
+architecture ~\cite{rmt}, Intel's FlexPipe~\cite{flexpipe}, or Cavium's
+Xpliant~\cite{xpliant}, each stage in either pipeline is configured by a
+compiler~\cite{lavanya_nsdi} to match arbitrary header fields and carry out
+arbitrary actions in response to a table hit.
+%TODO: Maybe call out to table from RMT paper.
+
+\subsection{Programmable Switch Architectures}
+An architecturally important aspect of single-chip shared-memory switches,
+whether fixed-function or programmable, is that they are built for worst-case
+performance: line-rate forwarding (10G or more recently, 100G) of minimum-sized
+packets on all ports.Unlike CPUs, they rarely employ caching hierarchies or
+speculation, which leads to significant performance variability at run-time.
+
+As a concrete example, a 64-port switch with each port running at 10G, needs to
+support an aggregate switching capacity of up to 1 Billion pkts / sec at a
+minimum packet size of 80 bytes. Because the ingress and egress pipelines are
+shared across all ports to reduce chip area, each pipeline needs to process a
+new packet every nanosecond.
+
+This tight time budget allows a stage within the pipeline to execute only one
+simple arithmetic instruction on a given packet field (read/write,
+arithemtic/logic and field addition/removal), although a large number of packet
+fields can be processed in parallel using a Very Large Instruction Word if they
+are no dependencies between them~\cite{rmt}.
+% TODO: Figure 1 of http://yuba.stanford.edu/~grg/docs/sdn-chip-sigcomm-2013.pdf
+
+\subsection{Stateful processing}
+Many packet-processing applications need to modify state in the data plane. The
+simplest example is a counter that counts packets matching a specific header
+pattern.
+
+%TODO:Anirudh->Chang: Is it ok to say this? We are not saying anything about a
+%specific product, but just about the RMT architecture.  It's similar to how
+%Lavanya's paper talks about memory information for the RMT architecture in
+%Figure 5c and gives stage latencies in Figure 7. 
+The RMT architecture also provides the ability to do a limited amount of atomic
+stateful operations (i.e. operations that complete and store any state updates to
+memory before the next packet arrives, even in the worst case), beyond counters.
+We use the symbols x and y to refer to
+arbitrary stateful variables and pkt.<> to refer to a field in the packet. In
+all cases, pkt.field can be substituted for a constant operand.
+\begin{enumerate}
+\item Reading and writing stateful variables on every packet:
+      \texttt{x = pkt.field;} or \texttt{pkt.field = x;}
+\item Read, modify, write operations on stateful variables, such as adding a byte
+      length to an accumulator.
+\item Predicated stateful operations: \texttt{x = pkt.predicate ? pkt.field : x;}
+\item Packed operations on pairs of variables: \texttt{ (x, y) = (x + y, x-y);}
+\item Multiply-accumulate: \texttt{ x = x * pkt.field + pkt.field2; }
+\end{enumerate}
+
+%TODO: Below text isn't required if we can say that RMT supports the above.
+%%To justify and show that this isn't a fantasy model of a switch:
+%%--> Talk about how DSPs support some of these ops.
+%%    MAC on TI's DSP,
+%%    Packed Instructions on Intel's SSE.
+%%--> How we have talked to industry folks about it.
+%%--> Many of these are already done in fixed form today:
+%%    counters, EWMA
+%%--> Talk about how P4 already has primitives for some of these:
+%%    register references: rref.
+%%
+%%--> Almost one-to-one mapping from the P4 action
+%%primitives to hardware operations.
+% Also, caveat everything by saying these will evolve in the future.
+
+These stateful primitives will likely evolve in the future, which gives even
+more reason to use a compiler to handle the translation from a high-level
+transaction to low-level packet processing primitives.
