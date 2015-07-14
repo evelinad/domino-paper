@@ -38,11 +38,13 @@ performance: line-rate forwarding (10G or more recently, 100G) of minimum-sized
 packets on all ports.Unlike CPUs, they rarely employ caching hierarchies or
 speculation, which leads to significant performance variability at run-time.
 
-As a concrete example, a 64-port switch with each port running at 10G, needs to
-support an aggregate switching capacity of up to 1 Billion pkts / sec at a
-minimum packet size of 80 bytes. Because the ingress and egress pipelines are
-shared across all ports to reduce chip area, each pipeline needs to process a
-new packet every nanosecond.
+As a concrete example, a 64-port switch with each port running at 10G needs to
+support an aggregate switching capacity of 1 Billion pkts / sec at a minimum
+packet size of 80 bytes.  Because the ingress and egress pipelines are shared
+across all ports to reduce chip area, each pipeline needs to sequentially
+process 1 Billion pkts / sec. An aggregate processing rate of 1 Billion pkts /
+sec for a pipeline translates into a clock frequency of 1 Ghz for the
+pipeline's circuitry or equivalently, a new packet every clock cycle of 1 ns.
 
 This tight time budget allows a stage within the pipeline to execute only one
 simple arithmetic instruction on a given packet field (read/write,
@@ -91,6 +93,26 @@ all cases, pkt.field can be substituted for a constant operand.
 %%primitives to hardware operations.
 % Also, caveat everything by saying these will evolve in the future.
 
-These stateful primitives will likely evolve in the future, which gives even
-more reason to use a compiler to handle the translation from a high-level
+These stateful primitives will likely evolve in the future---all the more
+reason to use a compiler to automate the translation from a high-level
 transaction to low-level packet processing primitives.
+
+\subsection{Memory model}
+
+The RMT architecture is a shared-nothing architecture: state variables are
+local to a particular stage in the ingress or egress pipeline and cannot be
+shared across pipeline stages or across ingress and egress pipelines. This
+restriction is for performance reasons: embedded on-chip memory banks can
+typically support up to 1 Read-Modify-Write operation per clock
+cycle~\cite{some_citation_from_memoir} because building multi-ported RAMs is
+power and area hungry. If a state variable were to be accessed from multiple
+stages in the same pipeline, the underlying memory bank would need to support
+more than 1 Read-Modify-Write.
+
+Instead, shared memory across stages can be emulated by cloning a packet and
+recirculating it back to the pipeline. This way a state variable can be read in
+stage x, updated further downstream in y, and then a recirculated packet to x
+could update the value in x. However, this has a cost: recirculated packets
+consume pipeline capacity, by taking away capacity from new data packets.
+Further, recirculation latency can be as large as a few hundred clock cycles.
+%TODO: Maybe add a figure here.
