@@ -2,7 +2,7 @@
 \label{s:compiler}
 
 %Show the actual generated code. in the figure.
-We next present the design of a compiler that takes code written in \language{}
+We next present the design of a compiler that takes code written in \pktlanguage{}
 and produces code that can be executed on a pipelined switch architecture, such
 as the RMT model~\cite{rmt}. The target code needs to be specified on a a
 per-stage basis, while respecting the semantics of the original transactional
@@ -18,8 +18,8 @@ statements within a stage map 1:1 with hardware op codes. Third, control flow
 is disallowed within a stage.
 
 Recall from \S\ref{s:dataplane} that these are exactly the characteristics that
-distinguish \language{} from P4. In the future, we plan to implement our
-compiler as a source-to-source translator that translates \language{} to P4.
+distinguish \pktlanguage{} from P4. In the future, we plan to implement our
+compiler as a source-to-source translator that translates \pktlanguage{} to P4.
 This allows us to leverage existing work on P4
 compilation~\cite{lavanya_compiler, brebner, netronome} that translates P4 to
 the register configuration of the target architecture.
