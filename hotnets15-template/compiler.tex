@@ -1,12 +1,16 @@
 \section{Compiling data-plane algorithms}
 \label{s:compiler}
 
-%Show the actual generated code. in the figure.
+\begin{figure}
+\includegraphics[width=\columnwidth]{compiler_flow.pdf}
+\caption{The flow of code through the compiler}
+\end{figure}
+
 We next present the design of a compiler that takes code written in \pktlanguage{}
 and produces code that can be executed on a pipelined switch architecture, such
 as the RMT model~\cite{rmt}. The target code needs to be specified on a a
 per-stage basis, while respecting the semantics of the original transactional
-specification.  Figure~\ref{fig:partitioning} provides a high-level overview of
+specification.  Figure~\ref{fig:flow} provides a high-level overview of
 the input and output to the compiler for the running example that we use
 throughout this section: load balancing using flowlet
 switching~\cite{dina_flowlets}.
