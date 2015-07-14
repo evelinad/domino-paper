@@ -85,6 +85,7 @@ We start by assigning the first instruction to its own stage. We then go
 through the remaining instructions sequentially, assign each one to the
 earliest stage where it can execute in parallel with all instructions in that
 stage, and create a new stage every time such a stage does not exist.
+%TODO: We need to fix this. I am not sure exactly what the algorithm is.
 
 %%TODO: Might write if we have space.
 %%This approach does not take into account constraints on the number of parallel
