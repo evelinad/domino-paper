@@ -71,6 +71,15 @@ doesn't contain any expressions within it. These simple expressions would then
 map 1:1 to underlying hardware constructs.
 
 \subsection{Partitioning based on dependencies}
+
+%% Add Alvin's algorithms from the email.
+%%- if there are N instructions that involve state variables, move the N-1 ones to be as close to the first one as much as possible while respecting RAW. This to avoid recirculation and is done as part of preprocessing.
+%%
+%%- then run the iterative combining steps we discussed today: iteration 1 considers each instruction as its own stage; iteration 2 tries to combine adjacent stages together while respecting RAW. Stop when no further stages can be combined.
+%%
+%%- after that, patch with extra packet temporaries as needed to pass state variable values down the pipeline (say a write in stage 1 to a read in stage 2), and recirculation to pass state variable values up the pipeline (say a write in stage 2 to a read in stage 1).
+%%
+
 After instruction selection, the resulting straight-line code maps 1:1 to the
 underlying hardware. At this stage, the code is correct if executed in a
 straight-line assuming exactly one packet ever executes the code. A
