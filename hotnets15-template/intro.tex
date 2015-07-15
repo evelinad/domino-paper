@@ -12,10 +12,19 @@ bitmap_george, elephant_george}.
 Because data-plane algorithms process every packet going through the switch, a
 major performance requirement is the ability to run at the switch's line rate.
 As a result, these algorithms are primarily implemented using dedicated
-hardware. Hardware designs are rigid and inflexible, making it difficult for
-network operators and researchers to experiment with new algorithms.
+hardware. Hardware designs are rigid and inflexible, making it difficult to
+experiment with new algorithms.
 
-Programmable switch architectures~\cite{flexpipe, xpliant, rmt} with
+This rigidity affects multiple stakeholders. Companies that build network
+switches~\cite{cisco_nexus, dell_force10, arista_7050} based on
+merchant-silicon switching chips, would like to express new switch features in
+firmware, not new hardware.  Datacenter operators~\cite{google_jupiter,
+facebook, vl2, some_amazon_post} would like to experiment with new switch
+algorithms within an unencumbered private network.  Finally, researchers
+continuously come up with new switch algorithms~\cite{xcp, codel, d3, detail,
+pdq}, which so far can be tested only using software routers or a simulator.
+
+Programmable switch chips~\cite{flexpipe, xpliant, rmt} with
 performance comparable with state of the art fixed-function
 chipsets~\cite{trident, tomahawk, mellanox} have emerged as an alternative.
 They allow designers to express their algorithms using a domain-specific
