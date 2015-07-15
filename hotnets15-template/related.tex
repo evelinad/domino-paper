@@ -1,5 +1,11 @@
 \section{Related work}
 \label{s:related}
+Our work can be viewed
+as a recommendation to extend P4 with transactional actions, and can benefit
+from the rest of P4's abstractions: arbitrary match entries, typed header
+fields, control flow across tables, and programmable packet parsing.
+
+
 NPUs: Tradeoffs are different here. Each stage can do very very little on a switch relative to an NPU. NPUs are Turing-complete; here, on a switch, programs either fit or don't. If they don't fit, you need to approximate.
 
 P4 compiler (Lavanya's work): Complementary backend.

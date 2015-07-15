@@ -5,16 +5,17 @@ Data-plane algorithms~\cite{cestan} are algorithms that are implemented within
 a network switch. These algorithms process every data packet that passes
 through the switch, transforming the packet and/or state of the switch itself.
 Examples of such algorithms including networking staples such as prefix
-lookup~\cite{lookup} and deep packet inspection~\cite{ids}, algorithms for
+lookup~\cite{lookup} and deep packet inspection~\cite{bro_ids}, algorithms for
 in-network load balancing~\cite{conga, ecmp}, congestion-control that uses
 feedback from switches~\cite{xcp, rcp, pdq, dctcp}, and network
 measurement~\cite{minsketch, heavy_hitters}.
 
 Because data-plane algorithms process every packet going through the switch, a
 major performance requirement for data-plane algorithms is the ability to run
-at the switch's line rate. As a result, these algorithms are primarily implemented
-using dedicated hardware. Hardware designs are rigid and inflexible, making it difficult
-for network operators and researchers to experiment with new algorithms.
+at the switch's line rate. As a result, these algorithms are primarily
+implemented using dedicated hardware. Hardware designs are rigid and
+inflexible, making it difficult for network operators and researchers to
+experiment with new algorithms.
 
 As such, programmable switch architectures~\cite{flexpipe, xpliant, rmt} allow
 designers to express their algorithms using a domain-specific language (DSL)
@@ -22,85 +23,39 @@ designers to express their algorithms using a domain-specific language (DSL)
 a compelling alternative.  Unfortunately, these DSLs are too close to the
 underlying network hardware.
 
-%%For instance, P4 mixes sequential semantics and
-%%parallel semantics. making them difficult for designers to work with
-%%as designers need to make explicit the control flow within different parts of
-%%their code that is typically implicit in high-level imperative languages.
+P4 is at the forefront of these languages and allows a programmer to specify
+packet processing by specifying arbitrary match-action processing in a set of
+match-action tables. As it currently stands, P4 is too close to the hardware
+and insufficiently expressive for our needs. P4 mixes sequential semantics
+across match-action tables with parallel semantics within the actions in a
+match-action tables. This is unnatural for programmers that are used to either
+a fully sequential model (such as C) or a fully parallel model (such as an SQL
+query that conceptually processes all rows).
 
 Besides, a large body of packet-processing code is already written in a
 high-level language like C for platforms such as software routers~\cite{click},
-the Linux qdisc subsystem~\cite{qdisc} and Network Processors~\cite{npu}.
+the Linux qdisc subsystem~\cite{qdisc} and Network Processors~\cite{npu}. It
+would be desirable to leverage this existing corpus of packet-processing
+algorithms without having to reimplement all of it in P4.
 
-In this paper, we propose a new DSL, \pktlanguage, for expressing 
-data-plane algorithms. \pktlanguage
-is a high-level, imperative language that allow 
-designers express data-plane algorithms as transactions~\cite{transactions}, 
-i.e., blocks of code that conceptually run to completion on a packet without any
-interruptions \ac{is this the formal definition of transactions?}. Using 
-transactions allow designers to easily express a wide variety of algorithms,
-as have been demonstrated in implementing packet-processing code for 
-other network elements such as software routers and NPUs~\cite{click, intel, qdisc}.
+In this paper, we propose a new DSL, \pktlanguage~(\S\ref{s:language}), for
+expressing data-plane algorithms. \pktlanguage is a high-level, imperative
+language that allows designers to express data-plane algorithms as
+transactions~\cite{transactions}, i.e., blocks of code that conceptually run to
+completion on a packet and in isolation from other such blocks of code. Using
+transactions allow designers to easily express a wide variety of algorithms, as
+has been previously demonstrated in packet-processing code for other network
+elements such as software routers and NPUs~\cite{click, intel, qdisc}.
+% Anirudh: Transactions in DB provide ACID. I don't think Consistency and
+% Durability are totally relevant. Isolation is the property I am going for,
+% and atomicity (all or nothing) is vacuously true I guess because I assume
+% every code block needs to complete.  Maybe we need to define this precisely
+% without boring people :)?
 
-We have built a compiler for \pktlanguage~(\S\ref{s:compiler}), 
-which automatically partitions
-transactional code from the designer into multi-stage pipelines to be implemented
-on programmable switches. In the following, we first describe the low-level
-hardware pipeline exposed by programmable switches today~(\S\ref{s:architecture}),
-followed by a description of \pktlanguage~(\S\ref{s:language}). We then
-explain our compiler toolchain~(\S\ref{s:compiler}, \S\ref{s:advanced}), 
-along with preliminary
-experiments in implementing real-world data-plane algorithms using \pktlanguage
-~(\S\ref{s:evaluation}). We then 
-conclude by outlining several areas of future work~(\S\ref{s:conclusion}).
-
-
-% old text below
-\if 0
-Data-plane algorithms~\cite{cestan} are algorithms running within a switch that
-operate on every data packet, either transforming the packet or some state on
-the switch itself. Examples of such algorithms include prefix lookup, deep
-packet inspection, measurement algorithms~\cite{minsketch}, load-balancing
-algorithms~\cite{conga}, and in-network congestion-control algorithms.
-
-Today, switch designers go to painstaking lengths to engineer hardware
-implementations for a chosen few of these algorithms. Because these algorithms
-are carefully curated by a switch designer for inclusion into a hardware
-switch, most data-plane algorithms invariably don't find their way into a
-switch. At the same time, there is no dearth of academic proposals for new
-data-plane algorithms~\cite{minsketch, codel, pdq}.
-
-Emerging programmable switch architectures~\cite{flexpipe, xpliant, rmt} allow
-line-rate packet processing to be expressed as a program in a domain-specific
-programming language~\cite{p4}.  This program specifies packet processing as a
-sequence of match-action tables where both the match and action components are
-highly flexible. The match key can be any combination of header fields
-including user-defined header fields, while the action is built up from a small
-core set of programmable packet processing primitives.
-
-With the advent of programmable switch architectures, this paper asks if
-data-plane algorithms can be implemented as programs on programmable line-rate
-switches. Answering this question positively would allow us to view data-plane
-algorithms as software, resulting in much faster iteration between algorithms
-than was previously possible.
-
-We begin this paper by surveying several data-plane
-algorithms~(\S\ref{s:dataplane}) for shared characteristics. Based on these
-observations, we propose a language for data-plane
-algorithms~(\S\ref{s:language}) that expresses data-plane algorithms as
-transactions~\cite{transactions}: blocks of code that run to completion without
-any interruptions. Our use of transactions is inspired by the widespread use of
-the transactional style in expressing packet-processing code in software
-routers and NPUs~\cite{click, intel, qdisc}.
-
-While transactions are a natural way for programmers to express code, there is
-a large semantic gap between the high-level language of transactions and the
-low-level programmable pipeline~(\S\ref{s:architecture} exposed by programmable
-switches today. We bridge this gap by building a compiler ~(\S\ref{s:compiler})
-that automatically pipelines transactional code. In many cases, the compiler
-can take advantage of the approximate nature of many data-plane algorithms
-~(\S\ref{ss:advanced}). We evaluate~(\S\ref{s:evaluation}) the pipelined code
-and conclude by outlining several areas of future work~(\S\ref{s:conclusion}).
-
-% TODO: Reiterate contributions if we need to. Most HotNets papers don't do this.
-
-\fi
+We are in the process of implementing a compiler for
+\pktlanguage~(\S\ref{s:compiler}), which partitions transactional code from the
+designer into logical P4 tables that can then be compiled by a P4 compiler to
+run on programmable switches.  We present preliminary experiments in
+implementing real-world data-plane algorithms using
+\pktlanguage~(\S\ref{s:evaluation}) and conclude by outlining several areas of
+future work~(\S\ref{s:conclusion}).

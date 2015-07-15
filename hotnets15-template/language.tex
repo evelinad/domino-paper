@@ -50,19 +50,3 @@ traffic pattern or program being run. This results in a different set of
 tradeoffs than what programmers are typically used to: a larger program does
 not take longer to run. Instead, it may not run at all or might need to be
 approximated until it can run (\S\ref{ss:approximation}).
-
-We considered using the recently proposed P4 language~\cite{p4, dc_p4}, which
-expresses packet processing as a sequence of match-action tables. P4's match key
-is an arbitrary combination of header fields, while the action is built out of
-smaller action primitives such as read/write/arithmetic on packet fields.
-Together, they represent packet processing carried out in response to a match.
-
-P4, as it currently stands, is too close to the hardware and insufficiently
-expressive for our needs. It specifies control flow only across tables, not
-within the action in a particular table. Further, it assumes parallel semantics
-for action primitives within an action, while most packet-processing code is
-written assuming sequential semantics. Lastly, P4 doesn't allow a single action
-to manipulate multiple stateful variables all at once. Our work can be viewed
-as a recommendation to extend P4 with transactional actions, and can benefit
-from the rest of P4's abstractions: arbitrary match entries, typed header
-fields, control flow across tables, and programmable packet parsing.
