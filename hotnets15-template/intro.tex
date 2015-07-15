@@ -20,9 +20,13 @@ As such, programmable switch architectures~\cite{flexpipe, xpliant, rmt} allow
 designers to express their algorithms using a domain-specific language (DSL)
 (e.g., P4~\cite{p4} and Protocol-Oblivious Forwarding~\cite{pof}) and present
 a compelling alternative.  Unfortunately, these DSLs are too close to the
-underlying network hardware, making them difficult for designers to work with
-as designers need to make explicit the control flow within different parts of
-their code that is typically implicit in high-level imperative languages.
+underlying network hardware.
+
+%%For instance, P4 mixes sequential semantics and
+%%parallel semantics. making them difficult for designers to work with
+%%as designers need to make explicit the control flow within different parts of
+%%their code that is typically implicit in high-level imperative languages.
+
 Besides, a large body of packet-processing code is already written in a
 high-level language like C for platforms such as software routers~\cite{click},
 the Linux qdisc subsystem~\cite{qdisc} and Network Processors~\cite{npu}.

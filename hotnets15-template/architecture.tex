@@ -1,74 +1,46 @@
+\section{Problem setup}
+\label{s:context}
+
+To motivate our problem, we first describe (\S\ref{ss:dataplane}) the type of
+algorithms that we would like \pktlangauage{} to express. We then describe the
+architecture (\S\ref{ss:architecture}) of the programmable switches on which
+such algorithms would be implemented. We observe that there is a large semantic
+gap between the high-level pseudocode style in which these algorithms are
+available today and both the low-level hardware details of the switches and the
+low-level abstractions provided used by P4 to program them today. This then
+leads us naturally to building a compiler to bridge this gap.
+
 \section{The architecture of a programmable switch}
 \label{s:architecture}
+We briefly describe the architecture of a programmable switch next. For
+concreteness, we describe the Reconfigurable Match-Action Table
+architecture~\cite{rmt}, although our ideas apply to other pipelined
+programmable switch architectures such as Intel's FlexPipe~\cite{flexpipe} and
+Cavium's Xpliant~\cite{xpliant} architectures.
 
-\subsection{Single-chip shared-memory switches}
+Figure~\ref{fig:architecture}, based on Figure 3 from ~\cite{rmt}, provides a
+high-level overview of the RMT architecture. Packets enter the switch through
+serial links and are handled by a programmable parser that turns packets into a
+bag of header fields. The ingress and egress pipelines have a number of
+physical pipeline stages that can process these header fields using a sequence
+of match-action tables.
 
-Most switching today is done by single-chip shared-memory switches: ASICs that
-are purpose built for forwarding packets. To reduce chip area and power,
-computing resources on switching chips are shared across all ports.
-Concretely, a sequence of packet-processing stages make up the shared ingress
-pipeline, which does ingress packet processing across all input ports. A shared
-buffer and traffic manager handles both queueing of data packets into a buffer
-while they await transmission and scheduling across ports and queues within the
-port when the link is ready to transmit a packet. Once packets exit the traffic
-manager, a similar shared egress pipeline handles egress packet processing across
-all output ports.
+These tables match on arbitrary header fields and carry out actions in response
+to a match hit.  The actions are built out of simpler action primitives, which
+represent simple arithmetic and logic operations on packet fields. To remain
+performance competitive with fixed-function switches~\cite{mellanox, broadcom},
+each action primitive can modify only one packet field, although several action
+primitives can be grouped together into larger actions if they can all execute
+in parallel.
 
-\subsection{Fixed function and programmable switches}
-
-In a fixed-function switch such as the Broadcom Trident~\cite{trident} or
-Tomahawk~\cite{tomahawk}, the packet-processing stages in the ingress and
-egress pipelines only process specific packets. For instance, a stage with an
-IP table can only perform IP forwarding and a MAC table can only implement MAC
-switching.
-
-In a programmable switch such as the Reconfigurable Match-Action Table
-architecture ~\cite{rmt}, Intel's FlexPipe~\cite{flexpipe}, or Cavium's
-Xpliant~\cite{xpliant}, each stage in either pipeline is configured by a
-compiler~\cite{lavanya_nsdi} to match arbitrary header fields and carry out
-arbitrary actions in response to a table hit.
-%TODO: Maybe call out to table from RMT paper.
-
-\subsection{Programmable Switch Architectures}
-An architecturally important aspect of single-chip shared-memory switches,
-whether fixed-function or programmable, is that they are built for worst-case
-performance: line-rate forwarding (10G or more recently, 100G) of minimum-sized
-packets on all ports. Unlike CPUs, they rarely employ caching hierarchies or
-speculation, eliminating significant performance variability at run-time.
-
-As a concrete example, a 64-port switch with each port running at 10G needs to
-support an aggregate switching capacity of 1 Billion pkts / sec assuming a
-minimum packet size of 80 bytes.  Because the ingress and egress pipelines are
-shared across all ports to reduce chip area, each pipeline needs to
-sequentially process 1 Billion pkts / sec. A sequential processing rate of 1
-Billion pkts / sec translates into a clock frequency of 1 Ghz for the
-pipeline's circuitry.  Equivalently, every pipeline stage needs to handle a new
-packet every clock cycle (1 ns).
-
-This tight time budget allows a stage within the pipeline to execute only one
-simple arithmetic instruction on a given packet field (read/write,
-arithemtic/logic and field addition/removal), although a large number of packet
-fields can be processed in parallel using a Very Large Instruction Word if they
-are no dependencies between them~\cite{rmt}.
-% TODO: Figure 1 of http://yuba.stanford.edu/~grg/docs/sdn-chip-sigcomm-2013.pdf
-
-\subsection{Stateful processing}
-In addition to modifying packet fields, many data-plane algorithms need to
-modify state on a packet-by-packet basis. The simplest example is a counter
-that counts packets matching a specific header pattern.
-
-%TODO:Anirudh->Chang: Is it ok to say this? We are not saying anything about a
-%specific product, but just about the RMT architecture.  It's similar to how
-%Lavanya's paper talks about memory information for the RMT architecture in
-%Figure 5c and gives stage latencies in Figure 7. 
-To handle this requirement, the RMT architecture also permits a handful of
-atomic stateful operations (i.e. operations that complete and store any state
-updates to memory before the next packet arrives), beyond counters.  We use the
-symbols x and y to refer to arbitrary stateful variables and pkt.<> to refer to
-a field in the packet. In all cases, pkt.field can be substituted for a
-constant operand.
+The RMT architecture can also carry out a limited set of
+atomic stateful operations i.e. operations that allow packets to manipulate
+state at data-plane rates, which are atomically updated before the arrival of the next packet.
+We summarize a few of these below.\footnote{We use the
+symbols x and y to refer to stateful variables and pkt.<> to refer to a packet field.
+Everywhere, pkt.field can be substituted for a constant operand.}
 \begin{enumerate}
-\item Reading and writing stateful variables on every packet:
+\item Reading and writing stateful variables:
       \texttt{x = pkt.field;} or \texttt{pkt.field = x;}
 \item Read, modify, write operations on stateful variables:
       \texttt{x = x + pkt.field;}
@@ -76,27 +48,6 @@ constant operand.
 \item Packed operations on pairs of stateful variables: \texttt{ (x, y) = (x + y, x - y);}
 \item Multiply and accumulate a stateful variable: \texttt{ x = x * pkt.field + pkt.field2; }
 \end{enumerate}
-
-%TODO: Below text isn't required if we can say that RMT supports the above.
-%%To justify and show that this isn't a fantasy model of a switch:
-%%--> Talk about how DSPs support some of these ops.
-%%    MAC on TI's DSP,
-%%    Packed Instructions on Intel's SSE.
-%%--> How we have talked to industry folks about it.
-%%--> Many of these are already done in fixed form today:
-%%    counters, EWMA
-%%--> Talk about how P4 already has primitives for some of these:
-%%    register references: rref.
-%%
-%%--> Almost one-to-one mapping from the P4 action
-%%primitives to hardware operations.
-% Also, caveat everything by saying these will evolve in the future.
-
-These stateful primitives will likely evolve in the future---all the more
-reason to use a compiler to automate the translation from a high-level
-transaction to low-level packet processing primitives/opcodes.
-
-\subsection{Memory model}
 
 The RMT architecture is shared-nothing: state variables are local to a
 particular stage in the ingress or egress pipeline and cannot be shared across
@@ -107,11 +58,11 @@ because building multi-ported RAMs is power and area hungry. If a state
 variable needs to be accessed from multiple stages in the same pipeline, the
 underlying memory bank would need to support more than 1 Read-Modify-Write.
 
-Instead, shared memory across stages can be emulated by cloning a packet and
-recirculating it back to the pipeline. This way a state variable can be read in
-stage x, updated downstream in stage y, and then a cloned packet to stage x
-could update the state variable in x. However, this has a cost: recirculated
-packets consume pipeline capacity, by taking away capacity from new data
-packets.  Further, recirculation latency can be as large as a few hundred clock
-cycles.
+Instead, the RMT architecture allows information sharing across stages by cloning a packet
+and recirculating it back into the pipeline. This way a state variable can be
+read in stage x, updated downstream in stage y, and then a cloned packet to
+stage x could update the state variable in x. However, this has a cost:
+recirculated packets consume pipeline capacity, by taking away capacity from
+new data packets.  Further, recirculation latency can be as large as a few
+hundred clock cycles.
 %TODO: Maybe add a figure here.
