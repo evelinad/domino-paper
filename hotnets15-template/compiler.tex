@@ -124,7 +124,23 @@ statements: \texttt{x = x + y; y = y + x;} into the tupled form \texttt{(x, y)
 x;} into the stage following \texttt{x = x + y;} causing spurious memory
 sharing.
 
-%TODO: Need to distinguish the sequential operator from the parallel operator
+\subsection{Patching code to achieve memory sharing}
+
+\subsection{Translating to P4}
+As a final step, we translate the partitioned code (patched, if required)
+into P4. This is a conceptually straightforward process:
+\begin{enumerate}
+\item We add newly created temporary variables to the header and parser
+specifications so that P4 can automatically generate the parser state machine.
+\item We create a P4 logical table for each partition.
+\item The set of packets on which the algorithm will run is specified using
+an appropriate match type (exact, ternary, or longest-prefix) on specific
+header fields within each logical table.
+\item We create a P4 action in each logical table from the code in the
+corresponding partition.
+\item Lastly, the control-flow between P4 tables mirrors the order of
+partitions.
+\end{enumerate}
 
 %Advanced idioms:
 %--> Pipeline wide memory using recirculation primitive.
