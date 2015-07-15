@@ -4,81 +4,63 @@
 Data-plane algorithms~\cite{cestan} are algorithms that are implemented within
 a network switch. These algorithms process every data packet that passes
 through the switch, transforming the packet and/or state of the switch itself.
-Examples of such algorithms including networking staples such as prefix
-lookup~\cite{lookup} deep packet inspection~\cite{bro_ids}, algorithms for
-in-network load balancing~\cite{conga, ecmp}, congestion-control that uses
-feedback from switches~\cite{xcp, rcp, pdq, dctcp}, and network
-measurement~\cite{minsketch, heavy_hitters}.
-\ac{what's the point of mentioning prefix lookup if that's not what we are targeting?}
+Examples of such algorithms include in-network load balancing
+algorithms~\cite{conga, ecmp}, congestion-control that uses feedback from
+switches~\cite{xcp, rcp, pdq, dctcp}, and network measurement~\cite{minsketch,
+heavy_hitters}.
 
 Because data-plane algorithms process every packet going through the switch, a
-major performance requirement for data-plane algorithms is that they need to run
-at the switch's line rate. As a result, these algorithms are primarily
-implemented using dedicated hardware. Hardware designs are rigid and
-inflexible, making it difficult for network operators and researchers to
-experiment with new algorithms.
+major performance requirement is the ability to run at the switch's line rate.
+As a result, these algorithms are primarily implemented using dedicated
+hardware. Hardware designs are rigid and inflexible, making it difficult for
+network operators and researchers to experiment with new algorithms.
 
-To address this issue,
-programmable switch architectures~\cite{flexpipe, xpliant, rmt} allow
+Programmable switch architectures~\cite{flexpipe, xpliant, rmt} with
+performance comparable with state-of-the-art fixed-function
+chipsets~\cite{tomahawk, mellanox} have emerged as an alternative. They allow
 designers to express their algorithms using a domain-specific language (DSL)
-(e.g., P4~\cite{p4} and Protocol-Oblivious Forwarding~\cite{pof}).
-Unfortunately, such DSLs are often designed to be very close 
-to the underlying network hardware. For instance, the semantics of P4 match-action 
-tables
-are such that all actions included in a given table are executed in parallel~\cite{p4Spec}.
-This design easily maps to XXX typical network hardware and allows the implementation
-to perform various optimization such as XXX.
-However, to activate match-action tables, operators need to include each table in a
-control construct, which is designed to execute sequentially.
-This mix of programming paradigm makes it difficult to structure programs
-and reason about correctness of the implementation. In addition, network operators
-who are used to writing sequential programs in a high-level language such as C
-(such as for software routers~\cite{click},
-the Linux qdisc subsystem~\cite{qdisc}, and network Processors~\cite{npu}) will need
-to learn a new paradigm before reimplementing their algorithms in P4.
-\ac{I removed the argument about desirable to leverage existing corpus because
-even if they use domino they will still need to rewrite everything from scratch.}
+(e.g., P4~\cite{p4}).  Unfortunately, such DSLs are designed to be very close
+to the underlying network hardware.
 
-%P4 is at the forefront of these languages and allows a programmer to specify
-%packet processing by specifying arbitrary match-action processing in a set of
-%match-action tables. As it currently stands, P4 is too close to the hardware
-%and insufficiently expressive for our needs. P4 mixes sequential semantics
-%across match-action tables with parallel semantics within the actions in a
-%match-action tables. 
-%This is unnatural for programmers that are used to either
-%a fully sequential model (such as C) or a fully parallel model (such as an SQL
-%query that conceptually processes all rows).
-%
-%Besides, a large body of packet-processing code is already written in a
-%high-level language like C for platforms such as software routers~\cite{click},
-%the Linux qdisc subsystem~\cite{qdisc} and Network Processors~\cite{npu}. It
-%would be desirable to leverage this existing corpus of packet-processing
-%algorithms without having to reimplement all of it in P4.
+For instance, a P4 programmer specifies packet processing by programming the
+match and action parts in a set of match-action tables. P4's semantics are such
+that all actions included in a given table are executed in
+parallel~\cite{p4Spec}. However, to activate match-action tables, each table needs
+to be included in a control-flow program, which executes sequentially.
 
+P4's design was chosen for a close correspondence with the underlying
+programmable hardware~\cite{flexpipe, rmt} and allows the compiler to carry out
+backend optimizations such as table placement~\cite{lavanya_compiler}.
+However, mixing sequential and parallel semantics makes it difficult to
+structure programs and reason about correctness. This makes it harder for
+programmers, who are used to writing sequential packet processing programs in a
+high-level language such as C (for instance, in software routers~\cite{click},
+the Linux qdisc subsystem~\cite{qdisc}, and network processors~\cite{npu}), to
+reimplement their algorithms in P4.
 
 In this paper, we propose a new DSL, \pktlanguage~(\S\ref{s:language}), for
 expressing data-plane algorithms. \pktlanguage is a high-level, imperative
-language that allows designers to express data-plane algorithms using
-{\em transactions}~\cite{transactions}, i.e., blocks of code that 
-are atomically executed on a packet.
-\ac{does the citation defines what transactions are in networking? If so we should just
-quote from that}
-%conceptually run to
-%completion on a packet and in isolation from other such blocks of code. 
-Using transactions allow designers to easily express a wide variety of algorithms, as
-has been previously demonstrated in packet-processing code for other network
-elements such as software routers and NPUs~\cite{click, intel, qdisc}.
-% Anirudh: Transactions in DB provide ACID. I don't think Consistency and
-% Durability are totally relevant. Isolation is the property I am going for,
-% and atomicity (all or nothing) is vacuously true I guess because I assume
-% every code block needs to complete.  Maybe we need to define this precisely
-% without boring people :)?
+language that allows programmers to express data-plane algorithms using the
+concept of a {\em transaction}: a block of code that executes atomically on
+each packet and in isolation from other packets executing the same code block.
+%\ac{does the citation defines what transactions are in networking? If so we
+%should just quote from that} Anirudh: Not sure if this covers it? Let me know
+%what you think.
 
-We have implemented a prototype compiler for
-\pktlanguage~(\S\ref{s:compiler}) that targets P4 as the backend. Given input source
-code written in \pktlanguage, our compiler partitions each transaction into logical
-P4 tables that can then leverage the P4 compiler to efficiently execute on
-programmable switches.  We present preliminary experiments in
-expressing non-trivial real-world data-plane algorithms using
-\pktlanguage~(\S\ref{s:evaluation}) and conclude with several areas of
-future work~(\S\ref{s:conclusion}).
+%
+%Using transactions allow designers to easily express a wide variety of
+%algorithms, as has been previously demonstrated in packet-processing code for
+%other network elements such as software routers~\cite{click},
+%NPUs~\cite{intel}, active queue-management and scheduling
+%algorithms~\cite{qdisc}, and SDN controllers~\cite{maple}.
+%Anirudh: We repeat this in too many places including language.tex and two paragraphs
+%above.
+
+We are currently implementing a compiler for \pktlanguage~(\S\ref{s:compiler})
+that targets P4 as the backend. Given input source code written as a
+transaction in \pktlanguage, our compiler produces a P4 program as an output.
+This P4 program can then be run through a P4 compiler that carries out backend
+optimizations to permit efficient execution on programmable switches.  We
+present preliminary experiments in expressing non-trivial real-world data-plane
+algorithms using \pktlanguage~(\S\ref{s:evaluation}) and conclude with several
+areas of future work~(\S\ref{s:conclusion}).
