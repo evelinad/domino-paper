@@ -8,9 +8,10 @@
 
 \label{s:architecture}
 In this section, we briefly describe the Reconfigurable Match-Action Table
-(RMT) architecture~\cite{rmt}, a representative programmable switch used in our
-experiments. Other switches with similar programmable architectures include
-Intel's FlexPipe~\cite{flexpipe} and Cavium's Xpliant~\cite{xpliant}.
+(RMT) architecture~\cite{rmt}, a representative programmable switch
+architecture used in our experiments. Other switches with similar programmable
+architectures include Intel's FlexPipe~\cite{flexpipe} and Cavium's
+Xpliant~\cite{xpliant}.
 
 Figure~\ref{fig:architecture} provides a high-level overview of the RMT
 architecture. Packets enter the switch through serial links and are handled by
@@ -25,13 +26,15 @@ performance competitive with fixed-function switches~\cite{mellanox, broadcom},
 each action primitive can modify only one packet field, although several action
 primitives can be grouped together into larger actions using a Very-Large
 Instruction Word if they can all execute in parallel without violating data
-dependencies such as XXX read-after-write.
+dependencies such as two instructions writing to the same packet field
+(Write-After-Write) or an instruction reading from the same packet field that
+was written to previously (Read-After-Write).
 
 The RMT architecture also includes a set of atomic stateful operations, i.e.,
 operations that allow packets to manipulate persistent state atomically from
 one packet to the next.  We summarize these in
 Table~\ref{t:stateful_inst}.\footnote{We use the symbols {\tt x} to refer to
-stateful variables and {\tt pkt.<>} to refer to a packet field.  {\tt
+stateful variables and {\tt pkt.<>} to refer to a packet field.{\tt
 pkt.field} can be substituted for a constant operand in places that are
 appropriate.}
 \begin{table}
@@ -57,10 +60,10 @@ Conditional execution & \texttt{x = pkt.predicate ? pkt.field : x;} \\
 RMT is a shared-nothing architecture: state variables are local to a particular
 stage in the ingress or egress pipeline and cannot be shared across pipeline
 stages or pipelines. The RMT pipeline allows a stage to communicate state
-information to a successor stage downstream by writing into a packet field. To
-let a stage communicate state information to a predecessor stage upstream, the
-RMT architecture allows packets to be cloned and recirculated back into a
-pipeline.
+information to a successor stage downstream by writing state into a packet
+field. To let a stage communicate state information to a predecessor stage
+upstream, the RMT architecture allows packets to be cloned and recirculated
+back into a pipeline.
 
 This way, a state variable can be read in stage x, written downstream in stage
 y, and then a cloned packet to stage x could update the state variable in x.
