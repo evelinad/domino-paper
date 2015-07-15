@@ -4,6 +4,7 @@
 \begin{figure*}
 \includegraphics[width=\textwidth]{p4_switch_model.png}
 \caption{The RMT architecture}
+\label{fig:architecture}
 \end{figure*}
 
 \label{s:architecture}
@@ -22,13 +23,13 @@ process these header fields using a sequence of match-action tables.
 Such tables match on arbitrary header fields and carry out actions in response
 to a match.  The actions are built out of simpler action primitives, which
 represent simple arithmetic and logic operations on packet fields. To remain
-performance competitive with fixed-function switches~\cite{mellanox, broadcom},
-each action primitive can modify only one packet field, although several action
-primitives can be grouped together into larger actions using a Very-Large
-Instruction Word if they can all execute in parallel without violating data
-dependencies such as two instructions writing to the same packet field
-(Write-After-Write) or an instruction reading from the same packet field that
-was written to previously (Read-After-Write).
+performance competitive with fixed-function switches~\cite{mellanox, trident,
+tomahawk}, each action primitive can modify only one packet field, although
+several action primitives can be grouped together into larger actions using a
+Very-Large Instruction Word if they can all execute in parallel without
+violating data dependencies such as two instructions writing to the same packet
+field (Write-After-Write) or an instruction reading from the same packet field
+that was written to previously (Read-After-Write).
 
 The RMT architecture also includes a set of atomic stateful operations, i.e.,
 operations that allow packets to manipulate persistent state atomically from

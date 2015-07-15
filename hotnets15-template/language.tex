@@ -22,12 +22,12 @@ This view of data-plane algorithms suggests a natural way to structure them: as
 transactions where a function specifies all the required state manipulation and
 control flow required for packet processing. The use of transactions is
 widespread in packet processing for software-router platforms. For instance,
-Click's Element abstraction~\cite{kohler_thesis} specifies packet processing as
+Click's Element abstraction~\cite{click} specifies packet processing as
 a method invocation that isn't pre-empted.  The Linux qdisc
 subsystem~\cite{qdisc} exposes an enqueue and dequeue method that specific
 algorithms can implement. Intel's IXP architecture for NPUs uses a construct
 resembling transactions called a Packet-Processing Stage
-(PPS)~\cite{intel_pldi} to express packet processing code.
+(PPS)~\cite{npu} to express packet processing code.
 % https://github.com/torvalds/linux/blob/master/net/sched/sch_codel.c#L256
 
 Relative to these prior systems, our contribution is in observing that
@@ -54,6 +54,7 @@ restrictive, this is required for the underlying architecture
 (\S\ref{s:architecture}), which has deterministic performance regardless of the
 traffic pattern or program being run.
 
+%% Anirudh: Not sure if the text below makes sense/fits.
 %% This results in a different set of
 %% tradeoffs than what programmers are typically used to: a larger program does
 %% not take longer to run. Instead, it may not run at all or might need to be

@@ -4,6 +4,7 @@
 \begin{figure}
 \includegraphics[width=\columnwidth]{compiler_flow.pdf}
 \caption{The flow of code through the compiler}
+\label{fig:flow}
 \end{figure}
 
 
@@ -16,7 +17,7 @@ We next present the design of a compiler that takes code written in
 \pktlanguage{} and produces code in P4. Figure~\ref{fig:flow} provides a
 high-level overview of the input and output to the compiler for the running
 example that we use throughout this section: load balancing using flowlet
-switching~\cite{dina_flowlets}.
+switching~\cite{flowlets}.
 
 Our target language is P4, which differs semantically in a few key ways from
 \pktlanguage{} to match the hardware. First, statements within a stage execute
