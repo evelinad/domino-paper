@@ -1,4 +1,4 @@
-\section{Problem setup}
+\section{Background}
 \label{s:context}
 
 \begin{figure*}
@@ -6,51 +6,54 @@
 \caption{The RMT architecture}
 \end{figure*}
 
-To motivate our problem, we first provide a short primer on the architecture of
+In this section we first review the architecture of
 emerging programmable switches (\S\ref{ss:architecture}). We then describe the
-data-plane algorithms that we would like to implement on them
-(\S\ref{ss:dataplane}). In the process, we observe that there is a large
-semantic gap between the high-level pseudocode style in which data-plane
-algorithms are available and low-level languages like P4 used to program
-pipelined switches today. This leads us to propose a high-level language and a
-compiler to bridge this gap.
+class of data-plane algorithms that can be easily implemented using 
+\pktlanguage's features (\S\ref{ss:dataplane}). 
+
+%In the process, we observe that there is a large
+%semantic gap between the high-level pseudocode style in which data-plane
+%algorithms are available and low-level languages like P4 used to program
+%pipelined switches today. This leads us to propose a high-level language and a
+%compiler to bridge this gap.
+
 
 \subsection{The architecture of a programmable switch}
 \label{s:architecture}
-For concreteness, we describe the Reconfigurable Match-Action Table (RMT)
-architecture~\cite{rmt}, although our ideas apply broadly to other programmable
-switch architectures such as Intel's FlexPipe~\cite{flexpipe} and Cavium's
-Xpliant~\cite{xpliant} architectures.
+In this section we briefly describe the Reconfigurable Match-Action Table (RMT)
+architecture~\cite{rmt}, which is a representative programmable switch 
+that is used in our experiments. Other switches with similar architecture include
+Intel's FlexPipe~\cite{flexpipe} and Cavium's Xpliant~\cite{xpliant}.
 
-Figure~\ref{fig:architecture}, based on Figure 3 from ~\cite{rmt}, provides a
+Figure~\ref{fig:architecture} provides a
 high-level overview of the RMT architecture. Packets enter the switch through
 serial links and are handled by a programmable parser that turns packets into a
 bag of header fields. The ingress and egress pipelines have a number of
 physical pipeline stages that can process these header fields using a sequence
 of match-action tables.
-
-These tables match on arbitrary header fields and carry out actions in response
+Such tables match on arbitrary header fields and carry out actions in response
 to a match.  The actions are built out of simpler action primitives, which
 represent simple arithmetic and logic operations on packet fields. To remain
 performance competitive with fixed-function switches~\cite{mellanox, broadcom},
 each action primitive can modify only one packet field, although several action
 primitives can be grouped together into larger actions using a Very-Large
 Instruction Word if they can all execute in parallel without violating data
-dependencies.
+dependencies such as XXX read-after-write.
 
-The RMT architecture also includes a limited set of atomic stateful operations
-: operations that allow packets to manipulate persistent state atomically from
-one data-plane packet to the next.  We summarize these in
-Table~\ref{t:stateful_inst}.\footnote{We use the symbols x and y to refer to
-stateful variables and pkt.<> to refer to a packet field.  Everywhere,
-pkt.field can be substituted for a constant operand.}
+The RMT architecture also includes a set of atomic stateful operations, i.e., 
+operations that allow packets to manipulate persistent state atomically from
+one packet to the next.  We summarize these in
+Table~\ref{t:stateful_inst}.\footnote{We use the symbols {\tt x} %and {\tt y} 
+\ac{table doesn't use y} to refer to
+stateful variables and {\tt pkt.<>} to refer to a packet field.
+{\tt pkt.field} can be substituted for a constant operand in places that are appropriate.}
 \begin{table}
 \begin{small}
 \begin{tabular}{|c|c|}
 \hline
 Instruction description & Form \\
 \hline
-Read and write & \texttt{x = pkt.field} or \texttt{pkt.field = x} \\
+Read and write & \texttt{x = pkt.field;} or \texttt{pkt.field = x;} \\
 \hline
 Read, modify, and write & \texttt{x = x + pkt.field;} \\
 \hline
@@ -58,26 +61,30 @@ Conditional execution & \texttt{x = pkt.predicate ? pkt.field : x;} \\
 \hline
 \end{tabular}
 \end{small}
-\caption{Stateful instructions in the RMT architecture}
+\caption{Atmoic stateful instructions in the RMT architecture}
 \label{t:stateful_inst}
 \end{table}
-
 %\item Packed operations on pairs of stateful variables: \texttt{ (x, y) = (x + y, x - y);}
 %\item Multiply and accumulate a stateful variable: \texttt{ x = x * pkt.field + pkt.field2; }
+
 RMT is a shared-nothing architecture: state variables are local to a particular
 stage in the ingress or egress pipeline and cannot be shared across pipeline
-stages or pipelines. If a state variable were to be accessed from multiple
-stages, the underlying memory would need to support more than 1
-Read-Modify-Write per clock cycle. Embedded on-chip memory banks typically
-support only 1 Read-Modify-Write operation per clock
-cycle~\cite{some_citation_from_memoir} because building multi-ported RAMs is
-power and area hungry.
-
+stages or pipelines. 
+% Alvin: I think these are too low level details that are unnecessary
+%If a state variable were to be accessed from multiple
+%stages, the underlying memory would need to support more than 1
+%Read-Modify-Write per clock cycle. Embedded on-chip memory banks typically
+%support only 1 Read-Modify-Write operation per clock
+%cycle~\cite{some_citation_from_memoir} because building multi-ported RAMs is
+%power and area hungry.
 Instead, the RMT architecture allows communication between stages by cloning a
-packet and recirculating it back into a pipeline. Now, a state variable can
+packet and recirculating it back into a pipeline \ac{I thought this is only needed
+to communicate between a stage and its predecessors. For successor stages isn't
+packet temporaries sufficient?}.
+Now, a state variable can
 be read in stage x, written downstream in stage y, and then a cloned packet to
 stage x could update the state variable in x. However, this has a cost:
-recirculated packets consume pipeline capacity, by taking away capacity from
+recirculated packets consume pipeline capacity by taking away capacity from
 new data packets. Further, recirculation latency can be large: several hundred
 packets might pass through the pipeline before the recirculated packet update
 state in stage x.
