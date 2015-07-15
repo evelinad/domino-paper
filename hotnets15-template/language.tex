@@ -1,31 +1,14 @@
 \section{A Language for data-plane algorithms}
 \label{s:language}
- We focus on data-plane algorithms that aren't widely
-available on all switches today because of the
-considerable engineering effort required for hardware
-implementations and the rapidly changing nature of these
-algorithms. For instance, load-balancing algorithms such
-as CONGA~\cite{conga} are available only on a specific
-line of CISCO switches.  Active queue-management
-algorithms such as CoDel~\cite{codel} need to be
-extensively modified~\cite{pie} to suit the architecture
-of a hardware switch.  Explicit congestion-control
-algorithms such as RCP~\cite{rcp} and XCP~\cite{xcp}, and
-measurement algorithms such as
-OpenSketch~\cite{opensketch} have been evaluated only in
-FPGA-based platforms.  The ever-growing list of new
-algorithms~\cite{pdq, d3, detail} makes it challenging to
-commit to a hardware implementation of any of them.
-
- A closer inspection of these
-algorithms shows us that the algorithms are characterized by two distinguishing
-features: a reliance on persistant state and an irregular control flow, both of
-which make them challenging to implement in hardware and hence in P4 given its
-low-level nature.
-
-As previously described, data-plane algorithms are characterized by an
-irregular control flow and extensive use of stateful processing. Based on these
-observations, this section proposes a language to express these algorithms.
+%% A closer inspection of these
+%%algorithms shows us that the algorithms are characterized by two distinguishing
+%%features: a reliance on persistant state and an irregular control flow, both of
+%%which make them challenging to implement in hardware and hence in P4 given its
+%%low-level nature.
+%%
+%%As previously described, data-plane algorithms are characterized by an
+%%irregular control flow and extensive use of stateful processing. Based on these
+%%observations, this section proposes a language to express these algorithms.
 
 To motivate a language for these algorithms, we first observe that any
 data-plane algorithm can be expressed as a function that takes in a single
@@ -68,7 +51,9 @@ allocation, and array scans allows the user to only express code whose
 execution latency can be bounded at compile time.  While this may seem overly
 restrictive, this is required for the underlying architecture
 (\S\ref{s:architecture}), which has deterministic performance regardless of the
-traffic pattern or program being run. This results in a different set of
-tradeoffs than what programmers are typically used to: a larger program does
-not take longer to run. Instead, it may not run at all or might need to be
-approximated until it can run (\S\ref{ss:approximation}).
+traffic pattern or program being run.
+
+%% This results in a different set of
+%% tradeoffs than what programmers are typically used to: a larger program does
+%% not take longer to run. Instead, it may not run at all or might need to be
+%% approximated until it can run (\S\ref{ss:approximation}).
