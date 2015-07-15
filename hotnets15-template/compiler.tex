@@ -79,6 +79,10 @@ map 1:1 to underlying hardware constructs.
 %%
 %%- after that, patch with extra packet temporaries as needed to pass state variable values down the pipeline (say a write in stage 1 to a read in stage 2), and recirculation to pass state variable values up the pipeline (say a write in stage 2 to a read in stage 1).
 %%
+% We need to mention how forward dependencies are ok: you can write a packet
+% field to an updated value of the state variable.  You can also write a packet
+% field to the previous value of the state variable.
+%TODO: Get rid of semicolons in the partitioned output.
 
 After instruction selection, the resulting straight-line code maps 1:1 to the
 underlying hardware. At this stage, the code is correct if executed in a
