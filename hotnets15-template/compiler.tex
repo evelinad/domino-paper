@@ -6,6 +6,12 @@
 \caption{The flow of code through the compiler}
 \end{figure}
 
+
+However, given the growing adoption of P4, we think it prudent to leverage
+existing work on P4 compilation to hardware targets~\cite{netronome, xilinx}.
+With this in mind, our work focuses on building a compiler from \pktlanguage to
+P4, letting P4 address the backend problem of table placement that is unique to
+each target architecture~\cite{lavanya_compiler}.
 We next present the design of a compiler that takes code written in
 \pktlanguage{} and produces code in P4. Figure~\ref{fig:flow} provides a
 high-level overview of the input and output to the compiler for the running
