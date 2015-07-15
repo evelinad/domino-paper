@@ -9,74 +9,16 @@
 
 Compilation to P4 is not totally trivial.
 ===============================================
-Section 2: Hardware / Architecture.
-Try and shrink it into one column max:
-Basically Section 2 is an extension of the SIGCOMM paper.
-2.4 and 2.5 are most important as SIGCOMM paper didn't describe.
-Condense 2.1, 2.2, and 2.3 into one paragraph maybe with one paragraph.
-
 If P4 doesn't support tupled instructions, then even if the compiler
 can recognize it we are out of luck.
 
 Can we just say we compile to P4 and omit the target architecture altogether? 
-
-Alvin's suggestions: remove stateful instructions:
-
-4. Packed operations on pairs of stateful variables:
-y) = (x + y, x - y);
-(x,
-5. Multiply and accumulate a stateful variable: x = x *
-pkt.field + pkt.field2;
-
-if we can't support it AND P4 doesn't support it.
-
-Shrink Section 2 to:
---------------------------
-This is the same as the RMT paper from SIGCOMM, and we are explaining the
-essential features alone, and maybe also point to the appropriate P4 language
-construct.
-
-Keep 2.5 alone. 
 
 -----------------------------
 Conclude with a summary at section 2.5 on why building a compiler is difficult:
 It's because we need to map a high-level language into a lower-level language / hardware.
 
 =================
-Move this to the end or future work:
--------------------------------------
-
-Scheduling, by definition, requires looking at multiple packets together to
-make a decision on what packet to schedule next, while data-plane algorithms
-operate independenly on each packe
-
-Maybe be a little less negative about this. Just say it can be done later.
-
-Section 3:
-------------------
-Now reads like related work.
-We need to limit the scope of what we are trying to express. 
-
-Maybe make it clear that we are not doing things like prefix match. The goal
-of the language is to express things in a easy high-level language.
-
-Don't say stuff like:
-===========================================
-Traditional examples include forwarding algorithms based
-on longest prefix matching and TCAM-based matching. These
-examples are characterized by a regular structure that ap-
-plies an identical stateless operation on every packet, making
-them amenable to high-speed hardware implementations [?].
-The success of the OpenFlow interface is in part due to the
-widespread availability of these forwarding abstractions (longest-
-prefix and ternary match) across most switches today.
-
-It's not required to tell people they can't do X.
-
-Talk about only what you can, not what you can't or don't.
-
-Merge 2 and 3 into something much shorter.
------------------------------------------
 
 Intro to 4 will depend on the merged 2 + 3.
 ------------------------------------------
