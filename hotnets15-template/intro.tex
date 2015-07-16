@@ -17,31 +17,40 @@ experiment with new algorithms.
 
 This rigidity affects multiple stakeholders. Companies that build network
 switches~\cite{cisco_nexus, dell_force10, arista_7050} based on
-merchant-silicon switching chips, would like to express new switch features in
-firmware, not new hardware.  Datacenter operators~\cite{google_jupiter,
-facebook, vl2, some_amazon_post} would like to experiment with new switch
-algorithms within an unencumbered private network.  Finally, researchers
-continuously come up with new switch algorithms~\cite{xcp, codel, d3, detail,
-pdq}, which so far can be tested only using software routers or a simulator.
+merchant-silicon switching chips, would prefer to express new switch features
+in firmware, not new hardware.  Datacenter operators like Google, Facebook,
+Microsoft, and Amazon would like to experiment with new switch algorithms
+within an unencumbered private network.  Finally, researchers continuously come
+up with new switch algorithms~\cite{xcp, codel, d3, detail, pdq}, which so far
+can be tested only using software routers or a simulator.
 
 Programmable switching chips~\cite{flexpipe, xpliant, rmt} with performance
 comparable with state of the art fixed-function chipsets~\cite{trident,
 tomahawk, mellanox} have emerged as an alternative.  They allow designers to
 express their algorithms using a domain-specific language (DSL) (e.g.,
-P4~\cite{p4}, packetC~\cite{packetC}, PX~\cite{PX}).  Unfortunately, such DSLs
+P4~\cite{p4}, packetC~\cite{packetc}, PX~\cite{px}).  Unfortunately, such DSLs
 are too close to the underlying network hardware.  For instance, P4's design
-bears a close resemblance to the underlying programmable
-hardware~\cite{flexpipe, rmt} to facilitate compiler backend optimizations such
-as table placement~\cite{lavanya_compiler}.
+exposes match-action tables as first class objects and bears a close
+resemblance to the underlying programmable hardware~\cite{flexpipe, rmt} to
+facilitate compiler-backend optimizations such as table
+placement~\cite{lavanya_compiler}.
 
-For instance, a P4 programmer specifies packet processing by programming the
-match and action parts in a set of match-action tables. P4's
-semantics~\cite{p4spec} are such that all actions included in a given table are
+The proximity to hardware complicates language semantics. P4's
+semantics~\cite{p4spec} are such that all actions within a given table are
 executed in parallel. However, to activate match-action tables, each table
 needs to be included in a control-flow program, which executes sequentially.
+Taken together, this mix of sequential and parallel semantics means that
+the net effect of even extremely simple P4 programs is hard to state crisply.
 
-However, mixing sequential and parallel semantics makes it difficult to
-structure programs and reason about correctness. This makes it harder for
+For instance, simple\_router.p4~\cite{simple_router.p4} is a program that
+implements longest-prefix-match IP routing. It's effect on any given packet is
+to first execute three operations in parallel: decrement the IP TTL field, and
+then set the egress port and the next hop IP address in a switch-internal
+header.  Then, after all three operations are done, the switch uses the next
+hop IP address to set the destination MAC address.
+
+Mixing sequential and parallel semantics makes it difficult to structure
+programs and reason about correctness. It makes it especially hard for
 programmers, who are used to writing sequential packet processing programs in a
 high-level language such as C (for instance, in software routers~\cite{click,
 intel_multicore}, the Linux qdisc subsystem~\cite{qdisc}, and network
