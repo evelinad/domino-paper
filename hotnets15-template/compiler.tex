@@ -84,30 +84,36 @@ recirculation.
 
 \subsection{Partitioning based on dependencies}
 
-% We need to mention how forward dependencies are ok: you can write a packet
-% field to an updated value of the state variable.  You can also write a packet
-% field to the previous value of the state variable.
-At this stage, the code is correct if executed in a straight-line assuming
-exactly one packet ever executes the code. A straightforward partitioning
-simply assigns each instruction to a separate stage, but is wasteful. Many
+At this stage, the code is correct if executed sequentially assuming exactly
+one packet ever executes the code. A straightforward partitioning simply
+assigns each instruction to a separate stage, but is wasteful. Many
 instructions may have no dependencies between them and can be executed in
 parallel.
 
-To determine a better partitioning, we carry out the sequence of steps below,
-until we can no longer merge stages. We start by assigning each instruction to
+% TODO: Anirudh->Alvin: Does this read ok?
+To determine a better partitioning, we start by assigning each instruction to
 its own stage. We then proceed sequentially from the first stage and grow each
-stage greedily downward by merging it with the next stage if possible. We use
-the following criterion to merge stages:
+stage greedily downward by merging it with the next instruction if possible.
+Because instructions in a stage execute in parallel, we use the following
+criterion to decide if we can execute instructions in parallel.
 \begin{enumerate}
 \item If there are no Read-After-Write or Write-After-Write dependencies
-between any pair of instructions in each stage, it is safe to combine them.
-\item If there are only Write-After-Read dependencies, we can still combine
-them because the underlying hardware executes actions within a stage
-simultaneously, which preserves the right semantics for Write-After-Read
-depenendencies, whether between packet variables or state variables.
-\item If there is a Read-After-Write dependency where a state variable's
-updated value needs to be read for an operation on a packet variable.
+between a pair of instructions, it is safe to combine them.
+\item If there are only Write-After-Read dependencies between instructions, we
+can still combine them because the underlying hardware executes actions within
+a stage simultaneously, which preserves the right semantics for
+Write-After-Read dependencies.
+\item If there is a Read-After-Write dependency where a state variable is
+updated in one instruction and needs to written into a packet variable, we can
+still merge these instructions by replicating the same state update operation
+for the packet update operation as well and relying on the fact that both
+operations execute in parallel.
 \end{enumerate}
+With the above criteria, we merge a stage with the next instruction using our
+greedy algorithm if the next instruction can be executed in parallel with every
+instruction in the current stage. If this criteria isn't satisfied, we create a
+new stage using the next instruction and proceed greedily again until we have
+covered all instructions.
 
 \subsection{Detecting memory sharing across stages}
 In our entire discussion so far, we make no distinction between stateful
