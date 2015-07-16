@@ -29,8 +29,8 @@
      id="namedview153"
      showgrid="false"
      inkscape:zoom="0.56568542"
-     inkscape:cx="-254.18599"
-     inkscape:cy="811.25851"
+     inkscape:cx="17.895678"
+     inkscape:cy="1197.726"
      inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
@@ -849,76 +849,13 @@
            x="-833.49518"
            y="870.17114" /></text>
       <rect
-         width="901.68268"
-         height="258.12909"
-         x="-1920.3274"
-         y="2434.0264"
-         transform="matrix(0.99996807,0.00799114,-0.00739107,0.99997269,0,0)"
+         width="901.68274"
+         height="340.16959"
+         x="-1918.8867"
+         y="2916.3403"
+         transform="matrix(0.99996914,0.00785621,-0.00763818,0.99997083,0,0)"
          id="rect6674-9-8-4-0-3-0"
-         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#0000ff;stroke-width:7.4640193;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
-      <text
-         xml:space="preserve"
-         style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Monospace;-inkscape-font-specification:Monospace"
-         x="-1993.9585"
-         y="2457.1765"
-         id="text3120-5-6-7-6"
-         sodipodi:linespacing="125%"
-         transform="matrix(1.0105917,0.01380662,-0.01281967,0.98934417,0,0)"><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2457.1765"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan8482-6-3" /><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2494.7163"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan8956">        pkt.tmp1 = pkt.sport * pkt.dport;</tspan><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2532.2566"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan3231">        pkt.new_hop = (pkt.tmp1 % 10);</tspan><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2569.7964"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan3235">        pkt.tmp2 = pkt.arrival_time - last_time;</tspan><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2607.3364"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan3237">        last_time = (pkt.arrival_time);</tspan><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2644.8762"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan3241">        pkt.tmp0 = (pkt.tmp2 &gt; 5);</tspan><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2682.4165"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan3243">        next_hop = pkt.tmp0 ? (pkt.new_hop) : next_hop;</tspan><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2719.9563"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan3245">        pkt.next_hop = next_hop;</tspan><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2757.4963"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan3247" /><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2795.0361"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan8958" /><tspan
-           sodipodi:role="line"
-           x="-1993.9585"
-           y="2832.5764"
-           style="font-size:30.03198242px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan8512-2-6" /></text>
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#0000ff;stroke-width:8.56844521;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
       <path
          style="fill:none;stroke:#000000;stroke-width:6.02134752;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow2Lend-2)"
          d="m -1477.6836,876.97309 -1.606,190.83391"
@@ -999,7 +936,7 @@
            style="font-size:30px">Instruction Selection</tspan></text>
       <path
          style="fill:none;stroke:#000000;stroke-width:6.44011354;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow2Lend-2)"
-         d="m -1491.2671,2202.4841 -1.8372,218.3003"
+         d="m -1495.3063,2682.4673 -1.8372,218.3003"
          id="path9010-0-1-2"
          inkscape:connector-curvature="0" />
       <rect
@@ -1008,24 +945,24 @@
          width="641.12329"
          height="71.451561"
          x="-1776.3442"
-         y="2266.4634"
+         y="2746.4634"
          transform="matrix(0.99996459,0.00841566,-0.00841566,0.99996459,0,0)" />
       <text
          xml:space="preserve"
          style="font-size:15px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
          x="-1673.8779"
-         y="2309.334"
+         y="2789.334"
          id="text10851-0-0-6"
          sodipodi:linespacing="125%"
          transform="matrix(0.99996459,0.00841566,-0.00841566,0.99996459,0,0)"><tspan
            sodipodi:role="line"
            id="tspan10853-6-2-0"
            x="-1673.8779"
-           y="2309.334"
+           y="2789.334"
            style="font-size:30px">Partition based on dependencies</tspan></text>
       <path
          style="fill:none;stroke:#000000;stroke-width:6.57703257;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow2Lend-2)"
-         d="m -1496.9957,2678.9848 -1.9162,227.6812"
+         d="m -1485.9869,2211.5624 -1.9162,227.6812"
          id="path9010-0-1-2-4"
          inkscape:connector-curvature="0" />
       <rect
@@ -1033,66 +970,30 @@
          id="rect10816-0-5-5-8"
          width="729.93219"
          height="71.451561"
-         x="-1826.0624"
-         y="2742.9954"
+         x="-1831.0435"
+         y="2269.8264"
          transform="matrix(0.99996459,0.00841566,-0.00841566,0.99996459,0,0)" />
       <text
          xml:space="preserve"
          style="font-size:15px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-         x="-1773.5961"
-         y="2785.866"
+         x="-1613.9705"
+         y="2312.9292"
          id="text10851-0-0-6-0"
          sodipodi:linespacing="125%"
          transform="matrix(0.99996459,0.00841566,-0.00841566,0.99996459,0,0)"><tspan
            sodipodi:role="line"
            id="tspan10853-6-2-0-4"
-           x="-1773.5961"
-           y="2785.866"
-           style="font-size:30px">Check for shared memory and patch if required </tspan></text>
-      <rect
-         width="726.7431"
-         height="90.06356"
-         x="-1831.2928"
-         y="2941.427"
-         transform="matrix(0.99996612,0.0082319,-0.00604882,0.99998171,0,0)"
-         id="rect6674-9-8-4-0-3-0-6"
-         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#0000ff;stroke-width:3.9581511;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
-      <text
-         xml:space="preserve"
-         style="font-size:25px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Monospace;-inkscape-font-specification:Monospace"
-         x="-1646.95"
-         y="2967.4346"
-         id="text3120-5-6-7-6-2"
-         sodipodi:linespacing="125%"
-         transform="matrix(0.99996459,0.00841566,-0.00841566,0.99996459,0,0)"><tspan
-           sodipodi:role="line"
-           x="-1646.95"
-           y="2967.4346"
-           style="font-size:25px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan8482-6-3-2" /><tspan
-           sodipodi:role="line"
-           x="-1646.95"
-           y="2998.6846"
-           style="font-size:25px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan8956-4">No Change to generated code</tspan><tspan
-           sodipodi:role="line"
-           x="-1646.95"
-           y="3029.9346"
-           style="font-size:25px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan8958-4" /><tspan
-           sodipodi:role="line"
-           x="-1646.95"
-           y="3061.1846"
-           style="font-size:25px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
-           id="tspan8512-2-6-9" /></text>
+           x="-1613.9705"
+           y="2312.9292"
+           style="font-size:30px">Instruction coalescing</tspan></text>
       <path
-         style="fill:none;stroke:#ff0000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         d="m -1940.7856,2493.4297 899.9681,7.5741"
+         style="fill:none;stroke:#ff0000;stroke-width:5.00402832;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m -1938.1598,2955.7907 901.4188,7.5863"
          id="path3358"
          inkscape:connector-curvature="0" />
       <path
-         style="fill:none;stroke:#ff0000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         d="m -1938.4708,2566.4515 892.4684,7.511"
+         style="fill:none;stroke:#ff0000;stroke-width:5.00906277;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m -1939.8713,3087.117 895.7065,7.5382"
          id="path3360"
          inkscape:connector-curvature="0" />
       <flowRoot
@@ -1105,7 +1006,151 @@
              height="201.52544"
              x="-1184.4038"
              y="1537.2639" /></flowRegion><flowPara
-           id="flowPara3202"></flowPara></flowRoot>    </g>
+           id="flowPara3202" /></flowRoot>      <rect
+         width="900.15149"
+         height="233.06346"
+         x="-1918.1099"
+         y="2460.6196"
+         transform="matrix(0.99996775,0.00803171,-0.00728278,0.99997348,0,0)"
+         id="rect6674-9-8-4-0-3-2"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#0000ff;stroke-width:7.08634329;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+      <text
+         xml:space="preserve"
+         style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Monospace;-inkscape-font-specification:Monospace"
+         x="-1743.3459"
+         y="2719.2842"
+         id="text3120-5-6-7-5-9"
+         sodipodi:linespacing="125%"
+         transform="matrix(1.1070713,0.00931707,-0.00760146,0.90322022,0,0)"><tspan
+           sodipodi:role="line"
+           x="-1743.3459"
+           y="2719.2842"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8482-6-9-5" /><tspan
+           sodipodi:role="line"
+           x="-1743.3459"
+           y="2753.8813"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8831-0">  pkt.tmp1 = pkt.sport * pkt.dport;</tspan><tspan
+           sodipodi:role="line"
+           x="-1743.3459"
+           y="2788.4785"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8833-1">  pkt.new_hop = (pkt.tmp1 % 10);</tspan><tspan
+           sodipodi:role="line"
+           x="-1743.3459"
+           y="2823.0757"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8835-2">  pkt.tmp2 = pkt.arrival_time - last_time;</tspan><tspan
+           sodipodi:role="line"
+           x="-1743.3459"
+           y="2857.6731"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan3224">  last_time = (pkt.arrival_time);</tspan><tspan
+           sodipodi:role="line"
+           x="-1743.3459"
+           y="2892.2703"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8837-3">  pkt.tmp0 = (pkt.tmp2 &gt; 5);</tspan><tspan
+           sodipodi:role="line"
+           x="-1743.3459"
+           y="2926.8674"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8839-4">  next_hop = pkt.tmp0 ? (pkt.new_hop) : next_hop;</tspan><tspan
+           sodipodi:role="line"
+           x="-1743.3459"
+           y="2961.4646"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8621-3-1">  pkt.next_hop = next_hop;  </tspan><tspan
+           sodipodi:role="line"
+           x="-1743.3459"
+           y="2996.0618"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8510-9-3-8" /><tspan
+           sodipodi:role="line"
+           x="-1743.3459"
+           y="3030.6589"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8512-2-4-3" /></text>
+      <text
+         xml:space="preserve"
+         style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Monospace;-inkscape-font-specification:Monospace"
+         x="-1724.686"
+         y="3236.1946"
+         id="text3120-5-6-7-5-9-7"
+         sodipodi:linespacing="125%"
+         transform="matrix(1.1070713,0.00931707,-0.00760146,0.90322022,0,0)"><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3236.1946"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8482-6-9-5-4" /><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3270.7917"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8831-0-6">  pkt.tmp1 = pkt.sport * pkt.dport</tspan><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3305.3889"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan3289" /><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3339.9861"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8833-1-1">  pkt.new_hop = (pkt.tmp1 % 10)</tspan><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3374.5835"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan3291">  pkt.tmp2 = pkt.arrival_time - last_time</tspan><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3409.1807"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan3293">  last_time = (pkt.arrival_time)</tspan><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3443.7778"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8837-3-7" /><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3478.375"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan3295">  pkt.tmp0 = (pkt.tmp2 &gt; 5)</tspan><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3512.9722"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8839-4-8" /><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3547.5693"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan3297">  next_hop = pkt.tmp0 ? (pkt.new_hop) : next_hop</tspan><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3582.1665"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan3307">  pkt.next_hop = next_hop</tspan><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3616.7639"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8510-9-3-8-0" /><tspan
+           sodipodi:role="line"
+           x="-1724.686"
+           y="3651.3611"
+           style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Monospace;-inkscape-font-specification:Monospace"
+           id="tspan8512-2-4-3-4" /></text>
+      <path
+         style="fill:none;stroke:#ff0000;stroke-width:5.01194048;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m -1940.8381,3154.629 896.736,7.5469"
+         id="path3360-2"
+         inkscape:connector-curvature="0" />
+    </g>
     <text
        xml:space="preserve"
        style="font-size:27.67776299px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Monospace;-inkscape-font-specification:Monospace"

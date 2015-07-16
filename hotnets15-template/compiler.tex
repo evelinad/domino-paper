@@ -19,9 +19,6 @@ the compiler for the running example that we use throughout this section: load
 balancing using flowlet switching~\cite{flowlets}.  We structure the compiler
 as a sequence of passes and describe each of them in turn below. 
 
-%%TODO: Remember to get rid of this in the actual compiler
-%%\subsection{Turning packet variables into local variables}
-
 \subsection{Converting to straight-line code}
 A general transaction body can contain convoluted control flow using if-else
 statements. As an extreme example, consider the source code for CoDel:
@@ -64,34 +61,52 @@ where the right hand side of each assignment is a simple expression that
 doesn't contain any expressions within it. These simple expressions would then
 map 1:1 to underlying hardware constructs.
 
+\subsection{Instruction coalescing}
+
+As described earlier, RMT is a shared-nothing architecture. State variables
+read in a particular stage and updated downstream need recirculation to reflect
+the updated value back upstream, creating a vulnerable window of packets that
+can read stale state.
+
+As far as possible, we would like to avoid recirculating packets to emulate
+memory sharing across different physical stages. One way to achieve this is to
+collapse instructions into the same stage using the greedy partitioning
+algorithm outlined in \S\ref{ss:partitioning}. To aid our greedy partitioning
+algorithm that only looks at adjacent instructions in deciding whether to
+combine instructions into a stage, we first move instructions that access state
+variables as close to each other as possible.
+
+Specifically, if there are two instructions that read or write the same state
+variable, we move them as close to each other as possible while respecting
+Read-After-Write dependencies. This facilitates combining the instructions in
+the greedy partitioning algorithm, which in turn removes the need for
+recirculation.
+
 \subsection{Partitioning based on dependencies}
 
 % We need to mention how forward dependencies are ok: you can write a packet
 % field to an updated value of the state variable.  You can also write a packet
 % field to the previous value of the state variable.
-%TODO: Get rid of semicolons in the partitioned output.
+At this stage, the code is correct if executed in a straight-line assuming
+exactly one packet ever executes the code. A straightforward partitioning
+simply assigns each instruction to a separate stage, but is wasteful. Many
+instructions may have no dependencies between them and can be executed in
+parallel.
 
-After instruction selection, the resulting straight-line code maps 1:1 to the
-underlying hardware. At this stage, the code is correct if executed in a
-straight-line assuming exactly one packet ever executes the code. A
-straightforward partitioning simply assigns each instruction to a separate
-stage, but is wasteful. Many instructions may have no dependencies between them
-and can be executed in parallel.
-
-To determine a better partitioning, we carry out the following sequence of steps:
+To determine a better partitioning, we carry out the sequence of steps below,
+until we can no longer merge stages. We start by assigning each instruction to
+its own stage. We then proceed sequentially from the first stage and grow each
+stage greedily downward by merging it with the next stage if possible. We use
+the following criterion to merge stages:
 \begin{enumerate}
-\item If there are N instructions that read or write the same state variable,
-we move the last $N-1$ of these to be as close to the first one as possible
-while respecting Read-After-Write dependencies. This helps us avoid
-recirculation unless absolutely necessary.
-\item We assign each instruction to its own stage.
-\item We then run an iterative algorithm that combines two adjacent stages if
-there are no Read-After-Write or Write-After-Write dependencies between any
-pair of instructions in each stage, stopping when no further stages can be
-combined\footnote{Note that we don't need to consider Write-After-Read dependencies
-between instructions because the underlying hardware executes parallel actions within
-a stage simultaneously, which preserves the right semantics for Write-After-Read
-depenendencies, whether between packet variables or state variables.}
+\item If there are no Read-After-Write or Write-After-Write dependencies
+between any pair of instructions in each stage, it is safe to combine them.
+\item If there are only Write-After-Read dependencies, we can still combine
+them because the underlying hardware executes actions within a stage
+simultaneously, which preserves the right semantics for Write-After-Read
+depenendencies, whether between packet variables or state variables.
+\item If there is a Read-After-Write dependency where a state variable's
+updated value needs to be read for an operation on a packet variable.
 \end{enumerate}
 
 \subsection{Detecting memory sharing across stages}
