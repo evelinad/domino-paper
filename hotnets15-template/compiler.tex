@@ -103,11 +103,11 @@ between a pair of instructions, it is safe to combine them.
 can still combine them because the underlying hardware executes actions within
 a stage simultaneously, which preserves the right semantics for
 Write-After-Read dependencies.
-\item If there is a Read-After-Write dependency where a state variable is
-updated in one instruction and needs to written into a packet variable, we can
-still merge these instructions by replicating the same state update operation
-for the packet update operation as well and relying on the fact that both
-operations execute in parallel.
+\item If there is a Read-After-Write dependency where a variable is updated in
+one instruction and the updated variable needs to written into another
+variable, we can still merge these instructions by replicating the same update
+operation for both variables and relying on the fact that both operations
+execute in parallel.
 \end{enumerate}
 With the above criteria, we merge a stage with the next instruction using our
 greedy algorithm if the next instruction can be executed in parallel with every
