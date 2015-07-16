@@ -48,6 +48,11 @@ to first execute three operations in parallel: decrement the IP TTL field, and
 then set the egress port and the next hop IP address in a switch-internal
 header.  Then, after all three operations are done, the switch uses the next
 hop IP address to set the destination MAC address.
+% The way the code is structured is to have three "seemingly" sequential
+% statements that are: x, y, and z.  But, hidden beneath this sequential
+% structure are statements that are actually executed in parallel.  Needless to
+% say, this intermixing of sequential and parallel semantics is very hard for
+% programmer to convince herself of the correctness of the program.
 
 Mixing sequential and parallel semantics makes it difficult to structure
 programs and reason about correctness. It makes it especially hard for

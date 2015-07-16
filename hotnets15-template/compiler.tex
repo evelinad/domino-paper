@@ -103,11 +103,17 @@ between a pair of instructions, it is safe to combine them.
 can still combine them because the underlying hardware executes actions within
 a stage simultaneously, which preserves the right semantics for
 Write-After-Read dependencies.
+% TODO: Only works if it fits that particular format
+% (state, pkt.f) = (Guarded_Arithmetic(pkt.field, state, pkt.field), state) 
+
 \item If there is a Read-After-Write dependency where a variable is updated in
 one instruction and the updated variable needs to written into another
 variable, we can still merge these instructions by replicating the same update
 operation for both variables and relying on the fact that both operations
 execute in parallel.
+% TODO: Only works if it fits that other mold:
+% (state, pkt.f) = (Guarded_Arithmetic(pkt.field, state, pkt.field), state) 
+% Really, the second one is a superset of the first.
 \end{enumerate}
 With the above criteria, we merge a stage with the next instruction using our
 greedy algorithm if the next instruction can be executed in parallel with every
