@@ -20,13 +20,19 @@ a programmable parser that turns packets into a bag of header fields. The
 ingress and egress pipelines have a number of physical pipeline stages that can
 process these header fields using a sequence of match-action tables.
 
+%Chang: Is this approximation of arithmetic using lookup tables reasonable?
+%Assuming we can burn a huge table to do it.
 Such tables match on arbitrary header fields and carry out actions in response
 to a match.  The actions are built out of simpler action primitives, which
-represent simple arithmetic and logic operations on packet fields. To remain
-performance competitive with fixed-function switches~\cite{mellanox, trident,
-tomahawk}, each action primitive can modify only one packet field, although
-several action primitives can be grouped together into larger actions using a
-Very-Large Instruction Word if they can all execute in parallel without
+represent simple arithmetic (add/sub/shift) and logic operations on packet
+fields.  More involved arithmetic (divide, multiply, modulo) can be
+approximated using a lookup table because a match-action table can be
+repurposed into a function lookup table.
+
+To remain performance competitive with fixed-function switches~\cite{mellanox,
+trident, tomahawk}, each action primitive can modify only one packet field,
+although several action primitives can be grouped together into larger actions
+using a Very-Large Instruction Word if they can all execute in parallel without
 violating data dependencies such as two instructions writing to the same packet
 field (Write-After-Write) or an instruction reading from the same packet field
 that was written to previously (Read-After-Write).
