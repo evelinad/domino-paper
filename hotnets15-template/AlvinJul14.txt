@@ -1,19 +1,3 @@
-1. Explaining our crazy dependency-based algorithm.
-2. Alvin's viewpoint: we compile to P4 with extensions,
-   we don't say "automatically" compiled.
-3. We take advantage of P4's optimizations and so on.
-
---> Go with the story: Compile Domino to P4.
---> Don't call it: data-plane algorithms at line rate.
---> Instead call it Data-plane programming for everyone.
-
-Compilation to P4 is not totally trivial.
-===============================================
-If P4 doesn't support tupled instructions, then even if the compiler
-can recognize it we are out of luck.
-
-Can we just say we compile to P4 and omit the target architecture altogether? 
-
 -----------------------------
 Conclude with a summary at section 2.5 on why building a compiler is difficult:
 It's because we need to map a high-level language into a lower-level language / hardware.
@@ -40,28 +24,3 @@ Here are the challenges:
 2. Stateful business.
 3. Handling control flow.
 4. A number of preprocessing steps to make the job of partitioner easier.
-
-One-packet compiler is too Russian doll like: compiler within a compiler.
-
-Change the title of 5.4 to something other than the One-Packet Compiler.
-Change title to Partitioning based on dependencies or partitioning into tables or something.
-
-Say something more about coalescing:
------------------------------------------
-Ok, so replace 5.4 with a work-list algorithm.
-
-What is missing is a proof of correctness:
----------------------------------------
-
-Work-list algorithm from Alvin:
-----------------------------------
-1. Totally respect control flow.
-2. Every single statement as its own stage.
-3. Then, try and combine consecutive stages only if they don't write to the same variable and if one doesn't read a variable written by the other.
-
-===========================================
-Alvin's algorithm:
---> Reordering of state variables to bring them as close as possible to avoid recirculation (future pointer)
---> FOllow that with a work list
-
-Double check with Chang on the semantics of read and write in the same clock.
