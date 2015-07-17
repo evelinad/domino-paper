@@ -36,23 +36,21 @@ facilitate compiler-backend optimizations such as table
 placement~\cite{lavanya_compiler}.
 
 The proximity to hardware complicates language semantics. P4's
-semantics~\cite{p4spec} are such that all actions within a given table are
-executed in parallel. However, to activate match-action tables, each table
-needs to be included in a control-flow program, which executes sequentially.
-Taken together, this mix of sequential and parallel semantics means that
-the net effect of even extremely simple P4 programs is hard to state crisply.
+semantics~\cite{p4spec}, inspired by the underlying hardware, are such that all
+actions within a given table are executed in parallel. However, to activate
+match-action tables, each table needs to be included in a control-flow program,
+which executes sequentially.  Taken together, this mix of sequential and
+parallel semantics means that the net effect of even extremely simple P4
+programs is hard to state crisply.
 
-For instance, simple\_router.p4~\cite{simple_router.p4} is a program that
-implements longest-prefix-match IP routing. It's effect on any given packet is
-to first execute three operations in parallel: decrement the IP TTL field, and
-then set the egress port and the next hop IP address in a switch-internal
-header.  Then, after all three operations are done, the switch uses the next
-hop IP address to set the destination MAC address.
-% The way the code is structured is to have three "seemingly" sequential
-% statements that are: x, y, and z.  But, hidden beneath this sequential
-% structure are statements that are actually executed in parallel.  Needless to
-% say, this intermixing of sequential and parallel semantics is very hard for
-% programmer to convince herself of the correctness of the program.
+For instance, consider simple\_router.p4~\cite{simple_router.p4}: a program
+that implements longest-prefix-match IP routing. Its effect, at first glance,
+is a sequence of two statements: to apply an IPv4 longest prefix match, and
+then to use the match result  to set the destination MAC address. However,
+hidden beneath this sequential facade is the fact that the longest prefix match
+actually executes three operations in parallel: decrementing the IP TTL field,
+setting the egress port, and the next hop IP address in a switch-internal
+header.
 
 Mixing sequential and parallel semantics makes it difficult to structure
 programs and reason about correctness. It makes it especially hard for
