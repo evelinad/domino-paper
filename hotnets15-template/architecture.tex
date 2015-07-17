@@ -1,49 +1,47 @@
-\section{The architecture of a programmable switch}
-\label{s:context}
+\section{Primer on programmable switches}
+\label{s:architecture}
 
 \begin{figure*}[t]
 \includegraphics[width=\textwidth]{p4_switch_model.pdf}
-\caption{The RMT architecture}
+\caption{The RMT architecture. Packet field and state variables correspond to
+names used in Table~\ref{table:stateful_inst}}
 \label{fig:architecture}
 \end{figure*}
 
-\label{s:architecture}
-In this section, we briefly describe the Reconfigurable Match-Action Table
-(RMT) architecture~\cite{rmt}, a representative programmable switch
-architecture targeted by \pktlanguage{}. Other switches with similar
-programmable architectures include Intel's FlexPipe~\cite{flexpipe} and
-Cavium's Xpliant~\cite{xpliant}.
+This section provides a brief primer on the architecture of a programmable
+switch to provide sufficient context for the rest of the paper. For
+concreteness, we describe the Reconfigurable Match-Action Table (RMT)
+architecture~\cite{rmt}, a representative programmable switch architecture
+targeted by \pktlanguage{}. Other switches with similar programmable
+architectures include Intel's FlexPipe~\cite{flexpipe} and Cavium's
+Xpliant~\cite{xpliant}.
 
-Figure~\ref{fig:architecture} provides a high-level overview of the RMT
-architecture. Packets enter the switch through serial links and are handled by
-a programmable parser that turns packets into a bag of header fields. The
-ingress and egress pipelines have a number of physical pipeline stages that can
-process these header fields using a sequence of match-action tables.
+Packets entering a programmable switch are parsed by a programmable parser that
+turns packets into a set of header fields. The set of packet headers is first
+processed by an ingress pipeline consisting of match-action tables arranged in
+stages. The packet then enters the switch scheduler, and once it has exited the
+scheduler, it is processed by a similar egress pipeline.
 
-%Chang: Is this approximation of arithmetic using lookup tables reasonable?
-%Assuming we can burn a huge table to do it.
-Such tables match on arbitrary header fields and carry out actions in response
-to a match.  The actions are built out of simpler action primitives, which
-represent simple arithmetic (add/sub/shift) and logic operations on packet
-fields.  More involved arithmetic (divide, multiply, modulo) can be
-approximated using a lookup table because a match-action table can be
-repurposed into a function lookup table.
+Packet processing itself happens within the match-action tables contained
+inside these pipelines. Specifically, the actions carry out packet processing
+in response to a match. Our discussion below focuses on the acitons executed
+within each pipeline assuming some match-action table has been setup within
+each pipeline stage to match on packets on interest.
 
-To remain performance competitive with fixed-function switches~\cite{mellanox,
-trident, tomahawk}, each action primitive can modify only one packet field,
-although several action primitives can be grouped together into larger actions
-using a Very-Large Instruction Word if they can all execute in parallel without
-violating data dependencies such as two instructions writing to the same packet
-field (Write-After-Write) or an instruction reading from the same packet field
-that was written to previously (Read-After-Write).
+{\textbf Actions within the pipeline}
+The action unit within each pipeline stage~\ref{fig:architecture} processes
+packet headers by applying a sequence of modifications to packet fields and/or
+state stored in each stage. Each stage can carry out simple stateless
+arithmetic operations (add/sub/shift) on packet fields using a Very Large
+Instruction Word that carries out operations on distinct header fields in
+parallel.
 
-The RMT architecture also includes a set of atomic stateful operations, i.e.,
-operations that allow packets to manipulate persistent state atomically from
-one packet to the next.  We summarize these in
-Table~\ref{t:stateful_inst}.\footnote{We use the symbols {\tt x} to refer to
-stateful variables and {\tt pkt.<>} to refer to a packet field. {\tt
-pkt.field} can be substituted for a constant operand in places that are
-appropriate.}
+Each stage can also update state contained within that stage alone based both
+on the previous value of the same state and packet header fields. This stateful
+update is atomic: the updated value of state is available for the next packet.
+However, it is very limited. Table~\ref{table:stateful_inst} illustrates a
+sample of these stateful update instructions.
+
 \begin{table}
 \begin{small}
 \begin{tabular}{|c|c|}
@@ -58,7 +56,11 @@ Conditional execution & \texttt{x = pkt.predicate ? pkt.field : x;} \\
 \hline
 \end{tabular}
 \end{small}
-\caption{Atomic stateful instructions in the RMT architecture}
+\caption{Atomic stateful instructions in the RMT architecture. We use the
+symbols {\tt x} to refer to stateful variables and {\tt pkt.<>} to refer to a
+packet field. Both packet fields and stateful variables are also illustrated in
+Figure~\ref{fig:architecture}}
+
 \label{t:stateful_inst}
 \end{table}
 %\item Packed operations on pairs of stateful variables: \texttt{ (x, y) = (x + y, x - y);}
@@ -72,9 +74,9 @@ field. To let a stage communicate state information to a predecessor stage
 upstream, the RMT architecture allows packets to be cloned and recirculated
 back into a pipeline.
 
-This way, a state variable can be read in stage x, written downstream in stage
-y, and then a cloned packet to stage x could update the state variable in x.
+This way, a state variable $x$ can be read in stage 1, written downstream in stage
+2, and then a cloned packet to stage 1 could update the state variable $x$ in stage 1.
 However, recirculation has a cost: recirculated packets consume pipeline
 capacity by taking away capacity from new data packets. Further, recirculation
 latency can be large: several hundred packets might pass through the pipeline
-before the recirculated packet update state in stage x.
+before the recirculated packet updates state in stage 1.
