@@ -21,8 +21,7 @@ as a sequence of passes and describe each of them in turn below.
 
 \subsection{Converting to straight-line code}
 A general transaction body can contain convoluted control flow using if-else
-statements. As an extreme example, consider the source code for CoDel:
-\url{http://queue.acm.org/appendices/codel.html}. Control flow complicates
+statements. Control flow complicates
 dependence analysis. We eliminate control flow by transforming if-else
 statements using the ternary operator, starting from the innermost if
 statements and recursing outwards using a well-known procedure called if
