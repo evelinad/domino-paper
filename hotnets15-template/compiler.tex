@@ -12,7 +12,7 @@ source-to-source approach lets us focus on correctness issues when translating
 \pktlanguage into P4 and lets a P4 compiler handle backend optimizations such
 as table placement using target-specific information~\cite{lavanya_compiler}.
 It also allows us to automatically leverage ongoing industry work on P4
-compilation to hardware targets~\cite{netronome, xilinx}.
+compilation to hardware targets~\cite{xilinx}.
 
 Figure~\ref{fig:flow} provides a high-level overview of the input and output to
 the compiler for the running example that we use throughout this section: load
@@ -21,13 +21,13 @@ as a sequence of passes and describe each of them in turn below.
 
 \subsection{Converting to straight-line code}
 A general transaction body can contain convoluted control flow using if-else
-statements. Control flow complicates
-dependence analysis. We eliminate control flow by transforming if-else
-statements using the ternary operator, starting from the innermost if
-statements and recursing outwards using a well-known procedure called if
-conversion~\cite{allen_if_conversion}.  This transformation creates
-straight-line code, where control always passes from one statement to the next
-without any branching.
+statements. Control flow complicates dependence analysis. We eliminate control
+flow by transforming if-else statements using the C conditional operator,
+starting from the innermost if statements and recursing outwards using a
+well-known procedure called if conversion~\cite{allen_if_conversion}.  This
+transformation creates straight-line code, where control always passes from one
+statement to the next without any branching. As an example, the statement
+
 
 \subsection{Predicate minimization}
 Next, we simplify the predicates used in the ternary operator if possible.  In
