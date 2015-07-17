@@ -36,15 +36,14 @@ facilitate compiler-backend optimizations such as table
 placement~\cite{lavanya_compiler}.
 
 The proximity to hardware complicates language semantics. P4's
-semantics~\cite{p4spec}, inspired by the underlying hardware, are such that all
-actions within a given table are executed in parallel. However, to activate
-match-action tables, each table needs to be included in a control-flow program,
-which executes sequentially.  Taken together, this mix of sequential and
-parallel semantics means that the net effect of even extremely simple P4
-programs is hard to state crisply.
+semantics~\cite{p4spec} specify that all actions within a given table are
+executed in parallel. However, to activate match-action tables, each table
+needs to be included in a control-flow program, which executes sequentially.
+Taken together, this mix of sequential and parallel semantics means that the
+net effect of even extremely simple P4 programs is hard to state crisply.
 
 For instance, consider simple\_router.p4~\cite{simple_router.p4}: a program
-that implements longest-prefix-match IP routing. Its effect, at first glance,
+that only implements longest-prefix-match IP routing. Its effect, at first glance,
 is a sequence of two statements: to apply an IPv4 longest prefix match, and
 then to use the match result  to set the destination MAC address. However,
 hidden beneath this sequential facade is the fact that the longest prefix match
@@ -61,28 +60,17 @@ processors~\cite{npu}), to reimplement their algorithms in P4.
 
 In this paper, we propose a new DSL, \pktlanguage~(\S\ref{s:language}), for
 expressing data-plane algorithms. \pktlanguage is a high-level, imperative
-language that allows programmers to express data-plane algorithms using the
-concept of a {\em transaction}: a block of code that executes atomically on
-each packet and in isolation from other packets executing the same code block.
-
-%\ac{does the citation defines what transactions are in networking? If so we
-%should just quote from that} Anirudh: Not sure if this covers it? Let me know
-%what you think.
-
-%
-%Using transactions allow designers to easily express a wide variety of
-%algorithms, as has been previously demonstrated in packet-processing code for
-%other network elements such as software routers~\cite{click},
-%NPUs~\cite{intel}, active queue-management and scheduling
-%algorithms~\cite{qdisc}, and SDN controllers~\cite{maple}.
-%Anirudh: We repeat this in too many places including language.tex and
-%two paragraphs above.
+language that allows programmers to express data-plane algorithms for
+programmable switch architectures~(\S\ref{s:architecture}) using the concept of
+a {\em transaction}: a block of code that executes atomically on each packet
+and in isolation from other packets executing the same code block.
 
 We are currently implementing a compiler for \pktlanguage~(\S\ref{s:compiler})
 that targets P4 as the backend. Given input source code written as a
-transaction in \pktlanguage, our compiler produces a P4 program as an output.
-This P4 program can then be run through a P4 compiler that carries out backend
+transaction in \pktlanguage, our compiler produces a P4 program as an output,
+approximating transactional semantics, if required~(\S\ref{ss:patching}.  This
+P4 program can then be run through a P4 compiler that carries out backend
 optimizations to permit efficient execution on programmable switches.  We
-present preliminary experiments in expressing non-trivial real-world data-plane
-algorithms using \pktlanguage~(\S\ref{s:evaluation}) and conclude with several
-areas of future work~(\S\ref{s:future}).
+present preliminary experiments demonstrating the correctness of code generated
+by the compiler~(\S\ref{s:evaluation}) and conclude with several areas of
+future work~(\S\ref{s:future}).

@@ -146,6 +146,7 @@ x;} into the stage following \texttt{x = x + y;} causing spurious memory
 sharing.
 
 \subsection{Patching code to achieve memory sharing}
+\label{ss:patching}
 The previous pass might detemine that a stateful variable needs to be shared
 across stages, because it is read in one and written in a stage downstream. If
 this is the case, we need to clone a packet and recirculate back to the first
