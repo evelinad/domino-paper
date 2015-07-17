@@ -24,10 +24,9 @@ queueing latencies, and interarrival times. In effect, this creates a set of
 random test vectors that we can use to check if the partitioned code is correct
 wrt the transactional specification.
 
-\subsection{Correctness}
-\label{ss:correctness}
-
-The goal of this experiment is to check that our compiled \pktlanguage program
+%% \subsection{Correctness}
+%% \label{ss:correctness}
+We ran a simple experiment to check that our compiled \pktlanguage program
 behaves the same as the original. 
 We used Poisson traffic with an intensity of 0.3 and 0.7 packets per tick to
 and generated 100000 packets to compare the transactional specification and
@@ -44,7 +43,7 @@ partitioned, with very high probability.
 % in the compiler.
 % TODO: Be consistent between pipelined and partitioned.
 
-\subsection{Approximating algorithms}
-Present EWMA example. Show how
-1. Without MAC instructions, you need to use recirculation, which leverages the approximate nature of EWMA.
-2. With MAC instructions, you can do EWMA exactly.
+%% \subsection{Approximating algorithms}
+%% Present EWMA example. Show how
+%% 1. Without MAC instructions, you need to use recirculation, which leverages the approximate nature of EWMA.
+%% 2. With MAC instructions, you can do EWMA exactly.
