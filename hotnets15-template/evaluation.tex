@@ -8,14 +8,16 @@
 
 We built a simple tick-based simulator to evaluate the correctness of
 partitioning. Our simulator instantiates a configurable number of pipeline
-stages and allows us to run arbitrary code within each stage. To run the
+stages and runs arbitrary code within each stage. To run the
 original input transactional code, we create exactly one pipeline stage and run
-the entire transactional code within it. To run out partitioned code, we create
+the entire transactional code within it. \ac{I thought doing this would return 
+incorrect results for flowlet.} To run our partitioned code, we create
 as many pipeline stages as the number of partitions and run the code from each
-partition within the corresponding pipeline stage.
+partition within the corresponding pipeline stage. \ac{why do you need to do 
+that if the compiler already generates partitioned P4 code as output?}
 
 To simulate a variety of random packet inputs to our simulator, we use a
-traffic source that samples from a Poission distribution every clock tick.
+traffic source that samples from a Poisson distribution every clock tick.
 While Poisson traffic is unrealistic, it provides sufficient randomness in
 time-sensitive packet fields such as the enqueue and dequeue queue sizes,
 queueing latencies, and interarrival times. In effect, this creates a set of
@@ -25,7 +27,9 @@ wrt the transactional specification.
 \subsection{Correctness}
 \label{ss:correctness}
 
-We used Poission traffic with an intensity of 0.3 and 0.7 packets per tick to
+The goal of this experiment is to check that our compiled \pktlanguage program
+behaves the same as the original. 
+We used Poisson traffic with an intensity of 0.3 and 0.7 packets per tick to
 and generated 100000 packets to compare the transactional specification and
 pipelined implementation of the flowlet switching. We also randomize the source
 and destination ports used to determine the next hop in flowlet switching.
