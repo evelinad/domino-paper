@@ -1,1 +1,15 @@
 \section*{Abstract}
+
+Data-plane algorithms encompass a wide-variety of packet processing
+routines. Such algorithms are usually
+implemented in hardware, whose inflexibility prohibits
+experiments with new designs. While programmable switches have been
+proposed as an alternative, they are often difficult to program due 
+to limited language support. In this paper, we propose \pktlanguage, 
+a new language for expressing data-plane algorithms on programmable
+switches. \pktlanguage is a high-level, imperative language where 
+developers express data-plane algorithms using packet functions with
+transactional semantics. In this paper we describe our prototype compiler that
+translates \pktlanguage programs into P4 scripts that can be implemented
+in programmable switches, and our experience in using \pktlanguage to 
+implement several data-plane algorithms. 
