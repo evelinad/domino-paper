@@ -20,7 +20,9 @@ Each \pktlanguage program is structured using
 and a set of variables representing the state of the switch as input.
 This design is based on the observation that many data-plane algorithms can
 be expressed as ones that process each packet individually given the current 
-state of the switch. Examples include XXX, and XXX.
+state of the switch. Examples include XXX, and XXX. \ac{are packet functions
+supposed to return anything? or do they modify the packet in place? how to 
+express things like dropping the input packet?}
 We believe this abstraction allows network operators to easily structure
 and reason about their algorithms.
 
