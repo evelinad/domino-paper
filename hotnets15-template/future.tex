@@ -1,5 +1,57 @@
-\section{Future work}
+\section{Conclusion and Future work}
 \label{s:future}
+
+In this paper we presented \pktlanguage, a new high-level language for expressing 
+data-plane
+algorithms. While our compiler prototype has achieved promising initial results, 
+the design of our language opens up 
+a number of interesting open problems to be explored:
+
+\paragraph{Scheduling algorithms}
+Packet scheduling~\cite{XXX, XXX} is another important class of data-plane algorithms.
+However, they do not currently fit the \pktlanguage packet function abstraction
+as scheduling decisions are often based on groups of packets rather than individual
+ones. We will extend \pktlanguage, for instance by providing another class of packet
+function that takes in a packet buffer as input, for implementing scheduling algorithms.
+However, this will raise new challenges in compilation as packet buffers cannot be
+easily implemented in our current backend (P4) \ac{check if true}.
+\ac{any other classes besides scheduling?}
+
+\paragraph{Richer program constructs}
+Likewise, we will extend \pktlanguage to provide additional program constructs
+to increase the expressivity of the language. For instance, supporting 
+arrays and user-defined types. Such constructs are useful for expressing 
+algorithms such as XXX and XXX.
+
+\ac{drop this if not enough space}
+\paragraph{Additional backends}
+We will investigate compiling \pktlanguage to other backends in addition to P4. 
+As a high-level language, \pktlanguage can be targeted to different backends, 
+such as XXX, and even directly 
+to switch hardware itself. \ac{is there a name for this? I suppose
+it's not Verilog or VHDL} The goal is to implement different parts of the source 
+program using different backends to leverage the benefits provided by each one:
+\ac{give examples}.
+
+
+\paragraph{Cost Modeling and Systematic Approximation}
+As described in Section~\ref{s:context}, 
+packet recirculation mechanism can be used to pass stateful variable values  
+from a given stage to its predecessor,
+in cases where the partitioner fails to combine such
+operations into a single stage.
+However, doing so results in approximating the semantics of
+the input \pktlanguage program, as packets that are already in the pipeline 
+while recirculation takes place might be processed based on stale values of the
+switch. We will investigate analytical methods to quantify the effects of
+such approximation on program semantics by leveraging recent work from
+the programming languages community~\cite{sampsonApprox, chisel}. 
+Furthermore, we will design cost
+models to evaluate different partitionings and incorporate such methods into
+the cost model as well. 
+
+
+\if 0
 1. Arrays and other aggregates.
 2. Table layout: compiling to P4 and then go down. Make it the P4 compiler's problem.
 TCP traffic and end-to-end evaluation of approximation quality like video quality in approximate computing.
@@ -7,3 +59,4 @@ So far our approach to evaluating approximations is empirical, not analytical. A
 3. Scheduling, by definition, requires looking at multiple packets together to
 make a decision on what packet to schedule next, while data-plane algorithms
 operate independenly on each packe
+\fi
