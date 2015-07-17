@@ -66,6 +66,6 @@ a network-wide transaction.
 
  \pktlanguage{} is inspired by these prior systems in its use of transactions.
 However, it's emphasis on compiling these transactions to extremely minimal,
-constrained architectures like the RMT model is new. While this may seem
-radical, past work has reported success with pipeliniing datapaths into Verilog
-automatically, a similar, if not harder problem than ours.
+constrained architectures like the RMT model is new. These architectures also
+result in a new set of tradeoffs: a larger program doesn't run slowly. Instead,
+it doesn't run at all, unless suitably approximated.
