@@ -32,13 +32,13 @@ egress pipeline. banzai models a generic packet-processing pipeline, with the
 only distinction between ingress and egress being the set of packet headers
 available at the entrace of each pipeline.
 
-Packet processing itself happens within the stages contained inside these
-pipelines. Each stage contains a vector of atoms: a body of code that process
-and modify a packet and complete execution before the next packet arrives at
-the stage.  An atom may also contain hidden state that can influence the atom's
-behavior from one packet to the next. An example of a counter that could be
-written as an atom as follows (we use the notation to p(``x'') to represent access
-to field ``x'' within a packet or state variable ``x''.
+Packet processing happens within pipeline stages. Each stage contains a vector
+of atoms: a body of code that processes and modifies a packet before the next
+packet arrives at the stage.  An atom may also contain internal state that can
+influence the atom's behavior from one packet to the next. A packet counter
+could be written as an atom as follows (we use the notation to
+p(``x'') to represent access to field ``x'' within a packet or state variable
+``x''.
 \begin{verbatim}
 void counter(Packet & p, State & s) {
   p("tmp")     = s("counter");
@@ -48,14 +48,14 @@ void counter(Packet & p, State & s) {
 }
 \end{verbatim}
 
-banzai is a shared-nothing architecture: state variables are local to a
-particular atom and can only be shared with atoms in subsequent stages by using
-packet fields.  This restriction reflects the capabilities of most switches
-today: building memories that can be simultaneously accessed from multiple
-switch stages is technically challenging.  To let a stage communicate state
-information to a predecessor stage upstream, banzai allows packets to be cloned
-and recirculated back into a pipeline, modeling the loopback interfaces found
-on most switches today.
+banzai is a shared-nothing architecture: state variables are internal to a
+particular atom and their values can only be communicated with atoms in
+subsequent stages by using packet fields.  This restriction reflects the
+capabilities of most switches today: building memories that can be
+simultaneously accessed from multiple switch stages is technically challenging.
+To let a stage communicate state information to a predecessor stage upstream,
+banzai allows packets to be cloned and recirculated back into a pipeline,
+modeling the loopback interfaces found on most switches today.
 
 This way, a state variable $x$ can be read in an atom $A$ in stage 1, written
 downstream in stage 2, and then a cloned packet to stage 1 could update the
@@ -101,7 +101,9 @@ the same or another address.
 For concreteness, we describe the combinational circuit as an imperative
 program below. We use the following notation:
 \begin{enumerate}
-\item \texttt{state\_hi} and \texttt{state\_lo} refer to two stateful addresses.
+\item \texttt{state\_hi} and \texttt{state\_lo} refer to two stateful variables
+  located at two distinct addresses in stateful memory that are fetched before
+  the circuit executes.
 \item \texttt{packet\_hi} and \texttt{packet\_lo} refer to two packet fields.
 \item \texttt{\{a,b,c\}} denotes the fact that either a, b, or c could be used
 in a particular location.
