@@ -4,44 +4,46 @@
 Data-plane algorithms~\cite{cestan} are algorithms that are implemented within
 a network switch. These algorithms process every data packet that passes
 through the switch, transforming the packet and/or state of the switch itself.
-Examples of such algorithms include in-network load balancing
-algorithms~\cite{conga, ecmp}, congestion-control that uses feedback from
-switches~\cite{xcp, rcp, pdq, dctcp}, and network measurement~\cite{opensketch,
-bitmap_george, elephant_george}.
+Examples of such algorithms include congestion-control that uses feedback from
+switches~\cite{xcp, rcp, pdq, dctcp}, active queue management~\cite{codel},
+network measurement~\cite{opensketch, bitmap_george, elephant_george}, and
+load-balanced routing in the data plane~\cite{conga}.
 
 Because data-plane algorithms process every packet, an important requirement is
 the ability to run at the switch's line rate.  As a result, these algorithms
-are primarily implemented using dedicated hardware. Hardware designs are rigid
-and inflexible, making it difficult to experiment with new algorithms.
+are primarily implemented using dedicated hardware. However, hardware designs
+are rigid and inflexible, making it difficult to experiment with new
+algorithms.
 
 This rigidity affects network switch vendors that build network
 equipment~\cite{cisco_nexus, dell_force10, arista_7050} based on
-merchant-silicon switching chips,  datacenter operators that use such chips
-within their private networks~\cite{jupiter}, and researchers developing new
-switch algorithms~\cite{xcp, codel, d3, detail, pdq}. In all cases, the only
-way to implement a new data-plane algorithm is to expressly build hardware for
-it---a time-consuming and resource-intensive process.
+merchant-silicon switching chips,  network operators that use such chips within
+their private networks~\cite{jupiter,amazon,isp}, and researchers developing
+new switch algorithms~\cite{xcp, codel, d3, detail, pdq}. In all cases, the
+only way to implement a new data-plane algorithm is to expressly build hardware
+for it---a time-consuming and resource-intensive process.
 
 Programmable switching chips~\cite{flexpipe, xpliant, rmt} that are
 performance-competitive with state of the art fixed-function
 chipsets~\cite{trident, tomahawk, mellanox} have emerged as an alternative.
-They allow designers to express their algorithms using a domain-specific
-language (DSL) (e.g., P4~\cite{p4}, packetC~\cite{packetc}, PX~\cite{px}).
+These chips allow designers to express their algorithms using a domain-specific
+language such as P4~\cite{p4}, propreitary SDKs such as the XPliant SDK~\cite{xpliant_sdk},
+or APIs such as the switch-abstraction interface~\cite{sai}.
+%~\cite{http://files.opencompute.org/oc/public.php?service=files&t=10c4eb2695c253e9e2fa58329fd53a82}
+% ~\cite{http://www.cavium.com/newsevents-Cavium-XPliant-Switches-and-Microsoft-Azure-Networking-Achieve-SAI-Routing-Interoperability.html}
 
-Of these DSLs, P4 is currently the most prominent. Unfortunately, P4 is too
-close to the underlying network hardware. Inspired by the underlying hardware
-~\cite{flexpipe, rmt}, P4 exposes match-action tables as first class objects.
-While proximity to hardware simplifies compilation, it complicates the
-language.
+% I think PX applies only to FPGAs.  packetC, POF, and all its related cousins
+% apply to NPUs only (by and large).  Really, the state-of-the art for
+% programmble switching chips is only P4 and proprietary APIs.
 
-P4 specifies that all actions that result from matching a packet header in a
-match-action table are to be executed in parallel ~\cite{p4spec}. However, the
-sequence of match-action tables seen by a packet is determined by a
-control-flow program with sequential semantics. Mixing sequential and parallel
-semantics causes programmers to often write incorrect code. For instance, we
-have noticed that it's all too easy for programmers to assume sequential rather
-than parallel semantics for actions within a match-action
-table~\cite{p4semantics}.
+These approaches bear a close resemblance to the underlying hardware, forcing
+programmers to reason about low-level pipeline semantics and hardware
+concurrency, and place a high burden on developers who are used to writing
+sequential programs in a high-level language (such as C) for software
+routers~\cite{click}, and network processors~\cite{packetc, ixp, microenginec,
+nova}. As evidence, we point the reader to
+\url{https://github.com/anirudhSK/p4-semantics}, which documents instances of
+incorrect P4 code caused by confusion in language semantics.
 
 % Anirudh->Alvin: I am getting rid of this because I now have more direct evidence
 % that the sequential + parallel mixup doesn't work, which I presented at the P4
@@ -60,50 +62,56 @@ table~\cite{p4semantics}.
 %%header.
 %%
 
-%%It makes it especially hard for
-%%programmers, who are used to writing sequential packet processing programs in a
-%%high-level language such as C (for instance, in software routers~\cite{click,
-%%intel_multicore}, the Linux qdisc subsystem~\cite{qdisc}, and network
-%%processors~\cite{npu}), to reimplement their algorithms in P4.
-
 This paper presents a new DSL, \pktlanguage~(\S\ref{s:language}), for
 expressing data-plane algorithms. \pktlanguage is a high-level, imperative
 language that allows programmers to express data-plane algorithms using {\em
 packet transactions}: sequential blocks of code that run to completion on each
 packet and in isolation from other packets executing the same code block.
-% TODO: Say somewhere that the domain allowed us to play quite a few tricks with
-% the language and the compiler. Simpler if conversion, simpler SSA, syntactic dep
-% analysis, trivial CSE.
+\pktlanguage is heavily constrained by the capabilities of switch targets: for
+instance, it forbids all iterative constructs. Constraining \pktlanguage leads
+to a simpler compiler for \pktlanguage~(\S\ref{s:compiler}), relative to
+compilers~\cite{ixp} for imperative languages that target more flexible devices
+such as network processors and software routers.
 
-We present a compiler for \pktlanguage~(\S\ref{s:compiler}) that takes a packet
-transaction written in \pktlanguage and generates code for an abstract machine,
-\absmachine~(\S\ref{ss:abstract_machine}). \absmachine introduces the notion of
-an \textit{atom}: a unit of atomic packet processing that is visible before the
-next packet. \absmachine specifies a switch pipeline as a grid of atoms with
-the horizontal axis representing physical pipeline stages and the vertical axis
-representing concurrency within each stage. By constraining the complexity of
-each atom~(\S\ref{ss:complexity}), \absmachine models limits on computation in
-line-rate switches.
+The \pktlanguage compiler takes a packet transaction written in \pktlanguage
+and generates code for an abstract machine,
+\absmachine~(\S\ref{ss:abstract_machine}).  \absmachine introduces the notion
+of an \textit{atom}: a sequential code block consisting of multiple
+packet-processing instructions. These instructions are assumed to execute
+atomically: their effect is visible in entirety before the next packet is
+processed. Internally, an atom can encapsulate local state that affects the
+atom's behavior from packet to packet, e.g.  switch counters.
+
+Using atoms as a building block, \absmachine specifies a switch pipeline as a
+grid of atoms with the horizontal axis representing physical pipeline stages
+and the vertical axis representing concurrency within each stage.  By limiting
+the number and type of instructions within each atom~(\S\ref{ss:complexity}),
+\absmachine models limits on computation in line-rate switches.
+% Btw, our limits can be a little more "non-linear" than the number and type of
+% instructions, such as a circuit template.
 
 While existing uses of transactions in databases~\cite{db_trans}, network
 processors ~\cite{npus}, and software routers~\cite{click} guarantee isolation,
 their performance depends on transaction complexity. Packet transactions, by
-contrast, are completely deterministic. All packet transactions that are
-implementable either run at the switch's line rate, or are rejected by the
-compiler.
+contrast, are deterministic. All packet transactions that are implementable
+either run at the switch's line rate, or are rejected by the compiler.
 
-Expressing data-plane algorithms as high-level transactional code blocks has
-an important practical benefit. Because the original data-plane algorithm can
-be executed, we can feed the same input to both the user-supplied code and the
-generated implementation to verify that the outputs match up bit-for-bit. We
-use this to develop an automated tester, \tester , that can probabilistically
-verify the correctness of individual compilations in a manner resembling
-translation validation~\cite{necula_validation}.
+Expressing data-plane algorithms as packet transactions has an important
+practical benefit.  Conceptually, a packet transaction is just one large atom,
+and hence can be executed on \absmachine.  By feeding the same test input to
+both the user-supplied packet transaction and the pipelined atom grid that
+implements the transaction, we can to verify that the outputs match up
+bit-for-bit. We use this to develop an automated tester, \tester , that can
+probabilistically verify the correctness of individual compilations in a manner
+resembling translation validation~\cite{necula_validation}.
 
-We express several data-plane algorithms in \pktlanguage~(\S\ref{s:evaluation})
-to determine if they are implementable, given specific constraints imposed by
-\absmachine. In the process, we provide guidance for how programmable hardware
-should evolve in the future to support the needs of data-plane algorithms.
+Using \pktlanguage, we express several data-plane algorithms such as flowlet
+switching~\cite{flowlet}, data-plane bloom filters~\cite{bloom}, heavy-hitter
+detection, CoDel~\cite{codel}, and CONGA~\cite{conga}. We determine if they are
+implementable, given specific constraints imposed by \absmachine. In the
+process, we provide guidance for how programmable hardware should evolve in the
+future to support the needs of data-plane algorithms.
+%TODO: I don't quite know what the guidance is yet. Will have it by the weekend.
 
 We distill lessons learned in the process~(\S\ref{s:lessons}) and describe a
 design for how \pktlanguage can target P4 as a backend, which would allow
