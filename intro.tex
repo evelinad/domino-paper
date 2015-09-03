@@ -71,6 +71,9 @@ expressing data-plane algorithms. \pktlanguage is a high-level, imperative
 language that allows programmers to express data-plane algorithms using {\em
 packet transactions}: sequential blocks of code that run to completion on each
 packet and in isolation from other packets executing the same code block.
+% TODO: Say somewhere that the domain allowed us to play quite a few tricks with
+% the language and the compiler. Simpler if conversion, simpler SSA, syntactic dep
+% analysis, trivial CSE.
 
 We present a compiler for \pktlanguage~(\S\ref{s:compiler}) that takes a packet
 transaction written in \pktlanguage and generates code for an abstract machine,
