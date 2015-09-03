@@ -17,23 +17,24 @@ algorithms.
 
 This rigidity affects network switch vendors that build network
 equipment~\cite{cisco_nexus, dell_force10, arista_7050} based on
-merchant-silicon switching chips,  network operators that use such chips within
-their private networks~\cite{jupiter,amazon,isp}, and researchers developing
-new switch algorithms~\cite{xcp, codel, d3, detail, pdq}. In all cases, the
-only way to implement a new data-plane algorithm is to expressly build hardware
-for it---a time-consuming and resource-intensive process.
+merchant-silicon switching chips,  network operators using such chips within
+private networks~\cite{jupiter,amazon,isp}, and researchers developing new
+switch algorithms~\cite{xcp, codel, d3, detail, pdq}. In all cases, the only
+way to implement a new data-plane algorithm is to expressly build hardware for
+it---a time-consuming and resource-intensive process.
 
 Programmable switching chips~\cite{flexpipe, xpliant, rmt} that are
 performance-competitive with state of the art fixed-function
 chipsets~\cite{trident, tomahawk, mellanox} have emerged as an alternative.
 These chips allow designers to express their algorithms using a domain-specific
-language such as P4~\cite{p4} or propreitary SDKs such as the XPliant
-SDK~\cite{xpliant_sdk}.
+language such as P4~\cite{p4}, propreitary SDKs such as the XPliant
+SDK~\cite{xpliant_sdk}, or open APIs such as the Switch Abstraction Interface
+~\cite{sai}.
 
 These approaches bear a close resemblance to the underlying hardware, forcing
 programmers to reason about low-level pipeline semantics and hardware
-concurrency, and place a high burden on developers who are used to writing
-sequential programs in a high-level language (such as C) for software
+concurrency, and place a high burden on network programmers who are used to
+writing sequential programs in a high-level language (such as C) for software
 routers~\cite{click} and network processors~\cite{packetc, ixp, microenginec,
 nova}.
 
@@ -80,19 +81,22 @@ compilers~\cite{ixp} for imperative languages that target more flexible devices
 such as network processors and software routers.
 
 The \pktlanguage compiler takes a packet transaction written in \pktlanguage
-and generates code for an abstract machine,
-\absmachine~(\S\ref{ss:abstract_machine}).  \absmachine introduces the notion
-of an \textit{atom}: a sequential code block consisting of multiple
-packet-processing instructions. These instructions are assumed to execute
-atomically: their effect is visible in entirety before the next packet is
-processed. Internally, an atom can encapsulate local state that affects the
+and generates code for an abstract machine
+\absmachine~(\S\ref{ss:abstract_machine}) that represents the essential
+features of emerging programmable switching architectures.  In particular,
+\absmachine introduces \textit{atoms}: sequential code blocks consisting of
+multiple packet-processing instructions. These instructions are assumed to
+execute atomically: their effect is visible in entirety before the next packet
+is processed. Internally, an atom can encapsulate local state that affects the
 atom's behavior from packet to packet, e.g.  switch counters.
 
-Using atoms as a building block, \absmachine specifies a switch pipeline as a
-grid of atoms with the horizontal axis representing physical pipeline stages
-and the vertical axis representing concurrency within each stage.  By limiting
-the number and type of instructions within each atom~(\S\ref{ss:complexity}),
-\absmachine models limits on computation in line-rate switches.
+Using atoms as a building block, \absmachine specifies a switch pipeline as an
+atom grid with the horizontal axis representing physical pipeline stages and
+the vertical axis representing concurrency within each stage.  By limiting the
+number and type of instructions within each atom~(\S\ref{ss:complexity}),
+\absmachine models limits on computation in line-rate switches. This allows us
+to define a variety of switch pipelines by varying the number of pipeline
+stages, the number of atoms within each stage, and computation limits on each atom.
 % Btw, our limits can be a little more "non-linear" than the number and type of
 % instructions, such as a circuit template.
 
@@ -102,8 +106,6 @@ transaction throughput depends on transaction complexity. Packet transactions,
 by contrast, guarantee constant throughput. All packet transactions that are
 implementable can run at the switch's line rate, or are rejected by the compiler.
 % Alvin: Database transactions have rollback as well.
-% Just say we are inspired by database transactions.
-% Packet transactions are deterministic: What does that even mean?
 
 Expressing data-plane algorithms as packet transactions has an important
 practical benefit.  A packet transaction is just one large atom, and hence can
@@ -117,11 +119,11 @@ validation~\cite{necula_validation}.
 We use \pktlanguage to express several data-plane algorithms such as flowlet
 switching~\cite{flowlet}, data-plane bloom filters~\cite{bloom}, heavy-hitter
 detection, CoDel~\cite{codel}, and CONGA~\cite{conga}. We determine if they are
-implementable, given specific constraints imposed by \absmachine. In the
-process, we provide guidance for how programmable hardware should evolve in the
-future to support the needs of data-plane algorithms.  We distill lessons
-learned in the process~(\S\ref{s:lessons}) and conclude by placing \pktlanguage
-in context with related work and by outlining several areas for future work.
+implementable, for specific instantiations of \absmachine. In the process, we
+provide guidance for how programmable hardware should evolve in the future to
+support the needs of data-plane algorithms.  We distill lessons learned in the
+process~(\S\ref{s:lessons}) and conclude by placing \pktlanguage in context
+with related work and by outlining several areas for future work.
 %TODO: I don't quite know what the guidance is yet. Will have it by the weekend.
 
 % Alvin thought this was distracting.
