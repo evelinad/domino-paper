@@ -27,23 +27,29 @@ Programmable switching chips~\cite{flexpipe, xpliant, rmt} that are
 performance-competitive with state of the art fixed-function
 chipsets~\cite{trident, tomahawk, mellanox} have emerged as an alternative.
 These chips allow designers to express their algorithms using a domain-specific
-language such as P4~\cite{p4}, propreitary SDKs such as the XPliant SDK~\cite{xpliant_sdk},
-or APIs such as the switch-abstraction interface~\cite{sai}.
-%~\cite{http://files.opencompute.org/oc/public.php?service=files&t=10c4eb2695c253e9e2fa58329fd53a82}
-% ~\cite{http://www.cavium.com/newsevents-Cavium-XPliant-Switches-and-Microsoft-Azure-Networking-Achieve-SAI-Routing-Interoperability.html}
-
-% I think PX applies only to FPGAs.  packetC, POF, and all its related cousins
-% apply to NPUs only (by and large).  Really, the state-of-the art for
-% programmble switching chips is only P4 and proprietary APIs.
+language such as P4~\cite{p4} or propreitary SDKs such as the XPliant
+SDK~\cite{xpliant_sdk}.
 
 These approaches bear a close resemblance to the underlying hardware, forcing
 programmers to reason about low-level pipeline semantics and hardware
 concurrency, and place a high burden on developers who are used to writing
 sequential programs in a high-level language (such as C) for software
-routers~\cite{click}, and network processors~\cite{packetc, ixp, microenginec,
-nova}. As evidence, we point the reader to
-\url{https://github.com/anirudhSK/p4-semantics}, which documents instances of
-incorrect P4 code caused by confusion in language semantics.
+routers~\cite{click} and network processors~\cite{packetc, ixp, microenginec,
+nova}.
+
+%~\cite{http://files.opencompute.org/oc/public.php?service=files&t=10c4eb2695c253e9e2fa58329fd53a82}
+% ~\cite{http://www.cavium.com/newsevents-Cavium-XPliant-Switches-and-Microsoft-Azure-Networking-Achieve-SAI-Routing-Interoperability.html}
+% There doesn't even exist an alternative besides hardware if there aren't
+% languages such as hardware.
+
+% I think PX applies only to FPGAs.  packetC, POF, and all its related cousins
+% apply to NPUs only (by and large).  Really, the state-of-the art for
+% programmble switching chips is only P4 and proprietary APIs.
+
+% Alvin->Anirudh: Leave out the sentence about P4 alone.
+%%As evidence, we point the reader to
+%%\url{https://github.com/anirudhSK/p4-semantics}, which documents instances of
+%%incorrect P4 code caused by confusion in language semantics.
 
 % Anirudh->Alvin: I am getting rid of this because I now have more direct evidence
 % that the sequential + parallel mixup doesn't work, which I presented at the P4
@@ -92,29 +98,32 @@ the number and type of instructions within each atom~(\S\ref{ss:complexity}),
 
 While existing uses of transactions in databases~\cite{db_trans}, network
 processors ~\cite{npus}, and software routers~\cite{click} guarantee isolation,
-their performance depends on transaction complexity. Packet transactions, by
-contrast, are deterministic. All packet transactions that are implementable
-either run at the switch's line rate, or are rejected by the compiler.
+transaction throughput depends on transaction complexity. Packet transactions,
+by contrast, guarantee constant throughput. All packet transactions that are
+implementable can run at the switch's line rate, or are rejected by the compiler.
+% Alvin: Database transactions have rollback as well.
+% Just say we are inspired by database transactions.
+% Packet transactions are deterministic: What does that even mean?
 
 Expressing data-plane algorithms as packet transactions has an important
-practical benefit.  Conceptually, a packet transaction is just one large atom,
-and hence can be executed on \absmachine.  By feeding the same test input to
-both the user-supplied packet transaction and the pipelined atom grid that
-implements the transaction, we can to verify that the outputs match up
-bit-for-bit. We use this to develop an automated tester, \tester , that can
-probabilistically verify the correctness of individual compilations in a manner
-resembling translation validation~\cite{necula_validation}.
+practical benefit.  A packet transaction is just one large atom, and hence can
+be executed on \absmachine.  Feeding the same test input to both the
+user-supplied packet transaction and the pipelined atom grid that implements it
+allows us to verify that the outputs match up bit-for-bit. We use this to
+develop an automated tester, \tester, that probabilistically verifies the
+correctness of compilations in a manner resembling translation
+validation~\cite{necula_validation}.
 
-Using \pktlanguage, we express several data-plane algorithms such as flowlet
+We use \pktlanguage to express several data-plane algorithms such as flowlet
 switching~\cite{flowlet}, data-plane bloom filters~\cite{bloom}, heavy-hitter
 detection, CoDel~\cite{codel}, and CONGA~\cite{conga}. We determine if they are
 implementable, given specific constraints imposed by \absmachine. In the
 process, we provide guidance for how programmable hardware should evolve in the
-future to support the needs of data-plane algorithms.
+future to support the needs of data-plane algorithms.  We distill lessons
+learned in the process~(\S\ref{s:lessons}) and conclude by placing \pktlanguage
+in context with related work and by outlining several areas for future work.
 %TODO: I don't quite know what the guidance is yet. Will have it by the weekend.
 
-We distill lessons learned in the process~(\S\ref{s:lessons}) and describe a
-design for how \pktlanguage can target P4 as a backend, which would allow
-developers to run \pktlanguage on any target that supports P4. We conclude by
-placing \pktlanguage in context with related work and by outlining several
-areas for future work.
+% Alvin thought this was distracting.
+%% design for how \pktlanguage can target P4 as a backend, which would allow
+%% developers to run \pktlanguage on any target that supports P4.
