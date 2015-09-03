@@ -1,11 +1,9 @@
 \section{Context and system overview}
 
-We start this section by presenting an abstract machine, \textit{\absmachine} that
-captures several important features of programmable switch
-architectures~(\S\ref{ss:abstract}) with deterministic performance. We use
-\absmachine as the compiler target throughout the paper and later
-discuss~(\S\ref{s:p4}) how targeting P4 would allow domino to run on
-programmable switching chips.
+We present an abstract machine, \textit{\absmachine} that captures several
+important features of programmable switch architectures~(\S\ref{ss:abstract})
+with deterministic performance. \absmachine is our compiler target throughout
+the paper.
 
 \subsection{\absmachine: An abstract machine for programmable switches}
 \begin{figure*}[!t]
@@ -24,13 +22,14 @@ the only difference being the packet fields available at the entrance of these
 pipelines. Being an abstract machine, \absmachine only models mechanisms that are
 critical to mapping data-plane algorithms. In particular, it models the
 computation that happens in each match-action table (i.e. the action half of
-the match-action table). Notably, \absmachine doesn't model packet parsing nor the
-matching semantics of each match-action table (direct, ternary, or LPM).
+the match-action table), but not the match semantics (direct, ternary, or longest
+prefix). Notably, \absmachine doesn't model packet parsing.
 
-A switch pipeline in \absmachine has a number of pipeline stages that execute in
-parallel. Each stage contains a vector of \textit{atoms}, with the atoms
-themselves executing in parallel. Informally, an atom is an atomic unit of
-packet processing and is represented by a body of imperative code that executes
+A switch pipeline in \absmachine has a number of pipeline stages that execute
+in parallel with a packet being handed off from one pipeline stage to the next.
+Each stage contains a vector of \textit{atoms}, with the atoms themselves
+executing in parallel. Informally, an atom is an atomic unit of packet
+processing and is represented by a body of imperative code that executes
 sequentially. An atom is assumed to complete execution and modify a packet
 before the next packet is processed by that atom.
 
@@ -58,15 +57,14 @@ on independent packet fields in parallel. The presence of internal state in an
 atom models persistent switch state residing on a switch such as meters,
 counters, , and P4's register abstraction in a unified manner.
 
-\textbf{Performance constraints on atoms} \\
+\textbf{Constraints on atoms} \\
 
-Any switch hardware that is expected to run at line rate will need to constrain
-atoms to bound the execution latency of each atom and provide deterministic
-performance regardless of the computations carried out by each atom. We impose
-two such constraints that distinguish \absmachine from software packet-processing
-platforms such as Click and Network Processors such as the Intel IXP, which
-tradeoff deterministic performance for greater flexibility in expressing packet
-processing code.
+Any switch hardware running at line rate will need to constrain atoms to bound
+the execution latency of each atom and provide deterministic performance. We
+impose two such constraints that distinguish \absmachine from software
+packet-processing platforms such as Click and Network Processors such as the
+Intel IXP, which tradeoff deterministic performance for greater flexibility in
+expressing packet processing code.
 
 First, \absmachine is a shared-nothing architecture: state variables are internal to
 a particular atom and their values can only be communicated with atoms in
@@ -79,17 +77,17 @@ multiple switch stages is technically challenging.
 %%\absmachine allows packets to be cloned and recirculated back into a pipeline,
 %%modeling the loopback interfaces found on most switches today.
 Second, we constrain the complexity of atom bodies by definining how atoms are
-executed. One execution model is an in-order CPU that can execute at most $N$
-instructions sequentially. Another is a configurable combinational circuit in
-hardware~\cite{dataflow}, where the circuit limits the space of feasible
-computations and needs its control signals to be configured to match the
-behavior of the atom.
+executed. One execution model is an in-order load-store CPU that can execute at
+most $N$ instructions sequentially. Another is a configurable combinational
+circuit in hardware~\cite{dataflow}, where the circuit limits the space of
+feasible computations and needs its control signals to be configured to match
+the behavior of the atom.
 
 We use both models in this paper. For stateless atoms that don't modify state,
 we constrain atom bodies to consist of only statements that can be represented
 as three-instruction codes. Further, we allow exactly one statement in each
-atom body. This roughly corresponds to the set of primitive actions available
-in P4/RMT.  For atoms that do modify state, we consider both models
+atom body. This corresponds to the set of primitive actions available today in
+P4/RMT.  For atoms that do modify state, we consider both models
 (\S\ref{s:constraints}) and evaluate how atom body constraints affect whether
 or not packet-processing code can be mapped onto \absmachine.
 
@@ -113,8 +111,6 @@ executes from start to finish on each packet and conceptually processes only
 one packet at a time. For a programmer, the packet transaction represents
 exactly what happens to every packet. Every packet is processed in isolation
 and to completion before the next packet's processing begins.
-% TODO: Show how each packet is processed to completion in the transactional world,
-% while packets are interleaved in the pipelined world.
 
 In practice though, switch hardware is heavily pipelined
 (Figure~\ref{fig:switch}).  A compiler automatically translates the
