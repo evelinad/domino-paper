@@ -1,16 +1,16 @@
 \section{Context and system overview}
 
-We start this section by presenting an abstract machine, \textit{banzai} that
+We start this section by presenting an abstract machine, \textit{\absmachine} that
 captures several important features of programmable switch
 architectures~(\S\ref{ss:abstract}) with deterministic performance. We use
-banzai as the compiler target throughout the paper and later
+\absmachine as the compiler target throughout the paper and later
 discuss~(\S\ref{s:p4}) how targeting P4 would allow domino to run on
 programmable switching chips.
 
-\subsection{Banzai: An abstract machine for programmable switches}
+\subsection{\absmachine: An abstract machine for programmable switches}
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{banzai.pdf}
-  \caption{The Banzai abstract machine and its relationship to programmable switch architectures.}
+  \caption{The \absmachine abstract machine and its relationship to programmable switch architectures.}
   \label{fig:switch}
 \end{figure*}
 Our abstract machine is directly inspired by programmable switch architectures
@@ -19,15 +19,15 @@ FlexPipe, and Cavium's XPliant. These architectures assume a switch model
 (Figure~\ref{fig:switch}) that consists of an ingress pipeline, followed by the
 switch scheduler, followed by an egress pipeline.
 
-banzai is an abstract machine that models either of these two pipelines, with
+\absmachine is an abstract machine that models either of these two pipelines, with
 the only difference being the packet fields available at the entrance of these
-pipelines. Being an abstract machine, banzai only models mechanisms that are
+pipelines. Being an abstract machine, \absmachine only models mechanisms that are
 critical to mapping data-plane algorithms. In particular, it models the
 computation that happens in each match-action table (i.e. the action half of
-the match-action table). Notably, banzai doesn't model packet parsing nor the
+the match-action table). Notably, \absmachine doesn't model packet parsing nor the
 matching semantics of each match-action table (direct, ternary, or LPM).
 
-A switch pipeline in banzai has a number of pipeline stages that execute in
+A switch pipeline in \absmachine has a number of pipeline stages that execute in
 parallel. Each stage contains a vector of \textit{atoms}, with the atoms
 themselves executing in parallel. Informally, an atom is an atomic unit of
 packet processing and is represented by a body of imperative code that executes
@@ -51,7 +51,7 @@ from the RMT architecture) can be written as the atom below:
   p.field   = value;
 \end{verbatim}
 
-The banzai abstract machine generalizes several aspects of a programmable
+The \absmachine abstract machine generalizes several aspects of a programmable
 switch architecture. The vector of atoms in each stage generalizes RMT's
 very-large instruction-word (VLIW)~\cite{rmt} that executes primitive actions
 on independent packet fields in parallel. The presence of internal state in an
@@ -63,12 +63,12 @@ counters, , and P4's register abstraction in a unified manner.
 Any switch hardware that is expected to run at line rate will need to constrain
 atoms to bound the execution latency of each atom and provide deterministic
 performance regardless of the computations carried out by each atom. We impose
-two such constraints that distinguish banzai from software packet-processing
+two such constraints that distinguish \absmachine from software packet-processing
 platforms such as Click and Network Processors such as the Intel IXP, which
 tradeoff deterministic performance for greater flexibility in expressing packet
 processing code.
 
-First, banzai is a shared-nothing architecture: state variables are internal to
+First, \absmachine is a shared-nothing architecture: state variables are internal to
 a particular atom and their values can only be communicated with atoms in
 subsequent stages by writing these state variables into packet fields that are
 then read downstream.  This restriction reflects the capabilities of most
@@ -76,7 +76,7 @@ switches today: building memories that can be simultaneously accessed from
 multiple switch stages is technically challenging.
 
 %%To let a stage communicate state information to a predecessor stage upstream,
-%%banzai allows packets to be cloned and recirculated back into a pipeline,
+%%\absmachine allows packets to be cloned and recirculated back into a pipeline,
 %%modeling the loopback interfaces found on most switches today.
 Second, we constrain the complexity of atom bodies by definining how atoms are
 executed. One execution model is an in-order CPU that can execute at most $N$
@@ -91,7 +91,7 @@ as three-instruction codes. Further, we allow exactly one statement in each
 atom body. This roughly corresponds to the set of primitive actions available
 in P4/RMT.  For atoms that do modify state, we consider both models
 (\S\ref{s:constraints}) and evaluate how atom body constraints affect whether
-or not packet-processing code can be mapped onto banzai.
+or not packet-processing code can be mapped onto \absmachine.
 
 % --> Packet transactions and how this is different from other transactions.
 \subsection{Packet transactions}

@@ -9,72 +9,101 @@ algorithms~\cite{conga, ecmp}, congestion-control that uses feedback from
 switches~\cite{xcp, rcp, pdq, dctcp}, and network measurement~\cite{opensketch,
 bitmap_george, elephant_george}.
 
-Because data-plane algorithms process every packet going through the switch, a
-major performance requirement is the ability to run at the switch's line rate.
-As a result, these algorithms are primarily implemented using dedicated
-hardware. Hardware designs are rigid and inflexible, making it difficult to
-experiment with new algorithms.
+Because data-plane algorithms process every packet, an important requirement is
+the ability to run at the switch's line rate.  As a result, these algorithms
+are primarily implemented using dedicated hardware. Hardware designs are rigid
+and inflexible, making it difficult to experiment with new algorithms.
 
-This rigidity affects multiple stakeholders. Companies that build network
-switches~\cite{cisco_nexus, dell_force10, arista_7050} based on
-merchant-silicon switching chips, would prefer to express new switch features
-in firmware, not new hardware.  Datacenter operators like Google, Facebook,
-Microsoft, and Amazon would like to experiment with new switch algorithms
-within an unencumbered private network.  Finally, researchers continuously come
-up with new switch algorithms~\cite{xcp, codel, d3, detail, pdq}, which so far
-can be tested only using software routers or a simulator.
+This rigidity affects network switch vendors that build network
+equipment~\cite{cisco_nexus, dell_force10, arista_7050} based on
+merchant-silicon switching chips,  datacenter operators that use such chips
+within their private networks~\cite{jupiter}, and researchers developing new
+switch algorithms~\cite{xcp, codel, d3, detail, pdq}. In all cases, the only
+way to implement a new data-plane algorithm is to expressly build hardware for
+it---a time-consuming and resource-intensive process.
 
-Programmable switching chips~\cite{flexpipe, xpliant, rmt} with performance
-comparable with state of the art fixed-function chipsets~\cite{trident,
-tomahawk, mellanox} have emerged as an alternative.  They allow designers to
-express their algorithms using a domain-specific language (DSL) (e.g.,
-P4~\cite{p4}, packetC~\cite{packetc}, PX~\cite{px}).  Unfortunately, such DSLs
-are too close to the underlying network hardware.  For instance, P4's design
-exposes match-action tables as first class objects and bears a close
-resemblance to the underlying programmable hardware~\cite{flexpipe, rmt} to
-facilitate compiler-backend optimizations such as table
-placement~\cite{lavanya_compiler}.
+Programmable switching chips~\cite{flexpipe, xpliant, rmt} that are
+performance-competitive with state of the art fixed-function
+chipsets~\cite{trident, tomahawk, mellanox} have emerged as an alternative.
+They allow designers to express their algorithms using a domain-specific
+language (DSL) (e.g., P4~\cite{p4}, packetC~\cite{packetc}, PX~\cite{px}).
 
-The proximity to hardware complicates language semantics. P4's
-semantics~\cite{p4spec} specify that all actions within a given table are
-executed in parallel. However, to activate match-action tables, each table
-needs to be included in a control-flow program, which executes sequentially.
-Taken together, this mix of sequential and parallel semantics means that the
-net effect of even extremely simple P4 programs is hard to state crisply.
+Of these DSLs, P4 is currently the most prominent. Unfortunately, P4 is too
+close to the underlying network hardware. Inspired by the underlying hardware
+~\cite{flexpipe, rmt}, P4 exposes match-action tables as first class objects.
+While proximity to hardware simplifies compilation, it complicates the
+language.
 
-For instance, consider simple\_router.p4~\cite{simple_router.p4}: a program
-that only implements longest-prefix-match IP routing. Its effect, at first glance,
-is a sequence of two statements: to apply an IPv4 longest prefix match, and
-then to use the match result  to set the destination MAC address. However,
-hidden beneath this sequential facade is the fact that the longest prefix match
-actually executes three operations in parallel: decrementing the IP TTL field,
-setting the egress port, and the next hop IP address in a switch-internal
-header.
+P4 specifies that all actions that result from matching a packet header in a
+match-action table are to be executed in parallel ~\cite{p4spec}. However, the
+sequence of match-action tables seen by a packet is determined by a
+control-flow program with sequential semantics. Mixing sequential and parallel
+semantics causes programmers to often write incorrect code. For instance, we
+have noticed that it's all too easy for programmers to assume sequential rather
+than parallel semantics for actions within a match-action
+table~\cite{p4semantics}.
 
-Mixing sequential and parallel semantics makes it difficult to structure
-programs and reason about correctness. It makes it especially hard for
-programmers, who are used to writing sequential packet processing programs in a
-high-level language such as C (for instance, in software routers~\cite{click,
-intel_multicore}, the Linux qdisc subsystem~\cite{qdisc}, and network
-processors~\cite{npu}), to reimplement their algorithms in P4.
+% Anirudh->Alvin: I am getting rid of this because I now have more direct evidence
+% that the sequential + parallel mixup doesn't work, which I presented at the P4
+% consortium to get them to switch to sequential.
+%%Taken together, this mix of sequential and parallel
+%%semantics means that the net effect of even extremely simple P4 programs is
+%%hard to state crisply.
 
-In this paper, we propose a new DSL, \pktlanguage~(\S\ref{s:language}), for
+%%For instance, simple\_router.p4~\cite{simple_router.p4} is a program that only
+%%implements longest-prefix-match IP routing. Its effect, at first glance,
+%%is a sequence of two statements: to apply an IPv4 longest prefix match, and
+%%then to use the match result  to set the destination MAC address. However,
+%%hidden beneath this sequential facade is the fact that the longest prefix match
+%%actually executes three operations in parallel: decrementing the IP TTL field,
+%%setting the egress port, and the next hop IP address in a switch-internal
+%%header.
+%%
+
+%%It makes it especially hard for
+%%programmers, who are used to writing sequential packet processing programs in a
+%%high-level language such as C (for instance, in software routers~\cite{click,
+%%intel_multicore}, the Linux qdisc subsystem~\cite{qdisc}, and network
+%%processors~\cite{npu}), to reimplement their algorithms in P4.
+
+This paper presents a new DSL, \pktlanguage~(\S\ref{s:language}), for
 expressing data-plane algorithms. \pktlanguage is a high-level, imperative
-language that allows programmers to express data-plane algorithms for
-programmable switch architectures~(\S\ref{s:architecture}) using the concept of
-a {\em transaction}: a block of code that executes atomically on each packet
-and in isolation from other packets executing the same code block.
+language that allows programmers to express data-plane algorithms using {\em
+packet transactions}: sequential blocks of code that run to completion on each
+packet and in isolation from other packets executing the same code block.
 
-We are currently implementing a compiler for \pktlanguage~(\S\ref{s:compiler})
-that targets P4 as the backend. Given input source code written as a
-transaction in \pktlanguage, our compiler produces a P4 program as output.
-Where the underlying architecture~(\S\ref{s:architecture}) makes it impossible
-to respect transactional semantics, the compiler approximates transactional
-semantics, leveraging the fact that many data-plane algorithms such as
-congestion control and measurement are robust to such approximations.
+We present a compiler for \pktlanguage~(\S\ref{s:compiler}) that takes a packet
+transaction written in \pktlanguage and generates code for an abstract machine,
+\absmachine~(\S\ref{ss:abstract_machine}). \absmachine introduces the notion of
+an \textit{atom}: a unit of atomic packet processing that is visible before the
+next packet. \absmachine specifies a switch pipeline as a grid of atoms with
+the horizontal axis representing physical pipeline stages and the vertical axis
+representing concurrency within each stage. By constraining the complexity of
+each atom~(\S\ref{ss:complexity}), \absmachine models limits on computation in
+line-rate switches.
 
-The resulting P4 program can then be run through a P4 compiler that carries out
-backend optimizations to permit efficient execution on programmable switches.
-We present preliminary experiments demonstrating the correctness of code
-generated by the compiler~(\S\ref{s:evaluation}) and conclude with several
-areas of future work~(\S\ref{s:future}).
+While existing uses of transactions in databases~\cite{db_trans}, network
+processors ~\cite{npus}, and software routers~\cite{click} guarantee isolation,
+their performance depends on transaction complexity. Packet transactions, by
+contrast, are completely deterministic. All packet transactions that are
+implementable either run at the switch's line rate, or are rejected by the
+compiler.
+
+Expressing data-plane algorithms as high-level transactional code blocks has
+an important practical benefit. Because the original data-plane algorithm can
+be executed, we can feed the same input to both the user-supplied code and the
+generated implementation to verify that the outputs match up bit-for-bit. We
+use this to develop an automated tester, \tester , that can probabilistically
+verify the correctness of individual compilations in a manner resembling
+translation validation~\cite{necula_validation}.
+
+We express several data-plane algorithms in \pktlanguage~(\S\ref{s:evaluation})
+to determine if they are implementable, given specific constraints imposed by
+\absmachine. In the process, we provide guidance for how programmable hardware
+should evolve in the future to support the needs of data-plane algorithms.
+
+We distill lessons learned in the process~(\S\ref{s:lessons}) and describe a
+design for how \pktlanguage can target P4 as a backend, which would allow
+developers to run \pktlanguage on any target that supports P4. We conclude by
+placing \pktlanguage in context with related work and by outlining several
+areas for future work.
