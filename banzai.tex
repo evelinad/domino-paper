@@ -1,11 +1,10 @@
-\section{Context and system overview}
+\section{\absmachine: An abstract machine for programmable switches}
 
 We present an abstract machine, \textit{\absmachine} that captures several
 important features of programmable switch architectures~(\S\ref{ss:abstract})
 with deterministic performance. \absmachine is our compiler target throughout
 the paper.
 
-\subsection{\absmachine: An abstract machine for programmable switches}
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{banzai.pdf}
   \caption{The \absmachine abstract machine and its relationship to programmable switch architectures.}
@@ -17,13 +16,13 @@ FlexPipe, and Cavium's XPliant. These architectures assume a switch model
 (Figure~\ref{fig:switch}) that consists of an ingress pipeline, followed by the
 switch scheduler, followed by an egress pipeline.
 
-\absmachine is an abstract machine that models either of these two pipelines, with
-the only difference being the packet fields available at the entrance of these
-pipelines. Being an abstract machine, \absmachine only models mechanisms that are
-critical to mapping data-plane algorithms. In particular, it models the
-computation that happens in each match-action table (i.e. the action half of
-the match-action table), but not the match semantics (direct, ternary, or longest
-prefix). Notably, \absmachine doesn't model packet parsing.
+\absmachine is an abstract machine that models either of these two pipelines,
+with the only difference being the packet fields available at the entrance of
+these pipelines. Being an abstract machine, \absmachine only models mechanisms
+that are critical to mapping data-plane algorithms. In particular, it models
+the computation that happens in each match-action table (i.e. the action half
+of the match-action table), but not the match semantics (direct, ternary, or
+longest prefix). Notably, \absmachine doesn't model packet parsing.
 
 A switch pipeline in \absmachine has a number of pipeline stages that execute
 in parallel with a packet being handed off from one pipeline stage to the next.
@@ -36,7 +35,7 @@ before the next packet is processed by that atom.
 An atom may also contain internal state that can influence the atom's behavior
 from one packet to the next and persists across packets. For instance, a switch
 counter could be written as an atom as follows\footnote{We use the notation p.x
-  to represent access to field ``x'' within a packet p and the notation x to
+to represent access to field ``x'' within a packet p and the notation x to
 represent access to the state variable ``x'' that persists across packets}.
 \begin{verbatim}
   p.tmp     = counter;
@@ -90,37 +89,3 @@ atom body. This corresponds to the set of primitive actions available today in
 P4/RMT.  For atoms that do modify state, we consider both models
 (\S\ref{s:constraints}) and evaluate how atom body constraints affect whether
 or not packet-processing code can be mapped onto \absmachine.
-
-% --> Packet transactions and how this is different from other transactions.
-\subsection{Packet transactions}
-\begin{figure}
-  \includegraphics[width=\columnwidth]{spec_vs_impl.pdf}
-  \caption{A packet transaction and its implementation}
-  \label{fig:trans}
-\end{figure}
-
-Having described our target architecture, we now describe a programming model
-for it, inspired by database transactions. Transactions are the strongest
-guarantee that a database system can provide in that the effect of a
-transaction is either entirely visible or not with no intermediate state being
-visible to the outside world.
-
-We repurpose database transactions for data-plane programming by defining the
-notion of a \textit{packet transaction}: a body of sequential code that
-executes from start to finish on each packet and conceptually processes only
-one packet at a time. For a programmer, the packet transaction represents
-exactly what happens to every packet. Every packet is processed in isolation
-and to completion before the next packet's processing begins.
-
-In practice though, switch hardware is heavily pipelined
-(Figure~\ref{fig:switch}).  A compiler automatically translates the
-programmer's transactional code block into a low-level pipelined implementation
-on the switch hardware (Figure~\ref{fig:trans}).
-
-Put differently, the user's packet transaction is a single atom that captures
-all computations on the packet and encapsulates all the state required to carry
-out the computation.  A compiler then translates this packet transaction into
-into a grid of atoms that is functionally equivalent to the single atom, while
-respecting hardware constraints on each atom's complexity. If the compiler is
-unable to find a mapping, it rejects the packet transaction as being too
-complex for the given target.
