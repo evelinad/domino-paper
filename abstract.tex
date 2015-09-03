@@ -1,15 +1,19 @@
-\section*{Abstract}
+\subsection*{Abstract}
 
-Data-plane algorithms encompass a wide-variety of packet processing
-routines. Such algorithms are usually
-implemented in hardware, whose inflexibility prohibits
-experiments with new designs. While programmable switches have been
-proposed as an alternative, they are often difficult to program due 
-to limited language support. In this paper, we propose \pktlanguage, 
-a new language for expressing data-plane algorithms on programmable
-switches. \pktlanguage is a high-level, imperative language where 
-developers express data-plane algorithms using packet functions with
-transactional semantics. In this paper we describe our prototype compiler that
-translates \pktlanguage programs into P4 scripts that can be implemented
-in programmable switches, and our experience in using \pktlanguage to 
-implement several data-plane algorithms. 
+Data-plane algorithms encompass a wide-variety of packet processing routines
+including congestion control, network measurement, active queue management, and
+load balancing. Today, such algorithms are implemented in hardware, whose
+inflexibility prohibits experiments with new designs. While programmable
+switches have been proposed as an alternative, they are often difficult to
+program due to the low-level nature of languages like P4 used to program them.
+
+This paper presents \pktlanguage, a new language for expressing data-plane
+algorithms on programmable switches. \pktlanguage is a high-level, imperative
+language where developers express data-plane algorithms using packet functions
+with transactional semantics. We describe a compiler that translates
+\pktlanguage programs into pipelined implementations that run on an abstract
+machine resembling emerging programmable switch architectures. We express
+several data-plane algorithms in \pktlanguage to understand how capabilities of
+the underlying abstract machine affect the implementability of different
+algorithms---providing guidance on how such programmable switches should
+evolve.
