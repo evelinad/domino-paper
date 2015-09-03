@@ -6,18 +6,18 @@
   \label{fig:trans}
 \end{figure}
 
-Having described our target architecture, we now describe a programming model
-for it, inspired by database transactions. Transactions are the strongest
-guarantee that a database system can provide in that the effect of a
-transaction is either entirely visible or not with no intermediate state being
-visible to the outside world.
+Transactions are the strongest guarantee that a database system can provide in
+that the effect of a transaction is either entirely visible or not with no
+intermediate state being visible to the outside world.
 
 We repurpose database transactions for data-plane programming by defining the
 notion of a \textit{packet transaction}: a body of sequential code that
 executes from start to finish on each packet and conceptually processes only
-one packet at a time. For a programmer, the packet transaction represents
-exactly what happens to every packet. Every packet is processed in isolation
-and to completion before the next packet's processing begins.
+one packet at a time. For a programmer, the packet transaction represents what
+happens to every packet without having to worry about other packets that are
+currently being processed or how to parallelize her code. Conceptually, every
+packet is processed in isolation and to completion using a sequential block of
+code before the next packet's processing begins.
 
 In practice though, switch hardware is heavily pipelined
 (Figure~\ref{fig:switch}).  A compiler automatically translates the
@@ -31,3 +31,5 @@ into a grid of atoms that is functionally equivalent to the single atom, while
 respecting hardware constraints on each atom's complexity. If the compiler is
 unable to find a mapping, it rejects the packet transaction as being too
 complex for the given target.
+
+% TODO: Add a flowlet switching example as a running example here.
