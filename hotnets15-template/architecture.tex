@@ -1,61 +1,12 @@
 \section{Primer on programmable switch architectures}
 \label{s:architecture}
 
-\begin{figure*}[t]
-\includegraphics[width=\textwidth]{p4_switch_model.pdf}
-\caption{The protocol-independent switch architecture implemented in the
-abstract machine banzai.}
-\label{fig:architecture}
-\end{figure*}
-
-This section provides a brief primer on the architecture of a programmable
-switch to provide sufficient context for the rest of the paper. For
-concreteness, we describe an idealization of a protocol-independent switch
-architecture~\cite{pisa} that we implement as an abstract machine, banzai, for
-this paper.
-
-banzai captures features of programmable switches such as the Reconfigurable
-Match-Action Table (RMT) architecture~\cite{rmt}, Intel's
-FlexPipe~\cite{flexpipe} and Cavium's Xpliant~\cite{xpliant}. Because banzai is
-an abstract machine, we model mechanisms that are critical to mapping
-data-plane algorithms and abstract out details such as match-action tables, and
-packet parsing. We later show(\S\ref{s:section}) how domino can be integrated
-into a switch compilation pipeline that targets switches with match-action tables
-by using P4 as a backend.
-
-banzai assumes that packets entering a programmable switch have been  parsed by
-a programmable parser that turns packets into a set of header fields. The set
-of packet headers is processed by an ingress pipeline consisting of
-match-action tables arranged in stages. The packet then enters the switch
-scheduler, and once it has exited the scheduler, it is processed by a similar
-egress pipeline. banzai models a generic packet-processing pipeline, with the
-only distinction between ingress and egress being the set of packet headers
-available at the entrace of each pipeline.
-
-Packet processing happens within pipeline stages. Each stage contains a vector
-of atoms: a body of code that processes and modifies a packet before the next
-packet arrives at the stage.  An atom may also contain internal state that can
-influence the atom's behavior from one packet to the next. A packet counter
-could be written as an atom as follows (we use the notation to
-p(``x'') to represent access to field ``x'' within a packet or state variable
-``x''.
-\begin{verbatim}
-void counter(Packet & p, State & s) {
-  p("tmp")     = s("counter");
-  p("tmp2")    = p("tmp") + 1;
-  p("count")   = p("tmp2");
-  s("counter") = p("tmp2");
-}
-\end{verbatim}
-
-banzai is a shared-nothing architecture: state variables are internal to a
-particular atom and their values can only be communicated with atoms in
-subsequent stages by using packet fields.  This restriction reflects the
-capabilities of most switches today: building memories that can be
-simultaneously accessed from multiple switch stages is technically challenging.
-To let a stage communicate state information to a predecessor stage upstream,
-banzai allows packets to be cloned and recirculated back into a pipeline,
-modeling the loopback interfaces found on most switches today.
+%\begin{figure*}[t]
+%\includegraphics[width=\textwidth]{p4_switch_model.pdf}
+%\caption{The protocol-independent switch architecture implemented in the
+%abstract machine banzai.}
+%\label{fig:architecture}
+%\end{figure*}
 
 This way, a state variable $x$ can be read in an atom $A$ in stage 1, written
 downstream in stage 2, and then a cloned packet to stage 1 could update the
