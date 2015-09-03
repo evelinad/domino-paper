@@ -120,83 +120,84 @@ instruction in the current stage. If this criteria isn't satisfied, we create a
 new stage using the next instruction and proceed greedily again until we have
 covered all instructions.
 
-\subsection{Detecting memory sharing across stages}
-In our entire discussion so far, we make no distinction between stateful
-variables and packet-local variables. This is because, if there is only a
-single packet in the system, there is no distinction between the two.
+%%%\subsection{Detecting memory sharing across stages}
+%%%In our entire discussion so far, we make no distinction between stateful
+%%%variables and packet-local variables. This is because, if there is only a
+%%%single packet in the system, there is no distinction between the two.
+%%%
+%%%In this pass, we scan the partitioning looking for stateful variables (any
+%%%globally declared variable), and checking if any stateful variable is read in
+%%%one stage and then written in a subsequent stage. If this is the case, that
+%%%stateful variable needs to be shared across stages and the best we can do is to
+%%%approximately emulate such sharing using recirculation.
+%%%
+%%%Instead, if a stateful variable is written in exactly one stage, but read in
+%%%multiple stages following the stage that it is written in, we can achieve this
+%%%effect by simply writing the stateful variable into a packet field that then
+%%%carries the value to subsequent stages.
+%%%
+%%%We note here that this pass relies on the instruction selection pass to
+%%%determine a good set of instructions that map closely to the hardware. For
+%%%instance, if instruction selection cannot rewrite the set of sequential
+%%%statements: \texttt{x = x + y; y = y + x;} into the tupled form \texttt{(x, y)
+%%%= (x + y, 2 * y + x);}, then the one-packet compiler will move \texttt{y = y +
+%%%x;} into the stage following \texttt{x = x + y;} causing spurious memory
+%%%sharing.
+%%%
 
-In this pass, we scan the partitioning looking for stateful variables (any
-globally declared variable), and checking if any stateful variable is read in
-one stage and then written in a subsequent stage. If this is the case, that
-stateful variable needs to be shared across stages and the best we can do is to
-approximately emulate such sharing using recirculation.
+%%%\subsection{Patching code to achieve memory sharing}
+%%%\label{ss:patching}
+%%%The previous pass might detemine that a stateful variable needs to be shared
+%%%across stages, because it is read in one and written in a stage downstream. If
+%%%this is the case, we need to clone a packet and recirculate back to the first
+%%%stage of the pipeline that it needs to be read in.
+%%%
+%%%Because the pipeline needs to keep up with line rate and cannot be paused, we
+%%%the implementation needs to handle both new data packets and recirculated
+%%%cloned packets that carry state updates. We achieve this by patching the code
+%%%created by the previous pass to execute the algorithm on batches of packets
+%%%instead rather than every packet. We outline the patching procedure below.
+%%%
+%%%The first stage maintains a state variable $in\_progress$ to denote whether the
+%%%algorithm is currently being executed or not. When the first data packet is
+%%%received, it set $in\_progress$ to true, executes whatever other operations
+%%%need to be executed as part of the algorithm itself, and passes the packet
+%%%downstream to other stages with an $execute\_algorithm$ field set in the
+%%%packet. The remaining stages simply follow the lead of the first stage and
+%%%execute the algorithm if the $execute\_algorithm$ field is set, accumulating
+%%%writes to shared variables in packet fields. At the end of the last stage, we
+%%%clone a packet containing all these writes and recirculate it back into the
+%%%pipeline to update all state variables. Once all state is updated, we
+%%%recirculate the cloned packet a second time to reset the $in\_progress$ bit to
+%%%false again.
+%%%
+%%%We are still left with the question of what to do when $in\_progress$ is true
+%%%and a new data packet is received in the pipeline. For now, we simply pass
+%%%these packets through unchanged, although there are likely other alternatives.
+%%%This pass-through mode corresponds roughly to transactional semantics on
+%%%batches of packets, where the batch size is the number of packets that arrive
+%%%during the time it takes to recirculate a packet twice. While this may not be a
+%%%reasonable solution for all data-plane algorithms, some meausrement algorithms
+%%%can work on a sampled stream of packets with graceful performance degradation.
+%%%We evaluate this performance degradation quantitatively in
+%%%\S\ref{ss:evaluation_approx}, leaving a more accurate characterization of possible
+%%%approximations to future work.
 
-Instead, if a stateful variable is written in exactly one stage, but read in
-multiple stages following the stage that it is written in, we can achieve this
-effect by simply writing the stateful variable into a packet field that then
-carries the value to subsequent stages.
-
-We note here that this pass relies on the instruction selection pass to
-determine a good set of instructions that map closely to the hardware. For
-instance, if instruction selection cannot rewrite the set of sequential
-statements: \texttt{x = x + y; y = y + x;} into the tupled form \texttt{(x, y)
-= (x + y, 2 * y + x);}, then the one-packet compiler will move \texttt{y = y +
-x;} into the stage following \texttt{x = x + y;} causing spurious memory
-sharing.
-
-\subsection{Patching code to achieve memory sharing}
-\label{ss:patching}
-The previous pass might detemine that a stateful variable needs to be shared
-across stages, because it is read in one and written in a stage downstream. If
-this is the case, we need to clone a packet and recirculate back to the first
-stage of the pipeline that it needs to be read in.
-
-Because the pipeline needs to keep up with line rate and cannot be paused, we
-the implementation needs to handle both new data packets and recirculated
-cloned packets that carry state updates. We achieve this by patching the code
-created by the previous pass to execute the algorithm on batches of packets
-instead rather than every packet. We outline the patching procedure below.
-
-The first stage maintains a state variable $in\_progress$ to denote whether the
-algorithm is currently being executed or not. When the first data packet is
-received, it set $in\_progress$ to true, executes whatever other operations
-need to be executed as part of the algorithm itself, and passes the packet
-downstream to other stages with an $execute\_algorithm$ field set in the
-packet. The remaining stages simply follow the lead of the first stage and
-execute the algorithm if the $execute\_algorithm$ field is set, accumulating
-writes to shared variables in packet fields. At the end of the last stage, we
-clone a packet containing all these writes and recirculate it back into the
-pipeline to update all state variables. Once all state is updated, we
-recirculate the cloned packet a second time to reset the $in\_progress$ bit to
-false again.
-
-We are still left with the question of what to do when $in\_progress$ is true
-and a new data packet is received in the pipeline. For now, we simply pass
-these packets through unchanged, although there are likely other alternatives.
-This pass-through mode corresponds roughly to transactional semantics on
-batches of packets, where the batch size is the number of packets that arrive
-during the time it takes to recirculate a packet twice. While this may not be a
-reasonable solution for all data-plane algorithms, some meausrement algorithms
-can work on a sampled stream of packets with graceful performance degradation.
-We evaluate this performance degradation quantitatively in
-\S\ref{ss:evaluation_approx}, leaving a more accurate characterization of possible
-approximations to future work.
-
-\subsection{Translating to P4}
-As a final step, we translate the partitioned code (patched, if required)
-into P4. This is a conceptually straightforward process:
-\begin{enumerate}
-\item We add newly created temporary variables to the header and parser
-specifications so that P4 can automatically generate the parser state machine.
-\item We create a P4 logical table for each partition.
-\item The set of packets on which the algorithm will run is specified using
-an appropriate match type (exact, ternary, or longest-prefix) on specific
-header fields within each logical table.
-\item We create a P4 action in each logical table from the code in the
-corresponding partition.
-\item Lastly, the control-flow between P4 tables mirrors the order of
-partitions.
-\end{enumerate}
+%%%\subsection{Translating to P4}
+%%%As a final step, we translate the partitioned code (patched, if required)
+%%%into P4. This is a conceptually straightforward process:
+%%%\begin{enumerate}
+%%%\item We add newly created temporary variables to the header and parser
+%%%specifications so that P4 can automatically generate the parser state machine.
+%%%\item We create a P4 logical table for each partition.
+%%%\item The set of packets on which the algorithm will run is specified using
+%%%an appropriate match type (exact, ternary, or longest-prefix) on specific
+%%%header fields within each logical table.
+%%%\item We create a P4 action in each logical table from the code in the
+%%%corresponding partition.
+%%%\item Lastly, the control-flow between P4 tables mirrors the order of
+%%%partitions.
+%%%\end{enumerate}
 
 %Advanced idioms:
 %--> Pipeline wide memory using recirculation primitive.
