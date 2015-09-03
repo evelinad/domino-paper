@@ -1,6 +1,6 @@
 ##
 
-TARGETS = hotnets15
+TARGETS = paper
 
 TEXFILES = $(wildcard *.tex)
 PDFS = $(addsuffix .pdf,$(TARGETS))
