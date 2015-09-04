@@ -4,10 +4,14 @@
 %TODO: Distinguish against Shahbaz and NickF's NetASM paper that introduces atomic
 % in the related work.
 % The NetASM model does quite a bit of this.
-% I think the differences are:
+% I think the differences from Banzai are:
 % --> They don't constrain the complexity of atoms.
 % --> They allow atomic access to state across multiple stages.
 %     I don't know how this guarantees correctness.
+% --> We restrict atoms to be within one stage.
+% --> We aren't defining an IR at all. We allow arbitrary code within atoms.
+% --> Their cost models include area and latency. We leave this to P4.
+% --> We don't target the same breadth of devices that they do.
 % I should talk to Shahbaz about this.
 
 % microenginec, intel ixpc and everything else from the packetC paper.
