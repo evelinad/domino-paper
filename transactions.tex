@@ -57,9 +57,9 @@ void func(struct Packet pkt) {
   pkt.flow_hash = hash(pkt.src_port, pkt.dst_port,
                        pkt.src_addr, pkt.dst_addr,
                        pkt.protocol);
-  pkt.new_hop = hash(pkt.src_port, pkt.dst_port,
-                     pkt.src_addr, pkt.dst_addr,
-                     pkt.protocol, pkt.arrival_time);
+  pkt.new_hop   = hash(pkt.src_port, pkt.dst_port,
+                       pkt.src_addr, pkt.dst_addr,
+                       pkt.protocol, pkt.arrival_time);
   if (pkt.arrival_time - last_time[pkt.flow_hash] > FLOWLET_THRESHOLD) {
     saved_hop[pkt.flow_hash] = pkt.new_hop;
   }
@@ -72,6 +72,22 @@ void func(struct Packet pkt) {
 \caption{Flowlet switching in \pktlanguage}
 \end{figure}
 
+% TODO: Do we mention programmable parsers anywhere?
 Here, the global arrays \texttt{last\_time} and \texttt{saved\_hop} represent
 the last time a packet was received from a given 5-tuple and the saved value of
-the next hop for that 5-tuple\footnote{Hash function collisions ... }
+the next hop for that 5-tuple.\footnote{Hash function collisions can occur,
+  leading to two flows sharing last\_time and saved\_hop values. As we explain
+later in \S\ref{s:banzai}, this is unavoidable given the constraints on modern
+switch architectures.}. The next\_hop packet field specifies the next hop
+chosen for the packet, which can either be the saved value of next hop or a
+newly computed value.
+
+When compiled to the \absmachine abstract machine, the \pktlanguage compiler
+converts the above code into the pipelined form shown in
+Figure~\ref{fig:pipeline}. Today, programmable switch chips can be programmed
+by manually specifying the pipeline configuration using a language like P4 or
+an API such as Cavium's XPliant SDK. Writing code in \pktlanguage lets a
+compiler automate this process without having the user worry about hardware
+specific details such as pipeline stages and concurrency within each stage.
+
+%TODO: Insert a diagram of the pipeline here.
