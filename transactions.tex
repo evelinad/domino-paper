@@ -1,9 +1,9 @@
 \section{Packet transactions}
-\begin{figure}
-  \includegraphics[width=\columnwidth]{spec_vs_impl.pdf}
-  \caption{A packet transaction and its implementation}
-  \label{fig:trans}
-\end{figure}
+%\begin{figure}
+%  \includegraphics[width=\columnwidth]{spec_vs_impl.pdf}
+%  \caption{A packet transaction and its implementation}
+%  \label{fig:trans}
+%\end{figure}
 
 Transactions are the strongest guarantee that a database system can provide in
 that the effect of a transaction is either entirely visible or not with no
@@ -18,11 +18,6 @@ processed by the switch, how many pipeline stages it has, and how to
 parallelize code. Conceptually, every packet is processed in isolation and to
 completion using a sequential block of code before the next packet's processing
 begins.
-
-In practice though, switch hardware is heavily pipelined
-(Figure~\ref{fig:switch}).  A compiler automatically translates the
-programmer's transactional code block into a low-level pipelined implementation
-on the switch hardware (Figure~\ref{fig:trans}).
 
 % TODO: Add a flowlet switching example as a running example here.
 As an illustration of programming in \pktlanguage, we consider how a programmer
@@ -57,7 +52,7 @@ struct Packet {
 int last_time [NUM_FLOWLETS] = {0};
 int saved_hop [NUM_FLOWLETS] = {0};
 
-void func(struct Packet pkt) {
+void flowlet(struct Packet pkt) {
   pkt.flow_hash = hash5(pkt.src_port, pkt.dst_port,
                         pkt.src_addr, pkt.dst_addr,
                         pkt.protocol);
@@ -77,24 +72,47 @@ void func(struct Packet pkt) {
 \caption{Flowlet switching in \pktlanguage}
 \end{figure}
 
-% Mention language features here.
-
 % TODO: Do we mention programmable parsers anywhere?
-Here, the global arrays \texttt{last\_time} and \texttt{saved\_hop} represent
-the last time a packet was received from a given 5-tuple and the saved value of
-the next hop for that 5-tuple.\footnote{Hash function collisions can occur,
-  leading to two flows sharing last\_time and saved\_hop values. As we explain
-later in \S\ref{s:banzai}, this is unavoidable given the constraints on modern
-switch architectures.}. The next\_hop packet field specifies the next hop
-chosen for the packet, which can either be the saved value of next hop or a
-newly computed value.
+This packet transaction demonstrates the core language constructs in
+\pktlanguage. All packet processing happens in the context of a packet
+transaction, a C function that takes a packet structure as an argument.  In the
+example above, this is the function \texttt{flowlet}. The function body of a
+packet transaction can reference only two types of variables. Packet variables
+are represented as structure members and persist only over the duration of a
+packet, e.g. \texttt{pkt.next\_hop}). State variables are represented as global
+variables and persist across packets, e.g. \texttt{last\_time}.
+
+The function body may also call out to opaque functions such as hash5 and hash6
+that represented hardware units provided by the abstract machine. The compiler
+knows the function signatures for these units and uses these to infer
+read-write dependencies between function arguments and the result, but doesn't
+know anything about the function's implementation. Finally, the function body
+is written in a heavily constrained subset of C that excludes iterative
+constructs, break, goto, and continue statements, pointers, heaps.
+
+% Anirudh->Alvin: Maybe move grammar into appendix?
+
+% Anirudh->Alvin: I think we might want to get rid of a language section and
+% just describe the language as part of this example itself?
+%%Additionally,
+%%\pktlanguage currently only handles scalar packet variables
+%%Permits arrays with the same read and write addresses.
+
+%The global arrays \texttt{last\_time} and \texttt{saved\_hop}
+%represent the last time a packet was received from a given 5-tuple and the
+%saved value of the next hop for that 5-tuple.\footnote{Hash function collisions
+%  can occur, leading to two flows sharing last\_time and saved\_hop values. As
+%we explain later in \S\ref{s:banzai}, this is unavoidable given the constraints
+%on modern switch architectures.}. The next\_hop packet field specifies the next
+%hop chosen for the packet, which can either be the saved value of next hop or a
+%newly computed value.
 
 When compiled to the \absmachine abstract machine, the \pktlanguage compiler
 converts the above code into the pipelined form shown in
-Figure~\ref{fig:pipeline}. Today, programmable switch chips can be programmed
-by manually specifying the pipeline configuration using a language like P4 or
-an API such as Cavium's XPliant SDK. Writing code in \pktlanguage lets a
-compiler automate this process without having the user worry about hardware
-specific details such as pipeline stages and concurrency within each stage.
+Figure~\ref{fig:pipeline}. Today, programmable switch chips are programmed by
+manually specifying pipeline configurations using a language like P4 or an API
+such as Cavium's XPliant SDK. Programming in \pktlanguage lets a compiler
+automate this process: the user doesn't worry about hardware details such as
+pipeline stages and concurrency within each stage.
 
 %TODO: Insert a diagram of the pipeline here.
