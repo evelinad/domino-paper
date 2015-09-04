@@ -72,20 +72,37 @@ void flowlet(struct Packet pkt) {
 % TODO: Do we mention programmable parsers anywhere?
 This packet transaction demonstrates the core language constructs in
 \pktlanguage. All packet processing happens in the context of a packet
-transaction, a C function that takes a packet structure as an argument.  In the
-example above, this is the function \texttt{flowlet}. The function body of a
-packet transaction can reference only two types of variables. Packet variables
-are represented as structure members and persist only over the duration of a
-packet, e.g. \texttt{pkt.next\_hop}). State variables are represented as global
-variables and persist across packets, e.g. \texttt{last\_time}.
+transaction (the function \texttt{flowlet}), a C function that takes a packet
+struct as an argument. The function body of a packet transaction can reference
+only two types of variables. Packet variables are represented as structure
+members and persist only over the duration of a packet, e.g.
+\texttt{pkt.next\_hop}). State variables are represented as global variables
+and persist across packets, e.g. \texttt{last\_time}.
 
 The function body may also call out to opaque functions such as hash5 and hash6
-that represented hardware units provided by the abstract machine. The compiler
-knows the function signatures for these units and uses these to infer
-read-write dependencies between function arguments and the result, but doesn't
-know anything about the function's implementation. Finally, the function body
-is written in a heavily constrained subset of C that excludes iterative
-constructs, break, goto, and continue statements, pointers, heaps.
+that represented hardware units provided by the abstract machine. The
+\pktlanguage compiler knows the function's signature and uses these to infer
+dependencies, but doesn't know anything about its implementation. Finally, the
+function body is written in a heavily constrained subset of C that excludes
+iterative constructs. The function body can include if and else-if statements,
+but all other forms of control-transfer (break, goto, switch, return, and
+continue statements) are forbidden. Lastly, \pktlanguage forbids pointers and
+dynamic memory allocation.
+
+These restrictions may seem severe at first glance, but they are required to
+provide deterministic performance guarantees, and we show (\S\ref{s:eval}) that
+\pktlanguage can still express several data-plane algorithms  of practical
+interest at a much higher level of abstraction than the status quo today.
+
+When compiled to the \absmachine abstract machine, the \pktlanguage compiler
+converts the above code (Figure~\ref{fig:flowlet}) into the pipelined form
+shown in Figure~\ref{fig:pipeline}. Today, programmable switch chips are
+programmed by manually specifying pipeline configurations resembling
+Figure~\ref{fig:pipeline} using a language like P4 or an API such as Cavium's
+XPliant SDK. Programming in \pktlanguage lets a compiler automate this process:
+the user doesn't worry about hardware details such as pipeline stages and
+concurrency within each stage.
+%TODO: Insert a diagram of the pipeline here.
 
 % Anirudh->Alvin: Maybe move grammar into appendix?
 
@@ -103,13 +120,3 @@ constructs, break, goto, and continue statements, pointers, heaps.
 %on modern switch architectures.}. The next\_hop packet field specifies the next
 %hop chosen for the packet, which can either be the saved value of next hop or a
 %newly computed value.
-
-When compiled to the \absmachine abstract machine, the \pktlanguage compiler
-converts the above code into the pipelined form shown in
-Figure~\ref{fig:pipeline}. Today, programmable switch chips are programmed by
-manually specifying pipeline configurations using a language like P4 or an API
-such as Cavium's XPliant SDK. Programming in \pktlanguage lets a compiler
-automate this process: the user doesn't worry about hardware details such as
-pipeline stages and concurrency within each stage.
-
-%TODO: Insert a diagram of the pipeline here.
