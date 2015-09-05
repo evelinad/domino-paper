@@ -1,4 +1,11 @@
 \section{Compiling data-plane algorithms}
+
+% New take at compiler:
+% Frontend: desugar_complex_assignment, int_type_check
+% Middle-end: Algebric simplification, array validator, stateful_flanks, ssa, expr propagater
+% Backend: expr_flattener, instuction_selection, backend synthesis.
+% Maybe combine front and middle-end and call clang's semantic + syntactic analysis + type checker, the frontend.
+
 \label{s:compiler}
 
 \begin{figure}
