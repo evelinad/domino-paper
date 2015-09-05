@@ -1,10 +1,4 @@
 \section{Packet transactions}
-%\begin{figure}
-%  \includegraphics[width=\columnwidth]{spec_vs_impl.pdf}
-%  \caption{A packet transaction and its implementation}
-%  \label{fig:trans}
-%\end{figure}
-
 Transactions are the strongest guarantee that a database system can provide in
 that the effect of a transaction is either entirely visible or not with no
 intermediate state being visible to the outside world.
@@ -31,50 +25,47 @@ receiver, thereby causing it to reorder packets and degrade throughput.
 
 Flowlet switching is conceptually simple to write down and can be expressed
 as the C code block shown in:
-\begin{figure}
-\begin{small}
+\begin{figure}[!h]
+\begin{scriptsize}
 \begin{lstlisting}
 #define NUM_FLOWLETS      8000
 #define FLOWLET_THRESHOLD 5
 
 struct Packet {
-  int src_port;
-  int dst_port;
-  int src_addr;
-  int dst_addr;
-  int protocol;
+  int sport;
+  int dport;
   int new_hop;
   int arrival_time;
   int next_hop;
-  int last_time_idx;
-  int saved_hop_idx;
+  int id0;
+  int id1;
 };
 
 int last_time [NUM_FLOWLETS] = {0};
 int saved_hop [NUM_FLOWLETS] = {0};
 
 void flowlet(struct Packet pkt) {
-  pkt.new_hop   = hash6(pkt.src_port, pkt.dst_port,
-                        pkt.src_addr, pkt.dst_addr,
-                        pkt.protocol, pkt.arrival_time);
-  pkt.last_time_idx = hash5(pkt.src_port, pkt.dst_port,
-                            pkt.src_addr, pkt.dst_addr,
-                            pkt.protocol) % NUM_FLOWLETS;
-  pkt.saved_hop_idx = hash5(pkt.src_port, pkt.dst_port,
-                            pkt.src_addr, pkt.dst_addr,
-                            pkt.protocol) % NUM_FLOWLETS;
-  if (pkt.arrival_time - last_time[pkt.last_time_idx] >
+  pkt.new_hop   = hash3(pkt.sport, pkt.dport, pkt.arrival_time);
+  pkt.id1 = hash2(pkt.sport, pkt.dport) \% NUM_FLOWLETS;
+  pkt.id0 = hash2(pkt.sport, pkt.dport) \% NUM_FLOWLETS;
+  if (pkt.arrival_time - last_time[id1] >
       FLOWLET_THRESHOLD) {
-    saved_hop[pkt.saved_hop_idx] = pkt.new_hop;
+    saved_hop[pkt.id0] = pkt.new_hop;
   }
-  last_time[pkt.last_time_idx] = pkt.arrival_time;
-  pkt.next_hop = saved_hop[pkt.saved_hop_idx];
+  last_time[pkt.id1] = pkt.arrival_time;
+  pkt.next_hop = saved_hop[pkt.id0];
 }
 \end{lstlisting}
-\end{small}
-\label{fig:flowlet}
+\end{scriptsize}
 \caption{Flowlet switching in \pktlanguage}
+\label{fig:flowlet}
 \end{figure}
+
+\begin{figure*}[!t]
+  \includegraphics[width=\textwidth]{pipe.pdf}
+  \caption{6-stage pipeline in \absmachine implementing flowlet switching}
+  \label{fig:pipeline}
+\end{figure*}
 
 % TODO: Do we mention programmable parsers anywhere?
 This packet transaction demonstrates the core language constructs in
@@ -102,14 +93,14 @@ provide deterministic performance guarantees, and we show (\S\ref{s:eval}) that
 interest at a much higher level of abstraction than the status quo today.
 
 When compiled to the \absmachine abstract machine, the \pktlanguage compiler
-converts the above code (Figure~\ref{fig:flowlet}) into the pipelined form
-shown in Figure~\ref{fig:pipeline}. Today, programmable switch chips are
-programmed by manually specifying pipeline configurations resembling
+converts the code in Figure~\ref{fig:flowlet} into the pipelined form shown in
+Figure~\ref{fig:pipeline}. Today, programmable switch chips are programmed by
+manually specifying pipeline configurations resembling
 Figure~\ref{fig:pipeline} using a language like P4 or an API such as Cavium's
 XPliant SDK. Programming in \pktlanguage lets a compiler automate this process:
 the user doesn't worry about hardware details such as pipeline stages and
 concurrency within each stage.
-%TODO: Insert a diagram of the pipeline here.
+
 
 % Anirudh->Alvin: Maybe move grammar into appendix?
 
