@@ -1,6 +1,6 @@
 digraph pipeline_diagram {
 	graph [splines=true];
-	node [fontsize=14,
+	node [fontsize=20,
 		shape=box,
 		style="rounded,filled"
 	];
@@ -21,15 +21,15 @@ saved_hop[pkt.id0] = (pkt.tmp00) ?\n(pkt.new_hop0) :\npkt.s_hop;
 ",
 		pos="0,75"];
 	12446252659599601705	 [fillcolor=darkturquoise,
-		label="pkt.last_time00 = last_time[pkt.id1];
-last_time[pkt.id1] = pkt.arrival_time;
+		label="pkt.lt00 = last_time[pkt.id1];
+last_time[pkt.id1] = pkt.arrival;
 ",
-		pos="250,75"];
+		pos="300,75"];
 	14189279844170092958 -> 12446252659599601705;
 	2099629598090192900	 [fillcolor=white,
 		label="pkt.new_hop0 = hash3(pkt.sport,
                                 pkt.dport,
-                                pkt.arrival_time);
+                                pkt.arrival);
 ",
 		pos="0,150"];
 	2099629598090192900 -> 1888421132967276013;
@@ -38,11 +38,11 @@ last_time[pkt.id1] = pkt.arrival_time;
                            (pkt.new_hop0) :
                            pkt.s_hop;
 ",
-		pos="1300,0"];
+		pos="1400,0"];
 	2099629598090192900 -> 6102173050205819670;
 	16881394305680060328	 [fillcolor=white,
-		label="pkt.tmp1 = pkt.arrival_time -
-                      pkt.last_time00;
+		label="pkt.tmp1 = pkt.arrival -
+                      pkt.lt00;
 ",
 		pos="500,0"];
 	12446252659599601705 -> 16881394305680060328;
