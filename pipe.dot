@@ -22,7 +22,7 @@ saved_hop[pkt.id0] = (pkt.tmp00) ? (pkt.new_hop0) : pkt.s_hop;
 		label="pkt.last_time00 = last_time[pkt.id1];
 last_time[pkt.id1] = pkt.arrival_time;
 ",
-		pos="250,0"];
+		pos="250,75"];
 	14189279844170092958 -> 12446252659599601705;
 	2099629598090192900	 [fillcolor=white,
 		label="pkt.new_hop0 = hash3(pkt.sport, pkt.dport, pkt.arrival_time);
