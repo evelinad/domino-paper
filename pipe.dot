@@ -12,7 +12,7 @@ digraph pipeline_diagram {
 		label="pkt.saved_hop00 = saved_hop[pkt.saved_hop_idx0];
 saved_hop[pkt.saved_hop_idx0] = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;
 ",
-		pos="1000,0"];
+		pos="1000,75"];
 	17026276795536135580 -> 1888421132967276013;
 	14189279844170092958	 [fillcolor=white,
 		label="pkt.last_time_idx0 = hash2(pkt.sport, pkt.dport) % 8000;
@@ -32,12 +32,12 @@ last_time[pkt.last_time_idx0] = pkt.arrival_time;
 	3288852826486989562	 [fillcolor=white,
 		label="pkt.saved_hop01 = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;
 ",
-		pos="1250,0"];
+		pos="1300,0"];
 	2099629598090192900 -> 3288852826486989562;
 	6102173050205819670	 [fillcolor=white,
 		label="pkt.next_hop0 = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;
 ",
-		pos="1250,75"];
+		pos="1300,150"];
 	2099629598090192900 -> 6102173050205819670;
 	16881394305680060328	 [fillcolor=white,
 		label="pkt.tmp1 = pkt.arrival_time - pkt.last_time00;
