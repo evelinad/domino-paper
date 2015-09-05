@@ -1,26 +1,26 @@
 digraph pipeline_diagram {
 	graph [splines=true];
-	node [fontsize=10,
+	node [fontsize=15,
 		shape=box,
 		style="rounded,filled"
 	];
 	17026276795536135580	 [fillcolor=white,
-		label="pkt.saved_hop_idx0 = hash2(pkt.sport, pkt.dport) % 8000;
+		label="pkt.id0 = hash2(pkt.sport, pkt.dport) % 8000;
 ",
 		pos="0,0"];
 	1888421132967276013	 [fillcolor=darkturquoise,
-		label="pkt.saved_hop00 = saved_hop[pkt.saved_hop_idx0];
-saved_hop[pkt.saved_hop_idx0] = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;
+		label="pkt.s_hop = saved_hop[pkt.id0];
+saved_hop[pkt.id0] = (pkt.tmp00) ? (pkt.new_hop0) : pkt.s_hop;
 ",
 		pos="1000,75"];
 	17026276795536135580 -> 1888421132967276013;
 	14189279844170092958	 [fillcolor=white,
-		label="pkt.last_time_idx0 = hash2(pkt.sport, pkt.dport) % 8000;
+		label="pkt.id1 = hash2(pkt.sport, pkt.dport) % 8000;
 ",
 		pos="0,75"];
 	12446252659599601705	 [fillcolor=darkturquoise,
-		label="pkt.last_time00 = last_time[pkt.last_time_idx0];
-last_time[pkt.last_time_idx0] = pkt.arrival_time;
+		label="pkt.last_time00 = last_time[pkt.id1];
+last_time[pkt.id1] = pkt.arrival_time;
 ",
 		pos="250,0"];
 	14189279844170092958 -> 12446252659599601705;
@@ -29,13 +29,8 @@ last_time[pkt.last_time_idx0] = pkt.arrival_time;
 ",
 		pos="0,150"];
 	2099629598090192900 -> 1888421132967276013;
-	3288852826486989562	 [fillcolor=white,
-		label="pkt.saved_hop01 = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;
-",
-		pos="1300,0"];
-	2099629598090192900 -> 3288852826486989562;
 	6102173050205819670	 [fillcolor=white,
-		label="pkt.next_hop0 = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;
+		label="pkt.next_hop0 = (pkt.tmp00) ? (pkt.new_hop0) : pkt.s_hop;
 ",
 		pos="1300,150"];
 	2099629598090192900 -> 6102173050205819670;
@@ -50,8 +45,6 @@ last_time[pkt.last_time_idx0] = pkt.arrival_time;
 		pos="750,0"];
 	16881394305680060328 -> 7814081429072624425;
 	7814081429072624425 -> 1888421132967276013;
-	7814081429072624425 -> 3288852826486989562;
 	7814081429072624425 -> 6102173050205819670;
-	1888421132967276013 -> 3288852826486989562;
 	1888421132967276013 -> 6102173050205819670;
 }
