@@ -1,6 +1,6 @@
 digraph pipeline_diagram {
 	graph [splines=true];
-	node [fontsize=15,
+	node [fontsize=14,
 		shape=box,
 		style="rounded,filled"
 	];
@@ -32,7 +32,7 @@ last_time[pkt.id1] = pkt.arrival_time;
 	6102173050205819670	 [fillcolor=white,
 		label="pkt.next_hop0 = (pkt.tmp00) ? (pkt.new_hop0) : pkt.s_hop;
 ",
-		pos="1300,150"];
+		pos="1300,0"];
 	2099629598090192900 -> 6102173050205819670;
 	16881394305680060328	 [fillcolor=white,
 		label="pkt.tmp1 = pkt.arrival_time - pkt.last_time00;
