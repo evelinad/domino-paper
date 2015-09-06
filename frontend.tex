@@ -33,6 +33,7 @@ control transfers (break, continue, loops) are forbidden.
 
 We illustrate this on a code fragment from Figure~\ref{fig:flowlet} below:
 \begin{figure}
+\begin{small}
 \begin{lstlisting}
 if (pkt.arrival_time - last_time[id1] >
     FLOWLET_THRESHOLD) {
@@ -42,6 +43,7 @@ if (pkt.arrival_time - last_time[id1] >
 pkt.tmp0 = pkt.arrival_time - last_time[pkt.last_time_idx] > 5;
 saved_hop[pkt.id0] = pkt.tmp0 ? pkt.new_hop : saved_hop[pkt.id0];
 \end{lstlisting}
+\end{small}
 \caption{Conversion to straight-line code}
 \label{fig:if_convert}
 \end{figure}
@@ -52,7 +54,67 @@ considerably simplifies the rest of the compiler.
 
 \subsection{Identifying state variables}
 
-% New take at compiler:
-% Middle-end: Algebric simplification, array validator, stateful_flanks, ssa, expr propagater
-\label{s:compiler}
+We next identify all state variables used in a packet transaction, both arrays
+and scalars. State variables represent persistent state stored on the switch
+that modifies the behavior of the packet transaction from one step to the next.
+In Figure~\ref{fig:flowlet}, \texttt{last\_time} and \texttt{saved\_hop} are
+both array-based state variables.
 
+%%We handle state variables differently from packet variables for two reasons.
+%%All operations on a particular state variable must happen within one
+%%\absmachine atom. This reflects the reality that sharing state variables across
+%%atoms or stages is technically challenging because it would require
+%%multi-ported memories. Further, all state updates on a state variable should be
+%%completed before the next packet is processed. Otherwise, the next packet could
+%%see stale values, which would violate the transactional specification.
+
+To identify state variables, we scan the straight-line AST produced by the
+previous pass, looking for scalar variables or arrays. For each state variable,
+we create a prologue to read the state variable into a packet temporary (if
+it's an array, we move the indexing expression into the prologue as well),
+replace all occurences of the state variable with the packet temporary, and
+create an epilogue that writes the packet temporary into the state variable.
+Figure ~\ref{fig:stateful_flanks} shows this transformation on the function
+body of the flowlet switching example.
+
+\begin{figure}
+\begin{small}
+\begin{lstlisting}
+pkt.new_hop = hash3(pkt.sport, pkt.dport, pkt.arrival_time \% 64;
+pkt.id1 = hash2(pkt.sport, pkt.dport) \% 8000;
+pkt.id0 = hash2(pkt.sport, pkt.dport) \% 8000;
+pkt.tmp0 = pkt.arrival_time - last_time[pkt.id1] > 5;
+saved_hop[pkt.id0] = pkt.tmp0 ? pkt.new_hop : saved_hop[pkt.id0];
+last_time[pkt.id1] = pkt.arrival_time;
+pkt.next_hop = saved_hop[pkt.id0];
+
+// is transformed into
+
+// Read prologue for saved_hop and last_time
+pkt.id0 = hash2(pkt.sport, pkt.dport) \% 8000; // Indexing expression
+pkt.saved_hop0 = saved_hop[pkt.id0];
+pkt.id1 = hash2(pkt.sport, pkt.dport) \% 8000; // Indexing expression
+pkt.last_time0 = last_time[pkt.id1];
+
+pkt.new_hop = hash3(pkt.sport, pkt.dport, pkt.arrival_time) \% 64;
+pkt.tmp0 = pkt.arrival_time - pkt.last_time0 > 5;
+pkt.saved_hop0 = pkt.tmp0 ? pkt.new_hop : pkt.saved_hop0;
+pkt.last_time0 = pkt.arrival_time;
+pkt.next_hop = pkt.saved_hop0;
+
+// Write epilogue for saved_hop and last_time
+saved_hop[pkt.id0] = pkt.saved_hop0;
+last_time[pkt.id1] = pkt.last_time0;
+\end{lstlisting}
+\end{small}
+\end{figure}
+
+At the end of this pass, the code resembles assembly code for a load-store
+architecture: state variables are only accessed through reads and writes, and
+all arithemtic operations happens on packet variables. Restricting the set of
+operations on state variables allows us to simplify reasoning about state
+variables when we compile \pktlanguage to the abstract machine
+(\S\ref{s:machine}).
+
+% TODO: Mention how resticting accesses to arrays using read/write addresses
+% allows us to simplify the stateful pass.
