@@ -86,7 +86,7 @@ programmable switches.
 
 Atoms that manipulate state can, in general, have multi-line atom bodies and it
 is unclear whether these can be implemented at all. For instance, the update to
-the state variable \texttt{saved_hop} requires a read, followed by a
+the state variable \texttt{saved\_hop} requires a read, followed by a
 conditional update, followed by a write back. This section develops a general
 technique to determine the implementability of stateful atoms, given
 constraints on stateful atom bodies imposed by the hardware.
@@ -105,7 +105,7 @@ x = pkt.tmp;
 \end{lstlisting}
 \end{tiny}
 \caption{Sketch for single update operation to a state variable}
-\lable{fig:sketch_for_state}
+\label{fig:sketch_for_state}
 \end{figure}
 Here, the double question mark \texttt{??} stands for a
 \textit{hole}~\cite{sketch_manual}. The hole is a placeholder for values from a
@@ -136,7 +136,6 @@ conside two such constraints in our evaluations: an in-order sequential CPU
 that can execute exactly $N$ three-operand instructions and a combinatorial
 circuit with a very specific form.
 
-\newpage
 \begin{figure}
   \includegraphics[width=\columnwidth]{dag.pdf}
   \caption{DAG formed by condensing SCCs in Figure~\ref{fig:deps}}
