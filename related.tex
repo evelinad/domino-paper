@@ -1,41 +1,6 @@
 \section{Related work}
 \label{s:related}
 
-% If conversion
-% http://perso.ens-lyon.fr/christophe.alias/M2/HPL-91-58.pdf
-% http://dl.acm.org/citation.cfm?id=567085
-
-% Say why we would still need P4 as the narrow waist for this world.
-%%Our compiler takes code written in \pktlanguage and translates it into P4. This
-%%source-to-source approach lets us focus on correctness issues when translating
-%%\pktlanguage into P4 and lets a P4 compiler handle backend optimizations such
-%%as table placement using target-specific information~\cite{lavanya_compiler}.
-%%It also allows us to automatically leverage ongoing industry work on P4
-%%compilation to hardware targets~\cite{xilinx}.
-
-%P4 itself:
-% Mention how we considered compiling down to P4 initially. Tell why it wasn't
-% possible because P4 has no constructs for sequential execution, conditional
-% operators, or arithmetic expressions and how we have now proposed this for
-% inclusion into the standard based on this work.  Maybe mention the
-% p4-semantics repo to show our proposal Either say it's under consideration at
-% P4.org or has been standardized already.
-
-%TODO: Distinguish against Shahbaz and NickF's NetASM paper that introduces atomic
-% in the related work.
-% The NetASM model does quite a bit of this.
-% I think the differences from Banzai are:
-% --> They don't constrain the complexity of atoms.
-% --> They allow atomic access to state across multiple stages.
-%     I don't know how this guarantees correctness.
-% --> We restrict atoms to be within one stage.
-% --> We aren't defining an IR at all. We allow arbitrary code within atoms.
-% --> Their cost models include area and latency. We leave this to P4.
-% --> We don't target the same breadth of devices that they do.
-% I should talk to Shahbaz about this.
-
-% microenginec, intel ixpc and everything else from the packetC paper.
-
 We divide related work into three categories: data-plane algorithms, programmable
 data planes, and languages for packet processing.
 
@@ -69,6 +34,19 @@ programmable switch architecture that run at line rate: i.e. with performance
 comparable to off the shelp merchant silicon chips. These are the most
 performant of the programmable switch options and the least expressive, making
 programming these devices especially challenging.
+%TODO: Distinguish against Shahbaz and NickF's NetASM paper that introduces atomic
+% in the related work.
+% The NetASM model does quite a bit of this.
+% I think the differences from Banzai are:
+% --> They don't constrain the complexity of atoms.
+% --> They allow atomic access to state across multiple stages.
+%     I don't know how this guarantees correctness.
+% --> We restrict atoms to be within one stage.
+% --> We aren't defining an IR at all. We allow arbitrary code within atoms.
+% --> Their cost models include area and latency. We leave this to P4.
+% --> We don't target the same breadth of devices that they do.
+% I should talk to Shahbaz about this.
+
 
 \subsection{Packet-processing languages}
 Several DSLs explicitly target packet processing. P4~\cite{p4} is the backend
@@ -87,6 +65,24 @@ transactional actions that span multiple tables, and can benefit from the rest
 of P4's abstractions: arbitrary match entries, typed header fields, control
 flow across tables, and programmable packet parsing.
 
+% Say why we would still need P4 as the narrow waist for this world.
+%%Our compiler takes code written in \pktlanguage and translates it into P4. This
+%%source-to-source approach lets us focus on correctness issues when translating
+%%\pktlanguage into P4 and lets a P4 compiler handle backend optimizations such
+%%as table placement using target-specific information~\cite{lavanya_compiler}.
+%%It also allows us to automatically leverage ongoing industry work on P4
+%%compilation to hardware targets~\cite{xilinx}.
+
+%P4 itself:
+% Mention how we considered compiling down to P4 initially. Tell why it wasn't
+% possible because P4 has no constructs for sequential execution, conditional
+% operators, or arithmetic expressions and how we have now proposed this for
+% inclusion into the standard based on this work.  Maybe mention the
+% p4-semantics repo to show our proposal Either say it's under consideration at
+% P4.org or has been standardized already.
+
+% microenginec, intel ixpc and everything else from the packetC paper.
+
 \subsection{Transactions}
 Transactions are a staple of modern databases. However, they are also
 ubiquitous in the world of networking: even if they go by multiple names. For
@@ -104,3 +100,14 @@ However, it's emphasis on compiling these transactions to extremely minimal,
 constrained architectures like the RMT model is new. These architectures also
 result in a new set of tradeoffs: a larger program doesn't run slowly. Instead,
 it doesn't run at all, unless suitably approximated.
+
+\subsection{Compiler Techniques}
+
+% If conversion
+% http://perso.ens-lyon.fr/christophe.alias/M2/HPL-91-58.pdf
+% http://dl.acm.org/citation.cfm?id=567085
+% Translation validation
+% SSA
+% Three-operand codes.
+% VLIW compilers and DSP compilers.
+% Software pipelining is most directly related.
