@@ -29,14 +29,16 @@ longest prefix). Notably, \absmachine doesn't model packet parsing, assuming
 that packets are handed to it already parsed.
 
 A switch pipeline in \absmachine has a number of pipeline stages that execute
-in parallel with a packet being handed off from one pipeline stage to the next.
-Each stage contains a vector of \textit{atoms}, with the atoms executing in
-parallel. Informally, an atom is an atomic unit of packet processing and is
-represented by a body of imperative code that executes sequentially. An atom is
-assumed to complete execution and modify a packet before the next packet is
-processed by that atom. Atoms within a stage may modify any packet field so
-long as two atoms in a stage do not modify the same packet field because in
-such cases the behavior is undefined.
+synchronously on every time step. Further, every pipeline stage is assumed to
+have the latency of one time step. Once a pipeline stage processes a packet, it
+hands it off to the next pipeline stage.  Each stage contains a vector of
+\textit{atoms}, with the atoms executing in parallel.
+
+Informally, an atom is an atomic unit of packet processing and is represented
+by a body of imperative code that executes sequentially. An atom is assumed to
+complete execution and modify a packet before the next packet is processed by
+that atom. Atoms within a stage may modify any packet field so long as two
+atoms in a stage do not modify the same packet field.
 
 An atom may also contain internal state that can influence the atom's behavior
 from one packet to the next and persists across packets. For instance, a switch
@@ -62,7 +64,7 @@ on independent packet fields in parallel. The presence of internal state in an
 atom models persistent switch state residing on a switch such as meters,
 counters, and P4's register abstraction in a unified manner.
 
-\textbf{Constraints on atoms} \\
+\subsection{Constraints on atoms}
 
 To run at line rate, we will need to constrain the behavior of atoms to provide
 deterministic performance. We impose two such constraints that distinguish
@@ -84,6 +86,22 @@ hardware~\cite{dataflow}, where the space of control signals to the circuit
 limits the space of feasible computations within the atom. These two execution
 models are by no means exhaustive: as programmable switches evolve, we expect
 the computational capabilities of atoms to evolve as well.
+
+\subsection{Parametrizing \absmachine}
+
+A \absmachine abstract machine has three parameters:
+\begin{enumerate}
+\item The number of pipeline stages, which correspond to the number of physical stages
+  in a programmable switch.
+\item A limit on the number of concurrent atoms in a pipeline stage, which corresponds
+  to the width of the VLIW used to execute actions on a packet header.
+\item Constraints on atoms themselves, which models limits on the amount of useful
+  computation that can happen in an atom while still maintaining line rate.
+\end{enumerate}
+In our evaluations, we instantiate \absmachine with several parameter settings
+that correspond to natural constraints on switch architectures. We then
+evaluate how different instantiations of \absmachine affect the
+implementability of several data-plane algorithms.
 
 % TODO: Move this to evaluation.
 % We use both models in this paper. For stateless atoms that don't modify state,
