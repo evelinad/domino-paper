@@ -132,3 +132,10 @@ variables when we compile \pktlanguage to the abstract machine
 
 % Any reason, we should be running SSA after stateful_flanks and not the
 % other way around? Run it and see.
+% I tried this in jayhawk and things don't work. Here's why.
+% Stateful_flanks almost always destroys SSA because if you have something any
+% state variable write of the form s = pkt.f; it will be transformed into
+% pkt.tmp = s;
+% pkt.tmp = pkt.f;
+% s = pkt.tmp;
+% which already destroys SSA.
