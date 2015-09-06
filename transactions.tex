@@ -13,7 +13,6 @@ parallelize code. Conceptually, every packet is processed in isolation and to
 completion using a sequential block of code before the next packet's processing
 begins.
 
-% TODO: Add a flowlet switching example as a running example here.
 As an illustration of programming in \pktlanguage, we consider how a programmer
 would express a data-plane load-balancing algorithm such as flowlet
 switching~\cite{flowlet} using domino. Flowlet switching is a load balancing
@@ -67,7 +66,6 @@ void flowlet(struct Packet pkt) {
   \label{fig:pipeline}
 \end{figure*}
 
-% TODO: Do we mention programmable parsers anywhere?
 This packet transaction demonstrates the core language constructs in
 \pktlanguage. All packet processing happens in the context of a packet
 transaction (the function \texttt{flowlet}), a C function that takes a packet
@@ -77,20 +75,22 @@ members and persist only over the duration of a packet, e.g.
 \texttt{pkt.next\_hop}). State variables are represented as global variables
 and persist across packets, e.g. \texttt{last\_time}.
 
-The function body may also call out to opaque functions such as hash5 and hash6
-that represented hardware units provided by the abstract machine. The
-\pktlanguage compiler knows the function's signature and uses these to infer
-dependencies, but doesn't know anything about its implementation. Finally, the
-function body is written in a heavily constrained subset of C that excludes
-iterative constructs. The function body can include if and else-if statements,
-but all other forms of control-transfer (break, goto, switch, return, and
-continue statements) are forbidden. Lastly, \pktlanguage forbids pointers and
-dynamic memory allocation.
+The function body may also call out to opaque functions such as \texttt{hash2}
+and \texttt{hash3} that represent hardware primitives provided by the abstract
+machine. The \pktlanguage compiler knows the function's signature and uses
+these to infer dependencies, but doesn't know anything about its
+implementation. Finally, the function body is written in a constrained subset
+of C that excludes all iterative constructs. The function body can include if
+and else-if statements, but all other control transfer (break, goto, switch,
+return, and continue statements) is forbidden. Lastly, \pktlanguage forbids
+pointers and dynamic memory allocation. Arrays can be used as state variables,
+but in a restriced form: for a given array, all accesses to the array must use
+the same address for a given packet.
 
-These restrictions may seem severe at first glance, but they are required to
-provide deterministic performance guarantees, and we show (\S\ref{s:eval}) that
+These restrictions may seem severe at first glance, but are required to provide
+deterministic performance guarantees. Further, we show (\S\ref{s:eval}) that
 \pktlanguage can still express several data-plane algorithms  of practical
-interest at a much higher level of abstraction than the status quo today.
+interest at a much higher level of abstraction than possible today.
 
 When compiled to the \absmachine abstract machine (\S\ref{s:machine}), the
 \pktlanguage compiler converts the code in Figure~\ref{fig:flowlet} into the
@@ -109,8 +109,6 @@ transactional specification and its pipelined implementation. We describe our
 test framework, \tester that uses this idea to validate the correctness of
 compilation of all our test programs.
 
-% TODO: We need to mention somewhere that the read and write address to an
-% array have to be the same.
 % Anirudh->Alvin: Maybe move grammar into appendix?
 
 % Anirudh->Alvin: I think we might want to get rid of a language section and
