@@ -33,17 +33,22 @@ control transfers (break, continue, loops) are forbidden.
 
 We illustrate this on a code fragment from Figure~\ref{fig:flowlet} below:
 \begin{figure}
-\begin{small}
+\begin{tiny}
 \begin{lstlisting}
-if (pkt.arrival_time - last_time[id1] >
-    FLOWLET_THRESHOLD) {
+if (pkt.arrival_time - last_time[pkt.id1] > FLOWLET_THRESHOLD) {
   saved_hop[pkt.id0] = pkt.new_hop;
 }
-// is transformed into
-pkt.tmp0 = pkt.arrival_time - last_time[pkt.last_time_idx] > 5;
+\end{lstlisting}
+\end{tiny}
+\begin{center}
+is transformed into
+\end{center}
+\begin{tiny}
+\begin{lstlisting}
+pkt.tmp0 = pkt.arrival_time - last_time[pkt.id1] > FLOWLET_THRESHOLD;
 saved_hop[pkt.id0] = pkt.tmp0 ? pkt.new_hop : saved_hop[pkt.id0];
 \end{lstlisting}
-\end{small}
+\end{tiny}
 \caption{Conversion to straight-line code}
 \label{fig:if_convert}
 \end{figure}
@@ -70,15 +75,15 @@ both array-based state variables.
 
 To identify state variables, we scan the straight-line AST produced by the
 previous pass, looking for scalar variables or arrays. For each state variable,
-we create a prologue to read the state variable into a packet temporary (if
-it's an array, we move the indexing expression into the prologue as well),
-replace all occurences of the state variable with the packet temporary, and
-create an epilogue that writes the packet temporary into the state variable.
-Figure ~\ref{fig:stateful_flanks} shows this transformation on the function
-body of the flowlet switching example.
+we create a \textit{read flank} to read the state variable into a packet
+temporary (if it's an array, we move the indexing expression into the prologue
+as well), replace all occurences of the state variable with the packet
+temporary, and create a \textit{write flank} that writes the packet temporary into the
+state variable.  Figure ~\ref{fig:stateful_flanks} shows this transformation on
+the function body of the flowlet switching example.
 
 \begin{figure}
-\begin{small}
+\begin{tiny}
 \begin{lstlisting}
 pkt.new_hop = hash3(pkt.sport, pkt.dport, pkt.arrival_time \% 64;
 pkt.id1 = hash2(pkt.sport, pkt.dport) \% 8000;
@@ -87,13 +92,17 @@ pkt.tmp0 = pkt.arrival_time - last_time[pkt.id1] > 5;
 saved_hop[pkt.id0] = pkt.tmp0 ? pkt.new_hop : saved_hop[pkt.id0];
 last_time[pkt.id1] = pkt.arrival_time;
 pkt.next_hop = saved_hop[pkt.id0];
-
-// is transformed into
-
+\end{lstlisting}
+\end{tiny}
+\begin{center}
+is transformed into
+\end{center}
+\begin{tiny}
+\begin{lstlisting}
 // Read prologue for saved_hop and last_time
-pkt.id0 = hash2(pkt.sport, pkt.dport) \% 8000; // Indexing expression
+pkt.id0 = hash2(pkt.sport, pkt.dport) \% 8000;
 pkt.saved_hop0 = saved_hop[pkt.id0];
-pkt.id1 = hash2(pkt.sport, pkt.dport) \% 8000; // Indexing expression
+pkt.id1 = hash2(pkt.sport, pkt.dport) \% 8000;
 pkt.last_time0 = last_time[pkt.id1];
 
 pkt.new_hop = hash3(pkt.sport, pkt.dport, pkt.arrival_time) \% 64;
@@ -106,7 +115,9 @@ pkt.next_hop = pkt.saved_hop0;
 saved_hop[pkt.id0] = pkt.saved_hop0;
 last_time[pkt.id1] = pkt.last_time0;
 \end{lstlisting}
-\end{small}
+\end{tiny}
+\caption{Adding read and write flanks for state variables}
+\label{fig:stateful_flanks}
 \end{figure}
 
 At the end of this pass, the code resembles assembly code for a load-store
@@ -118,3 +129,6 @@ variables when we compile \pktlanguage to the abstract machine
 
 % TODO: Mention how resticting accesses to arrays using read/write addresses
 % allows us to simplify the stateful pass.
+
+% Any reason, we should be running SSA after stateful_flanks and not the
+% other way around? Run it and see.
