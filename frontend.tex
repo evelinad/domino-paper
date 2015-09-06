@@ -78,11 +78,12 @@ both array-based state variables.
 To identify state variables, we scan the straight-line AST produced by the
 previous pass, looking for scalar variables or arrays. For each state variable,
 we create a \textit{read flank} to read the state variable into a packet
-temporary (if it's an array, we move the indexing expression into the prologue
-as well), replace all occurences of the state variable with the packet
-temporary, and create a \textit{write flank} that writes the packet temporary into the
-state variable.  Figure ~\ref{fig:stateful_flanks} shows this transformation on
-a fragment of the flowlet switching example.
+temporary. For an array, we move the indexing expression into the prologue as
+well making use of the fact that the array index remains constant for each
+packet for all valid \pktlanguage programs. Next, we replace all occurences of
+the state variable with the packet temporary, and create a \textit{write flank}
+that writes the packet temporary back into the state variable.  Figure
+~\ref{fig:stateful_flanks} illustrates this transformation on a fragment.
 
 \begin{figure}
 \begin{tiny}
@@ -117,9 +118,6 @@ operations on state variables allows us to simplify reasoning about state
 variables when we compile \pktlanguage to the abstract machine
 (\S\ref{s:machine}).
 
-% TODO: Mention how resticting accesses to arrays using read/write addresses
-% allows us to simplify the stateful pass.
-
 % Any reason, we should be running SSA after stateful_flanks and not the
 % other way around? Run it and see.
 % I tried this in jayhawk and things don't work. Here's why.
@@ -144,10 +142,10 @@ definition of the same variable. State variables are already in SSA form
 because after the state flanks have been added, every state variable is read
 and written exactly once.
 
-SSA considerably simplifies further analysis. Because every variable is
-assigned exactly once, there are no Write-After-Read or Write-After-Write
-dependencies; only Read-After-Write dependencies remain. This, in turn,
-facilitates compilation (\S\ref{s:absmachine}) to the backend.
+SSA simplifies further analysis. Because every variable is assigned exactly
+once, there are no Write-After-Read or Write-After-Write dependencies; only
+Read-After-Write dependencies remain. This, in turn, facilitates compilation
+(\S\ref{s:absmachine}) to the backend.
 \begin{figure}
 \begin{tiny}
 \begin{lstlisting}
@@ -175,4 +173,3 @@ last_time[pkt.id10] = pkt.last_time01;
 %TODO: Maybe once we have enough examples of optimizations, we can roll those
 %into SSA as saying how SSA makes it trivial to apply those optimizations.
 % Again, this is compiler 101 for anyone who knows it.
-
