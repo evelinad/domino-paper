@@ -87,21 +87,23 @@ limits the space of feasible computations within the atom. These two execution
 models are by no means exhaustive: as programmable switches evolve, we expect
 the computational capabilities of atoms to evolve as well.
 
-\subsection{Parametrizing \absmachine}
-
-A \absmachine abstract machine has three parameters:
-\begin{enumerate}
-\item The number of pipeline stages, which correspond to the number of physical stages
-  in a programmable switch.
-\item A limit on the number of concurrent atoms in a pipeline stage, which corresponds
-  to the width of the VLIW used to execute actions on a packet header.
-\item Constraints on atoms themselves, which models limits on the amount of useful
-  computation that can happen in an atom while still maintaining line rate.
-\end{enumerate}
-In our evaluations, we instantiate \absmachine with several parameter settings
-that correspond to natural constraints on switch architectures. We then
-evaluate how different instantiations of \absmachine affect the
-implementability of several data-plane algorithms.
+%TODO: Not sure if we should put this in if we are not going
+%to study the effect of limited pipeline width and depth.
+%%\subsection{Parametrizing \absmachine}
+%%
+%%A \absmachine abstract machine has three parameters:
+%%\begin{enumerate}
+%%\item The pipeline depth, which corresponds to the number of physical stages
+%%  in a programmable switch.
+%%\item The pipeline width, which corresponds to the width of the VLIW used to
+%%  execute actions on a packet header.
+%%\item Atom constraints, which limit the amount of useful computation within an
+%%  atom while still maintaining line rate.
+%%\end{enumerate}
+%%In our evaluations, we instantiate \absmachine with several parameter settings
+%%that correspond to natural constraints on switch architectures. We then
+%%evaluate how different instantiations of \absmachine affect the
+%%implementability of several data-plane algorithms.
 
 % TODO: Move this to evaluation.
 % We use both models in this paper. For stateless atoms that don't modify state,

@@ -1,92 +1,53 @@
 \section{The \pktlanguage compiler backend}
 
+\subsection{Expression flattening to the three-address format}
+As a first step, we convert code into the three-address format. In the
+three-address format, all instructions are either reads / writes into stateful
+variables or carry out packet manipulations of of the form: \texttt{pkt.f1 =
+pkt.f2 op pkt.f3;} where \texttt{op} includes all arithmetic, logical, and
+relational operators. We also allow either pkt.f2 or pkt.f3 to be an opaque
+function call of multiple packet fields, because \pktlanguage assumes opaque
+functions are supported in hardware. The three-address format is similar to
+P4's action primitives today~\cite{p4spec}.
+
+Generating code for the three-address format is straightforward: we flatten
+expressions that are not already in three-address format, by introducing enough
+temporaries. For instance, \texttt{pkt.f = pkt.f1 + pkt.f2 - pkt.f3;} would be
+flattened to \texttt{pkt.tmp = pkt.f2 - pkt.f3;} followed by \texttt{pkt.f =
+pkt.f1 + pkt.tmp;}
+
+\subsection{Code partitioning}
+At this point, the code is still in sequential form. Code partitioning is the
+turns sequential code into an atom grid that can be run by \absmachine , which
+exploits parallelism within and across pipeline stages.
+
+To partition code, we carry out the following steps:
+\begin{enumerate}
+  \item Create a node for each statement in the packet transaction after expression flattening. % TODO: Figure.
+  \item Create a bidrectional edge between N1 and N2 where N1 is a read from a state scalar / state array and N2 is a write into a state scalar / state array.
+  \item Create an edge (N1, N2) for every pair of nodes N1, N2 where N2 reads something written by N1.
+  \item Generate strongly connected components of the resulting graph $G$.
+  \item Condense strongly connected components into larger nodes to create an induced DAG from (a possibly) cyclic $G$.
+  \item Schedule the resulting DAG using critical path scheduling~\cite{crit_path_sched}.
+%TODO: Throw in a whole bunch of figures.
+\end{enumerate}
+
+
+%%The compiler backend needs to understand the
+%%characteristics of the abstract machine when generating code. Concretely,
+%%we need an execution model that limits the computations possible within each
+%%atom in \absmachine. We assume distinct models for atoms that are completely
+%%stateless (only manipulate packet fields) vs. atoms that manipulate state.
+
+%TODO: How do we structure this section?
+% --> Partitioning first followed by instruction selection?
+% We currently do it somewhat differently in domino, where we do
+% expression flattening (instruction selection for stateless atoms)
+% then partitioning,
+% then instruction selection for stateful atoms.
+% It's conceivable we could flip this around, but I am not sure how easy it is.
+
+\subsection{Stateful atoms}
 % Backend: expr_flattener, instuction_selection, backend synthesis.
 %%
-%%%\subsection{Instruction selection}
-%%%We next replace portions of the straight-line code with equivalent code that
-%%%maps 1:1 to action primitives provided by the underlying hardware. While this
-%%%step does require knowledge of the action primitives supported by the
-%%%underlying hardware, P4 today already provides action primitives that map
-%%%1:1 to those provided by the underlying hardware, allowing us to carry out
-%%%instruction selection at the source level itself.
-%%%%Anirudh->Alvin: Ok, this is my interpretation of instruction selection
-%%%%TODO: Maybe we should just call it action primitive selection?
-%%%
-%%%As a contrived example, if the underlying hardware supports read and write
-%%%operations on stateful memory, but does not support atomic increment operations
-%%%on stateful memory, we would have to replace the statement: \texttt{x = x + 1;}
-%%%with three statements:
-%%%\begin{verbatim}
-%%%int tmp1 = x;
-%%%int tmp2 = tmp1 + 1;
-%%%x = tmp2;
-%%%\end{verbatim}
-%%%
-%%%Other examples of instruction selection include ``flattening''
-%%%expressions~\cite{expression_flattening} with deep ASTs into a canonical form
-%%%where the right hand side of each assignment is a simple expression that
-%%%doesn't contain any expressions within it. These simple expressions would then
-%%%map 1:1 to underlying hardware constructs.
-%%%
-%%%
-%%%\subsection{Instruction coalescing}
-%%%
-%%%As described earlier, RMT is a shared-nothing architecture. State variables
-%%%read in a particular stage and updated downstream need recirculation to reflect
-%%%the updated value back upstream, creating a vulnerable window of packets that
-%%%can read stale state.
-%%%
-%%%As far as possible, we would like to avoid recirculating packets to emulate
-%%%memory sharing across different physical stages. One way to achieve this is to
-%%%collapse instructions into the same stage using the greedy partitioning
-%%%algorithm outlined in \S\ref{ss:partitioning}. To aid our greedy partitioning
-%%%algorithm that only looks at adjacent instructions in deciding whether to
-%%%combine instructions into a stage, we first move instructions that access state
-%%%variables as close to each other as possible.
-%%%
-%%%Specifically, if there are two instructions that read or write the same state
-%%%variable, we move them as close to each other as possible while respecting
-%%%Read-After-Write dependencies. This facilitates combining the instructions in
-%%%the greedy partitioning algorithm, which in turn removes the need for
-%%%recirculation.
-%%%
-%%%\subsection{Partitioning based on dependencies}
-%%%
-%%%At this stage, the code is correct if executed sequentially assuming exactly
-%%%one packet ever executes the code. A straightforward partitioning simply
-%%%assigns each instruction to a separate stage, but is wasteful. Many
-%%%instructions may have no dependencies between them and can be executed in
-%%%parallel.
-%%%
-%%%% TODO: Anirudh->Alvin: Does this read ok?
-%%%To determine a better partitioning, we start by assigning each instruction to
-%%%its own stage. We then proceed sequentially from the first stage and grow each
-%%%stage greedily downward by merging it with the next instruction if possible.
-%%%Because instructions in a stage execute in parallel, we use the following
-%%%criterion to decide if we can execute instructions in parallel.
-%%%\begin{enumerate}
-%%%\item If there are no Read-After-Write or Write-After-Write dependencies
-%%%between a pair of instructions, it is safe to combine them.
-%%%\item If there are only Write-After-Read dependencies between instructions, we
-%%%can still combine them because the underlying hardware executes actions within
-%%%a stage simultaneously, which preserves the right semantics for
-%%%Write-After-Read dependencies.
-%%%% TODO: Only works if it fits that particular format
-%%%% (state, pkt.f) = (Guarded_Arithmetic(pkt.field, state, pkt.field), state) 
-%%%
-%%%\item If there is a Read-After-Write dependency where a variable is updated in
-%%%one instruction and the updated variable needs to written into another
-%%%variable, we can still merge these instructions by replicating the same update
-%%%operation for both variables and relying on the fact that both operations
-%%%execute in parallel.
-%%%% TODO: Only works if it fits that other mold:
-%%%% (state, pkt.f) = (Guarded_Arithmetic(pkt.field, state, pkt.field), state) 
-%%%% Really, the second one is a superset of the first.
-%%%\end{enumerate}
-%%%With the above criteria, we merge a stage with the next instruction using our
-%%%greedy algorithm if the next instruction can be executed in parallel with every
-%%%instruction in the current stage. If this criteria isn't satisfied, we create a
-%%%new stage using the next instruction and proceed greedily again until we have
-%%%covered all instructions.
-%%%
-%%%
+
