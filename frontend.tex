@@ -1,5 +1,7 @@
 \section{The \pktlanguage compiler frontend}
 
+% for every pass, describe what it is, provide an example, show how it's much
+% simpler than usual, and show what invariant it guarantees.
 We now describe the \pktlanguage compiler frontend. The compiler frontend
 operates only on sequential code blocks, allowing us to borrow well-established
 techniques from the compiler literature~\cite{muchnik}. However, as we show
@@ -22,9 +24,9 @@ hashes and checksum), can be implemented using arbitrary C code and linked with
 \pktlanguage code before running the resulting binary on our abstract machine.
 
 \subsection{Converting to straight-line code}
-A packet transaction's body can contain convoluted control flow using if-else
-statements. Control flow complicates dependence analysis. We eliminate control
-flow by transforming if-else statements using the C conditional operator,
+A packet transaction's body can contain if-else statements that alter the
+control flow of the program and complicate dependence analysis. We eliminate
+if-else statements by transforming them into the C conditional operator,
 starting from the innermost if statements and recursing outwards
 (Figure~\ref{fig:if_convert}). This is similar to if
 conversion~\cite{allen_if_conversion}, but is much simpler because only the if
@@ -80,18 +82,13 @@ temporary (if it's an array, we move the indexing expression into the prologue
 as well), replace all occurences of the state variable with the packet
 temporary, and create a \textit{write flank} that writes the packet temporary into the
 state variable.  Figure ~\ref{fig:stateful_flanks} shows this transformation on
-the function body of the flowlet switching example.
+a fragment of the flowlet switching example.
 
 \begin{figure}
 \begin{tiny}
 \begin{lstlisting}
-pkt.new_hop = hash3(pkt.sport, pkt.dport, pkt.arrival_time \% 64;
 pkt.id1 = hash2(pkt.sport, pkt.dport) \% 8000;
-pkt.id0 = hash2(pkt.sport, pkt.dport) \% 8000;
-pkt.tmp0 = pkt.arrival_time - last_time[pkt.id1] > 5;
-saved_hop[pkt.id0] = pkt.tmp0 ? pkt.new_hop : saved_hop[pkt.id0];
 last_time[pkt.id1] = pkt.arrival_time;
-pkt.next_hop = saved_hop[pkt.id0];
 \end{lstlisting}
 \end{tiny}
 \begin{center}
@@ -99,20 +96,13 @@ is transformed into
 \end{center}
 \begin{tiny}
 \begin{lstlisting}
-// Read prologue for saved_hop and last_time
-pkt.id0 = hash2(pkt.sport, pkt.dport) \% 8000;
-pkt.saved_hop0 = saved_hop[pkt.id0];
+// Read prologue for last_time
 pkt.id1 = hash2(pkt.sport, pkt.dport) \% 8000;
 pkt.last_time0 = last_time[pkt.id1];
 
-pkt.new_hop = hash3(pkt.sport, pkt.dport, pkt.arrival_time) \% 64;
-pkt.tmp0 = pkt.arrival_time - pkt.last_time0 > 5;
-pkt.saved_hop0 = pkt.tmp0 ? pkt.new_hop : pkt.saved_hop0;
 pkt.last_time0 = pkt.arrival_time;
-pkt.next_hop = pkt.saved_hop0;
 
 // Write epilogue for saved_hop and last_time
-saved_hop[pkt.id0] = pkt.saved_hop0;
 last_time[pkt.id1] = pkt.last_time0;
 \end{lstlisting}
 \end{tiny}
@@ -139,3 +129,48 @@ variables when we compile \pktlanguage to the abstract machine
 % pkt.tmp = pkt.f;
 % s = pkt.tmp;
 % which already destroys SSA.
+
+\subsection{Static Single-Assignment Form}
+We next transform the code block within the packet transaction into static
+single-assignment form (SSA)~\cite{ferrante_ssa}, a well-known intermediate
+form used by many compilers where every variable is assigned exactly once.
+While computing the SSA in general requires the use of clever graph
+algorithms~\cite{post_dominators}, computing the SSA for \pktlanguage is
+trivial because the code is in straight-line form by the time SSA is run.
+
+To compute the SSA, we replace every definition of a packet variable with a new
+packet variable and propagate this new packet variable until the next
+definition of the same variable. State variables are already in SSA form
+because after the state flanks have been added, every state variable is read
+and written exactly once.
+
+SSA considerably simplifies further analysis. Because every variable is
+assigned exactly once, there are no Write-After-Read or Write-After-Write
+dependencies; only Read-After-Write dependencies remain. This, in turn,
+facilitates compilation (\S\ref{s:absmachine}) to the backend.
+%TODO: Maybe once we have enough examples of optimizations, we can roll those
+%into SSA as saying how SSA makes it trivial to apply those optimizations.
+% Again, this is compiler 101 for anyone who knows it.
+\begin{figure}
+\begin{tiny}
+\begin{lstlisting}
+pkt.id1 = hash2(pkt.sport, pkt.dport) \% 8000;
+pkt.last_time0 = last_time[pkt.id1];
+pkt.last_time0 = pkt.arrival_time;
+last_time[pkt.id1] = pkt.last_time0;
+\end{lstlisting}
+\end{tiny}
+\begin{center}
+is transformed into
+\end{center}
+\begin{tiny}
+\begin{lstlisting}
+pkt.id10 = hash2(pkt.sport, pkt.dport) \% 8000;
+pkt.last_time00 = last_time[pkt.id10];
+pkt.last_time01 = pkt.arrival_time;
+last_time[pkt.id10] = pkt.last_time01;
+\end{lstlisting}
+\end{tiny}
+\caption{SSA transformation}
+\label{fig:stateful_flanks}
+\end{figure}
