@@ -148,9 +148,6 @@ SSA considerably simplifies further analysis. Because every variable is
 assigned exactly once, there are no Write-After-Read or Write-After-Write
 dependencies; only Read-After-Write dependencies remain. This, in turn,
 facilitates compilation (\S\ref{s:absmachine}) to the backend.
-%TODO: Maybe once we have enough examples of optimizations, we can roll those
-%into SSA as saying how SSA makes it trivial to apply those optimizations.
-% Again, this is compiler 101 for anyone who knows it.
 \begin{figure}
 \begin{tiny}
 \begin{lstlisting}
@@ -174,3 +171,8 @@ last_time[pkt.id10] = pkt.last_time01;
 \caption{SSA transformation}
 \label{fig:stateful_flanks}
 \end{figure}
+
+%TODO: Maybe once we have enough examples of optimizations, we can roll those
+%into SSA as saying how SSA makes it trivial to apply those optimizations.
+% Again, this is compiler 101 for anyone who knows it.
+
