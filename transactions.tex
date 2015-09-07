@@ -1,21 +1,16 @@
 \section{Packet transactions}
 \label{s:transactions}
-Transactions~\cite{db_trans} are the strongest guarantee that a database system
-can provide in that the effect of a transaction is either entirely visible or
-not with no intermediate state being visible to the outside world.
-\ac{I would cut references to DB since we don't provide rollback}
 
-We repurpose database transactions for data-plane programming by defining a
-\textit{packet transaction}: a body of sequential code that executes from start
-to finish on each packet and conceptually processes only one packet at a time.
-For a programmer, the packet transaction represents what happens to every
-packet without having to worry about other packets that are currently being
-processed by the switch, how many pipeline stages it has, and how to
-parallelize code. Conceptually, every packet is processed in isolation and to
-completion according to a sequential block of code before the next packet's
-processing begins.
-\ac{The above paragraph sounds redundant to what is already mentioned in 
-the intro}
+We repurpose database transactions~\cite{db_trans} for data-plane programming
+by defining a \textit{packet transaction}: a body of sequential code that
+executes from start to finish on each packet and conceptually processes only
+one packet at a time.  For a programmer, the packet transaction represents what
+happens to every packet without having to worry about other packets that are
+currently being processed by the switch, how many pipeline stages it has, and
+how to parallelize code. Conceptually, every packet is processed in isolation
+and to completion according to a sequential block of code before the next
+packet's processing begins.  \ac{The above paragraph sounds redundant to what
+  is already mentioned in the intro}
 
 \ac{I am fine with combining overview with the language section.
 But can you weave in language concepts by first referencing lines in the sample
@@ -27,7 +22,6 @@ I would move the compiler and banzai into subsections (as in P4 article).
 (btw you should
 change figure 2 so that it doesn't span both columns).
 }
-
 
 %TODO: domino comes in out of left field here.
 To illustrate packet transactions, we consider how a programmer would express a
