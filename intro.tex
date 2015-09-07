@@ -77,9 +77,8 @@ practical limits to atomic computations that can be carried out at line rate.
 % Anirudh-> Alvin: Simplifying the above to something more succinct.
 
 Expressing data-plane algorithms as packet transactions also helps in program
-verification.  Conceptually, a packet transaction is just one large atom, and
-hence can be executed on \absmachine.  By feeding the same test input to both
-the user-supplied packet transaction and its pipelined implementation and
+verification.  By feeding the same test input to both
+the user-supplied packet transaction and its implementation in \absmachine and
 verifying that the outputs match up, an automated tester (\S\ref{s:tester}) can
 spot check the correctness of compilations~(\S\ref{s:tester}).
 %\ac{Is \tester necessary if we can write
