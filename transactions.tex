@@ -82,14 +82,16 @@ these to infer dependencies, but doesn't know anything about its
 implementation. Finally, the function body is written in a constrained subset
 of C that excludes all iterative constructs. The function body can include if
 and else-if statements, but all other control transfer (break, goto, switch,
-return, and continue statements) is forbidden. Lastly, \pktlanguage forbids
-pointers and dynamic memory allocation. Arrays can be used as state variables,
-but in a restriced form: for a given array, all accesses to the array must use
-the same address for a given packet.
+return, and continue statements) is forbidden.
 
-These restrictions may seem severe at first glance, but are required to provide
-deterministic performance guarantees. Further, we show (\S\ref{s:eval}) that
-\pktlanguage can still express several data-plane algorithms  of practical
+Lastly, \pktlanguage forbids pointers and dynamic memory allocation. Arrays can
+be used as state variables, but in a restriced form: for a given array, all
+accesses to the array must use the same array index for a given packet. This
+restriction simplifies the treatment of arrays in the compiler.
+
+While these restrictions seem severe at first glance, they are required to
+provide deterministic performance guarantees. Further, we show (\S\ref{s:eval})
+that \pktlanguage can still express several data-plane algorithms  of practical
 interest at a much higher level of abstraction than possible today.
 
 When compiled to the \absmachine abstract machine (\S\ref{s:machine}), the
