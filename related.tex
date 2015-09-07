@@ -1,113 +1,108 @@
 \section{Related work}
 \label{s:related}
 
-We divide related work into three categories: data-plane algorithms, programmable
-data planes, and languages for packet processing.
+\textbf{Data-Plane Algorithms}
+Several data-plane algorithms are now commonplace and available in all
+switches. Canonical examples are lookup algorithms based on longest-prefix
+match, exact match, ternary match and range-search. \pktlanguage focuses on
+data-plane algorithms that aren't widely available because of the considerable
+engineering effort required for hardware implementations. Further, the rapidly
+growing list of new algorithms~\cite{pdq, d3, detail, codel, CONGA} makes it
+challenging to commit to a hardware implementation for any of them.  Expressing
+these in \pktlanguage allows designers to iterate on these algorithms at
+software timescales.
 
-\subsection{Data-Plane Algorithms} 
-As defined earlier, data-plane algorithms are those algorithms that run within
-a switch and execute on every packet. Some data-plane algorithms are now
-commonplace and available in all switches: lookup algorithms based on
-longest-prefix match, exact match, ternary match and range-search are probably
-the best known of these.
+%%For instance, load-balancing algorithms such as CONGA~\cite{conga} are
+%%available only on a specific line of CISCO switches.  Active queue-management
+%%algorithms such as CoDel~\cite{codel} need to be extensively
+%%modified~\cite{pie} to suit the architecture of a line-rate switch.  Explicit
+%%congestion-control algorithms such as RCP~\cite{rcp} and XCP~\cite{xcp}, and
+%%measurement algorithms such as OpenSketch~\cite{opensketch} have been evaluated
+%%only on FPGA-based platforms.
 
-  Our focus on data-plane algorithms that aren't widely available on all
-switches today because of the considerable engineering effort required for
-hardware implementations and the rapidly changing nature of these algorithms.
-For instance, load-balancing algorithms such as CONGA~\cite{conga} are
-available only on a specific line of CISCO switches.  Active queue-management
-algorithms such as CoDel~\cite{codel} need to be extensively
-modified~\cite{pie} to suit the architecture of a hardware switch.  Explicit
-congestion-control algorithms such as RCP~\cite{rcp} and XCP~\cite{xcp}, and
-measurement algorithms such as OpenSketch~\cite{opensketch} have been evaluated
-only in FPGA-based platforms.  The ever-growing list of new
-algorithms~\cite{pdq, d3, detail} makes it challenging to commit to a hardware
-implementation of any of them.
+\textbf{Abstract machines for line-rate switches}
+The protocol-independent switch architecture~\cite{nick_p4} and P4's abstract
+switch model~\cite{p4} are two abstract machines for programmable switches.
+Relative to P4's abstract switch model, \absmachine contributes the notions of
+atoms, sequential execution within atoms, and state encapsulated by atoms.
+\absmachine can be seen as an executable instantiation of the
+protocol-independent switch architecture.
 
-\subsection{Programmable Data Planes}
-Several proposals for programmable data planes exist today. Software-based
-solutions such as ~\cite{click, fastpass, flexplane} are extremely flexible but
-have trouble scaling. NPUs ~\cite{intel} were an attempt to bridge the gap.
-While NPUs are faster than pure software routers, they still remain an order of
-magnitude slower than merchant silicon chips~\cite{rmt}. Our focus is on
-programmable switch architecture that run at line rate: i.e. with performance
-comparable to off the shelp merchant silicon chips. These are the most
-performant of the programmable switch options and the least expressive, making
-programming these devices especially challenging.
-%TODO: Distinguish against Shahbaz and NickF's NetASM paper that introduces atomic
-% in the related work.
-% The NetASM model does quite a bit of this.
-% I think the differences from Banzai are:
-% --> They don't constrain the complexity of atoms.
-% --> They allow atomic access to state across multiple stages.
-%     I don't know how this guarantees correctness.
-% --> We restrict atoms to be within one stage.
-% --> We aren't defining an IR at all. We allow arbitrary code within atoms.
+Closest to \absmachine is NetASM~\cite{netasm}, which introduces an
+intermediate representation and abstract machine for programmable data planes.
+\absmachine differs from NetASM by explicitly targeting line-rate forwarding in
+two ways.  First, all state in \absmachine is internal to an atom (and hence
+internal to the atom's stage), while NetASM's ATM construct allows access to
+shared state from multiple pipeline stages. Second, \absmachine also explicitly
+enforces constraints on the amount of useful work that can be carried out in an
+atom.
 % --> Their cost models include area and latency. We leave this to P4.
-% --> We don't target the same breadth of devices that they do.
-% I should talk to Shahbaz about this.
 
+\textbf{Programmable Data Planes}
+Several programmable data planes exist today. Software-based solutions such as
+Click~\cite{click}, Fastpass~cite{fastpass} and Flexplane~\cite{flexplane} are
+flexible but lack the performance required for deployments. Network
+Processors~\cite{intel, ixp2800, ixp} (NPUs) were an attempt to bridge the gap.
+While NPUs are faster than software routers, they still remain an order of
+magnitude slower than merchant silicon chips~\cite{rmt}. \pktlanguage focuses on
+programmable switch architecture that run at line rate.
 
-\subsection{Packet-processing languages}
-Several DSLs explicitly target packet processing. P4~\cite{p4} is the backend
-we use in this chapter and is used to program chipsets based on the
-RMT~\cite{rmt} and Intel FlexPipe~\cite{flexpipe} architecture. PacketC is a
-more expressive packet-processing language that allows memory sharing using
-locks and synchronization because the underlying hardware that it targets
-allows the same.
+\textbf{Packet-processing languages}
+Several DSLs explicitly target packet processing. Click~\cite{click} uses C++
+to write packet-processing code for software routers. Imperative languages such
+as NOVA~\cite{nova}, packetC~\cite{packetc} Intel's auto-partitioning C
+compiler~\cite{intel_uiuc_pldi} and Microengine C~\cite{microenginec,
+intel_ixa} target network processors such as the Intel IXP~\cite{ixp2800, ixp}.
+PX~\cite{PX} is a language that targets packet processing on FPGA platforms.
 
-\pktlanguage{} is complementary to these languages that are close to the
-hardware. For instance, by translating into P4, \pktlanguage{} can automatically be
-run on all targets that P4 supports~\cite{lavanya_compiler}. Like any other
-nascent language, P4 is likely as more experience is accumulated. In light of
-this, our work can be viewed as a recommendation to extend P4 with
-transactional actions that span multiple tables, and can benefit from the rest
-of P4's abstractions: arbitrary match entries, typed header fields, control
-flow across tables, and programmable packet parsing.
+\pktlanguage's use of C syntax and the implicit sequential semantics of C are
+inspired by these languages. However \pktlanguage is more constrained than its
+predecessors: for instance, \pktlanguage forbids loops and includes no
+synchronization constructs because all state is internal to an atom. These were
+deliberately chosen to target line-rate switching chips with deterministic
+performance and shared-nothing memory architectures.
 
-% Say why we would still need P4 as the narrow waist for this world.
-%%Our compiler takes code written in \pktlanguage and translates it into P4. This
-%%source-to-source approach lets us focus on correctness issues when translating
-%%\pktlanguage into P4 and lets a P4 compiler handle backend optimizations such
-%%as table placement using target-specific information~\cite{lavanya_compiler}.
-%%It also allows us to automatically leverage ongoing industry work on P4
-%%compilation to hardware targets~\cite{xilinx}.
+As a result, \pktlanguage's compiler presents a different view to the
+programmer relative to these prior systems: all \pktlanguage programs that
+compile run at line-rate, while those that can't run at line rate are rejected
+outright. There is no slippery slope of degrading performance as the program's
+complexity increases.
 
-%P4 itself:
-% Mention how we considered compiling down to P4 initially. Tell why it wasn't
-% possible because P4 has no constructs for sequential execution, conditional
-% operators, or arithmetic expressions and how we have now proposed this for
-% inclusion into the standard based on this work.  Maybe mention the
-% p4-semantics repo to show our proposal Either say it's under consideration at
-% P4.org or has been standardized already.
+P4~\cite{p4} is an emerging packet-processing language that explicitly targets
+line-rate programmable switching chips. However, P4's language constructs
+resemble the underlying hardware---requiring the programmer to reason about
+concurrency and pipelining. Further, P4 currently has no constructs for
+sequential execution within a pipeline stage.
 
-% microenginec, intel ixpc and everything else from the packetC paper.
+Sequential execution within a stage is required to execute the atoms produced
+by \pktlanguage and guarantee correctness. Based on this work, we have
+submitted a proposal for the same~\cite{p4-semantics} to the P4 language
+consortium. In the future, if P4 supports such constructs, \pktlanguage could
+target P4 as a backend, allowing us to leverage ongoing work ~\cite{netronome,
+xilinx,lavanya_compiler} in compiling P4 to hardware targets.
 
-\subsection{Transactions}
-Transactions are a staple of modern databases. However, they are also
-ubiquitous in the world of networking: even if they go by multiple names. For
-instance, Click's element abstraction~\cite{click} allows code to be run
-without being pre-empted, Intel's compiler for the IXP
-architecture~\cite{intel} featured a similar high-level transactional
-specification called the PPE for packet processing enginer.
-Flexplane~\cite{flexplane} also allows the user to specify code in a high-level
-language such as C++ in a similar transactional style and Maple~\cite{maple}
-applies the notion on an algorithmic policy for SDN controllers: in essence,
-a network-wide transaction.
+\textbf{Compiler Techniques}
+\pktlanguage's compiler uses three-address codes~\cite{tac}, static-single
+assignment form~\cite{ssa}, and if conversion~\cite{if_conversion}, all of
+which are well-understood in the compiler literature. However, \pktlanguage's
+constrained design allows us to considerably simplify these techniques relative
+to their current uses in compilers. \tester can be viewed as an informal
+counterpart of translation validation~\cite{necula_translation_validation},
+which guarantees that a compiler pass preserves program semantics.
 
- \pktlanguage{} is inspired by these prior systems in its use of transactions.
-However, it's emphasis on compiling these transactions to extremely minimal,
-constrained architectures like the RMT model is new. These architectures also
-result in a new set of tradeoffs: a larger program doesn't run slowly. Instead,
-it doesn't run at all, unless suitably approximated.
+\pktlanguage use of strongly connected components to determine atom bodies is
+based on similar uses in software pipelining~\cite{software_pipelining} for
+VLIW and DSP architectures. However, dependence analysis for loop-carried
+dependencies in software pipelining (equivalent to state in \pktlanguage) is
+more involved than the simple syntactic analysis of dependencies employed by
+\pktlanguage. Lastly, the use of synthesis to fit atom bodies into sketches is
+based on Chlorophyll's~\cite{chlorophyll} use of program synthesis for
+compilation to unorthodox targets.
 
-\subsection{Compiler Techniques}
-
-% If conversion
-% http://perso.ens-lyon.fr/christophe.alias/M2/HPL-91-58.pdf
-% http://dl.acm.org/citation.cfm?id=567085
-% Translation validation
-% SSA
-% Three-operand codes.
-% VLIW compilers and DSP compilers.
-% Software pipelining is most directly related.
+\textbf{Hardware compilation}
+Prior work ~\cite{nurvadathi, cash, bluespec} has focused on deriving hardware
+circuits from high-level imperative descriptions of program behavior for
+arbitrary kernels. While these approaches simplify hardware development, the
+performance of each kernel depends on its complexity.  \pktlanguage has an
+all-or-nothing approach to performance: all code that compiles can run at
+line rate or is rejected by the compiler.
