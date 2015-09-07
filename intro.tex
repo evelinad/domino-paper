@@ -18,7 +18,7 @@ algorithms.
 This rigidity affects network switch vendors that build network
 equipment~\cite{cisco_nexus, dell_force10, arista_7050} based on
 merchant-silicon switching chips~\cite{trident, tomahawk, mellanox},  network
-operators using such chips within private networks~\cite{jupiter,amazon,isp},
+operators using such chips within private networks~\cite{google,facebook,vl2},
 and researchers developing new switch algorithms~\cite{xcp, codel, d3, detail,
 pdq}. Today, the only way to implement a new data-plane algorithm at line rate
 is to expressly build hardware for it---a time-consuming and resource-intensive
@@ -89,6 +89,7 @@ CONGA~\cite{conga}. We determine if they are implementable, for specific
 constraints~(\S\ref{ss:complexity}) imposed on the atoms in \absmachine. In the
 process, we provide guidance for how programmable hardware should evolve in the
 future to support the needs of data-plane algorithms.  We place \pktlanguage in
-the context of related work and by outlining several areas for future work.
+the context of related work~(\S\ref{s:related}) and conclude by outlining several
+areas for future work~(\S\ref{s:future}).
 %TODO: I don't quite know what the guidance is yet. Will have it by the
 %weekend.
