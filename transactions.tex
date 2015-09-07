@@ -1,7 +1,8 @@
 \section{Packet transactions}
-Transactions are the strongest guarantee that a database system can provide in
-that the effect of a transaction is either entirely visible or not with no
-intermediate state being visible to the outside world.
+\label{s:transactions}
+Transactions~\cite{db_trans} are the strongest guarantee that a database system
+can provide in that the effect of a transaction is either entirely visible or
+not with no intermediate state being visible to the outside world.
 
 We repurpose database transactions for data-plane programming by defining a
 \textit{packet transaction}: a body of sequential code that executes from start
@@ -10,20 +11,21 @@ For a programmer, the packet transaction represents what happens to every
 packet without having to worry about other packets that are currently being
 processed by the switch, how many pipeline stages it has, and how to
 parallelize code. Conceptually, every packet is processed in isolation and to
-completion using a sequential block of code before the next packet's processing
-begins.
+completion according to a sequential block of code before the next packet's
+processing begins.
 
-As an illustration of programming in \pktlanguage, we consider how a programmer
-would express a data-plane load-balancing algorithm such as flowlet
-switching~\cite{flowlet} using domino. Flowlet switching is a load balancing
-that harnesses the natural burstiness of TCP traffic to load balance set of
-packets (called flowlets) separated by a large enough interval in time, called
-the flowlet threshold. This flowlet threshold is chosen to ensure that packets
-from flowlets taking different paths do not arrive out of order at a TCP
-receiver, thereby causing it to reorder packets and degrade throughput.
+%TODO: domino comes in out of left field here.
+To illustrate packet transactions, we consider how a programmer would express a
+data-plane load-balancing algorithm such as flowlet switching~\cite{flowlet}.
+Flowlet switching is a load balancing algorithm that harnesses the natural
+burstiness of TCP traffic to load balance sets of packets (called flowlets)
+separated by a large enough interval in time, called the flowlet threshold.
+This flowlet threshold is chosen to ensure that packets from flowlets taking
+different paths do not arrive out of order at a TCP receiver, thereby causing
+it to reorder packets and degrade throughput.
 
-Flowlet switching is conceptually simple to write down and can be expressed
-as the C code block shown in:
+Flowlet switching is conceptually simple to write down and can be expressed as
+the C code block shown in Figure~\ref{fig:flowlet}.
 \begin{figure}[!h]
 \begin{tiny}
 \begin{lstlisting}

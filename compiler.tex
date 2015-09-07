@@ -1,4 +1,5 @@
 \section{The \pktlanguage compiler}
+\label{s:compiler}
 
 % TODO: Add high-level diagram describing the compiler.
 % for every pass, describe what it is, provide an example, show how it's much
@@ -247,7 +248,7 @@ least two statements: a read from a state variable and a write to a state
 variable and optionally consist of one or more updates to the state variable.
 
 \subsection{Constraints on atoms}
-
+\label{ss:complexity}
 So far, we haven't constrained the code in atom bodies in any way to reflect
 hardware constraints. Expression flattening generates stateless atoms that each
 have only one instruction. Further, because these instructions are in
