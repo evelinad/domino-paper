@@ -1,74 +1,60 @@
-\section{Packet transactions}
+\section{Programming using packet transactions}
 \label{s:transactions}
 
-We repurpose database transactions~\cite{db_trans} for data-plane programming
-by defining a \textit{packet transaction}: a body of sequential code that
-executes from start to finish on each packet and conceptually processes only
-one packet at a time.  For a programmer, the packet transaction represents what
-happens to every packet without having to worry about other packets that are
-currently being processed by the switch, how many pipeline stages it has, and
-how to parallelize code. Conceptually, every packet is processed in isolation
-and to completion according to a sequential block of code before the next
-packet's processing begins.  \ac{The above paragraph sounds redundant to what
-  is already mentioned in the intro}
+To illustrate programming using packet transactions in \pktlanguage, we
+describe how a programmer would express flowlet switching~\cite{flowlets} in
+\pktlanguage (Figure~\ref{fig:flowlet}).  Flowlet switching is a load balancing
+algorithm that harnesses the natural burstiness of TCP traffic to load balance
+flowlets: sets of packets that are separated by a large enough interval in time
+called the flowlet threshold.  This flowlet threshold is chosen to ensure that
+packets from flowlets taking different paths are unlikely to arrive out of
+order at a TCP receiver, which would degrade throughput.
 
-\ac{I am fine with combining overview with the language section.
-But can you weave in language concepts by first referencing lines in the sample
-program and then stating what the general concept is? See section 4 of the
-P4 CCR article for an example. Notice how it shows fragment of code about
-actions, explains what it does, and then explain what are all the actions
-that are currently available in the language. \\
-I would move the compiler and banzai into subsections (as in P4 article).
-(btw you should
-change figure 2 so that it doesn't span both columns).
-}
-
-%TODO: domino comes in out of left field here.
-To illustrate packet transactions, we consider how a programmer would express a
-data-plane load-balancing algorithm such as flowlet switching~\cite{flowlet}.
-Flowlet switching is a load balancing algorithm that harnesses the natural
-burstiness of TCP traffic to load balance sets of packets (called flowlets)
-separated by a large enough interval in time, called the flowlet threshold.
-This flowlet threshold is chosen to ensure that packets from flowlets taking
-different paths do not arrive out of order at a TCP receiver, thereby causing
-it to reorder packets and degrade throughput.
-
-Flowlet switching is conceptually simple to write down and can be expressed as
-the C code block shown in Figure~\ref{fig:flowlet}.
 \begin{figure}[!h]
-\begin{tiny}
-\begin{lstlisting}
+\begin{small}
+  \begin{lstlisting}[style=customc]
 #define NUM_FLOWLETS      8000
 #define FLOWLET_THRESHOLD 5
-
+#define NUM_HOPS          10
 struct Packet {
   int sport;
   int dport;
   int new_hop;
-  int arrival_time;
+  int arrival;
   int next_hop;
-  int id0;
-  int id1;
+  int idl; // index into last_time
+  int ids; // index into saved_hop
 };
 
 int last_time [NUM_FLOWLETS] = {0};
 int saved_hop [NUM_FLOWLETS] = {0};
 
 void flowlet(struct Packet pkt) {
-  pkt.new_hop   = hash3(pkt.sport, pkt.dport, pkt.arrival_time);
-  pkt.id1 = hash2(pkt.sport, pkt.dport) % NUM_FLOWLETS;
-  pkt.id0 = hash2(pkt.sport, pkt.dport) % NUM_FLOWLETS;
-  if (pkt.arrival_time - last_time[id1] >
+  pkt.new_hop = hash3(pkt.sport,
+                      pkt.dport,
+                      pkt.arrival);
+                % NUM_HOPS;
+
+  pkt.idl = hash2(pkt.sport,
+                  pkt.dport)
+            % NUM_FLOWLETS;
+
+  pkt.ids = hash2(pkt.sport,
+                  pkt.dport)
+            % NUM_FLOWLETS;
+
+  if (pkt.arrival_time -
+      last_time[pkt.idl] >
       FLOWLET_THRESHOLD) {
-    saved_hop[pkt.id0] = pkt.new_hop;
+    saved_hop[pkt.ids] = pkt.new_hop;
   }
-  last_time[pkt.id1] = pkt.arrival_time;
-  pkt.next_hop = saved_hop[pkt.id0];
+
+  last_time[pkt.idl] = pkt.arrival;
+  pkt.next_hop = saved_hop[pkt.ids];
 }
 \end{lstlisting}
-\end{tiny}
-\caption{Flowlet switching written in \pktlanguage \ac{this is too small 
-to read}}
+\end{small}
+\caption{Flowlet switching in \pktlanguage}
 \label{fig:flowlet}
 \end{figure}
 
@@ -78,28 +64,33 @@ to read}}
   \label{fig:pipeline}
 \end{figure*}
 
-This packet transaction demonstrates the core language constructs in
-\pktlanguage. All packet processing happens in the context of a packet
-transaction (the function \texttt{flowlet}), a C function that takes a packet
-struct as an argument. The function body of a packet transaction can reference
-only two types of variables. Packet variables are represented as structure
-members and persist only over the duration of a packet, e.g.
-\texttt{pkt.next\_hop}). State variables are represented as global variables
-and persist across packets, e.g. \texttt{last\_time}.
+This example demonstrates the core language constructs in \pktlanguage. All
+packet processing happens in the context of the packet transaction (the
+function \texttt{flowlet} on line 17), a C function that takes a C struct as an
+argument. The C struct declares the fields in a packet (lines 4--12) that can
+be referenced by the function body (lines 17--39).  In addition, the function
+body can reference state variables that represent persistent state stored on
+the switch. These are declared as global variables at the program top level
+(e.g. \texttt{last\_time} and \texttt{saved\_hop} on lines 14 and 15).
 
-The function body may also call out to opaque functions such as \texttt{hash2}
-and \texttt{hash3} that represent hardware primitives provided by the abstract
-machine. The \pktlanguage compiler knows the function's signature and uses
-these to infer dependencies, but doesn't know anything about its
-implementation. Finally, the function body is written in a constrained subset
-of C that excludes all iterative constructs. The function body can include if
-and else-if statements, but all other control transfer (break, goto, switch,
-return, and continue statements) is forbidden.
+The semantics of the packet transaction function are to modify the packet that
+it receives as argument in place until the end of the function body. Return
+statements are forbidden; hence, execution will always end at the end of
+the function body. The function body may also call out to opaque functions such
+as \texttt{hash2} on lines 23 and 27 and \texttt{hash3} on line 18. These
+represent hardware primitives provided by the abstract machine that have no
+representation in \pktlanguage. The \pktlanguage compiler knows the signature
+of opaque functions and uses these to infer dependencies, but doesn't know
+anything about its implementation. Finally, the function body is written in a
+constrained subset of C that excludes all iterative constructs. The function
+body can include if and else-if statements, but all other control transfer
+(break, goto, switch, return, and continue statements) is forbidden.
 
-Lastly, \pktlanguage forbids pointers and dynamic memory allocation. Arrays can
-be used as state variables, but in a restriced form: for a given array, all
-accesses to the array must use the same array index for a given packet. This
-restriction simplifies the treatment of arrays in the compiler.
+\pktlanguage forbids pointers and dynamic memory allocation. Arrays can be used
+as state variables, but in a restriced form: for a given array, all accesses to
+the array must use the same array index for a given packet. This restriction
+simplifies the treatment of arrays in the compiler, while still being able to
+express several data-plane algorithms of practical interest.
 
 While these restrictions seem severe at first glance, they are required to
 provide deterministic performance guarantees. Further, we show (\S\ref{s:eval})
@@ -114,28 +105,3 @@ Figure~\ref{fig:pipeline} using a language like P4 or an API such as Cavium's
 XPliant SDK. Programming in \pktlanguage lets a compiler automate this process:
 the user doesn't worry about hardware details such as pipeline stages and
 concurrency within each stage.
-
-Expressing code using packet transactions also allows to check for correctness
-of compilation, by feeding the same test input into both the transactional code
-block (Figure~\ref{fig:flowlet}) and its pipelined implementation in
-\absmachine and checking that the outputs are identical for both the
-transactional specification and its pipelined implementation. We describe our
-test framework, \tester that uses this idea to validate the correctness of
-compilation of all our test programs.
-
-% Anirudh->Alvin: Maybe move grammar into appendix?
-
-% Anirudh->Alvin: I think we might want to get rid of a language section and
-% just describe the language as part of this example itself?
-%%Additionally,
-%%\pktlanguage currently only handles scalar packet variables
-%%Permits arrays with the same read and write addresses.
-
-%The global arrays \texttt{last\_time} and \texttt{saved\_hop}
-%represent the last time a packet was received from a given 5-tuple and the
-%saved value of the next hop for that 5-tuple.\footnote{Hash function collisions
-%  can occur, leading to two flows sharing last\_time and saved\_hop values. As
-%we explain later in \S\ref{s:banzai}, this is unavoidable given the constraints
-%on modern switch architectures.}. The next\_hop packet field specifies the next
-%hop chosen for the packet, which can either be the saved value of next hop or a
-%newly computed value.
