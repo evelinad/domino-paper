@@ -1,11 +1,12 @@
 \subsection*{Abstract}
 
-Data-plane algorithms encompass a wide-variety of packet processing routines
-including congestion control, network measurement, active queue management, and
-load balancing. Today, such algorithms are implemented in hardware, whose
-inflexibility prohibits experiments with new designs. While programmable
-switches have been proposed as an alternative, they are often difficult to
-program due to the low-level nature of languages like P4 used to program them.
+Data-plane algorithms are algorithms that execute on every packet and encompass
+a wide-variety of packet processing routines including congestion control,
+network measurement, active queue management, and load balancing. Today, such
+algorithms are implemented in hardware, whose inflexibility prohibits
+experiments with new designs. While programmable switches have been proposed as
+an alternative, they are often difficult to program due to the low-level nature
+of languages and APIs used to program them.
 
 This paper presents \pktlanguage, a new language for expressing data-plane
 algorithms on programmable switches. \pktlanguage is a high-level, imperative
