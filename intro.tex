@@ -24,111 +24,64 @@ pdq}. Today, the only way to implement a new data-plane algorithm at line rate
 is to expressly build hardware for it---a time-consuming and resource-intensive
 process.
 
-Programmable switching chips~\cite{flexpipe, xpliant, rmt} that are
-performance-competitive with state of the art fixed-function
-chipsets~\cite{trident, tomahawk, mellanox} have emerged as an alternative.
-These chips allow designers to express their algorithms using a domain-specific
-language (DSL) such as P4~\cite{p4} or propreitary SDKs such as those from
-XPliant~\cite{xpliant_sdk, xpliant_sdk2} and Intel~\cite{intel_sdk}.  These
-approaches bear a close resemblance to the underlying hardware, 
-\ac{I think it is important to justify why these mechanisms closely resemble
-the underlying hardware.}
-forcing
-programmers to reason about low-level pipeline semantics and hardware
-concurrency, and place a high burden on network programmers who are used to
-writing sequential programs in a high-level language (such as C) for software
-routers~\cite{click} and network processors~\cite{ixp4xx, ixp2800}.
+Programmable switching chips~\cite{flexpipe, xpliant, rmt} that are competitive
+with state of the art fixed-function chipsets~\cite{trident, tomahawk,
+mellanox} have emerged as an alternative.  These chips allow designers to
+express their algorithms using a domain-specific language (DSL) such as
+P4~\cite{p4} or propreitary SDKs such as those from XPliant~\cite{xpliant_sdk,
+xpliant_sdk2} and Intel~\cite{intel_sdk}.  However, these approaches closely
+resemble to the underlying hardware and are inconvenient for programmers.
 
+For instance, P4 requires the user to manually specify the sequence of
+match-action tables that every packet goes through. Further, instructions
+contained within an action in P4 are assumed to execute in parallel to reflect
+the hardware's parallel processing capabilities. This forces programmers to
+reason about low-level pipeline semantics and hardware concurrency, and place a
+high burden on network programmers who are used to writing sequential programs
+in a high-level language (such as C) for software routers~\cite{click} and
+network processors~\cite{ixp4xx, ixp2800}.
+
+%\ac{What is the story about multiple transactions?}
+% We are ditching that for now. Let's move it to future work.
 In this paper, we present \pktlanguage, a new DSL for expressing data-plane
-algorithms. Unlike existing approaches, \pktlanguage is a high-level,
-imperative language that allows programmers to express data-plane algorithms
-using {\em packet transactions} (\S\ref{s:transactions}). 
-Conceptually, a packet transaction represents an indivisible 
-sequence of operations that is applied atomically 
-to each packet in the packet buffer. 
-\ac{What is the story about multiple transactions?}
-Packet transactions allow programmers to focus on the operations to be applied
-to each packet, and they also 
-guarantee deterministic performance :
-all packet transactions that are implementable on a given switch architecture
-will be executed at the switch's line rate.
-\ac{See if this sounds better}
+algorithms. \pktlanguage is a high-level, imperative language based on C that
+allows programmers to express data-plane algorithms using {\em packet
+transactions} (\S\ref{s:transactions}). Packet transactions provide the
+abstraction of a sequential block of code that runs to completion on each
+packet before executing on the next packet. This is a convenient programming
+model, since it allows the programmer to focus on the operations needed for
+each packet without worrying about other packets concurrently being processed
+by the switch pipeline.
 
-\if 0
-To the programmer,
-packet transactions provide the abstraction of a sequential block of code that
-runs to completion on each packet before executing the same packet transaction
-on the next packet. 
-Packet transactions guarantee deterministic performance :
-all packet transactions that are implementable can run at the switch's line
-rate, or are rejected by the compiler. 
-\fi
-% Anirudh->Alvin: Does this sound better?
-%%
+We have implemented a compiler for \pktlanguage that compiles \pktlanguage
+packet transactions and generates code for an abstract machine called
+\absmachine~(\S\ref{s:absmachine}), which models the essential features of
+emerging programmable switch architectures.  In addition, we introduce the
+concept of {\em atoms} to represent atomic instructions provided natively by
+\absmachine much like test-and-set and compare-and-exchange in x86 CPUs
+today~\cite{x86_manual}.  Atoms provide the underlying hardware operations
+required to implement the programmer's view of packet transactions, similar to
+how an atomic test-and-set instruction can be used to implement an atomic
+increment.
 
-We have implemented a compiler for \pktlanguage that compiles \pktlanguage packet
-transactions and generates code for an abstract machine
-called \absmachine~(\S\ref{s:absmachine}), which models the essential features of
-emerging programmable switch architectures.  In addition, \absmachine
-introduces the concept of {\em atoms}. Atoms are sequential code blocks
-consisting of multiple packet-processing instructions executed atomically by
-\absmachine and provide the underlying hardware support for realizing the
-programmer's view of packet transactions.
-
-Informally, an atom captures hardware support for atomic operations such as
-test-and-set, compare-and-swap, or fetch-and-add~\cite{faa}, whose effect is
-visible before the next packet. By constraining the number and type of
-instructions within each atom~(\S\ref{ss:complexity}), \absmachine captures
-practical limits to atomic computations that can be carried out at line rate.
-\ac{Are atoms the equivalent of transactions in \absmachine? This description
-sounds just like transactions to me and I don't see the point of introducing
-atoms.}
-
-
-%%Internally, an atom can encapsulate local state that
-%%affects the atom's behavior from packet to packet to model elements like switch
-%%counters. \ac{this is confusing and sounds just the conceptual definition 
-%%of transactions that you just mentioned.}
-%%\ac{what does atom have to do with state? You also haven't mentioned 
-%%the concept of state before this. Is the concept of switch state already  
-%%well known?}  
-%% Anirudh:Alvin: Commenting out above because state sounds like a diversion now.
-
-%%\ac{I find this confusing. Is this supposedly some tuning parameters that  
-%%\absmachine provides that can be used to model different types of switches?}  
-% Anirudh-> Alvin: Simplifying the above to something more succinct.
-
-Expressing data-plane algorithms as packet transactions also helps in program
-verification.  By feeding the same test input to both
-the user-supplied packet transaction and its implementation in \absmachine and
-verifying that the outputs match up, an automated tester (\S\ref{s:tester}) can
-spot check the correctness of compilations~(\S\ref{s:tester}).
-\ac{Is \tester necessary if we can write
-a proof about correctness of the partitioning algorithm?} 
-\ak{I think it's important for a pragmatic reason. It helped me
-catch some bugs in compiler passes that I wouldn't have caught otherwise.
-If we had a formally verified compiler then I would agree with you.}
-\ac{I thought banzai / atoms are internal things that the 
-domino programmer should never need to deal with? If so then the 
-testing framework sounds like an internal
-development tool that I don't see the point of mentioning. And why not
-prove correctness of partitioning in this paper?}
-
+The \pktlanguage compiler takes the atoms provided by \absmachine into account,
+when compiling packet transactions into code for \absmachine. Further, the
+\pktlanguage compiler guarantees deterministic performance for packet
+transactions: all packet transactions that are implementable on a given switch
+architecture will be executed at the switch's line rate, or they will be
+rejected by the compiler if the atoms available in \absmachine cannot implement
+the programmer-supplied transaction.
 
 %TODO: Explain one real use case for bloom filters. Everyone talks about it but
 %I don't seem to know what the real use case is.
 To evaluate the usefulness of \pktlanguage, we use \pktlanguage to express
 several data-plane algorithms~(\S\ref{s:eval}) such as flowlet
 switching~\cite{flowlets}, data-plane bloom filters~\cite{bloom}, heavy-hitter
-detection, CoDel~\cite{codel}, and CONGA~\cite{conga}---each algorithm is
-implemented using fewer than 60 lines
-of \pktlanguage code. For each algorithm, the \pktlanguage compiler determines
-if they are implementable, for specific constraints~(\S\ref{ss:complexity})
-imposed on the atoms in \absmachine \ac{I don't get this last part}. 
-In the process, we provide guidance for
-how programmable hardware should evolve in the future to support the needs of
-data-plane algorithms.  We place \pktlanguage in the context of related
-work~(\S\ref{s:related}) and conclude by outlining several areas for future
-work~(\S\ref{s:future}).
+detection, CoDel~\cite{codel}, and CONGA~\cite{conga}---each algorithm
+taking up less than a hundred lines of \pktlanguage code.  The \pktlanguage
+compiler determines if each algorithm is implementable depending on the atoms
+provided by \absmachine.~(\S\ref{ss:complexity}). We place \pktlanguage in the
+context of related work~(\S\ref{s:related}) and conclude by outlining several
+areas for future work~(\S\ref{s:future}).
 %TODO: I don't quite know what the guidance is yet. Will have it by the
 %weekend.
