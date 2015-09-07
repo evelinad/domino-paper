@@ -3,6 +3,7 @@
 Transactions~\cite{db_trans} are the strongest guarantee that a database system
 can provide in that the effect of a transaction is either entirely visible or
 not with no intermediate state being visible to the outside world.
+\ac{I would cut references to DB since we don't provide rollback}
 
 We repurpose database transactions for data-plane programming by defining a
 \textit{packet transaction}: a body of sequential code that executes from start
@@ -13,6 +14,20 @@ processed by the switch, how many pipeline stages it has, and how to
 parallelize code. Conceptually, every packet is processed in isolation and to
 completion according to a sequential block of code before the next packet's
 processing begins.
+\ac{The above paragraph sounds redundant to what is already mentioned in 
+the intro}
+
+\ac{I am fine with combining overview with the language section.
+But can you weave in language concepts by first referencing lines in the sample
+program and then stating what the general concept is? See section 4 of the
+P4 CCR article for an example. Notice how it shows fragment of code about
+actions, explains what it does, and then explain what are all the actions
+that are currently available in the language. \\
+I would move the compiler and banzai into subsections (as in P4 article).
+(btw you should
+change figure 2 so that it doesn't span both columns).
+}
+
 
 %TODO: domino comes in out of left field here.
 To illustrate packet transactions, we consider how a programmer would express a
@@ -58,7 +73,8 @@ void flowlet(struct Packet pkt) {
 }
 \end{lstlisting}
 \end{tiny}
-\caption{Flowlet switching in \pktlanguage}
+\caption{Flowlet switching written in \pktlanguage \ac{this is too small 
+to read}}
 \label{fig:flowlet}
 \end{figure}
 
