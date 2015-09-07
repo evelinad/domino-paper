@@ -57,12 +57,11 @@ consisting of multiple packet-processing instructions executed atomically by
 \absmachine and provide the underlying hardware support for realizing the
 programmer's view of packet transactions.
 
-Informally, an atom captures hardware support for atomic operations such as a
-test-and-set~\cite{tas}, compare-and-swap~\cite{cas}, or
-fetch-and-add~\cite{faa}, whose effect is visible before the next packet. By
-constraining the number and type of instructions within each
-atom~(\S\ref{ss:complexity}), \absmachine captures practical limits to atomic
-computations that can be carried out at line rate.
+Informally, an atom captures hardware support for atomic operations such as
+test-and-set, compare-and-swap, or fetch-and-add~\cite{faa}, whose effect is
+visible before the next packet. By constraining the number and type of
+instructions within each atom~(\S\ref{ss:complexity}), \absmachine captures
+practical limits to atomic computations that can be carried out at line rate.
 
 %%Internally, an atom can encapsulate local state that
 %%affects the atom's behavior from packet to packet to model elements like switch
