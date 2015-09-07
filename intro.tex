@@ -30,7 +30,10 @@ chipsets~\cite{trident, tomahawk, mellanox} have emerged as an alternative.
 These chips allow designers to express their algorithms using a domain-specific
 language (DSL) such as P4~\cite{p4} or propreitary SDKs such as those from
 XPliant~\cite{xpliant_sdk, xpliant_sdk2} and Intel~\cite{intel_sdk}.  These
-approaches bear a close resemblance to the underlying hardware, forcing
+approaches bear a close resemblance to the underlying hardware, 
+\ac{I think it is important to justify why these mechanisms closely resemble
+the underlying hardware.}
+forcing
 programmers to reason about low-level pipeline semantics and hardware
 concurrency, and place a high burden on network programmers who are used to
 writing sequential programs in a high-level language (such as C) for software
@@ -39,18 +42,33 @@ routers~\cite{click} and network processors~\cite{ixp4xx, ixp2800}.
 In this paper, we present \pktlanguage, a new DSL for expressing data-plane
 algorithms. Unlike existing approaches, \pktlanguage is a high-level,
 imperative language that allows programmers to express data-plane algorithms
-using {\em packet transactions} (\S\ref{s:transactions}). To the programmer,
+using {\em packet transactions} (\S\ref{s:transactions}). 
+Conceptually, a packet transaction represents an indivisible 
+sequence of operations that is applied atomically 
+to each packet in the packet buffer. 
+\ac{What is the story about multiple transactions?}
+Packet transactions allow programmers to focus on the operations to be applied
+to each packet, and they also 
+guarantee deterministic performance :
+all packet transactions that are implementable on a given switch architecture
+will be executed at the switch's line rate.
+\ac{See if this sounds better}
+
+\if 0
+To the programmer,
 packet transactions provide the abstraction of a sequential block of code that
 runs to completion on each packet before executing the same packet transaction
-on the next packet. Packet transactions guarantee deterministic performance :
+on the next packet. 
+Packet transactions guarantee deterministic performance :
 all packet transactions that are implementable can run at the switch's line
-rate, or are rejected by the compiler.
+rate, or are rejected by the compiler. 
+\fi
 % Anirudh->Alvin: Does this sound better?
 %%
 
-We have implemented a compiler for \pktlanguage that compiles a packet
-transaction written in \pktlanguage and generates code for an abstract machine
-called \absmachine~(\S\ref{s:absmachine}), which models essential features of
+We have implemented a compiler for \pktlanguage that compiles \pktlanguage packet
+transactions and generates code for an abstract machine
+called \absmachine~(\S\ref{s:absmachine}), which models the essential features of
 emerging programmable switch architectures.  In addition, \absmachine
 introduces the concept of {\em atoms}. Atoms are sequential code blocks
 consisting of multiple packet-processing instructions executed atomically by
@@ -62,6 +80,10 @@ test-and-set, compare-and-swap, or fetch-and-add~\cite{faa}, whose effect is
 visible before the next packet. By constraining the number and type of
 instructions within each atom~(\S\ref{ss:complexity}), \absmachine captures
 practical limits to atomic computations that can be carried out at line rate.
+\ac{Are atoms the equivalent of transactions in \absmachine? This description
+sounds just like transactions to me and I don't see the point of introducing
+atoms.}
+
 
 %%Internally, an atom can encapsulate local state that
 %%affects the atom's behavior from packet to packet to model elements like switch
@@ -82,21 +104,29 @@ hence can be executed on \absmachine.  By feeding the same test input to both
 the user-supplied packet transaction and its pipelined implementation and
 verifying that the outputs match up, an automated tester (\S\ref{s:tester}) can
 spot check the correctness of compilations~(\S\ref{s:tester}).
-%\ac{Is \tester necessary if we can write
-%a proof about correctness of the partitioning algorithm?} 
-% Anirudh->Alvin: I think it's important for a pragmatic reason. It helped me
-% catch some bugs in compiler passes that I wouldn't have caught otherwise.
-% If we had a formally verified compiler then I would agree with you.
+\ac{Is \tester necessary if we can write
+a proof about correctness of the partitioning algorithm?} 
+\ak{I think it's important for a pragmatic reason. It helped me
+catch some bugs in compiler passes that I wouldn't have caught otherwise.
+If we had a formally verified compiler then I would agree with you.}
+\ac{I thought banzai / atoms are internal things that the 
+domino programmer should never need to deal with? If so then the 
+testing framework sounds like an internal
+development tool that I don't see the point of mentioning. And why not
+prove correctness of partitioning in this paper?}
+
 
 %TODO: Explain one real use case for bloom filters. Everyone talks about it but
 %I don't seem to know what the real use case is.
 To evaluate the usefulness of \pktlanguage, we use \pktlanguage to express
 several data-plane algorithms~(\S\ref{s:eval}) such as flowlet
 switching~\cite{flowlets}, data-plane bloom filters~\cite{bloom}, heavy-hitter
-detection, CoDel~\cite{codel}, and CONGA~\cite{conga}---each in under 60 lines
+detection, CoDel~\cite{codel}, and CONGA~\cite{conga}---each algorithm is
+implemented using fewer than 60 lines
 of \pktlanguage code. For each algorithm, the \pktlanguage compiler determines
 if they are implementable, for specific constraints~(\S\ref{ss:complexity})
-imposed on the atoms in \absmachine. In the process, we provide guidance for
+imposed on the atoms in \absmachine \ac{I don't get this last part}. 
+In the process, we provide guidance for
 how programmable hardware should evolve in the future to support the needs of
 data-plane algorithms.  We place \pktlanguage in the context of related
 work~(\S\ref{s:related}) and conclude by outlining several areas for future
