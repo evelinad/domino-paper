@@ -12,9 +12,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="301.05469"
-   height="785.07812"
-   viewBox="0 0 240.66691 628.06249"
+   width="303.04688"
+   height="695.07812"
+   viewBox="0 0 242.25949 556.06249"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
@@ -27,7 +27,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -160,12 +160,12 @@
      id="namedview160"
      showgrid="true"
      inkscape:zoom="0.87705101"
-     inkscape:cx="-212.93784"
-     inkscape:cy="534.57121"
+     inkscape:cx="-302.17496"
+     inkscape:cy="321.62205"
      inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
-     inkscape:current-layer="node8"
+     inkscape:current-layer="graph0"
      inkscape:snap-global="true"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -178,61 +178,16 @@
        visible="true"
        enabled="true"
        snapvisiblegridlinesonly="true"
-       originx="-319.47099px"
-       originy="72.539053px" />
+       originx="-317.49335px"
+       originy="72.539066px" />
   </sodipodi:namedview>
   <g
      id="graph0"
      class="graph"
-     transform="translate(-251.57678,566.03125)">
+     transform="translate(-249.99467,494.03125)">
     <title
        id="title5">pipeline_diagram</title>
     <!-- 18156345595480809247 -->
-    <g
-       id="node1"
-       class="node"
-       transform="matrix(1,0,0,1.0588235,-4.322218,-211.81177)">
-      <title
-         id="title10">18156345595480809247</title>
-      <path
-         d="m 446.68214,-173.95555 c 0,0 -120.11298,0 -120.11298,0 -3.98163,0 -7.96329,11.33333 -7.96329,22.66667 0,0 0,22.66667 0,22.66667 0,11.33334 3.98166,22.66667 7.96329,22.66667 0,0 120.11298,0 120.11298,0 3.98163,0 7.96328,-11.33333 7.96328,-22.66667 0,0 0,-22.66667 0,-22.66667 0,-11.33334 -3.98165,-22.66667 -7.96328,-22.66667"
-         id="path12"
-         inkscape:connector-curvature="0"
-         style="fill:#ffffff;stroke:#000000;stroke-width:1.11958969" />
-      <text
-         x="387.5"
-         y="-159.5"
-         font-size="10.00"
-         id="text14"
-         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'" />
-      <text
-         xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-         x="326.60001"
-         y="-157.33334"
-         id="text3215"
-         sodipodi:linespacing="125%"><tspan
-           sodipodi:role="line"
-           id="tspan3217"
-           x="326.60001"
-           y="-157.33334"
-           style="font-size:12.43936443px;font-family:Arial;-inkscape-font-specification:Arial">pkt.ids =</tspan><tspan
-           sodipodi:role="line"
-           x="326.60001"
-           y="-141.78413"
-           style="font-size:12.43936443px;font-family:Arial;-inkscape-font-specification:Arial"
-           id="tspan3346">hash2(pkt.sport,</tspan><tspan
-           sodipodi:role="line"
-           x="326.60001"
-           y="-126.23493"
-           id="tspan3219"
-           style="font-size:12.43936443px;font-family:Arial;-inkscape-font-specification:Arial">           pkt.dport)</tspan><tspan
-           sodipodi:role="line"
-           x="326.60001"
-           y="-110.68573"
-           id="tspan3221"
-           style="font-size:12.43936443px;font-family:Arial;-inkscape-font-specification:Arial">% NUM_FLOWLETS;</tspan></text>
-    </g>
     <!-- 2578573771215871937 -->
     <g
        id="node2"
@@ -253,7 +208,7 @@
          style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">
         <tspan
            style="font-size:12.80000019px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"
-           id="tspan3096">pkt.saved_hop = saved_hop[pkt.ids];</tspan>
+           id="tspan3096">pkt.saved_hop = saved_hop[pkt.id];</tspan>
       </text>
       <text
          x="356.5"
@@ -273,10 +228,10 @@
       <title
          id="title47">6102173050205819670</title>
       <path
-         d="m 586.2187,-36 c 0,0 -161.43449,0 -161.43449,0 -3.64138,0 -7.28275,9.283334 -7.28275,18.566669 0,0 0,18.5666702 0,18.5666702 0,9.2833338 3.64137,18.5666688 7.28275,18.5666688 0,0 161.43449,0 161.43449,0 3.64137,0 7.28275,-9.283335 7.28275,-18.5666688 0,0 0,-18.5666702 0,-18.5666702 C 593.50145,-26.716666 589.86007,-36 586.2187,-36"
+         d="m 595.18339,-36 c 0,0 -176.13596,0 -176.13596,0 -3.97299,0 -7.94597,9.283334 -7.94597,18.566669 0,0 0,18.5666702 0,18.5666702 0,9.2833338 3.97298,18.5666688 7.94597,18.5666688 0,0 176.13596,0 176.13596,0 3.97298,0 7.94598,-9.283335 7.94598,-18.5666688 0,0 0,-18.5666702 0,-18.5666702 0,-9.283335 -3.973,-18.566669 -7.94598,-18.566669"
          id="path49"
          inkscape:connector-curvature="0"
-         style="fill:#ffffff;stroke:#000000;stroke-width:0.96902215" />
+         style="fill:#ffffff;stroke:#000000;stroke-width:1.01218426" />
       <text
          x="513.5"
          y="-15.5"
@@ -286,22 +241,22 @@
       <text
          xml:space="preserve"
          style="font-size:11.67994213px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
-         x="425.50146"
+         x="419.10144"
          y="-20.299992"
          id="text3088"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan3090"
-           x="425.50146"
+           x="419.10144"
            y="-20.299992"
            style="font-size:12.80000019px">pkt.next_hop = pkt.tmp2 ? </tspan><tspan
            sodipodi:role="line"
-           x="425.50146"
+           x="419.10144"
            y="-4.2999916"
            id="tspan3092"
            style="font-size:12.80000019px">                         pkt.new_hop : </tspan><tspan
            sodipodi:role="line"
-           x="425.50146"
+           x="419.10144"
            y="11.700008"
            id="tspan3094"
            style="font-size:12.80000019px">                         pkt.saved_hop;</tspan></text>
@@ -328,7 +283,7 @@
          style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">
         <tspan
            style="font-size:12.80000019px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"
-           id="tspan3108">pkt.last_time = last_time[pkt.idl];</tspan>
+           id="tspan3108">pkt.last_time = last_time[pkt.id];</tspan>
       </text>
       <text
          x="570.5"
@@ -338,7 +293,7 @@
          style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">
         <tspan
            style="font-size:12.80000019px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial"
-           id="tspan3106">last_time[pkt.idl] = pkt.arrival;</tspan>
+           id="tspan3106">last_time[pkt.id] = pkt.arrival;</tspan>
       </text>
     </g>
     <!-- 12309926818605719559&#45;&gt;1219129619190456111 -->
@@ -370,7 +325,7 @@
     <g
        id="node5"
        class="node"
-       transform="matrix(1.0272899,0,0,0.94736842,112.46871,-393.47367)">
+       transform="matrix(1.0272899,0,0,0.94736842,112.46871,-313.47367)">
       <title
          id="title98">10452902214951220838</title>
       <path
@@ -466,7 +421,7 @@
        style="fill:#ffffff;stroke:#000000;stroke-width:1.13019478"
        inkscape:connector-curvature="0"
        id="path12-5"
-       d="m 439.45916,-475.99999 c 0,0 -115.59927,0 -115.59927,0 -3.83204,0 -7.66405,12 -7.66405,24 0,0 0,24 0,24 0,12 3.83201,24.00001 7.66405,24.00001 0,0 115.59927,0 115.59927,0 3.83203,0 7.66405,-12.00001 7.66405,-24.00001 0,0 0,-24 0,-24 0,-12 -3.83202,-24 -7.66405,-24" />
+       d="m 439.45916,-395.99999 c 0,0 -115.59927,0 -115.59927,0 -3.83204,0 -7.66405,12 -7.66405,24 0,0 0,24 0,24 0,12 3.83201,24.00001 7.66405,24.00001 0,0 115.59927,0 115.59927,0 3.83203,0 7.66405,-12.00001 7.66405,-24.00001 0,0 0,-24 0,-24 0,-12 -3.83202,-24 -7.66405,-24" />
     <text
        style="font-size:12.80000019px;text-anchor:middle;font-family:'Times,serif'"
        id="text14-7"
@@ -477,29 +432,29 @@
     <text
        sodipodi:linespacing="125%"
        id="text3215-9"
-       y="-447.03964"
+       y="-369.29367"
        x="333.59485"
        style="font-size:12.80000019px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
        xml:space="preserve"
        transform="scale(0.97182533,1.0289915)"><tspan
          style="font-size:12.80000019px;font-family:Arial;-inkscape-font-specification:Arial"
-         y="-447.03964"
+         y="-369.29367"
          x="333.59485"
          id="tspan3217-8"
-         sodipodi:role="line">pkt.idl =</tspan><tspan
+         sodipodi:role="line">pkt.id =</tspan><tspan
          style="font-size:12.80000019px;font-family:Arial;-inkscape-font-specification:Arial"
-         y="-431.03964"
+         y="-353.29367"
          x="333.59485"
          sodipodi:role="line"
          id="tspan3348">hash2(pkt.sport,</tspan><tspan
          style="font-size:12.80000019px;font-family:Arial;-inkscape-font-specification:Arial"
          id="tspan3219-1"
-         y="-415.03964"
+         y="-337.29367"
          x="333.59485"
          sodipodi:role="line">           pkt.dport)</tspan><tspan
          style="font-size:12.80000019px;font-family:Arial;-inkscape-font-specification:Arial"
          id="tspan3221-2"
-         y="-399.03964"
+         y="-321.29367"
          x="333.59485"
          sodipodi:role="line">% NUM_FLOWLETS;</tspan></text>
     <path
@@ -543,7 +498,7 @@
          id="tspan3080"
          x="273.88235"
          y="-82.295265"
-         style="font-size:12.80000019px;font-family:Arial;-inkscape-font-specification:Arial">saved_hop[pkt.ids] = pkt.tmp2 ? </tspan><tspan
+         style="font-size:12.80000019px;font-family:Arial;-inkscape-font-specification:Arial">saved_hop[pkt.id] = pkt.tmp2 ? </tspan><tspan
          sodipodi:role="line"
          x="273.88235"
          y="-66.295265"
@@ -587,77 +542,77 @@
     <rect
        style="fill:none;stroke:#000000;stroke-width:4.04116774;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect3184"
-       width="236.80005"
-       height="624"
-       x="253.52316"
-       y="-564"
+       width="238.41161"
+       height="552"
+       x="251.91158"
+       y="-492"
        rx="12.198133"
        ry="23.248343" />
     <text
        xml:space="preserve"
        style="font-size:12.80000019px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
-       x="271.12323"
-       y="-435.99997"
+       x="259.91098"
+       y="-436"
        id="text3186"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3188"
-         x="271.12323"
-         y="-435.99997">Stage 1</tspan></text>
+         x="259.91098"
+         y="-436">Stage 1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.80000019px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
-       x="271.12323"
+       x="259.91098"
        y="-300"
        id="text3186-9"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3188-5"
-         x="271.12323"
+         x="259.91098"
          y="-300">Stage 2</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.80000019px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
-       x="271.12323"
+       x="259.91098"
        y="-236"
        id="text3186-9-8"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3188-5-9"
-         x="271.12323"
+         x="259.91098"
          y="-236">Stage 3</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.80000019px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
-       x="271.12323"
+       x="259.91098"
        y="-172"
        id="text3186-9-8-6"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3188-5-9-4"
-         x="271.12323"
+         x="259.91098"
          y="-172">Stage 4</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.80000019px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
-       x="271.12326"
-       y="-120.79981"
+       x="259.91101"
+       y="-120.79984"
        id="text3186-9-8-6-3"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3188-5-9-4-8"
-         x="271.12326"
-         y="-120.79981">Stage 5</tspan></text>
+         x="259.91101"
+         y="-120.79984">Stage 5</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.80000019px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
-       x="271.12326"
-       y="-8.7998123"
+       x="259.91101"
+       y="-8.7998238"
        id="text3186-9-8-6-3-6"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3188-5-9-4-8-6"
-         x="271.12326"
-         y="-8.7998123">Stage 6</tspan></text>
+         x="259.91101"
+         y="-8.7998238">Stage 6</tspan></text>
   </g>
 </svg>
