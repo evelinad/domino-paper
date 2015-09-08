@@ -10,12 +10,13 @@ called the flowlet threshold.  This flowlet threshold is chosen to ensure that
 packets from flowlets taking different paths are unlikely to arrive out of
 order at a TCP receiver, which would degrade throughput.
 
-\begin{figure}[!h]
+\begin{figure*}[!t]
+\begin{minipage}{0.6\textwidth}
 \begin{small}
 \begin{lstlisting}[style=customc]
-#define NUM_FLOWLETS      8000
-#define FLOWLET_THRESHOLD 5
-#define NUM_HOPS          10
+#define NUM_FLOWLETS    8000
+#define THRESHOLD       5
+#define NUM_HOPS        10
 
 struct Packet {
   int sport;
@@ -23,8 +24,7 @@ struct Packet {
   int new_hop;
   int arrival;
   int next_hop;
-  int idl; // index into last_time
-  int ids; // index into saved_hop
+  int id; // array index
 };
 
 int last_time [NUM_FLOWLETS] = {0};
@@ -36,37 +36,31 @@ void flowlet(struct Packet pkt) {
                       pkt.arrival)
                 % NUM_HOPS;
 
-  pkt.idl = hash2(pkt.sport,
+  pkt.id  = hash2(pkt.sport,
                   pkt.dport)
             % NUM_FLOWLETS;
 
-  pkt.ids = hash2(pkt.sport,
-                  pkt.dport)
-            % NUM_FLOWLETS;
+  if (pkt.arrival - last_time[pkt.id] 
+      > THRESHOLD) 
+  { saved_hop[pkt.id] = pkt.new_hop; }
 
-  if (pkt.arrival -
-      last_time[pkt.idl] >
-      FLOWLET_THRESHOLD) {
-    saved_hop[pkt.ids] = pkt.new_hop;
-  }
-
-  last_time[pkt.idl] = pkt.arrival;
-  pkt.next_hop = saved_hop[pkt.ids];
+  last_time[pkt.id] = pkt.arrival;
+  pkt.next_hop = saved_hop[pkt.id];
 }
 \end{lstlisting}
 \end{small}
-\caption{Flowlet switching in \pktlanguage}
+\end{minipage}
+%
+\vrule\quad
+%
+\begin{minipage}{0.4\textwidth}
+\includegraphics[width=0.8\columnwidth]{pipe.pdf}
+\end{minipage}
+\caption{\small (a) Flowlet switching written \pktlanguage (left);
+(b) Compiled 6-stage pipeline in \absmachine implementing (a).  Control flows
+from top to bottom. Atoms manipulating state are shaded in blue (right).}
 \label{fig:flowlet}
-\end{figure}
-
-\begin{figure}[!t]
-  \includegraphics[width=\columnwidth]{pipe.pdf}
-  \caption{6-stage pipeline in \absmachine implementing flowlet switching.
-           Each row represents a pipeline stage, while atoms within a column
-           represent parallel processing within each stage. Control flows from
-           top to bottom. Atoms manipulating state are shaded in blue.}
-  \label{fig:pipeline}
-\end{figure}
+\end{figure*}
 
 This example demonstrates the core language constructs in \pktlanguage. All
 packet processing happens in the context of the packet transaction (the
