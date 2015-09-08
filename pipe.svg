@@ -165,7 +165,7 @@
      inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
-     inkscape:current-layer="node7"
+     inkscape:current-layer="node2"
      inkscape:snap-global="true"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -216,7 +216,7 @@
            id="tspan3217"
            x="326.60001"
            y="-157.33334"
-           style="font-size:9.71825314px;font-family:'Times,serif';-inkscape-font-specification:'Times,serif'">pkt.ids0 =</tspan><tspan
+           style="font-size:9.71825314px;font-family:'Times,serif';-inkscape-font-specification:'Times,serif'">pkt.ids =</tspan><tspan
            sodipodi:role="line"
            x="326.60001"
            y="-145.18553"
@@ -250,13 +250,13 @@
          y="-93"
          font-size="10.00"
          id="text21"
-         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.saved_hop00 = saved_hop[pkt.ids0];</text>
+         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.saved_hop = saved_hop[pkt.ids];</text>
       <text
          x="356.5"
          y="-82"
          font-size="10.00"
          id="text23"
-         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">saved_hop[pkt.ids0] = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;</text>
+         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">saved_hop[pkt.ids] = (pkt.tmp2) ? (pkt.new_hop) : pkt.saved_hop;</text>
     </g>
     <!-- 18156345595480809247&#45;&gt;2578573771215871937 -->
     <!-- 3288852826486989562 -->
@@ -278,7 +278,7 @@
          y="-15.5"
          font-size="10.00"
          id="text51"
-         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.next_hop0 = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;</text>
+         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.next_hop = (pkt.tmp2) ? (pkt.new_hop) : pkt.saved_hop;</text>
     </g>
     <!-- 2578573771215871937&#45;&gt;6102173050205819670 -->
     <!-- 12309926818605719559 -->
@@ -299,13 +299,13 @@
          y="-309"
          font-size="10.00"
          id="text72"
-         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.last_time00 = last_time[pkt.idl0];</text>
+         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.last_time = last_time[pkt.idl];</text>
       <text
          x="570.5"
          y="-298"
          font-size="10.00"
          id="text74"
-         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">last_time[pkt.idl0] = pkt.arrival;</text>
+         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">last_time[pkt.idl] = pkt.arrival;</text>
     </g>
     <!-- 12309926818605719559&#45;&gt;1219129619190456111 -->
     <!-- 57079414824587270 -->
@@ -325,7 +325,7 @@
          y="-231.5"
          font-size="10.00"
          id="text88"
-         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.tmp1 = pkt.arrival - pkt.last_time00;</text>
+         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.tmp = pkt.arrival - pkt.last_time;</text>
     </g>
     <!-- 1219129619190456111&#45;&gt;57079414824587270 -->
     <!-- 10452902214951220838 -->
@@ -372,7 +372,7 @@
            id="tspan3207"
            x="207"
            y="-160"
-           style="font-size:9.86306286px;font-family:'Times,serif';-inkscape-font-specification:'Times,serif'">pkt.new_hop0 = </tspan><tspan
+           style="font-size:9.86306286px;font-family:'Times,serif';-inkscape-font-specification:'Times,serif'">pkt.new_hop = </tspan><tspan
            sodipodi:role="line"
            x="207"
            y="-147.67117"
@@ -414,7 +414,7 @@
          y="-164.3"
          font-size="10.00"
          id="text130"
-         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.tmp00 = pkt.tmp1 &gt; 5;</text>
+         style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.tmp2 = pkt.tmp &gt; 5;</text>
     </g>
     <!-- 57079414824587270&#45;&gt;7814081429072624425 -->
     <!-- 7814081429072624425&#45;&gt;2578573771215871937 -->
@@ -444,7 +444,7 @@
          y="-361.51901"
          x="440.15112"
          id="tspan3217-8"
-         sodipodi:role="line">pkt.idl0 =</tspan><tspan
+         sodipodi:role="line">pkt.idl =</tspan><tspan
          style="font-size:10px;font-family:'Times,serif';-inkscape-font-specification:'Times,serif'"
          y="-349.01901"
          x="440.15112"
