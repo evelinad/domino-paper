@@ -37,8 +37,8 @@ the innermost if statements and recursing outwards
 conversion~\cite{if_conversion}, but much simpler because only the if and
 else constructs alter control flow in \pktlanguage and all other forms of
 control transfers (break, continue, loops) are forbidden.
-\begin{figure}[!h]
-  \begin{minipage}{0.47\columnwidth}
+\begin{figure*}[!t]
+  \begin{minipage}{0.47\textwidth}
   \begin{small}
   \begin{lstlisting}[style=customc]
 if (pkt.arrival -
@@ -49,7 +49,7 @@ if (pkt.arrival -
   \end{lstlisting}
   \end{small}
   \end{minipage}
-  \begin{minipage}{0.53\columnwidth}
+  \begin{minipage}{0.53\textwidth}
   \begin{small}
   \begin{lstlisting}[style=customc]
 pkt.tmp = pkt.arrival -
@@ -63,7 +63,7 @@ saved_hop[pkt.id] = pkt.tmp ?
   \end{minipage}
 \caption{Conversion to straight-line code}
 \label{fig:if_convert}
-\end{figure}
+\end{figure*}
 
 This transformation creates straight-line code, where control always passes
 from one statement to the next without any branching. Straight-line code
@@ -84,8 +84,8 @@ packet temporary, and create a \textit{write flank} that writes the packet
 temporary back into the state variable.  Figure ~\ref{fig:stateful_flanks}
 illustrates this transformation on a fragment.
 
-\begin{figure}[!h]
-  \begin{minipage}{0.47\columnwidth}
+\begin{figure*}[!t]
+  \begin{minipage}{0.47\textwidth}
   \begin{small}
   \begin{lstlisting}[style=customc]
 pkt.id = hash2(pkt.sport,
@@ -95,7 +95,7 @@ last_time[pkt.id] = pkt.arrival;
   \end{lstlisting}
   \end{small}
   \end{minipage}
-  \begin{minipage}{0.53\columnwidth}
+  \begin{minipage}{0.53\textwidth}
   \begin{small}
   \begin{lstlisting}[style=customc]
 // Read flank for last_time
@@ -113,7 +113,7 @@ last_time[pkt.id] = pkt.last_time;
   \end{minipage}
   \caption{Adding read and write flanks}
 \label{fig:stateful_flanks}
-\end{figure}
+\end{figure*}
 
 Afer this pass, the code resembles assembly code for a load-store architecture:
 state variables are only accessed through reads and writes, and all arithemtic
@@ -138,8 +138,8 @@ once, there are no Write-After-Read or Write-After-Write dependencies; only
 Read-After-Write dependencies remain. This, in turn, facilitates dependency analysis
 during code partitioning (\S\ref{ss:partitioning}).
 
-\begin{figure}[!h]
-  \begin{minipage}{0.48\columnwidth}
+\begin{figure*}[!t]
+  \begin{minipage}{0.48\textwidth}
   \begin{small}
   \begin{lstlisting}[style=customc]
 pkt.id = hash2(pkt.sport,
@@ -151,7 +151,7 @@ last_time[pkt.id] = pkt.last_time;
   \end{lstlisting}
   \end{small}
   \end{minipage}
-  \begin{minipage}{0.52\columnwidth}
+  \begin{minipage}{0.52\textwidth}
   \begin{small}
   \begin{lstlisting}[style=customc]
 pkt.id0 = hash2(pkt.sport,
@@ -165,7 +165,7 @@ last_time[pkt.id0] = pkt.last_time1;
   \end{minipage}
   \caption{SSA transformation}
 \label{fig:ssa}
-\end{figure}
+\end{figure*}
 
 \subsection{Three-address code}
 We next transform into three-address code, where all instructions are either
@@ -184,7 +184,7 @@ legal three-address code, by introducing enough temporaries. For instance,
 pkt.tmp;}. Three-address code brings \pktlanguage closer to the hardware,
 without yet worrying about issues of concurrency, which we address next.
 
-\begin{figure}[!h]
+\begin{figure*}[t]
   \begin{lstlisting}[style=customc]
 pkt.id00 = hash2(pkt.sport, pkt.dport) % 8000;
 pkt.saved_hop00 = saved_hop[pkt.id00];
@@ -201,7 +201,7 @@ last_time[pkt.id10] = pkt.arrival_time;
 \end{lstlisting}
 \caption{Flowlet switching in three-address code}
 \label{fig:three_address}
-\end{figure}
+\end{figure*}
 
 \subsection{Code partitioning}
 \label{ss:partitioning}
