@@ -61,7 +61,10 @@ void flowlet(struct Packet pkt) {
 
 \begin{figure}[!t]
   \includegraphics[width=\columnwidth]{pipe.pdf}
-  \caption{6-stage pipeline in \absmachine implementing flowlet switching}
+  \caption{6-stage pipeline in \absmachine implementing flowlet switching.
+           Each row represents a pipeline stage, while atoms within a column
+           represent parallel processing within each stage. Control flows from
+           top to bottom. Atoms manipulating state are shaded in blue.}
   \label{fig:pipeline}
 \end{figure}
 

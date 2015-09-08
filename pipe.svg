@@ -12,9 +12,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="401.09375"
-   height="436.28677"
-   viewBox="0 0 320.63941 349.02941"
+   width="396.14688"
+   height="481.23209"
+   viewBox="0 0 316.68482 384.98566"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
@@ -32,7 +32,120 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs162" />
+     id="defs162">
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send"
+       style="overflow:visible">
+      <path
+         id="path4272"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend"
+       style="overflow:visible">
+      <path
+         id="path4260"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send-4"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4272-5"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send-2"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4272-6"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker5471"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path5473"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send-41"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4272-68"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send-1"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4272-4"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send-0"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4272-0"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)" />
+    </marker>
+  </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -47,12 +160,12 @@
      id="namedview160"
      showgrid="true"
      inkscape:zoom="1.1575153"
-     inkscape:cx="35.2512"
-     inkscape:cy="199.90753"
+     inkscape:cx="33.255785"
+     inkscape:cy="244.85283"
      inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg2"
+     inkscape:current-layer="node7"
      inkscape:snap-global="true"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -65,13 +178,13 @@
        visible="true"
        enabled="true"
        snapvisiblegridlinesonly="true"
-       originx="-259.37152px"
-       originy="-64.374987px" />
+       originx="-264.31288px"
+       originy="-19.429686px" />
   </sodipodi:namedview>
   <g
      id="graph0"
      class="graph"
-     transform="translate(-203.49721,396.52941)">
+     transform="translate(-207.4503,396.52941)">
     <title
        id="title5">pipeline_diagram</title>
     <!-- 18156345595480809247 -->
@@ -124,7 +237,7 @@
     <g
        id="node2"
        class="node"
-       transform="translate(11.622245,-32.000008)">
+       transform="translate(11.622245,-3.2000089)">
       <title
          id="title17">2578573771215871937</title>
       <path
@@ -152,14 +265,14 @@
     <g
        id="node7"
        class="node"
-       transform="translate(-141.6178,-52.50001)">
+       transform="translate(-141.6178,-7.7000104)">
       <title
          id="title47">6102173050205819670</title>
       <path
-         d="m 646.5,-36 c 0,0 -266,0 -266,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 266,0 266,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+         d="m 646.5,-36 c 0,0 -266,0 -266,0 -6,0 -12,5.283333 -12,10.566666 0,0 0,10.566667 0,10.566667 0,5.2833329 6,10.5666661 12,10.5666661 0,0 266,0 266,0 6,0 12,-5.2833332 12,-10.5666661 0,0 0,-10.566667 0,-10.566667 C 658.5,-30.716667 652.5,-36 646.5,-36"
          id="path49"
          inkscape:connector-curvature="0"
-         style="fill:#ffffff;stroke:#000000" />
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.93837923" />
       <text
          x="513.5"
          y="-15.5"
@@ -173,14 +286,14 @@
     <g
        id="node4"
        class="node"
-       transform="translate(-208,16)">
+       transform="translate(-208,32)">
       <title
          id="title68">1219129619190456111</title>
       <path
-         d="m 643.5,-324 c 0,0 -146,0 -146,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 146,0 146,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+         d="m 643.5,-324 c 0,0 -146,0 -146,0 -6,0 -12,5.33333 -12,10.66667 0,0 0,10.66666 0,10.66666 0,5.33333 6,10.66667 12,10.66667 0,0 146,0 146,0 6,0 12,-5.33334 12,-10.66667 0,0 0,-10.66666 0,-10.66666 0,-5.33334 -6,-10.66667 -12,-10.66667"
          id="path70"
          inkscape:connector-curvature="0"
-         style="fill:#00ced1;stroke:#000000" />
+         style="fill:#00ced1;stroke:#000000;stroke-width:0.94280899" />
       <text
          x="570.5"
          y="-309"
@@ -199,14 +312,14 @@
     <g
        id="node8"
        class="node"
-       transform="translate(-208,0)">
+       transform="translate(-209.8178,24.299994)">
       <title
          id="title84">57079414824587270</title>
       <path
-         d="m 648.5,-252 c 0,0 -156,0 -156,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 156,0 156,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+         d="m 648.5,-252 c 0,0 -156,0 -156,0 -6,0 -12,5.28333 -12,10.56667 0,0 0,10.56666 0,10.56666 0,5.28334 6,10.56667 12,10.56667 0,0 156,0 156,0 6,0 12,-5.28333 12,-10.56667 0,0 0,-10.56666 0,-10.56666 0,-5.28334 -6,-10.56667 -12,-10.56667"
          id="path86"
          inkscape:connector-curvature="0"
-         style="fill:#ffffff;stroke:#000000" />
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.93837923" />
       <text
          x="570.5"
          y="-231.5"
@@ -288,17 +401,17 @@
     <g
        id="node9"
        class="node"
-       transform="translate(-206.6178,-12.500007)">
+       transform="translate(-206.6178,16.299992)">
       <title
          id="title126">7814081429072624425</title>
       <path
-         d="m 621,-180 c 0,0 -101,0 -101,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 101,0 101,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+         d="m 621,-180 c 0,0 -101,0 -101,0 -6,0 -12,3.95 -12,7.9 0,0 0,7.9 0,7.9 0,3.95 6,7.9 12,7.9 0,0 101,0 101,0 6,0 12,-3.95 12,-7.9 0,0 0,-7.9 0,-7.9 0,-3.95 -6,-7.9 -12,-7.9"
          id="path128"
          inkscape:connector-curvature="0"
-         style="fill:#ffffff;stroke:#000000" />
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.81137741" />
       <text
          x="570.5"
-         y="-159.5"
+         y="-164.3"
          font-size="10.00"
          id="text130"
          style="font-size:10px;text-anchor:middle;font-family:'Times,serif'">pkt.tmp00 = pkt.tmp1 &gt; 5;</text>
@@ -348,30 +461,46 @@
          x="440.15112"
          sodipodi:role="line">% NUM_FLOWLETS;</tspan></text>
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 0.62848,100.66176 400,0"
-       id="path3369"
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
+       d="m 362.2822,-324 0,24"
+       id="path3483"
        inkscape:connector-curvature="0"
-       transform="matrix(0.79999998,0,0,0.79999998,203.37942,-396.52941)" />
+       sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.79999995px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 203.8822,-260 319.99999,0"
-       id="path3369-4"
-       inkscape:connector-curvature="0" />
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
+       d="m 362.2822,-260.00001 0,24"
+       id="path3483-8"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.79999995px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 203.88221,-204.00001 319.99998,0"
-       id="path3369-4-3"
-       inkscape:connector-curvature="0" />
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
+       d="m 362.2822,-356 0,24"
+       id="path3483-9"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.79999995px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 203.88222,-148.00001 319.99997,0"
-       id="path3369-4-3-7"
-       inkscape:connector-curvature="0" />
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
+       d="m 362.2822,-292.00001 0,24"
+       id="path3483-8-9"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.79999995px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 203.88223,-100.00001 319.99996,0"
-       id="path3369-4-3-7-7"
-       inkscape:connector-curvature="0" />
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
+       d="m 362.2822,-196.00001 0,24"
+       id="path3483-4"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
+       d="m 362.2822,-140.00001 0,24"
+       id="path3483-4-8"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
+       d="m 362.2822,-76.00001 0,24"
+       id="path3483-4-8-4"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
   </g>
 </svg>
