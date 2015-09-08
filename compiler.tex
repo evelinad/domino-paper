@@ -34,7 +34,7 @@ program's control flow and complicate dependence analysis. We eliminate if-else
 statements by transforming them into the C conditional operator, starting from
 the innermost if statements and recursing outwards
 (Figure~\ref{fig:if_convert}). This is similar to if
-conversion~\cite{allen_if_conversion}, but much simpler because only the if and
+conversion~\cite{if_conversion}, but much simpler because only the if and
 else constructs alter control flow in \pktlanguage and all other forms of
 control transfers (break, continue, loops) are forbidden.
 \begin{figure}[!h]

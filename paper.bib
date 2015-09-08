@@ -708,7 +708,7 @@ year = {2015},
 % http://perso.ens-lyon.fr/christophe.alias/M2/HPL-91-58.pdf
 % http://dl.acm.org/citation.cfm?id=567085
 
-@inproceedings{allen_if_conversion,
+@inproceedings{if_conversion,
  author = {Allen, J. R. and Kennedy, Ken and Porterfield, Carrie and Warren, Joe},
  title = {Conversion of Control Dependence to Data Dependence},
  booktitle = {Proceedings of the 10th ACM SIGACT-SIGPLAN Symposium on Principles of Programming Languages},
@@ -827,3 +827,117 @@ year = {2015},
   title = {p4-semantics github repository},
   howpublished = "\url{https://github.com/anirudhSK/p4-semantics}",
 }
+
+@inproceedings{chlorophyll,
+ author = {Phothilimthana, Phitchaya Mangpo and Jelvis, Tikhon and Shah, Rohin and Totla, Nishant and Chasins, Sarah and Bodik, Rastislav},
+ title = {Chlorophyll: Synthesis-aided Compiler for Low-power Spatial Architectures},
+ booktitle = {PLDI},
+ year = {2014},
+ pages = {396--407}
+} 
+
+@inproceedings{netasm,
+ author = {Shahbaz, Muhammad and Feamster, Nick},
+ title = {The Case for an Intermediate Representation for Programmable Data Planes},
+ booktitle = {SOSR},
+ year = {2015},
+ pages = {3:1--3:6}
+} 
+
+@article{ssa,
+ author = {Cytron, Ron and Ferrante, Jeanne and Rosen, Barry K. and Wegman, Mark N. and Zadeck, F. Kenneth},
+ title = {Efficiently Computing Static Single Assignment Form and the Control Dependence Graph},
+ journal = {ACM Transactions on Programming Language Systems},
+ volume = {13},
+ number = {4},
+ year = {1991},
+ pages = {451--490}
+} 
+
+@inproceedings{necula_translation_validation,
+   author = {Necula, George C.},
+    title = {Translation Validation for an Optimizing Compiler},
+     booktitle = {Proceedings of the ACM SIGPLAN 2000 Conference on Programming Language Design and Implementation},
+      series = {PLDI '00},
+       year = {2000},
+        isbn = {1-58113-199-2},
+         location = {Vancouver, British Columbia, Canada},
+          pages = {83--94},
+           numpages = {12},
+            url = {http://doi.acm.org/10.1145/349299.349314},
+             doi = {10.1145/349299.349314},
+              acmid = {349314},
+               publisher = {ACM},
+                address = {New York, NY, USA},
+} 
+
+@inproceedings{software_pipelining,
+   author = {Lam, M.},
+    title = {Software Pipelining: An Effective Scheduling Technique for VLIW Machines},
+     booktitle = {Proceedings of the ACM SIGPLAN 1988 Conference on Programming Language Design and Implementation},
+      series = {PLDI '88},
+       year = {1988},
+        isbn = {0-89791-269-1},
+         location = {Atlanta, Georgia, USA},
+          pages = {318--328},
+           numpages = {11},
+            url = {http://doi.acm.org/10.1145/53990.54022},
+             doi = {10.1145/53990.54022},
+              acmid = {54022},
+               publisher = {ACM},
+                address = {New York, NY, USA},
+}
+
+@misc{nick_p4,
+  title = {Protocol-Independent Switch Architecture},
+  howpublished ="\url{http://schd.ws/hosted_files/p4workshop2015/c9/NickM-P4-Workshop-June-04-2015.pdf}",
+}
+
+@inproceedings{cash,
+    author = {Budiu, Mihai and Goldstein, Seth Copen},
+      title = {Compiling Application-Specific Hardware},
+        booktitle = {Proceedings of the 12th International Conference on
+               Field Programmable Logic and Applications},
+          year = {2002},
+            address = {Montpellier (La Grande-Motte), France},
+              month = {September},
+                pages = {853--863},
+                  url = {http://www.cs.cmu.edu/~seth/papers/budiu-fpl02.pdf},
+                    abstract = {In this paper we describe ASH, an architectural
+                           framework for implementing Application-Specific Hardware. ASH is
+                                  based on automatic hardware synthesis from high-level languages.
+                                       The generated circuits use only localized computation structures;
+                                in consequence, we expect these circuits to be fast, to use
+                                       little power and to scale well with program complexity. \par We
+                                            present in detail CASH, a scalable compiler framework for ASH,
+                                                         which generates hardware from programs written in C. Our compiler
+                                                                exploits instruction level parallelism by using aggressive
+                                                                     speculation and dynamic scheduling. Based on this compilation
+                                                                          scheme, we evaluate the computational resources necessary for
+                                                                               implementing complex integer-based programs, and we suggest
+                                                                                    architectural features that would support the ASH framework.},
+                      keywords = {Spatial Computing,Phoenix,Compilers:CASH}
+}
+
+@ARTICLE{nurvadathi, 
+  author={Nurvitadhi, E. and Hoe, J.C. and Kam, T. and Lu, S.L.}, 
+  journal={Computer-Aided Design of Integrated Circuits and Systems, IEEE Transactions on}, 
+  title={Automatic Pipelining From Transactional Datapath Specifications}, 
+  year={2011}, 
+  volume={30}, 
+  number={3}, 
+  pages={441-454}, 
+  keywords={electronic design automation;instruction sets;integrated circuit design;microprocessor chips;pipeline processing;RAW hazard analysis;T-piper tool;automatic pipelining;instruction set computing processor pipeline;read-after-write hazard analysis;single T-spec;transactional datapath specifications;user-specified pipeline-stage boundaries;Hazards;Multiplexing;Pipeline processing;Pipelines;Reduced instruction set computing;Semantics;Signal resolution;Automatic pipelining;datapath specification;design space exploration;hardware synthesis;x86 pipelines}, 
+  doi={10.1109/TCAD.2010.2088950}, 
+  ISSN={0278-0070}, 
+  month={March},}
+
+@INPROCEEDINGS{bluespec,
+  author={Nikhil, Rishiyur},
+  booktitle={Formal Methods and Models for Co-Design, 2004. MEMOCODE '04. Proceedings. Second ACM and IEEE International Conference on},
+  title={Bluespec System Verilog: efficient, correct RTL from high level specifications},
+  year={2004},
+  pages={69-70},
+  keywords={application specific integrated circuits;field programmable gate arrays;formal specification;hardware description languages;high level synthesis;integrated circuit design;logic CAD;ASIC design;Bluespec System Verilog;FPGA design;RTL;high level specifications;high-level synthesis;Application specific integrated circuits;Atomic measurements;Field programmable gate arrays;Flow graphs;Hardware;High level synthesis;Logic design;Predictive models;Productivity;Scheduling},
+  doi={10.1109/MEMCOD.2004.1459818},
+  month={June},}
