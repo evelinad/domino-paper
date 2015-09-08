@@ -1,14 +1,14 @@
 \section{Programming using packet transactions}
 \label{s:transactions}
 
-To illustrate programming using packet transactions in \pktlanguage, we
-describe how a programmer would express flowlet switching~\cite{flowlets} in
-\pktlanguage (Figure~\ref{fig:flowlet}).  Flowlet switching is a load balancing
-algorithm that harnesses the natural burstiness of TCP traffic to load balance
-flowlets: sets of packets that are separated by a large enough interval in time
-called the flowlet threshold.  This flowlet threshold is chosen to ensure that
-packets from flowlets taking different paths are unlikely to arrive out of
-order at a TCP receiver, which would degrade throughput.
+We now illustrate programming using packet transactions in \pktlanguage,
+using flowlet
+switching~\cite{flowlets} as an example. Flowlet switching is a load
+balancing algorithm that sends bursts of packets (called flowlets)
+from a TCP flow on different paths, provided the bursts are separated
+by a large enough interval in time to ensure that packets do not
+arrive out of order at the TCP receiver. Figure~\ref{fig:flowlet}
+shows how flowlet switching is expressed in \pktlanguage.
 
 \begin{figure*}[!t]
 \begin{minipage}{0.6\textwidth}
@@ -71,15 +71,15 @@ body can reference state variables that represent persistent state stored on
 the switch. These are declared as global variables at the program top level
 (e.g. \texttt{last\_time} and \texttt{saved\_hop} on lines 14 and 15).
 
-The semantics of the packet transaction function are to modify the packet that
+The packet transaction function modifies the packet that
 it receives as argument in place until the end of the function body. Return
 statements are forbidden; hence, execution will always end at the end of
 the function body. The function body may also call out to opaque functions such
 as \texttt{hash2} on lines 23 and 27 and \texttt{hash3} on line 18. These
 represent hardware primitives provided by the abstract machine that have no
 representation in \pktlanguage. The \pktlanguage compiler knows the signature
-of opaque functions and uses these to infer dependencies, but doesn't know
-anything about its implementation. Finally, the function body is written in a
+of opaque functions and uses these to infer dependencies, but otherwise doesn't
+interpret these functions. Finally, the function body is written in a
 constrained subset of C that excludes all iterative constructs. The function
 body can include if and else-if statements, but all other control transfer
 (break, goto, switch, return, and continue statements) is forbidden.
