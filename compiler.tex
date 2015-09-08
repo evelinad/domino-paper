@@ -123,14 +123,14 @@ partitioning (\S\ref{ss:partitioning}).
 
 \subsection{Static Single-Assignment Form}
 We next generate code in static single-assignment form
-(SSA)~\cite{ferrante_ssa}, a well-known intermediate form used by many
+(SSA)~\cite{ssa}, a well-known intermediate form used by many
 compilers. In SSA, every variable is assigned exactly once. To compute the SSA,
 we replace every definition of a packet variable with a new packet variable and
 propagate this new packet variable until the next definition of the same
 variable. State variables are already in SSA form because after the flanks have been
 added, every state variable is read and written exactly once.
 While general algorithms to compute SSA are fairly
-involved~\cite{postdominator}, \pktlanguage's SSA computation is much simpler
+involved~\cite{ssa}, \pktlanguage's SSA computation is much simpler
 because it operates on straight-line code.
 
 SSA simplifies further analysis. Because every variable is assigned exactly
