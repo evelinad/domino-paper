@@ -316,3 +316,29 @@ circuit with a very specific form.
 %TODO: Maybe once we have enough examples of optimizations, we can roll those
 %into SSA as saying how SSA makes it trivial to apply those optimizations.
 % Again, this is compiler 101 for anyone who knows it.
+
+\subsection{\tester: verifying compilations}
+
+To conclude our description of the compiler, we describe our testing
+infrastructure to verify that the compilation is correct i.e. the externally
+visible behavior of the packet transaction (Figure~\ref{fig:flowlet}) is
+indistinguishable from its pipelined implementation
+(Figure~\ref{fig:pipeline}).
+
+We verify correctness by feeding in the same set of test packets to both the
+packet transaction and its implementation and comparing the outputs from both
+programs on the set of externally visible fields. To create test packets, we
+scan the packet transaction and generate the set of all packet fields read from
+or written to by the transaction. We then initialize each of these fields by
+sampling uniformly from the space of all 32-bit signed integers. In the future,
+we plan to allow the user to specify more precise ranges for each packet field
+that can be used for more directed testing.
+
+To compare outputs from the packet transaction and its implementation, we track
+renames that occur because of SSA. We compare each output field in the
+transactional form with the last rename of the same output field in the
+implementation. We then feed the same number of test packets to both the
+specification and implementation and compare outputs at the end of the
+pipeline. This allows to quickly ``spot check'' our compilations and was
+instrumental in uncovering a few bugs in various compilation passes during
+development.
