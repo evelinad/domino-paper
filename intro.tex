@@ -3,11 +3,11 @@
 
 Data-plane algorithms~\cite{cestan} are algorithms that are implemented within
 a network switch. These algorithms process every data packet that passes
-through the switch, transforming the packet and/or state stored on the switch.
-Examples of such algorithms include congestion-control that uses feedback from
-switches~\cite{xcp, rcp, pdq, dctcp}, active queue management~\cite{codel},
-network measurement~\cite{opensketch, bitmap_george, elephant_george}, and
-load-balanced routing in the data plane~\cite{conga}.
+through the switch, transforming the packet and often also some state stored on
+the switch.  Examples of such algorithms include congestion-control that uses
+feedback from switches~\cite{xcp, rcp, pdq, dctcp}, active queue
+management~\cite{codel}, network measurement~\cite{opensketch, bitmap_george,
+elephant_george}, and load-balanced routing in the data plane~\cite{conga}.
 
 Because data-plane algorithms process every packet, an important implementation
 requirement is the ability to process packets at line rate.  Consequently,
@@ -30,19 +30,17 @@ mellanox} have emerged as an alternative.  These chips allow designers to
 express their algorithms using a domain-specific language (DSL) such as
 P4~\cite{p4} or propreitary SDKs such as those from XPliant~\cite{xpliant_sdk,
 xpliant_sdk2} and Intel~\cite{intel_sdk}.  However, these approaches closely
-resemble to the underlying hardware and are inconvenient for programmers.
+resemble the underlying hardware and are inconvenient for programmers.
 
 For instance, P4 requires the user to manually specify the sequence of
 match-action tables that every packet goes through. Further, instructions
 contained within an action in P4 are assumed to execute in parallel to reflect
 the hardware's parallel processing capabilities. This forces programmers to
-reason about low-level pipeline semantics and hardware concurrency, and place a
+reason about hardware details such as pipelining and parallelism, and places a
 high burden on network programmers who are used to writing sequential programs
 in a high-level language (such as C) for software routers~\cite{click} and
 network processors~\cite{ixp4xx, ixp2800}.
 
-%\ac{What is the story about multiple transactions?}
-% We are ditching that for now. Let's move it to future work.
 In this paper, we present \pktlanguage, a new DSL for expressing data-plane
 algorithms. \pktlanguage is a high-level, imperative language based on C that
 allows programmers to express data-plane algorithms using {\em packet
@@ -55,14 +53,15 @@ by the switch pipeline.
 
 We have implemented a compiler for \pktlanguage that compiles \pktlanguage
 packet transactions and generates code for an abstract machine called
-\absmachine~(\S\ref{s:absmachine}), which models the essential features of
-emerging programmable switch architectures.  In addition, we introduce the
-concept of {\em atoms} to represent atomic instructions provided natively by
-\absmachine much like test-and-set and compare-and-exchange in x86 CPUs
-today~\cite{x86_manual}.  Atoms provide the underlying hardware operations
-required to implement the programmer's view of packet transactions, similar to
-how an atomic test-and-set instruction can be used to implement an atomic
-increment.
+\absmachine~(\S\ref{s:absmachine}). \absmachine generalizes recent work on the
+Reconfigurable Match Table~\cite{rmt} model and captures the essential features
+of emerging programmable switch architectures~\cite{rmt, xpliant, flexpipe}.
+In addition, we introduce the concept of {\em atoms} to represent atomic
+instructions provided natively by \absmachine much like test-and-set and
+compare-and-exchange in x86 CPUs today~\cite{x86_manual}.  Atoms provide the
+underlying hardware operations required to implement the programmer's view of
+packet transactions, similar to how an atomic test-and-set instruction can be
+used to implement an atomic increment.
 
 The \pktlanguage compiler takes the atoms provided by \absmachine into account,
 when compiling packet transactions into code for \absmachine. Further, the
