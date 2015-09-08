@@ -102,6 +102,7 @@ When compiled to the \absmachine abstract machine (\S\ref{s:machine}), the
 pipelined form shown in Figure~\ref{fig:pipeline}. Today, programmable switch
 chips are programmed by manually specifying pipeline configurations resembling
 Figure~\ref{fig:pipeline} using a language like P4 or an API such as Cavium's
-XPliant SDK. Programming in \pktlanguage lets a compiler automate this process:
+XPliant SDK. This is a difficult and error-prone process~\cite{p4-semantics}.
+Programming in \pktlanguage lets a compiler automate this process:
 the user doesn't worry about hardware details such as pipeline stages and
 concurrency within each stage.
