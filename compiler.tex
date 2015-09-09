@@ -184,24 +184,21 @@ legal three-address code, by introducing enough temporaries. For instance,
 pkt.tmp;}. Three-address code brings \pktlanguage closer to the hardware,
 without yet worrying about issues of concurrency, which we address next.
 
-\begin{figure*}[t]
-  \begin{lstlisting}[style=customc]
-pkt.id00 = hash2(pkt.sport, pkt.dport) % 8000;
-pkt.saved_hop00 = saved_hop[pkt.id00];
-pkt.id10 = hash2(pkt.sport, pkt.dport) % 8000;
-pkt.last_time00 = last_time[pkt.id10];
-pkt.new_hop0 = hash3(pkt.sport, pkt.dport, pkt.arrival_time) % 64;
-pkt.tmp1 = pkt.arrival_time - pkt.last_time00;
-pkt.tmp00 = pkt.tmp1 > 5;
-pkt.saved_hop01 = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;
-pkt.last_time01 = pkt.arrival_time;
-pkt.next_hop0 = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;
-saved_hop[pkt.id00] = (pkt.tmp00) ? (pkt.new_hop0) : pkt.saved_hop00;
-last_time[pkt.id10] = pkt.arrival_time;
+\begin{figure}
+\begin{lstlisting}[style=customc]
+pkt.id            = hash2(pkt.sport, pkt.dport) % NUM_FLOWLETS;
+pkt.saved_hop     = saved_hop[pkt.id]; @\label{line:stateRead}@
+pkt.last_time     = last_time[pkt.id];
+pkt.new_hop       = hash3(pkt.sport, pkt.dport, pkt.arrival) % NUM_HOPS;
+pkt.tmp           = pkt.arrival - pkt.last_time;
+pkt.tmp2          = pkt.tmp > THRESHOLD;
+pkt.next_hop      = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop;
+saved_hop[pkt.id] = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop; @\label{line:stateWrite}@
+last_time[pkt.id] = pkt.arrival;
 \end{lstlisting}
 \caption{Flowlet switching in three-address code}
 \label{fig:three_address}
-\end{figure*}
+\end{figure}
 
 \subsection{Code partitioning}
 \label{ss:partitioning}
@@ -231,18 +228,26 @@ To partition code, we carry out the following steps:
     one operation needs to follow another (Figure~\ref{fig:pipeline}).
 \end{CompactEnumerate}
 
-\begin{figure*}
-  \includegraphics[width=\textwidth]{deps.pdf}
-  \caption{Dependency graph of code shown in Figure~\ref{fig:three_address}}
-  \label{fig:deps}
-\end{figure*}
-
 At this point, each strongly connected component can be turned into an atom for
 \absmachine and the resulting pipeline implements the packet transaction.
 Further, the atoms have a stylized form. Stateless atoms contain exactly
 one three-operand code instruction. Atoms that manipulate state contain at
 least two statements: a read from a state variable and a write to a state
 variable and optionally consist of one or more updates to the state variable.
+
+\begin{figure*}[!t]
+\begin{minipage}{0.5\textwidth}
+  \includegraphics[width=\columnwidth]{deps.pdf}
+\end{minipage}
+%
+\vrule\quad
+%
+\begin{minipage}{0.5\textwidth}
+\includegraphics[width=\columnwidth]{scc.pdf}
+\end{minipage}
+\caption{Dependency graph before and after condensing strongly connected components}
+\label{fig:partitioning}
+\end{figure*}
 
 \subsection{Constraints on atoms}
 \label{ss:complexity}
@@ -303,16 +308,6 @@ variety of atom constaints. To show its generality, we conside two such
 constraints in our evaluations: an in-order sequential CPU that can execute
 exactly $N$ three-operand instructions and a combinatorial circuit with a very
 specific form.
-
-\begin{figure}
-  \includegraphics[width=\columnwidth]{dag.pdf}
-  \caption{DAG formed by condensing SCCs in Figure~\ref{fig:deps}}
-  \label{fig:dag}
-\end{figure}
-
-%TODO: Maybe once we have enough examples of optimizations, we can roll those
-%into SSA as saying how SSA makes it trivial to apply those optimizations.
-% Again, this is compiler 101 for anyone who knows it.
 
 \subsection{Verifying compilations}
 
