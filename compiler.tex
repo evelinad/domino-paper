@@ -184,7 +184,7 @@ legal three-address code, by introducing enough temporaries. For instance,
 pkt.tmp;}. Three-address code brings \pktlanguage closer to the hardware,
 without yet worrying about issues of concurrency, which we address next.
 
-\begin{figure}
+\begin{figure*}
 \begin{lstlisting}[style=customc]
 pkt.id            = hash2(pkt.sport, pkt.dport) % NUM_FLOWLETS;
 pkt.saved_hop     = saved_hop[pkt.id]; @\label{line:stateRead}@
@@ -198,7 +198,7 @@ last_time[pkt.id] = pkt.arrival;
 \end{lstlisting}
 \caption{Flowlet switching in three-address code}
 \label{fig:three_address}
-\end{figure}
+\end{figure*}
 
 \subsection{Code partitioning}
 \label{ss:partitioning}
