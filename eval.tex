@@ -51,6 +51,8 @@ stateful atoms because converting into three-operand code generates
 instructions that map one-to-one to \absmachine for stateless operations.
 
 \subsection{Atoms considered}
+%TODO: Mention how atoms are arranged in a hierarchy, each more complex atom
+% subsumes the previous one's functionality.
 \paragraph{Stateful reads and writes}
 This atom allows the program to either read state into a packet temporary or write the
 value of a packet temporary or constant into a stateful variable. In SKETCH shorthand,
@@ -68,6 +70,7 @@ x = ??(c);
 \caption{SKETCH shorthand for stateful reads/writes}
 \label{fig:read/write}
 \end{figure}
+%TODO: Can we read an old value and then write a new value atomically?
 
 \paragraph{Increment and decrement}
 Next, we consider stateful atoms that allow a particular stateful variable to
@@ -101,3 +104,39 @@ variable and execute at most $N$ instructions.
 \paragraph{An in-order CPU that can access two state variables}
 This is similar to the one above, except that we permit reads and writes to two
 different state variables.
+
+\subsection{Determining if algorithms can be implemented using \absmachine's atoms}
+
+We now consider every combination of atoms listed above, along with all
+stateful strongly connected components (TODO: Need better term) in these
+algorithms to determine if they are implementable using each atom. We present
+our results using the matrix in Table~\ref{fig:eval} that shows whether a
+particular algorithm is implementable given a particular set of stateful atoms
+available in \absmachine.
+
+\begin{table*}[!t]
+  \begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|p{2.5cm}|}
+  \hline
+    & Read/Write & ++/-- & RMW & Predicated RMW & In-order CPU & In-order CPU, two state vars \\
+  \hline
+  Deterministic sampling & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
+  \hline
+  Flowlet switching & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
+  \hline
+  Heavy hitters & \xmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+  \hline
+  Learning bloom filters & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
+  \hline %TODO: Need to add non-learning bloom filters as well.
+  RCP & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
+  \hline
+%%  CONGA & 
+%%  EWMA &
+%%  Meter &
+%%  XCP &
+%%  CoDel &
+  \end{tabular}
+\end{center}
+\label{table:eval}
+\caption{Table summarizing algorithm implementability depending on the atoms provided by \absmachine}
+\end{table*}
