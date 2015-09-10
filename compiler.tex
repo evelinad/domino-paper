@@ -273,10 +273,14 @@ operation to a stateful variable x can be represented as:
 \begin{figure}
   \begin{lstlisting}[style=customc]
 pkt.tmp = x;
-pkt.tmp2 = pkt.tmp ?? (??);
+pkt.tmp2 = pkt.tmp ??(op) ??(c);
 x = pkt.tmp;
 \end{lstlisting}
-\caption{Sketch for single update operation to a state variable}
+\begin{eqnarray*}
+  ??(op) \in \{+, -, /, *\} \\
+  ??(c)  \in [0, 32]
+\end{eqnarray*}
+\caption{SKETCH shorthand for single update operation to a state variable}
 \label{fig:sketch_for_state}
 \end{figure}
 Here, the double question mark \texttt{??} stands for a
