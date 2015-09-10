@@ -38,3 +38,66 @@
 % First, fill this up manually.
 % Then see that the compiler generates the same results.
 % Then move to generating new results from the compiler
+
+We now express several well-known data-plane algorithms (CONGA~\cite{conga},
+RCP~\cite{rcp}, bloom filters~\cite{bloom}, heavy hitter
+detection~\cite{opensketch}, determinstic packet sampling) using \pktlanguage
+and determine if they are implementable, given a set of atoms provided by
+\absmachine. We gradually increase the expressiveness of atoms provided by
+\pktlanguage and evaluate whether a specific algorithm is implementable
+assuming that atom is provided by \absmachine. Below, we list out the atoms
+that we consider in increasing order of expressiveness. We consider only
+stateful atoms because converting into three-operand code generates
+instructions that map one-to-one to \absmachine for stateless operations.
+
+\subsection{Atoms considered}
+\paragraph{Stateful reads and writes}
+This atom allows the program to either read state into a packet temporary or write the
+value of a packet temporary or constant into a stateful variable. In SKETCH shorthand,
+we represent this atom as:
+\begin{figure}
+\begin{lstlisting}[style=customc]
+pkt.f = x;
+\end{lstlisting}
+\begin{lstlisting}[style=customc]
+x = pkt.f;
+\end{lstlisting}
+\begin{lstlisting}[style=customc]
+x = ??(c);
+\end{lstlisting}
+\caption{SKETCH shorthand for stateful reads/writes}
+\label{fig:read/write}
+\end{figure}
+
+\paragraph{Increment and decrement}
+Next, we consider stateful atoms that allow a particular stateful variable to
+be either incremented or decremented by 1 in addition to reading and writing
+state variables as above.
+
+\paragraph{Read, modify, write}
+We generalize increment and decrement to permit stateful atoms to read state,
+add or subtract a constant from it and write it back.
+
+\paragraph{Predicated read, modify, write}
+We next add a predication argument that decides whether a state variable is
+updated. This atom, in SKETCH shorthand, looks like:
+\begin{figure}
+\begin{lstlisting}[style=customc]
+  if (??(arg1)) x = ??(arg2);
+\end{lstlisting}
+\begin{eqnarray*}
+  ??(arg1) \in \{pkt.field, x\} \\
+  ??(arg2) \in \{pkt.field, x\}
+\end{eqnarray*}
+\end{figure}
+
+\paragraph{An in-order CPU with $N$ instructions}
+We generalize predicated read, modify, writes to a generic in-order CPU that
+can execute at most $N$ instructions sequentially within an atom. Each of these
+instructions are in three-operand code form (\S\ref{s:three_operand}): they can
+use the conditional and binary operators, read and write from exactly state
+variable and execute at most $N$ instructions.
+
+\paragraph{An in-order CPU that can access two state variables}
+This is similar to the one above, except that we permit reads and writes to two
+different state variables.
