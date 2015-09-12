@@ -52,35 +52,33 @@ each packet without worrying about other packets concurrently being processed
 by the switch pipeline.
 
 We have implemented a compiler for \pktlanguage that compiles \pktlanguage
-packet transactions and generates code for an abstract machine called
+packet transactions and generates code for a family of abstract machines called
 \absmachine~(\S\ref{s:absmachine}). \absmachine generalizes recent work on the
 Reconfigurable Match Table~\cite{rmt} model and captures the essential features
 of emerging programmable switch architectures~\cite{rmt, xpliant, flexpipe}.
-In addition, we introduce the concept of {\em atoms} to represent atomic
-computations provided natively by \absmachine much like test-and-set,
-compare-and-exchange, and packed-multiply-and-add in x86 CPUs
+
+In addition, \absmachine introduces the concept of {\em atoms} to represent
+atomic computations provided natively by an instance of \absmachine much like
+test-and-set, compare-and-exchange, and packed-multiply-and-add in x86 CPUs
 today~\cite{x86_manual}.  Atoms provide the underlying atomic hardware
 operations required to implement the programmer's view of packet transactions,
 similar to how an atomic test-and-set is used to implement an atomic increment.
+%A template of the atoms available in a \absmachine instance is provided to the
+%\pktlanguage compiler for code generation.
 
-The \pktlanguage compiler takes the atoms provided by \absmachine into account,
-when compiling packet transactions into code for \absmachine. Further, the
-\pktlanguage compiler guarantees deterministic performance for packet
+The \pktlanguage compiler guarantees deterministic performance for packet
 transactions: all packet transactions that are implementable on a given switch
 architecture will be executed at the switch's line rate, or they will be
 rejected by the compiler if the atoms available in \absmachine cannot implement
 the programmer-supplied transaction.
 
-%TODO: Explain one real use case for bloom filters. Everyone talks about it but
-%I don't seem to know what the real use case is.
 To evaluate the usefulness of \pktlanguage, we use \pktlanguage to express
 several data-plane algorithms~(\S\ref{s:eval}) such as flowlet
 switching~\cite{flowlets}, data-plane bloom filters~\cite{bloom}, heavy-hitter
-detection, CoDel~\cite{codel}, and CONGA~\cite{conga}---each algorithm
-taking up less than a hundred lines of \pktlanguage code.  The \pktlanguage
-compiler determines if each algorithm is implementable depending on the atoms
-provided by \absmachine.~(\S\ref{ss:complexity}). We place \pktlanguage in the
-context of related work~(\S\ref{s:related}) and conclude by outlining several
-areas for future work~(\S\ref{s:future}).
-%TODO: I don't quite know what the guidance is yet. Will have it by the
-%weekend.
+detection, CoDel~\cite{codel}, and CONGA~\cite{conga}---each algorithm taking
+up less than a hundred lines of \pktlanguage code.  The \pktlanguage compiler
+determines if each algorithm is implementable for several instances of
+\absmachine that differ in the atoms they provide~(\S\ref{ss:complexity}).
+%We
+%place \pktlanguage in the context of related work~(\S\ref{s:related}) and
+%conclude by outlining several areas for future work~(\S\ref{s:future}).
