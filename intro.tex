@@ -57,11 +57,11 @@ packet transactions and generates code for an abstract machine called
 Reconfigurable Match Table~\cite{rmt} model and captures the essential features
 of emerging programmable switch architectures~\cite{rmt, xpliant, flexpipe}.
 In addition, we introduce the concept of {\em atoms} to represent atomic
-instructions provided natively by \absmachine much like test-and-set and
-compare-and-exchange in x86 CPUs today~\cite{x86_manual}.  Atoms provide the
-underlying hardware operations required to implement the programmer's view of
-packet transactions, similar to how an atomic test-and-set instruction can be
-used to implement an atomic increment.
+computations provided natively by \absmachine much like test-and-set,
+compare-and-exchange, and packed-multiply-and-add in x86 CPUs
+today~\cite{x86_manual}.  Atoms provide the underlying atomic hardware
+operations required to implement the programmer's view of packet transactions,
+similar to how an atomic test-and-set is used to implement an atomic increment.
 
 The \pktlanguage compiler takes the atoms provided by \absmachine into account,
 when compiling packet transactions into code for \absmachine. Further, the
