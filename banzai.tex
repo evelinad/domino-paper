@@ -7,20 +7,20 @@
   \label{fig:switch}
 \end{figure*}
 
-We first describe \absmachine, the abstract machine that serves as the
-compiler target for \pktlanguage. \absmachine is inspired by recent
-programmable switch architectures with deterministic performance, such
-as the Reconfigurable Match-Action Table (RMT)
-architecture~\cite{rmt}, Intel's FlexPipe~\cite{flexpipe} architecture, and
-Cavium's XPliant Packet architecture~\cite{xpliant}. These architectures assume the switch
-model shown in the top of Figure~\ref{fig:switch}.  Packets arriving
-to the switch are parsed by a programmable parser that turns packets
-into a set of header fields. The set of packet headers is first
-processed by an ingress pipeline consisting of match-action tables
-arranged in stages. Following the ingress pipeline, the packet is
-queued, and once it is dequeued by the switch scheduler, it is
-processed by a similar egress pipeline before being transmitted from
-the switch.
+We first describe \absmachine, the abstract machine that serves as the compiler
+target for \pktlanguage. \absmachine is inspired by recent programmable switch
+architectures with deterministic performance, such as the Reconfigurable
+Match-Action Table (RMT) architecture~\cite{rmt}, Intel's
+FlexPipe~\cite{flexpipe} architecture, and Cavium's XPliant Packet
+architecture~\cite{xpliant}. These architectures assume the switch model shown
+in the top of Figure~\ref{fig:switch}.
+
+Packets arriving to the switch are parsed by a programmable parser that turns
+packets into a set of header fields. The set of packet headers is first
+processed by an ingress pipeline consisting of match-action tables arranged in
+stages. Following the ingress pipeline, the packet is queued, and once it is
+dequeued by the switch scheduler, it is processed by a similar egress pipeline
+before being transmitted from the switch.
 
 \absmachine models a switch pipeline such as the ingress or egress
 pipelines. A pipeline consists of a number of pipeline stages that
@@ -74,14 +74,17 @@ counters, and P4's register abstraction in a unified manner.
 
 \smallskip
 \noindent{\bf Constraints on atoms:}
- To avoid data races, we permit atoms within a stage to modify any packet
- field, as long as two atoms in a stage do not modify the same packet field.
+\absmachine assumes a synchronous pipeline where each atom in each pipeline
+stage executes on every time step, reading from certain packet fields at the
+beginning of the time step and writing to other fields at the end of the time
+step. Because all writes happen simultaneously at the end of a time step,
+\absmachine forbids two atoms within the same stage from writing to the same
+packet field to avoid data races.
 
-To run at line rate, atoms must
-be constrained to provide deterministic performance, given the
-capabilities of the hardware. We impose two such constraints that
-distinguish \absmachine from software routers such as
-Click~\cite{click} and Network Processors such as the Intel
+To run at line rate, atoms must be constrained to
+provide deterministic performance, given the capabilities of the hardware. We
+impose two such constraints that distinguish \absmachine from software routers
+such as Click~\cite{click} and Network Processors such as the Intel
 IXP~\cite{ixp4xx}, which tradeoff deterministic performance for
 programmability.
 
@@ -94,16 +97,16 @@ accessing memory from multiple switch stages is technically
 challenging because it requires multi-ported RAMs and routing long
 wires on the chip.
 
-
-Second, we constrain the complexity of atom bodies by defining how
-atoms are executed. One execution model is an in-order CPU that can
-execute at most $N$ instructions sequentially. Another is a
-configurable combinational circuit in hardware~\cite{dataflow}, where
-the space of control signals to the circuit limits the space of
-feasible computations within the atom. These two execution models are
-not exhaustive: as programmable switches evolve, we expect the
-computational capabilities of atoms to evolve as well.
-
-% MA: I don't know what the sentence on combination circuits means. 
-% Can we say this more simply as: configurable combinational circuit
-% with a limited number of operations. (and give an example)
+Second, we constrain the complexity of atoms by defining {\it atom templates}.
+Informally, an atom template is a program that is guaranteed to terminate and
+specifies how atoms are executed. One template is an in-order CPU that can
+execute $N$ instructions, each with a specific format. Another template is an
+ALU with a restricted set of primitive operations to choose from. Specifying
+atom templates allows us to create specific instances of \absmachine that
+support a specific set of operations natively.
+i
+These two execution models are not exhaustive: as programmable switches evolve,
+we expect the computational capabilities of atoms to evolve as well. However,
+atoms cannot be arbitrarily complex: a programmable switch's achievable line
+rate is inversely proportional to the worst-case execution latency of its
+atoms.
