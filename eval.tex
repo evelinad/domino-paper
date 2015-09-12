@@ -1,54 +1,17 @@
 \section{Evaluation}
 \label{s:eval}
-% Go through a series of progressively more and more sophisticated models
-% and see what we can and can't map.
-% The first model:
-%  load register into packet temporary for exactly one variable.
-%  1 operation on that variable
-%  write packet temporary back into register for exactly that one variable.
-% The second model:
-%  load register into packet temporary for exactly one variable.
-%  $N$ operations on that variable.
-%  Write packet temporary back into register for exactly that one variable.
-% The third model:
-%  load register into packet temporary for exactly two variables
-%  $N$ operations on that variable.
-%  write packet temporary back into register for both variables
-% The fourth model:
-%  load register into packet temporary for exactly two variables
-%  $N$ operations on that variable including conditionals
-%  write packet temporary back into register for both variables
-% The fifth model:
-%  A few blackboxes (such as square root etc) for math functions.
-% The sixth model:
-% DAG of multiplexers and circuits.
-% What about constraints on the number of packet temporaries that can be
-% accessed within an atom body? Need to factor those in somehow as well.
-
-% I think we need a neat evocative name for each of these constraint models
-% and then we write down templates for them in Sketch.
-
-% Then the bottomline takeaway from the paper is a matrix of algorithms vs.
-% stateful atom constraints with an X where it does not map and tick where it
-% does. That's the one figure that makes the paper.
-
-% I think for consistency we can use arrays in ALL our examples.
-
-
-% First, fill this up manually.
-% Then see that the compiler generates the same results.
-% Then move to generating new results from the compiler
-
 We now express several well-known data-plane algorithms (CONGA~\cite{conga},
 RCP~\cite{rcp}, bloom filters~\cite{bloom}, heavy hitter
-detection~\cite{opensketch}, determinstic packet sampling) using \pktlanguage
-and determine if they are implementable, given a set of atoms provided by
-\absmachine. We gradually increase the expressiveness of atoms provided by
-\pktlanguage and evaluate whether a specific algorithm is implementable
-assuming that atom is provided by \absmachine. Below, we list out the atoms
-that we consider in increasing order of expressiveness. We consider only
-stateful atoms because converting into three-operand code generates
-instructions that map one-to-one to \absmachine for stateless operations.
+detection~\cite{opensketch}, determinstic packet sampling and flowlet switching
+~\cite{flowlets}) using \pktlanguage and determine if they are implementable,
+given a set of atoms provided by \absmachine.
+
+We gradually increase the expressiveness of atoms provided by \pktlanguage and
+evaluate whether a specific algorithm is implementable assuming that atom is
+provided by \absmachine. Below, we list out the atoms that we consider in
+increasing order of expressiveness. We consider only stateful atoms because
+converting into three-operand code generates instructions that map one-to-one
+to \absmachine for stateless operations.
 
 \subsection{Atoms considered}
 %TODO: Mention how atoms are arranged in a hierarchy, each more complex atom
