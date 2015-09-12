@@ -44,8 +44,7 @@ executing in parallel. Informally, an atom is an atomic unit of packet
 processing provided natively by \absmachine and is represented by a body of imperative code that
 executes sequentially. An atom is assumed to complete execution and
 modify a packet before the next packet is processed by that
-atom. Atoms within a stage may modify any packet field, as long as two
-atoms in a stage do not modify the same packet field.
+atom.
 
 An atom may also contain internal state that can influence the atom's
 behavior from one packet to the next and persists across packets. For
@@ -74,7 +73,11 @@ models persistent switch state residing on a switch such as meters,
 counters, and P4's register abstraction in a unified manner.
 
 \smallskip
-\noindent{\bf Constraints on atoms:} To run at line rate, atoms must
+\noindent{\bf Constraints on atoms:}
+ To avoid data races, we permit atoms within a stage to modify any packet
+ field, as long as two atoms in a stage do not modify the same packet field.
+
+To run at line rate, atoms must
 be constrained to provide deterministic performance, given the
 capabilities of the hardware. We impose two such constraints that
 distinguish \absmachine from software routers such as
