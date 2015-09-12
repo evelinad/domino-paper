@@ -7,10 +7,10 @@
   \label{fig:switch}
 \end{figure*}
 
-We first describe \absmachine, the abstract machine that serves as the compiler
-target for \pktlanguage. \absmachine is inspired by recent programmable switch
-architectures with deterministic performance, such as the Reconfigurable
-Match-Action Table (RMT) architecture~\cite{rmt}, Intel's
+We first describe \absmachine, a family of abstract machines that serve as
+compiler targets for \pktlanguage. \absmachine is inspired by recent
+programmable switch architectures with deterministic performance, such as the
+Reconfigurable Match-Action Table (RMT) architecture~\cite{rmt}, Intel's
 FlexPipe~\cite{flexpipe} architecture, and Cavium's XPliant Packet
 architecture~\cite{xpliant}. These architectures assume the switch model shown
 in the top of Figure~\ref{fig:switch}.
@@ -101,10 +101,10 @@ Second, we constrain the complexity of atoms by defining {\it atom templates}.
 Informally, an atom template is a program that is guaranteed to terminate and
 specifies how atoms are executed. One template is an in-order CPU that can
 execute $N$ instructions, each with a specific format. Another template is an
-ALU with a restricted set of primitive operations to choose from. Specifying
-atom templates allows us to create specific instances of \absmachine that
-support a specific set of operations natively.
-i
+ALU with a restricted set of primitive operations to choose from. Atom
+templates allow us to create specific instances of \absmachine that support
+specific computations natively.
+
 These two execution models are not exhaustive: as programmable switches evolve,
 we expect the computational capabilities of atoms to evolve as well. However,
 atoms cannot be arbitrarily complex: a programmable switch's achievable line
