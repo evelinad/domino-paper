@@ -247,7 +247,7 @@ temporaries.
 \end{figure*}
 
 % TODO: Like Alvin said, mention somewhere that SKETCH is a bounded checker
-\subsection{Mapping a codelet to an atom}
+\subsection{Code generation: Mapping a codelet to an atom}
 \label{ss:complexity}
 Next, we determine how the codelets created by code partitioning in the
 previous step map one-to-one to atoms provided by the \absmachine instance. We
@@ -285,11 +285,13 @@ conditional update. We develop a general technique to determine the
 implementability of such stateful codelets, given as input the stateful atom
 template provided by the underlying \absmachine instance.
 
-We first state our problem more formally: the codelet is a specification that
-needs to be implemented by searching over all possible candidates permitted by
-the atom template.  More generally, we are looking for a way to
-\textit{synthesize} the atom's \textit{configuration}, given an \textit{atom
-template} describing the atom's functionality.
+Formally speaking, an atom template defines a constrained space of possible
+computations (such as different ALU operations, or different sequences of N
+instructions).  The exact computation is decided by \textit{configuring} the
+atom. The codelet is a specification that needs to be pattern matched to one of
+these computations by appropriately configuring the atom. In other words, we
+need to \textit{synthesize} the atom's \textit{configuration}, given an
+\textit{atom template} describing the atom's functionality.
 
 This is the realm of syntax-guided program synthesis~\cite{sgsyn} where the
 programmer supplies a partial program (hence the term syntax-guided) with
@@ -330,15 +332,15 @@ state variable) can be fed into SKETCH as the desired specification
 (Figure~\ref{fig:sketch_workflow}). SKETCH will then configure the atom
 template by setting \texttt{choice} to 0 and \texttt{constant} to 1. If, on the
 other hand, the codelet x = x * x was supplied as the SKETCH specification,
-SKETCH would return an error because the specification cannot be synthesized by
-the atom template.
+SKETCH would return an error because the specification cannot be mapped to any
+of the computations provided by the atom template.
 
 Using SKETCH to represent atom templates allows us to express diverse atom
 templates (\S\ref{s:eval}) using a common imperative syntax. Because different
 \absmachine instances only differ in the atom templates they provide, using
-SKETCH as a code generator allows us to build a retargetable
-compiler~\cite{lcc} with little target-dependent work beyond specifying each
-target's atom templates as partial programs in SKETCH.
+SKETCH to configure atoms allows us to build a retargetable compiler~\cite{lcc}
+with little target-dependent work beyond specifying each target's atom
+templates as partial programs in SKETCH.
 
 \subsection{Verifying compilations}
 
@@ -351,7 +353,7 @@ implementation and comparing the outputs from both programs on the set of
 externally visible fields. To create test packets, we scan the packet
 transaction and generate the set of all packet fields read from or written to
 by the transaction. We then initialize each of these fields by sampling
-uniformly from the space of all 32-bit signed integers.
+independently and uniformly from the space of all 32-bit signed integers.
 
 To compare outputs from the packet transaction and its implementation, we track
 renames that occur because of SSA. We compare each output field in the
