@@ -78,13 +78,13 @@ instructions that map one-to-one to \absmachine for stateless operations.
 
 \subsection{Atoms considered}
 
-We consider atom templates with increasing expressiveness and arrange them in a
-containment hierarchy: each atom is strictly more expressive than its
-predecessor and hence can express all algorithms that its predecessor could. To
-represent templates succinctly, we use a shorthand notation, using ``x'' and
-``y'' for state variables, and using muxN(a1, a2, ..., aN) to represent a
-configurable choice between N operands such as the choice made by the 2-to-1
-multiplexer in Figure~\ref{fig:sketch}a.
+We consider atom templates (Table~\ref{tab:templates}) with increasing
+expressiveness and arrange them in a containment hierarchy: each atom is
+strictly more expressive than its predecessor and hence can express all
+algorithms that its predecessor could. To represent templates succinctly, we
+use a shorthand notation, using ``x'' and ``y'' for state variables, and using
+muxN(a1, a2, ..., aN) to represent a configurable choice between N operands
+such as the choice made by the 2-to-1 multiplexer in Figure~\ref{fig:sketch}a.
 
 Finally, for simplicity, the atom templates we consider only permit updates to
 state variables and forbid packet field updates that might be mixed in with
@@ -94,14 +94,12 @@ inability to read a state variable renders them meaningless!}, such packet
 updates can always be treated as stateless operations in subsequent pipeline
 stages.
 
-\subsection{Determining if algorithms can be implemented using \absmachine's atoms}
+\subsection{Data-plane algorithms considered}
 
 We now consider every combination of atom templates in
-Table~\ref{tab:templates}, along with all stateful codelets in these algorithms
-to determine if they are implementable using each atom. We present our results
-using the matrix in Table~\ref{fig:eval} that shows whether a particular
-algorithm is implementable given a particular set of stateful atoms available
-in \absmachine.
+Table~\ref{tab:templates}, and data-plane algorithm to determine if each
+algorithm is implementable using a particular atom template.
+Table~\ref{table:eval} presents our results as a matrix.
 
 \begin{table*}[!t]
   \begin{center}
