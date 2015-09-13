@@ -80,15 +80,7 @@ increases.
 P4~\cite{p4} is an emerging packet-processing language that explicitly targets
 line-rate programmable switching chips. However, P4's language constructs
 resemble the underlying hardware---requiring the programmer to reason about
-concurrency and pipelining. Further, P4 currently has no constructs for
-sequential execution within a pipeline stage.
-
-Sequential execution within a stage is required to execute the codelets/atoms
-produced by \pktlanguage and guarantee correctness. Based on this work, we have
-submitted a proposal for the sequential execution~\cite{p4-semantics} to the P4
-language consortium. In the future, if P4 supports sequential execution,
-\pktlanguage could target P4 as a backend, allowing us to leverage ongoing work
-~\cite{netronome, xilinx,lavanya_compiler} in compiling P4 to hardware targets.
+concurrency and pipelining.
 
 \textbf{Compiler Techniques}
 \pktlanguage's compiler uses three-address codes~\cite{tac}, static-single
