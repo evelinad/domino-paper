@@ -1,7 +1,11 @@
 \section{The \pktlanguage compiler}
 \label{s:compiler}
 
-% TODO: Add high-level diagram describing the compiler.
+\begin{figure*}[!t]
+  \includegraphics[width=\textwidth]{compiler.pdf}
+  \caption{Passes in the \pktlanguage compiler}
+\end{figure*}
+
 We now describe the \pktlanguage compiler. We borrow several well-established
 techniques from the compiler literature~\cite{muchnik}. However, as we show
 throughout this section, constraining \pktlanguage for deterministic
@@ -226,7 +230,7 @@ To partition code into codelets, we carry out the following steps:
 At this point, each node in Figure~\ref{fig:dag} can be turned into an codelet
 and the resulting codelet pipeline (Figure~\ref{pipeline}) implements the
 packet transaction.  Further, the codelets themselves have a stylized form.
-Codelets that don't manipulate state contain exactly one three-operand code
+Codelets that don't manipulate state contain exactly one three-address code
 instruction. Codelets that manipulate state contain at least two statements: a
 read from a state variable and a write to a state variable and optionally
 consist of one or more updates to the state variable through packet
@@ -262,12 +266,12 @@ Figure~\ref{fig:pipeline}). For this paper, we will assume that all \absmachine
 instances support all atoms that correspond to a single statement in
 three-address code form. This assumption is backed by the fact that P4's
 primitives~\cite{p4spec} and RMT's VLIW action set both contain instructions
-that are in three-operand code form. With this assumption, mapping a stateless
+that are in three-address code form. With this assumption, mapping a stateless
 codelet to an atom is trivial: each stateless codelet has exactly one
-three-operand code instruction that is equivalent to an atom available in the
+three-address code instruction that is equivalent to an atom available in the
 \absmachine instance.
 % TODO: Should we mention templates somewhere here?
-If the \absmachine instance supported more complex atoms besides three-operand
+If the \absmachine instance supported more complex atoms besides three-address
 code instructions, then our approach is still correct albeit suboptimal. For
 instance, let us assume the \absmachine instance supports a
 multiply-and-accumulate atom that multiplies a packet field by a constant, adds
@@ -331,7 +335,7 @@ very generically and is future proof to changes in hardware capabilities. At
 its core, a sketch is an incomplete imperative program, and hence can express a
 variety of atom constaints. To show its generality, we conside two such
 constraints in our evaluations: an in-order sequential CPU that can execute
-exactly $N$ three-operand instructions and a combinatorial circuit with a very
+exactly $N$ three-address instructions and a combinatorial circuit with a very
 specific form.
 
 \subsection{Verifying compilations}
