@@ -75,6 +75,22 @@
  numbers=left, numberstyle=\tiny\color{gray}
 }
 
+\lstdefinestyle{customctable}{
+ belowcaptionskip=1\baselineskip,
+ breaklines=true,
+ xleftmargin=20pt,
+ language=C,
+ frame=L,
+ escapeinside={@}{@},
+ showstringspaces=false,
+ basicstyle=\scriptsize\ttfamily,
+ keywordstyle=\bfseries\color{green!40!black},
+ commentstyle=\itshape\color{purple!40!black},
+ %identifierstyle=\color{blue},
+ stringstyle=\color{orange},
+ directivestyle=\color{brown},
+ numbers=left, numberstyle=\tiny\color{gray}
+}
 
 \def\compactify{\itemsep=0pt \topsep=0pt \partopsep=0pt \parsep=0pt}
 \let\latexusecounter=\usecounter

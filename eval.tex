@@ -1,30 +1,30 @@
 \section{Evaluation}
 \label{s:eval}
 \begin{table*}[!t]
-  \begin{small}
+  \begin{scriptsize}
   \begin{tabular}{|p{0.15\textwidth}|p{0.8\textwidth}|}
   \hline
   Atom template & SKETCH shorthand\\
   \hline
   Write &
-  {\begin{lstlisting}[style=customc]
+  {\begin{lstlisting}[style=customctable]
   x = mux2(pkt.f, ??);
   \end{lstlisting}} \\
   \hline
   Increment &
-  {\begin{lstlisting}[style=customc]
+  {\begin{lstlisting}[style=customctable]
   x = mux3(x, pkt.f, ??) + mux2(1, 0);
   \end{lstlisting}} \\
   \hline
-  Read-Add-Write &
-  {\begin{lstlisting}[style=customc]
+  ReadAddWrite &
+  {\begin{lstlisting}[style=customctable]
   x = mux3(x, pkt.f, ??) + mux2(??, pkt.f);
   \end{lstlisting}} \\
   \hline
   \pbox{0.15\textwidth}
   {Predicated\\
-  Read-Add-Write} &
-  {\begin{lstlisting}[style=customc]
+  ReadAddWrite} &
+  {\begin{lstlisting}[style=customctable]
   if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
     x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
   }
@@ -32,8 +32,8 @@
   \hline
   \pbox{0.15\textwidth}
   {If-Else\\
-   Read-Add-Write} &
-  {\begin{lstlisting}[style=customc]
+   ReadAddWrite} &
+  {\begin{lstlisting}[style=customctable]
   if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
     x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
   } else {
@@ -42,7 +42,7 @@
   \end{lstlisting}} \\
   \hline
   Paired Updates &
-  {\begin{lstlisting}[style=customc]
+  {\begin{lstlisting}[style=customctable]
   bit pred1 = mux3(pkt.f1, pkt.f2, ??) rel_op mux3(x, y,  ??);
   bit pred2 = mux3(pkt.f1, pkt.f2, ??) rel_op mux3(x, y,  ??);
   if (pred1) {
@@ -55,7 +55,7 @@
   \end{lstlisting}} \\
   \hline
   \end{tabular}
-\end{small}
+\end{scriptsize}
   \caption{Atom templates used in evaluation. rel\_op $\in \{<, >, != , ==\}$ stands for a relational operator. ?? refers to a SKETCH hole that can be filled in with an unsigned integer in the range $[0, 2^n]$.}
   \label{tab:templates}
 \end{table*}
@@ -63,7 +63,7 @@
 %10. Alvin's feedback: Write about our experience writing these programs. Similar to Steven Chong's PLDI paper.
 To evaluate \pktlanguage, we express several well-known data-plane algorithms
 (CONGA~\cite{conga}, RCP~\cite{rcp}, bloom filters~\cite{bloom}, heavy hitter
-detection~\cite{opensketch}, determinstic packet sampling and flowlet switching
+detection~\cite{opensketch}, periodic packet sampling and flowlet switching
 ~\cite{flowlets}) using \pktlanguage and determine if they are implementable,
 for different \absmachine instances that differ in the stateful atom templates
 that they provide.
@@ -95,18 +95,45 @@ updates can always be treated as stateless operations in subsequent pipeline
 stages.
 
 \subsection{Data-plane algorithms considered}
+%TODO: Mention what Learning bloom filter and heavy hitters exactly are.
+% Or at least punt to a reference.
+\begin{table*}[!t]
+\begin{tabular}{|p{0.29\textwidth}|p{0.65\textwidth}|}
+\hline
+Algorithm & Stateful computation \\
+\hline
+Learning bloom filter & \pbox{0.65\textwidth}{Set membership bit on every packet.\\
+                                              (``learn'' of a new packet by adding it to a set).}\\
+\hline
+%TODO: Ask Lavanya exactly how heavy hitters works.
+Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet \\
+\hline
+Flowlet switching~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded \\
+\hline
+RCP~\cite{rcp} & Accumulate RTT sum if RTT is under maximum allowable RTT \\
+\hline
+Periodic sampling & \pbox{0.65\textwidth}{Sample/Mark a packet if packet count reaches N.\\
+                                          Reset packet count if it hits N.} \\
+\hline
+CONGA~\cite{conga} & \pbox{0.65\textwidth}{Update best path's utilization/id if we see a better path.\\
+                                           Update best path utilization alone if it changes.} \\
+\hline
+\end{tabular}
+\caption{Data-plane Algorithms}
+\label{tab:algos}
+\end{table*}
 
-We now consider every combination of atom templates in
-Table~\ref{tab:templates}, and data-plane algorithm to determine if each
-algorithm is implementable using a particular atom template.
-Table~\ref{table:eval} presents our results as a matrix.
+We list the data-plane algorithms along with a description of their stateful
+computations in Table~\ref{tab:algos}. We then look at every combination of
+atom templates from Table~\ref{tab:templates}, and data-plane algorithms from
+Table~\ref{tab:alogs} to determine if each algorithm is implementable using a
+particular atom template.  Table~\ref{table:eval} presents our results as a
+matrix.
 
 \begin{table*}[!t]
-  \begin{center}
-  \begin{tabular}{|p{0.29\textwidth}|p{0.04\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|}
-  % Other atom templates: R/W, ++/--, ReadAddWrite, Predicated ReadAddWrite, Two-way predication, paired updates
+  \begin{tabular}{|p{0.20\textwidth}|p{0.04\textwidth}|p{0.09\textwidth}|p{0.14\textwidth}|p{0.14\textwidth}|p{0.14\textwidth}|p{0.05\textwidth}|}
   \hline
-    & Write & Increment & Read-Add-Write & Predicated Read-Add-Write & If-Else Read-Add-Write & Paired Updates \\
+    & Write & Increment & ReadAddWrite & Predicated ReadAddWrite & IfElse ReadAddWrite & Paired Updates \\
   \hline
   Learning bloom filters & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
   \hline
@@ -116,12 +143,11 @@ Table~\ref{table:eval} presents our results as a matrix.
   \hline
   RCP                    & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
   \hline
-  Deterministic sampling & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark \\
+  Periodic sampling & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark \\
   \hline
   CONGA                  & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
   \hline
   \end{tabular}
-\end{center}
 \label{table:eval}
 \caption{Table summarizing algorithm implementability depending on the atoms provided by \absmachine}
 \end{table*}
