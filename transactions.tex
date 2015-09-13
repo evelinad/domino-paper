@@ -88,7 +88,7 @@ statements) is forbidden.
 as state variables, but with restrictions. When a packet transaction's body is
 executed for a specific packet, all accesses to an array variable must use the
 same index. For subsequent packets, this index can be different. For instance,
-all accesses to the arrays \texttt{last\_time} and \texttt{\saved\_hop} use the
+all accesses to the arrays \texttt{last\_time} and \texttt{saved\_hop} use the
 index \texttt{pkt.id} that is constant for each packet, but can change from one
 packet to the next. This restriction simplifies the treatment of arrays in the
 compiler, while still allowing us to express several data-plane algorithms of
