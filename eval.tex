@@ -102,8 +102,7 @@ stages.
 \hline
 Algorithm & Stateful computation \\
 \hline
-Learning bloom filter & \pbox{0.65\textwidth}{Set membership bit on every packet.\\
-                                              (``learn'' of a new packet by adding it to a set).}\\
+Learning bloom filter & \pbox{0.65\textwidth}{Set membership bit on every packet.\footnote{We call this a learning filter because it ``learns'' of a new packet by adding it to the set. For packets that were already in the set, this operation has no effect.}}\\
 \hline
 %TODO: Ask Lavanya exactly how heavy hitters works.
 Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet \\
@@ -112,8 +111,7 @@ Flowlet switching~\cite{flowlets} & Update saved next hop if flowlet threshold i
 \hline
 RCP~\cite{rcp} & Accumulate RTT sum if RTT is under maximum allowable RTT \\
 \hline
-Periodic sampling & \pbox{0.65\textwidth}{Sample/Mark a packet if packet count reaches N.\\
-                                          Reset packet count if it hits N.} \\
+Periodic sampling & \pbox{0.65\textwidth}{Sample/Mark a packet if packet count reaches N; reset count at N.} \\
 \hline
 CONGA~\cite{conga} & \pbox{0.65\textwidth}{Update best path's utilization/id if we see a better path.\\
                                            Update best path utilization alone if it changes.} \\
