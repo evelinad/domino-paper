@@ -1,5 +1,6 @@
 \section{Evaluation}
 \label{s:eval}
+
 \begin{table*}[!t]
   \begin{scriptsize}
   \begin{tabular}{|p{0.15\textwidth}|p{0.8\textwidth}|}
@@ -60,43 +61,6 @@
   \label{tab:templates}
 \end{table*}
 
-%10. Alvin's feedback: Write about our experience writing these programs. Similar to Steven Chong's PLDI paper.
-To evaluate \pktlanguage, we express several well-known data-plane algorithms
-(CONGA~\cite{conga}, RCP~\cite{rcp}, bloom filters~\cite{bloom}, heavy hitter
-detection~\cite{opensketch}, periodic packet sampling and flowlet switching
-~\cite{flowlets}) using \pktlanguage and determine if they are implementable,
-for different \absmachine instances that differ in the stateful atom templates
-that they provide.
-
-We gradually increase the expressiveness of atom templates provided by
-\pktlanguage and use the \pktlanguage compiler to determine whether a specific
-algorithm is implementable assuming that atom template is provided by an
-\absmachine instance. Below, we list out the atoms that we consider in
-increasing order of expressiveness. As mentioned earlier, we consider only
-stateful atom templates because converting into three-operand code generates
-instructions that map one-to-one to \absmachine for stateless operations.
-
-\subsection{Atoms considered}
-
-We consider atom templates (Table~\ref{tab:templates}) with increasing
-expressiveness and arrange them in a containment hierarchy: each atom is
-strictly more expressive than its predecessor and hence can express all
-algorithms that its predecessor could. To represent templates succinctly, we
-use a shorthand notation, using ``x'' and ``y'' for state variables, and using
-muxN(a1, a2, ..., aN) to represent a configurable choice between N operands
-such as the choice made by the 2-to-1 multiplexer in Figure~\ref{fig:sketch}a.
-
-Finally, for simplicity, the atom templates we consider only permit updates to
-state variables and forbid packet field updates that might be mixed in with
-state updates. Assuming the \absmachine instance provides an atom template to
-at least read a state variable\footnote{We think this is reasonable because the
-inability to read a state variable renders them meaningless!}, such packet
-updates can always be treated as stateless operations in subsequent pipeline
-stages.
-
-\subsection{Data-plane algorithms considered}
-%TODO: Mention what Learning bloom filter and heavy hitters exactly are.
-% Or at least punt to a reference.
 \begin{table*}[!t]
 \begin{tabular}{|p{0.20\textwidth}|p{0.74\textwidth}|}
 \hline
@@ -122,13 +86,6 @@ CONGA~\cite{conga} & \pbox{0.74\textwidth}{Update best path's utilization/id if 
 \label{tab:algos}
 \end{table*}
 
-We list the data-plane algorithms along with a description of their stateful
-computations in Table~\ref{tab:algos}. We then look at every combination of
-atom templates from Table~\ref{tab:templates}, and data-plane algorithms from
-Table~\ref{tab:algos} to determine if each algorithm is implementable using a
-particular atom template.  Table~\ref{table:eval} presents our results as a
-matrix.
-
 \begin{table*}[!t]
   \begin{tabular}{|p{0.20\textwidth}|p{0.04\textwidth}|p{0.09\textwidth}|p{0.14\textwidth}|p{0.14\textwidth}|p{0.14\textwidth}|p{0.05\textwidth}|}
   \hline
@@ -151,9 +108,42 @@ matrix.
 \caption{Table summarizing algorithm implementability depending on the atoms provided by \absmachine}
 \end{table*}
 
+%10. Alvin's feedback: Write about our experience writing these programs. Similar to Steven Chong's PLDI paper.
+To evaluate \pktlanguage, we express several well-known data-plane algorithms
+(Table~\ref{table:eval}) using \pktlanguage and determine if they are
+implementable on different \absmachine instances that differ in the stateful
+atom templates (Table~\ref{tab:templates}) that they provide.
+
+\subsection{Experimental procedure}
+As mentioned earlier, we consider only stateful atom templates because we
+assume three-address code instructions map one-to-one to \absmachine atoms for
+stateless operations. Also, for simplicity, the atom templates we consider only
+permit updates to state variables and forbid packet field updates that might be
+mixed in with state updates. Assuming the \absmachine instance provides an atom
+template to read a state variable\footnote{We think this is reasonable because
+the inability to read a state variable renders them meaningless!}, such packet
+updates can be treated as stateless operations in subsequent pipeline stages.
+
+To represent templates succinctly in Table~\ref{tab:templates}, we use a
+shorthand notation for SKETCH, using ``x'' and ``y'' for state variables, and
+using muxN(a1, a2, ..., aN) to represent a configurable choice between N
+operands such as the choice made by the 2-to-1 multiplexer in
+Figure~\ref{fig:sketch}a.
+
+Table~\ref{tab:templates} gradually increases the expressiveness of atom
+templates provided by an \absmachine instance. These atom templates form a
+containment hierachy: going from left to right in Table~\ref{tab:templates}),
+each atom template is strictly more expressive than its predecessor to its left
+and hence can express all algorithms that its predecessor could.
+
+We now look at every combination of atom templates from
+Table~\ref{tab:templates}, and data-plane algorithms from Table~\ref{tab:algos}
+to determine if each algorithm is implementable using a particular atom
+template.  Table~\ref{table:eval} presents our results as a matrix.
+
 \subsection{Interpreting these results}
 There are two ways to interpret these results. From the perspective of a
-network engineer, the matrix in Table~\ref{table:eval} tells her whether a
+network programmer, the matrix in Table~\ref{table:eval} tells her whether a
 particular data-plane algorithm can be implemented at line-rate or not, given
 the availability of particular atom templates in the \absmachine instance.
 
@@ -164,8 +154,8 @@ Table~\ref{table:eval}, while a simpler increment capability can implement only
 two of the six algorithms.
 
 These results will change as programmable switching chips evolve and network
-programmers continuously push the boundaries of these chips with new algorithms.
-Perhaps the larger takeaway from this evaluation is that programming in
+programmers continuously push the boundaries of these chips with new
+algorithms.  The larger takeaway from this evaluation is that programming in
 \pktlanguage allows us to empirically and rigorously determine if a particular
 high-level algorithm is implementable at line rate using the available atoms
 and conversely, if a particular atom suffices to implement a large number of
