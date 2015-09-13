@@ -42,8 +42,8 @@ chips~\cite{rmt} and have not found success in the market~\cite{npfail}.
 % TODO: Cite Amy's Flexplane paper, not sure how to cite it.
 
 Another approach uses FPGAs to improve over software routers and NPUs; examples
-include NetFPGA~\cite{netfpga}, Switchblade~\cite{switchblade}, and
-Chimpp~\cite{chimpp}. These designs lag in performance relative to switching
+include NetFPGA~\cite{netfpga}, Switchblade~\cite{switchblade}, Chimpp~\cite{chimpp},
+and~\cite{silver_bullet}. These designs lag in performance relative to switching
 ASICs, and are rarely used today in production network equipment. The Arista
 7124 FX~\cite{7124fx} is a commercial switch with an on-board FPGA for
 latency-critical applications, but its capacity is limited to only 160
@@ -57,7 +57,12 @@ worlds: the line-rate performance of switching ASICs along with a high-level
 programming model that is natural to network programmers.
 
 \textbf{Packet-processing languages}
-Several DSLs explicitly target packet processing. Click~\cite{click} uses C++
+Many systems ease the process of programming the network control plane.
+Examples include Frenetic~\cite{frenetic} and Pyretic~\cite{pyretic}. We refer
+the reader to~\cite{language_survey} for a survey of such approaches.
+\pktlanguage focuses on the data plane, not the control plane.
+
+Several DSLs explicitly target data-plane packet processing. Click~\cite{click} uses C++
 to write packet-processing code for software routers. Imperative languages such
 as NOVA~\cite{nova}, packetC~\cite{packetc} Intel's auto-partitioning C
 compiler~\cite{intel_uiuc_pldi},PacLang~\cite{paclang_lang,
