@@ -116,6 +116,8 @@ operations on state variables simplifies handling of state variables during
 code partitioning (\S\ref{ss:partitioning}).
 
 \subsection{Renaming variables to static single-Assignment Form}
+\label{ss:ssa}
+
 We next convert to static single-assignment form (SSA)~\cite{ssa}, an
 intermediate form used by many compilers~\cite{tree_ssa, llvm}.  In SSA, every
 variable is assigned exactly once. To compute the SSA, we replace every
@@ -214,17 +216,17 @@ To partition code into codelets, we carry out the following steps:
     code. Further, the use of SSA removes all write-after-read and write-after-write
     dependencies.
   \item Generate strongly connected components (SCCs) of the resulting graph
-    (Figure~\ref{fig:deps}) and condense the SCCs to to create a directed
-    acyclic graph (DAG) (Figure~\ref{fig:dag}). This step captures the
+    (Figure~\ref{fig:partitioning}a) and condense the SCCs to to create a directed
+    acyclic graph (DAG) (Figure~\ref{fig:partitioning}b). This step captures the
     constraint that all operations on state variables (read, write, and modify)
     must reside within the same atom because state is local to an atom.
   \item Schedule the resulting DAG using critical path
     scheduling~\cite{crit_path_sched}, creating a new pipeline stage everytime
-    one operation needs to follow another (Figure~\ref{fig:pipeline}).
+    one operation needs to follow another (Figure~\ref{fig:flowlet}b).
 \end{CompactEnumerate}
 
-At this point, each node in Figure~\ref{fig:dag} can be turned into an codelet
-and the resulting codelet pipeline (Figure~\ref{pipeline}) implements the
+At this point, each node in Figure~\ref{fig:partitioning}b can be turned into an codelet
+and the resulting codelet pipeline (Figure~\ref{fig:flowlet}b) implements the
 packet transaction.  Further, the codelets themselves have a stylized form.
 Codelets that don't manipulate state contain exactly one three-address code
 instruction. Codelets that manipulate state contain at least two statements: a
@@ -242,13 +244,13 @@ temporaries.
 \begin{minipage}{0.5\textwidth}
 \includegraphics[width=\columnwidth]{scc.pdf}
 \end{minipage}
-\caption{Dependency graph before and after condensing strongly connected components}
+\caption{Dependency graph (a) before and (b) after condensing strongly connected components}
 \label{fig:partitioning}
 \end{figure*}
 
 % TODO: Like Alvin said, mention somewhere that SKETCH is a bounded checker
 \subsection{Code generation: Mapping a codelet to an atom}
-\label{ss:complexity}
+\label{ss:code_gen}
 Next, we determine how the codelets created by code partitioning in the
 previous step map one-to-one to atoms provided by the \absmachine instance. We
 consider codelets that do and don't manipulate state separately because we
@@ -258,7 +260,7 @@ follow a different approach for each of them.
 \paragraph{Stateless codelets}
 Expression flattening generates stateless codelets that each have only one
 instruction in three-address code form (e.g. any of the unshaded boxes in
-Figure~\ref{fig:pipeline}). For this paper, we will assume that all \absmachine
+Figure~\ref{fig:flowlet}b). For this paper, we will assume that all \absmachine
 instances support all atoms that correspond to a single statement in
 three-address code form. This assumption is backed by the fact that P4's
 primitives~\cite{p4spec} and RMT's VLIW action set both contain instructions
@@ -350,11 +352,12 @@ with little target-dependent work beyond specifying each target's atom
 templates as partial programs in SKETCH.
 
 \subsection{Verifying compilations}
+\label{ss:verification}
 
 To conclude, we describe our testing infrastructure to verify that the
 compilation is correct i.e. the externally visible behavior of the packet
-transaction (Figure~\ref{fig:flowlet}) is indistinguishable from its pipelined
-implementation (Figure~\ref{fig:pipeline}). We verify correctness by feeding in
+transaction (Figure~\ref{fig:flowlet}a) is indistinguishable from its pipelined
+implementation (Figure~\ref{fig:flowlet}b). We verify correctness by feeding in
 the same set of test packets to both the packet transaction and its
 implementation and comparing the outputs from both programs on the set of
 externally visible fields. To create test packets, we scan the packet

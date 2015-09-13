@@ -99,11 +99,11 @@ deterministic performance guarantees. Memory allocation, unbounded iteration
 counts for loops, and unrestricted control transfer all cause variable run-time
 performance.
 
-When compiled to the \absmachine abstract machine (\S\ref{s:machine}), the
-\pktlanguage compiler converts the code in Figure~\ref{fig:flowlet} into the
-pipelined form shown in Figure~\ref{fig:pipeline}. Today, programmable switch
+When compiled to an instance of the \absmachine abstract machine (\S\ref{s:absmachine}), the
+\pktlanguage compiler converts the code in Figure~\ref{fig:flowlet}a into the
+pipelined form shown in Figure~\ref{fig:flowlet}b. Today, programmable switch
 chips are programmed by manually specifying low-level pipeline configurations
-resembling Figure~\ref{fig:pipeline} using a language like P4 or an API such as
+resembling Figure~\ref{fig:flowlet}b using a language like P4 or an API such as
 Cavium's XPliant SDK~\cite{xpliant_sdk} or Intel's Ethernet
 SDK~\cite{intel_sdk}. This is a difficult and error-prone
 process~\cite{p4-semantics}.  Programming in \pktlanguage lets a compiler
