@@ -150,3 +150,23 @@ matrix.
 \label{table:eval}
 \caption{Table summarizing algorithm implementability depending on the atoms provided by \absmachine}
 \end{table*}
+
+\subsection{Interpreting these results}
+There are two ways to interpret these results. From the perspective of a
+network engineer, the matrix in Table~\ref{table:eval} tells her whether a
+particular data-plane algorithm can be implemented at line-rate or not, given
+the availability of particular atom templates in the \absmachine instance.
+
+For an ASIC designer designing programmable switching chips, the same table
+describes the algorithms that are implementable with a particular atom. For
+instance, the paired updates atom can implement all algorithms shown in
+Table~\ref{table:eval}, while a simpler increment capability can implement only
+two of the six algorithms.
+
+These results will change as programmable switching chips evolve and network
+programmers continuosly push the boundaries of these chips with new algorithms.
+Perhaps the larger takeaway from this evaluation is that programming in
+\pktlanguage allows us to empirically and rigorously determine if a particular
+high-level algorithm is implementable at line rate using the available atoms
+and conversely, if a particular atom suffices to implement a large number of
+algorithms.
