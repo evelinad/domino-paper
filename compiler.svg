@@ -398,7 +398,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -450,7 +450,7 @@
          x="-929.28558"
          y="437.00507"
          style="font-size:60px"
-         id="tspan3020"> </tspan><tspan
+         id="tspan3020" /><tspan
          sodipodi:role="line"
          x="-929.28558"
          y="512.00507"
@@ -649,7 +649,7 @@
          x="2788.7324"
          y="502.36212"
          style="font-size:60px"
-         id="tspan4671-5">3-operand</tspan><tspan
+         id="tspan4671-5">3-address</tspan><tspan
          sodipodi:role="line"
          x="2788.7324"
          y="577.36212"
