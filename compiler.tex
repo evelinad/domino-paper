@@ -295,12 +295,19 @@ This is the realm of syntax-guided program synthesis~\cite{sgsyn} where the
 programmer supplies a partial program (hence the term syntax-guided) with
 missing details, and a specification. A program synthesis tool then fills in
 these details in the partial program to ensure it matches up with the
-specification. For instance, the SKETCH~\cite{bitstreaming, finite,
+specification. For instance, the SKETCH~\cite{bitstreaming, sketch_asplos,
 sketch_manual} compiler, an example of this approach, allows the programmer to
 specify a partial program with \textit{holes} that are then ``filled in'' by
 SKETCH to match a desired specification.
 
-%TODO: Throw in a figure of the ALU.
+\begin{figure}[h]
+  \begin{center}
+  \includegraphics[width=0.5\columnwidth]{circuit.pdf}
+  \end{center}
+  \caption{Circuit for an atom that can either add or subtract a constant from a state variable}
+  \label{fig:alu}
+\end{figure}
+
 We use SKETCH to solve the atom configuration problem as follows. Consider an
 atom template that models an ALU (Figure~\ref{fig:alu}) taking two
 configuration parameters: an opcode specifying an addition or subtraction
@@ -327,10 +334,10 @@ SKETCH would return an error because the specification cannot be synthesized by
 the atom template.
 
 Using SKETCH to represent atom templates allows us to express diverse atom
-templates (\S\ref{\s:eval}) using a common imperative syntax. Because different
+templates (\S\ref{s:eval}) using a common imperative syntax. Because different
 \absmachine instances only differ in the atom templates they provide, using
 SKETCH as a code generator allows us to build a retargetable
-compiler~\cite{rcc} with little target-dependent work beyond specifying each
+compiler~\cite{lcc} with little target-dependent work beyond specifying each
 target's atom templates as partial programs in SKETCH.
 
 \subsection{Verifying compilations}
