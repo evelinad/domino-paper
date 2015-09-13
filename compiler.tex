@@ -73,7 +73,7 @@ Figure~\ref{fig:flowlet}. For each state variable, we create a \textit{read
 flank} to read the state variable into a temporarily created packet field. For
 an array, we also move the index expression into the read flank. Here, we
 exploit the fact that only one array address is accessed by each packet in all
-valid \pktlanguage programs.  We then replace all occurences of the state
+valid \pktlanguage programs.  We then replace all occurrences of the state
 variable with the packet temporary, and create a \textit{write flank} that
 writes the packet temporary back into the state variable.  Figure
 ~\ref{fig:stateful_flanks} illustrates this transformation on a fragment.
@@ -111,7 +111,7 @@ last_time[pkt.id] = pkt.last_time;
 
 After this pass, the code resembles code for a load-store
 architecture~\cite{load_store}: state variables are only accessed through reads
-and writes, and all arithemtic happens on packet variables. Restricting the
+and writes, and all arithmetic happens on packet variables. Restricting the
 operations on state variables simplifies handling of state variables during
 code partitioning (\S\ref{ss:partitioning}).
 
@@ -124,7 +124,7 @@ variable is assigned exactly once. To compute the SSA, we replace every
 definition of a packet variable with a new packet variable and propagate this
 new packet variable until the next definition of the same variable. State
 variables are already in SSA form because after their flanks have been added,
-every state variable is written exactly once in the wrie flank.  While general
+every state variable is written exactly once in the write flank.  While general
 algorithms to compute SSA are fairly involved~\cite{ssa}, \pktlanguage's SSA
 computation is much simpler because it operates on straight-line code.
 
@@ -204,7 +204,7 @@ To partition code into codelets, we carry out the following steps:
 \begin{CompactEnumerate}
   \item Create a node for each statement (Figure~\ref{fig:three_address}) in
     the packet transaction after expression flattening.
-  \item Create a bidrectional edge between N1 and N2 where N1 is a read from a
+  \item Create a bidirectional edge between N1 and N2 where N1 is a read from a
     state scalar / state array and N2 is a write into the same state scalar /
     state array. This step captures the constraint that state is internal to an
     atom in \absmachine. Because state variables don't occur in any
@@ -221,7 +221,7 @@ To partition code into codelets, we carry out the following steps:
     constraint that all operations on state variables (read, write, and modify)
     must reside within the same atom because state is local to an atom.
   \item Schedule the resulting DAG using critical path
-    scheduling~\cite{crit_path_sched}, creating a new pipeline stage everytime
+    scheduling~\cite{crit_path_sched}, creating a new pipeline stage every time
     one operation needs to follow another (Figure~\ref{fig:flowlet}b).
 \end{CompactEnumerate}
 

@@ -3,7 +3,7 @@
 
 \subsection{Limitations}
 While \pktlanguage's compiler guarantees correctness, it doesn't attempt
-optimality.  Specifically, \pktlanguage doesn't reduce or consoilidate the
+optimality.  Specifically, \pktlanguage doesn't reduce or consolidate the
 number of packet temporary variables it creates. By flattening all statements
 to three-operand code form, it doesn't take advantage of more powerful atoms
 that might be available in the \absmachine instance.
@@ -13,7 +13,7 @@ atoms that compute the same quantity twice in the same stage) and depth of the
 resulting pipeline (expression flattening could cause an additional stage,
 where one stage would have sufficed). We plan to address this by incorporating
 both standard compiler optimizations such as common subexpression elimination,
-copy propagation, and dead code elimintation, and techniques such as
+copy propagation, and dead code elimination, and techniques such as
 superoptimization~\cite{stoke, superoptimizer} that explicitly aim for optimal
 code.
 
@@ -46,7 +46,7 @@ pipeline. Reasoning about the semantics of these
 approximations~\cite{sampsonApprox, chisel} is also another area for future
 work.
 
-We also plan to improve the \pktlanguage langauge by providing a stronger type
+We also plan to improve the \pktlanguage language by providing a stronger type
 system, type inference, user-defined functions and types, and language
 constructs for packet processing such as match-action tables. Another area of
 future work is looking at whether \pktlanguage can be used (or extended) to
