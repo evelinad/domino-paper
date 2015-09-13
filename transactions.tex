@@ -1,14 +1,13 @@
 \section{Programming using packet transactions}
 \label{s:transactions}
 
-We now illustrate programming using packet transactions in \pktlanguage,
-using flowlet
-switching~\cite{flowlets} as an example. Flowlet switching is a load
-balancing algorithm that sends bursts of packets (called flowlets)
-from a TCP flow on different paths, provided the bursts are separated
-by a large enough interval in time to ensure that packets do not
-arrive out of order at the TCP receiver. Figure~\ref{fig:flowlet}
-shows how flowlet switching is expressed in \pktlanguage.
+We now illustrate programming using packet transactions in \pktlanguage, using
+flowlet switching~\cite{flowlets} as an example. Flowlet switching is a load
+balancing algorithm that sends bursts of packets (called flowlets) from a TCP
+flow on different paths, provided the bursts are separated by a large enough
+interval in time to ensure that packets do not arrive out of order at the TCP
+receiver. Figure~\ref{fig:flowlet} shows how flowlet switching is expressed in
+\pktlanguage.
 
 \begin{figure*}[!t]
 \begin{minipage}{0.6\textwidth}
@@ -63,44 +62,50 @@ from top to bottom. Atoms manipulating state are shaded in blue (right).}
 \end{figure*}
 
 This example demonstrates the core language constructs in \pktlanguage. All
-packet processing happens in the context of the packet transaction (the
-function \texttt{flowlet} on line 17), a C function that takes a C struct as an
+packet processing happens in the context of a packet transaction (the function
+\texttt{flowlet} on line 17), a C function that takes a C struct as an
 argument. The C struct declares the fields in a packet (lines 5--12) that can
 be referenced by the function body (lines 18--32).  In addition, the function
 body can reference state variables that represent persistent state stored on
 the switch. These are declared as global variables at the program top level
 (e.g. \texttt{last\_time} and \texttt{saved\_hop} on lines 14 and 15).
 
-The packet transaction function modifies the packet that
-it receives as argument in place until the end of the function body. Return
-statements are forbidden; hence, execution will always end at the end of
-the function body. The function body may also call out to opaque functions such
-as \texttt{hash2} on lines 23 and \texttt{hash3} on line 18. These
-represent hardware primitives provided by the abstract machine that have no
-representation in \pktlanguage. The \pktlanguage compiler knows the signature
-of opaque functions and uses these to infer dependencies, but otherwise doesn't
-interpret these functions. Finally, the function body is written in a
-constrained subset of C that excludes all iterative constructs. The function
-body can include if and else-if statements, but all other control transfer
-(break, goto, switch, return, and continue statements) is forbidden.
+Conceptually, the packet transaction function modifies its packet argument in
+place until the end of the function body, before processing the next packet.
+\pktlanguage forbids return statements; so, execution will always end at the
+end of the function body. The function body may also call out to intrinsic
+functions such as \texttt{hash2} on lines 23 and \texttt{hash3} on line 18.
+These represent hardware primitives provided by the abstract machine that
+cannot be represented in \pktlanguage. The \pktlanguage compiler uses the
+signature of intrinsic functions to infer dependencies and automatically
+supplies a run-time implementation for these functions. Finally, the packet
+transaction's body is written in a constrained subset of C that excludes all
+iterative constructs. The function body can include if and else-if statements,
+but all other control transfer (break, goto, switch, return, and continue
+statements) is forbidden.
 
 \pktlanguage forbids pointers and dynamic memory allocation. Arrays can be used
-as state variables, but in a restriced form: for a given array, all accesses to
-the array must use the same array index for a given packet. This restriction
-simplifies the treatment of arrays in the compiler, while still being able to
-express several data-plane algorithms of practical interest.
+as state variables, but with restrictions. When a packet transaction's body is
+executed for a specific packet, all accesses to an array variable must use the
+same index. For subsequent packets, this index can be different. For instance,
+all accesses to the arrays \texttt{last\_time} and \texttt{\saved\_hop} use the
+index \texttt{pkt.id} that is constant for each packet, but can change from one
+packet to the next. This restriction simplifies the treatment of arrays in the
+compiler, while still allowing us to express several data-plane algorithms of
+practical interest.
 
-While these restrictions seem severe at first glance, they are required to
-provide deterministic performance guarantees. Further, we show (\S\ref{s:eval})
-that \pktlanguage can still express several data-plane algorithms  of practical
-interest at a much higher level of abstraction than possible today.
+These restrictions seem severe at first glance, but are required to provide
+deterministic performance guarantees. Memory allocation, unbounded iteration
+counts for loops, and unrestricted control transfer all cause variable run-time
+performance.
 
 When compiled to the \absmachine abstract machine (\S\ref{s:machine}), the
 \pktlanguage compiler converts the code in Figure~\ref{fig:flowlet} into the
 pipelined form shown in Figure~\ref{fig:pipeline}. Today, programmable switch
-chips are programmed by manually specifying pipeline configurations resembling
-Figure~\ref{fig:pipeline} using a language like P4 or an API such as Cavium's
-XPliant SDK. This is a difficult and error-prone process~\cite{p4-semantics}.
-Programming in \pktlanguage lets a compiler automate this process:
-the user doesn't worry about hardware details such as pipeline stages and
-concurrency within each stage.
+chips are programmed by manually specifying low-level pipeline configurations
+resembling Figure~\ref{fig:pipeline} using a language like P4 or an API such as
+Cavium's XPliant SDK~\cite{xpliant_sdk} or Intel's Ethernet
+SDK~\cite{intel_sdk}. This is a difficult and error-prone
+process~\cite{p4-semantics}.  Programming in \pktlanguage lets a compiler
+automate this process: the user doesn't worry about hardware details such as
+pipeline stages and concurrency within each stage.
