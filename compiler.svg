@@ -10,13 +10,27 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="5943.8125"
-   height="308.6564"
+   height="1013.6672"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
    sodipodi:docname="compiler.svg">
   <defs
      id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Send"
+       style="overflow:visible">
+      <path
+         id="path3813"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.2,0,0,-0.2,-1.2,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
     <marker
        inkscape:stockid="Arrow1Mend"
        orient="auto"
@@ -361,9 +375,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.34"
-     inkscape:cx="426.85227"
-     inkscape:cy="147.45037"
+     inkscape:zoom="0.17"
+     inkscape:cx="2747.6028"
+     inkscape:cy="342.61753"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -392,7 +406,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(966.9375,-371.15618)">
+     transform="translate(966.9375,138.6875)">
     <rect
        style="fill:none;stroke:#000000;stroke-width:9.24647808;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect2985"
@@ -815,5 +829,58 @@
        id="path4928-8-7-5-4-3-5-7-6-3-1-1"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:9.04323959;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect5608"
+       width="5235.2939"
+       height="485.87042"
+       x="-643.40808"
+       y="281.13892"
+       ry="102.04869" />
+    <text
+       xml:space="preserve"
+       style="font-size:14.5999279px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
+       x="1503.6508"
+       y="855.10669"
+       id="text5610"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5612"
+         x="1503.6508"
+         y="855.10669"
+         style="font-size:100px">Domino Compiler</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:10;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker4869-4)"
+       d="m 5276.4706,-261.93184 0,264.7058896"
+       id="path5614"
+       inkscape:connector-curvature="0"
+       transform="translate(-966.9375,371.15618)"
+       sodipodi:nodetypes="cc" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:13.30912971;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect3012-1-3-9-8-3"
+       width="287.32129"
+       height="249.56833"
+       x="4172.5239"
+       y="-132.0304"
+       ry="124.78416"
+       rx="0" />
+    <text
+       xml:space="preserve"
+       style="font-size:14.5999279px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
+       x="4191.8193"
+       y="-27.246277"
+       id="text3014-2-0-6-4-8"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="4191.8193"
+         y="-27.246277"
+         style="font-size:60px"
+         id="tspan4851-3">Atom</tspan><tspan
+         sodipodi:role="line"
+         x="4191.8193"
+         y="47.753723"
+         style="font-size:60px"
+         id="tspan6337">Template</tspan></text>
   </g>
 </svg>
