@@ -27,29 +27,35 @@ process.
 Programmable switching chips~\cite{flexpipe, xpliant, rmt} that are competitive
 with state of the art fixed-function chipsets~\cite{trident, tomahawk,
 mellanox} have emerged as an alternative.  These chips allow designers to
-express their algorithms using a domain-specific language (DSL) such as
-P4~\cite{p4} or proprietary SDKs such as those from XPliant~\cite{xpliant_sdk,
-xpliant_sdk2} and Intel~\cite{intel_sdk}.  However, these approaches closely
-resemble the underlying hardware and are inconvenient for programmers.
+express their algorithms using primitives provided by the chips without
+committing to a set of algorithms up front. Approaches to programming these
+chips have gotten increasingly more user-friendly over time. Initial attempts
+used proprietary SDKs such as those from XPliant~\cite{xpliant_sdk,
+xpliant_sdk2} and Intel~\cite{intel_sdk} that resemble the underlying hardware.
+Over time, languages such as P4~\cite{p4, p4spec} have raised the level of
+abstraction for programming switches by providing a language that seeks to be
+protocol and target independent.
 
-For instance, P4 requires the user to manually specify the sequence of
-match-action tables that every packet goes through. Further, instructions
-contained within an action in P4 are assumed to execute in parallel to reflect
-the hardware's parallel processing capabilities. This forces programmers to
-reason about hardware details such as pipelining and parallelism, and places a
-high burden on network programmers who are used to writing sequential programs
-in a high-level language (such as C) for software routers~\cite{click} and
-network processors~\cite{ixp4xx, ixp2800}.
+While P4 eases data-plane programming relative to fixed SDKs, it still remains
+southbound relative to its counterparts~\cite{packetc, nova, click} for
+programming network processors and software routers. It requires the user to
+manually specify the sequence of match-action tables that every packet goes
+through. This forces programmers to reason about hardware details such as
+pipelining and tables, and places a high burden on network programmers who are
+used to writing sequential programs in a high-level language (such as C) for
+software routers~\cite{click} and network processors~\cite{ixp4xx, ixp2800}.
 
-This paper presents \pktlanguage, a new DSL for expressing data-plane
-algorithms. \pktlanguage is a high-level, imperative language based on C that
-allows programmers to express data-plane algorithms using {\em packet
-transactions} (\S\ref{s:transactions}). Packet transactions provide the
-abstraction of a sequential block of code that runs to completion on each
-packet before executing on the next packet. This is a convenient programming
-model, since it allows the programmer to focus on the operations needed for
-each packet without worrying about other packets concurrently being processed
-by the switch pipeline.
+We takes the natural evolution from SDKs to low-level languages to high-level
+languages to a logical extreme by asking what would a high-level language for
+data-plane programing look like? To answer this question, we present
+\pktlanguage, a new DSL for expressing data-plane algorithms. \pktlanguage is a
+high-level, imperative language based on C that allows programmers to express
+data-plane algorithms using {\em packet transactions} (\S\ref{s:transactions}).
+Packet transactions provide the abstraction of a sequential block of code that
+runs to completion on each packet before executing on the next packet. This is
+a convenient programming model, since it allows the programmer to focus on the
+operations needed for each packet without worrying about other packets
+concurrently being processed by the switch pipeline.
 
 We have implemented a compiler for \pktlanguage that compiles \pktlanguage
 packet transactions and generates code for a family of abstract machines called
