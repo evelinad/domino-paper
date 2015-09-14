@@ -254,102 +254,110 @@ temporaries.
 Next, we determine how the codelets created by code partitioning in the
 previous step map one-to-one to atoms provided by the \absmachine instance. We
 consider codelets that do and don't manipulate state separately because we
-follow a different approach for each of them.
+handle each separately.
 
 %TODO: Alvin can you read this and check if it makes sense?
 \paragraph{Stateless codelets}
 Expression flattening generates stateless codelets that each have only one
 instruction in three-address code form (e.g. any of the unshaded boxes in
-Figure~\ref{fig:flowlet}b). For this paper, we will assume that all \absmachine
+Figure~\ref{fig:flowlet}b). For this paper, we assume that all \absmachine
 instances support all atoms that correspond to a single statement in
 three-address code form. This assumption is backed by the fact that P4's
-primitives~\cite{p4spec} and RMT's VLIW action set both contain instructions
-that are in three-address code form. With this assumption, mapping a stateless
-codelet to an atom is trivial: each stateless codelet has exactly one
-three-address code instruction that is equivalent to an atom available in the
-\absmachine instance.
+primitives~\cite{p4spec} and RMT's VLIW action set~\cite{rmt} both contain
+instructions that are in three-address code form. With this assumption, mapping
+a stateless codelet to an atom is trivial: each stateless codelet produced by
+code partitioning has exactly one three-address code instruction, which is
+equivalent to an atom available in the \absmachine instance.
 
-If the \absmachine instance supported more complex atoms besides three-address
-code instructions, then our approach is still correct, although suboptimal. For
-instance, if the \absmachine instance supports a multiply-and-accumulate atom
-that multiplies a packet field by a constant, adds another a packet field to it
-and then writes the result into a third packet field. Expression flattening generates
-two codelets (and two atoms), where one suffices.
+If the \absmachine instance supports more complex atoms besides three-address
+code instructions, this approach is still correct, although suboptimal. For
+instance, if the \absmachine instance supports a multiply-and-accumulate
+atom~\cite{mac}, expression flattening would generate two atoms (one each for
+the multiply and accumulate), where one suffices.
 
 \paragraph{Stateful codelets}
-Codelets that manipulate state have multi-line bodies that need to execute
-atomically. It is not readily apparent whether these codelets can be mapped to
-an available atom. For instance, the update to the state variable
-\texttt{saved\_hop} requires a read, followed by a conditional write. We
-develop a general technique to determine the implementability of such stateful
-codelets, given as input the stateful atom template provided by the \absmachine
-instance.
+Stateful codelets have multi-line bodies that need to execute atomically. For
+instance, updating the state variable \texttt{saved\_hop} in
+Figure~\ref{fig:flowlet}b requires a read, followed by a conditional write.  It
+is not readily apparent whether these codelets can be mapped to an available
+atom. We develop a general technique to determine the implementability of such
+stateful codelets, given as input the stateful atom template provided by the
+\absmachine instance.
 
-An atom template defines a constrained space of possible computations (such as
-different ALU operations, or different sequences of N instructions).  The exact
-computation is selected by \textit{configuring} the atom. The codelet is a
-specification that needs to be matched to one of these computations by
-appropriately configuring the atom. In other words, we need to
-\textit{synthesize} the atom's \textit{configuration}, given an \textit{atom
+An atom template defines a space of possible computations (such as different
+ALU operations, or different permitted sequences of N three-address
+instructions).  The exact computation is selected by \textit{configuring} the
+atom. The codelet is a specification that is to be matched for functional
+equivalence against one of these atom configurations. In other words, we need
+to \textit{synthesize} the atom's \textit{configuration}, given an \textit{atom
 template} describing the atom's functionality.
 
 This is the realm of syntax-guided program synthesis~\cite{sgsyn} where the
-programmer supplies a partial program (hence the term syntax-guided) with
-missing details, and a specification. A program synthesis tool then fills in
-these details in the partial program to ensure it matches up with the
-specification. One example of this approach is SKETCH~\cite{bitstreaming,
-sketch_asplos, sketch_manual}, which allows the programmer to specify
-a partial program with \textit{holes} that are then ``filled in'' by SKETCH to
-match a desired specification.
+programmer supplies a partial program or template (hence the term
+syntax-guided) with missing details, and a specification. A \textit{program synthesis
+tool} then synthesizes these details in the partial program to ensure it matches
+up bit exactly with the specification. One such program synthesis tool is
+SKETCH~\cite{bitstreaming, sketch_asplos, sketch_manual}, which allows the
+programmer to specify a partial program with \textit{holes} that are then
+``filled in'' by SKETCH to match the specification
+(Figure~\ref{fig:sketch}).
+
+\begin{figure}[!b]
+  \begin{center}
+  \includegraphics[width=0.4\columnwidth]{sketch.pdf}
+  \caption{Overview of SKETCH and its application to atom configuration}
+  \label{fig:sketch}
+  \end{center}
+\end{figure}
 
 \begin{figure}[h]
-  \begin{minipage}{0.55\columnwidth}
+  \begin{minipage}{0.4\columnwidth}
   \begin{center}
   \includegraphics[width=\columnwidth]{circuit.pdf}
   \end{center}
   \end{minipage}
-  \begin{minipage}{0.4\columnwidth}
+  \begin{minipage}{0.55\columnwidth}
   \begin{center}
-  \includegraphics[width=\columnwidth]{sketch.pdf}
+  \begin{lstlisting}
+  bit choice = ??(1);
+  int constant = ??(16);
+  if (bit) {
+    x = x + constant;
+  } else {
+    x = x - constant;
+  }
+  \end{lstlisting}
   \end{center}
   \end{minipage}
-\caption{\small (a) Circuit for an atom that can either add or subtract a constant from a state variable.
-(b) SKETCH and its application to atom configuration.}
-\label{fig:sketch}
+\caption{\small (a) Circuit for an atom that can either add or subtract a
+constant from a state variable.  (b) Circuit's representation in SKETCH.
+Each ``??(n)'' represents a hole that can be filled in with values in
+  $[0, 2^n -1]$.}
+\label{fig:alu_in_sketch}
 \end{figure}
 
-We use SKETCH to solve the atom configuration problem as follows. Consider an
-atom template that models an ALU (Figure~\ref{fig:sketch}a) taking two
-configuration parameters: an opcode specifying an addition or subtraction
-operation, and a 16-bit positive constant.  The ALU's functionality is to
-add or subtract this constant from one state variable. The atom template for this
-ALU in SKETCH is given below:
-\begin{lstlisting}
-bit choice = ??(1);
-int constant = ??(16);
-if (bit) {
-  x = x + constant;
-} else {
-  x = x - constant;
-}
-\end{lstlisting}
-where each ``??(n)'' represents a hole that can be filled in with values in
-$[0, 2^n -1]$.
+We next show how we use SKETCH to solve the atom configuration problem.
+Consider an atom template that models an ALU (Figure~\ref{fig:alu_in_sketch}a)
+taking two configuration parameters: an opcode specifying an addition or
+subtraction operation, and a 16-bit positive constant.  The ALU's functionality
+is to add or subtract this constant from one state variable. This ALU can be
+represented by the SKETCH partial program given in
+Figure~\ref{fig:alu_in_sketch}b.
 
-The codelet that needs to be mapped to this atom (say x = x + 1, where x is a
-state variable) can be fed into SKETCH as the desired specification
-(Figure~\ref{fig:sketch}b). SKETCH will then configure the atom
-template by setting \texttt{choice} to 0 and \texttt{constant} to 1. If, on the
-other hand, the codelet x = x * x was supplied as the SKETCH specification,
-SKETCH would return an error because the specification cannot be mapped to any
-of the computations provided by the atom template.
+Let's say we want to map the codelet x=x+1 to this atom. The codelet is then
+fed into SKETCH as the desired specification and the atom template is fed into
+SKETCH as the partial program (Figure~\ref{fig:sketch}). SKETCH will configure
+the atom template by setting \texttt{choice} to 0 and \texttt{constant} to 1.
+On the other hand, if the codelet x = x * x was supplied as the SKETCH
+specification, SKETCH would return an error because the specification cannot be
+mapped to any of the computations provided by the atom template.
 
 Using SKETCH to represent atom templates allows us to express diverse atom
-templates (\S\ref{s:eval}) using a common imperative syntax. Because different
-\absmachine instances only differ in the atom templates they provide, using
-SKETCH to configure atoms allows us to build a retargetable compiler~\cite{lcc}
-with little target-dependent work beyond specifying each target's atom
-templates as partial programs in SKETCH.
+templates (Table~\ref{tab:templates}) using a natural imperative syntax.
+Because different \absmachine instances only differ in their atom templates,
+using SKETCH to configure atoms lets us build a retargetable
+compiler~\cite{lcc} with little target-dependent work beyond specifying each
+target's atom templates as partial programs in SKETCH.
 
 \subsection{Verifying compilations}
 \label{ss:verification}
