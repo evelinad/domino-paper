@@ -1,7 +1,7 @@
 \section{Limitations and Future Work}
 \label{s:limitations}
 
-\subsection{Limitations}
+\textbf{Limitations}
 While \pktlanguage's compiler guarantees correctness, it doesn't attempt
 optimality.  Specifically, \pktlanguage doesn't reduce or consolidate the
 number of packet temporary variables it creates. By flattening all statements
@@ -33,7 +33,7 @@ future, if P4 supports sequential execution, \pktlanguage could target P4 as a
 backend, allowing us to leverage ongoing work ~\cite{netronome,
 xilinx,lavanya_compiler} in compiling P4 to hardware targets.
 
-\subsection{Future Work}
+\textbf{Future Work}
 Currently, \pktlanguage rejects programs that don't compile with an error
 message.  In the future, we plan to improve upon this by automatically
 suggesting ways in which the user could approximate the program so that it

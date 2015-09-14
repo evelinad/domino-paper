@@ -257,7 +257,7 @@ consider codelets that do and don't manipulate state separately because we
 handle each separately.
 
 %TODO: Alvin can you read this and check if it makes sense?
-\paragraph{Stateless codelets}
+\textbf{Stateless codelets}
 Expression flattening generates stateless codelets that each have only one
 instruction in three-address code form (e.g. any of the unshaded boxes in
 Figure~\ref{fig:flowlet}b). For this paper, we assume that all \absmachine
@@ -275,7 +275,7 @@ instance, if the \absmachine instance supports a multiply-and-accumulate
 atom~\cite{mac}, expression flattening would generate two atoms (one each for
 the multiply and accumulate), where one suffices.
 
-\paragraph{Stateful codelets}
+\textbf{Stateful codelets}
 Stateful codelets have multi-line bodies that need to execute atomically. For
 instance, updating the state variable \texttt{saved\_hop} in
 Figure~\ref{fig:flowlet}b requires a read, followed by a conditional write.  It
