@@ -39,8 +39,6 @@ required for deployments. Network Processors~\cite{ixp2800, ixp4xx} (NPUs) were
 an attempt to bridge the gap.  While NPUs are faster than software routers,
 they still remain an order of magnitude slower than merchant silicon
 chips~\cite{rmt} and have not found success in the market~\cite{npfail}.
-%TODO: Maybe cite Nick's talk on NPUs from the early 2000s.
-% TODO: Cite Amy's Flexplane paper, not sure how to cite it.
 
 Another approach uses FPGAs to improve over software routers and NPUs; examples
 include NetFPGA~\cite{netfpga}, Switchblade~\cite{switchblade},
@@ -96,11 +94,6 @@ assignment form~\cite{ssa}, and if conversion~\cite{if_conversion}, all of
 which are well-understood in the compiler literature. However, \pktlanguage's
 constrained design allows us to considerably simplify these techniques relative
 to their use in mainstream compilers.
-
-%\tester can be viewed as an informal
-%counterpart of translation validation~\cite{necula_translation_validation},
-%which guarantees that a compiler pass preserves program semantics.
-% TODO: Consider removing translation validation. Too flaky?
 
 The use of strongly connected components to determine atom bodies is based on
 similar uses in software pipelining~\cite{software_pipelining} for VLIW and DSP

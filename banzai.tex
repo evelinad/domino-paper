@@ -2,7 +2,6 @@
 \label{s:absmachine}
 
 %TODO: Say somewhere that all references to state are switch state.
-%TODO: We need to define line rate somewhere.
 
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{banzai.pdf}
@@ -29,8 +28,10 @@ before being transmitted from the switch.
 
 \absmachine models a switch pipeline such as the ingress or egress pipelines. A
 pipeline consists of a number of pipeline stages that execute synchronously on
-every time step. Each stage is assumed to have one time step of latency. Once a
-pipeline stage processes a packet, it hands it off to the next pipeline stage.
+every time step. Each stage is assumed to have one time step of latency, and
+the inverse of this time step is the line rate supported by the pipeline. Once
+a pipeline stage processes a packet, it hands it off to the next pipeline
+stage.
 
 As an abstract machine, \absmachine only models the components that are
 critical to mapping data-plane algorithms. In particular, it models the
@@ -104,6 +105,5 @@ different computations natively.
 
 These two execution models are not exhaustive: as programmable switches evolve,
 we expect the computational capabilities of atoms to evolve as well. However,
-atoms cannot be arbitrarily complex: a programmable switch's achievable line
-rate is inversely proportional to the worst-case execution latency of its
-atoms.
+atoms cannot be arbitrarily complex: a programmable switch's line rate is
+inversely proportional to the maximum execution latency among all its atoms.
