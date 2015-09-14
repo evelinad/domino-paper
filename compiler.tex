@@ -287,7 +287,7 @@ stateful codelets, given as input the stateful atom template provided by the
 An atom template defines a space of possible computations (such as different
 ALU operations, or different permitted sequences of N three-address
 instructions).  The exact computation is selected by \textit{configuring} the
-atom. The codelet is a specification that is to be matched for functional
+atom. The codelet is a specification that is to be checked for functional
 equivalence against one of these atom configurations. In other words, we need
 to \textit{synthesize} the atom's \textit{configuration}, given an \textit{atom
 template} describing the atom's functionality.
@@ -348,9 +348,12 @@ Let's say we want to map the codelet x=x+1 to this atom. The codelet is then
 fed into SKETCH as the desired specification and the atom template is fed into
 SKETCH as the partial program (Figure~\ref{fig:sketch}). SKETCH will configure
 the atom template by setting \texttt{choice} to 0 and \texttt{constant} to 1.
-On the other hand, if the codelet x = x * x was supplied as the SKETCH
-specification, SKETCH would return an error because the specification cannot be
-mapped to any of the computations provided by the atom template.
+On the other hand, if the codelet x = x * x was supplied as the specification,
+SKETCH will return an error because the specification cannot be mapped to any
+of the computations provided by the atom template. We don't describe the
+algorithms underlying SKETCH because we treat SKETCH as a blackbox in the
+\pktlanguage compiler. The interested reader is referred to~\cite{bitstreaming,
+sketch_asplos} for a more detailed treatment of these topics.
 
 Using SKETCH to represent atom templates allows us to express diverse atom
 templates (Table~\ref{tab:templates}) using a natural imperative syntax.
@@ -373,6 +376,7 @@ transaction and generate the set of all packet fields read from or written to
 by the transaction. We then initialize each of these fields by sampling
 independently and uniformly from the space of all 32-bit signed integers.
 
+% TODO: Mihai thought I could shrink this.
 To compare outputs from the packet transaction and its implementation, we track
 renames that occur because of SSA. We compare each output field in the
 transactional form with the last rename of the same output field in the
