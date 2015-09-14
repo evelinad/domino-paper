@@ -1,7 +1,7 @@
 \subsection*{Abstract}
 
 Data-plane algorithms are algorithms that execute on every packet and encompass
-a wide variety of packet processing routines including congestion control,
+a wide variety of packet-processing routines including congestion control,
 network measurement, active queue management, and load balancing. Such 
 algorithms are implemented in hardware today, whose inflexibility prohibits
 experiments with new designs. While programmable switches have been proposed, 
@@ -12,8 +12,9 @@ This paper presents \pktlanguage, a new language for expressing data-plane
 algorithms on programmable switches. \pktlanguage is a high-level, imperative
 language where developers express data-plane algorithms using packet functions
 with transactional semantics. We have implemented a compiler that translates
-\pktlanguage programs into pipelined implementations that run on \absmachine, a
-family of abstract machines resembling emerging programmable switch
+\pktlanguage programs into pipelined implementations that run on \absmachine (for
+Protocol-Independent Switch Architecture), a
+family of abstract machines modeled after emerging programmable switch
 architectures. We evaluate \pktlanguage by expressing several well-known
 data-plane algorithms and compiling them to different instances of the
 \absmachine family.
