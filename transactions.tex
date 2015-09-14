@@ -83,9 +83,9 @@ These represent hardware primitives provided by the abstract machine that
 aren't interpreted by \pktlanguage. The \pktlanguage compiler uses the
 signature of intrinsic functions to infer dependencies and supplies a canned
 run-time implementation for these functions, but otherwise doesn't interpret or
-analyze their implementation. Finally, the packet
+analyze their implementation. The packet
 transaction's body is written in a constrained subset of C that excludes all
-iterative constructs. The function body can include if and else-if statements,
+iterative constructs. It can include if-else statements,
 but all other control transfer (break, goto, switch, return, and continue
 statements) is forbidden.
 
@@ -93,18 +93,19 @@ statements) is forbidden.
 as state variables, but with restrictions. While a packet transaction's body is
 being executed for a specific packet, all accesses to an array variable must use the
 same index. For subsequent packets, this index can be different. For instance,
-all accesses to the arrays \texttt{last\_time} and \texttt{saved\_hop} use the
-index \texttt{pkt.id} that is constant for each packet, but changes from one
+all accesses to the array \texttt{last\_time} use the
+index \texttt{pkt.id}, which is constant for each packet, but changes from one
 packet to the next. This restriction simplifies the treatment of arrays in the
 compiler, while still allowing us to express several data-plane algorithms of
 practical interest.
+%
+%These restrictions seem severe at first glance, but are required to provide
+%deterministic performance guarantees. Memory allocation, unbounded iteration
+%counts for loops, and unrestricted control transfer all cause variable run-time
+%performance.
+%
 
-These restrictions seem severe at first glance, but are required to provide
-deterministic performance guarantees. Memory allocation, unbounded iteration
-counts for loops, and unrestricted control transfer all cause variable run-time
-performance.
-
-When compiled to an instance of the \absmachine abstract machine (\S\ref{s:absmachine}), the
+When compiled to an instance of \absmachine (\S\ref{s:absmachine}), the
 \pktlanguage compiler converts the code in Figure~\ref{fig:flowlet}a into the
 pipelined form shown in Figure~\ref{fig:flowlet}b. Today, programmable switch
 chips are programmed by manually specifying low-level pipeline configurations
