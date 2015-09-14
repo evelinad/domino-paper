@@ -41,7 +41,7 @@ high burden on network programmers who are used to writing sequential programs
 in a high-level language (such as C) for software routers~\cite{click} and
 network processors~\cite{ixp4xx, ixp2800}.
 
-In this paper, we present \pktlanguage, a new DSL for expressing data-plane
+This paper presents \pktlanguage, a new DSL for expressing data-plane
 algorithms. \pktlanguage is a high-level, imperative language based on C that
 allows programmers to express data-plane algorithms using {\em packet
 transactions} (\S\ref{s:transactions}). Packet transactions provide the
@@ -53,9 +53,10 @@ by the switch pipeline.
 
 We have implemented a compiler for \pktlanguage that compiles \pktlanguage
 packet transactions and generates code for a family of abstract machines called
-\absmachine~(\S\ref{s:absmachine}). \absmachine generalizes recent work on the
-Reconfigurable Match Table~\cite{rmt} model and captures the essential features
-of emerging programmable switch architectures~\cite{rmt, xpliant, flexpipe}.
+\absmachine~(\S\ref{s:absmachine}) (for Protocol-Independent Switch
+Architecture). \absmachine generalizes recent work on the Reconfigurable Match
+Table~\cite{rmt} model and captures the essential features of emerging
+programmable switch architectures~\cite{rmt, xpliant, flexpipe}.
 
 In addition, \absmachine introduces the concept of {\em atoms} to represent
 atomic computations provided natively by an instance of \absmachine much like
