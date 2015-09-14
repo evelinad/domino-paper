@@ -69,13 +69,13 @@ similar to how an atomic test-and-set is used to implement an atomic increment.
 The \pktlanguage compiler guarantees deterministic performance for packet
 transactions: all packet transactions that are implementable on a given switch
 architecture will be executed at the switch's line rate, or they will be
-rejected by the compiler if the atoms available in a \absmachine instance cannot
+rejected by the compiler if the atoms provided by a \absmachine instance cannot
 implement the programmer-supplied transaction.
 
 To evaluate the usefulness of \pktlanguage, we use \pktlanguage to express
 several data-plane algorithms~(\S\ref{s:eval}) such as flowlet
 switching~\cite{flowlets}, data-plane bloom filters~\cite{bloom}, heavy-hitter
-detection, CoDel~\cite{codel}, and CONGA~\cite{conga}---each algorithm taking
+detection~\cite{opensketch}, and CONGA~\cite{conga}---each algorithm taking
 up less than a hundred lines of \pktlanguage code.  The \pktlanguage compiler
 determines if each algorithm can run at line rate for several instances of
 \absmachine that differ in the atoms they provide~(Table~\ref{table:eval}).
