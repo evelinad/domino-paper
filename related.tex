@@ -3,14 +3,15 @@
 
 \textbf{Data-Plane Algorithms}
 Several data-plane algorithms are now commonplace and available in all
-switches. Canonical examples are lookup algorithms based on longest-prefix
-match, exact match, ternary match and range-search. \pktlanguage focuses on
-data-plane algorithms that aren't widely available because of the considerable
-engineering effort required for hardware implementations. Further, the rapidly
-growing list of new algorithms~\cite{pdq, d3, detail, codel, conga} makes it
-challenging to commit to a hardware implementation for any of them.  Expressing
-these in \pktlanguage allows network programmers to iterate on these algorithms
-at software timescales.
+switches. Canonical examples are lookup algorithms based on longest-prefix,
+exact, or ternary matches. \pktlanguage focuses on data-plane algorithms that
+aren't in wide-spread use and hence aren't widely available because of the
+considerable engineering effort required for hardware implementations. Further,
+the rapidly growing list of new algorithms~\cite{pdq, d3, detail, codel, conga}
+makes it challenging to commit to a hardware implementation for any of them.
+Expressing these in \pktlanguage allows network programmers to iterate on these
+algorithms at software timescales without committing hardware to any one
+algorithm.
 
 \textbf{Abstract machines for line-rate switches}
 The protocol-independent switch architecture~\cite{nick_p4} and P4's abstract
@@ -32,8 +33,8 @@ atom through atom templates.
 
 \textbf{Programmable Data Planes}
 Several programmable data planes exist today. Software-based solutions such as
-Click~\cite{click}, RouteBricks~\cite{routebricks}, and Fastpass~\cite{fastpass}
-are flexible but currently lack the performance
+Click~\cite{click}, RouteBricks~\cite{routebricks}, and
+Fastpass~\cite{fastpass} are flexible but currently lack the performance
 required for deployments. Network Processors~\cite{ixp2800, ixp4xx} (NPUs) were
 an attempt to bridge the gap.  While NPUs are faster than software routers,
 they still remain an order of magnitude slower than merchant silicon
@@ -42,15 +43,15 @@ chips~\cite{rmt} and have not found success in the market~\cite{npfail}.
 % TODO: Cite Amy's Flexplane paper, not sure how to cite it.
 
 Another approach uses FPGAs to improve over software routers and NPUs; examples
-include NetFPGA~\cite{netfpga}, Switchblade~\cite{switchblade}, Chimpp~\cite{chimpp},
-and~\cite{silver_bullet}. These designs lag in performance relative to switching
-ASICs, and are rarely used today in production network equipment. The Arista
-7124 FX~\cite{7124fx} is a commercial switch with an on-board FPGA for
-latency-critical applications, but its capacity is limited to only 160
-Gbits/sec when using the on-board FPGA---an order of magnitude less than the
-multi-terabit aggregate capacity of programmable merchant-silicon
-chips~\cite{xpliant}. In addition, FPGAs are not a convenient programming
-platform.
+include NetFPGA~\cite{netfpga}, Switchblade~\cite{switchblade},
+Chimpp~\cite{chimpp}, and~\cite{silver_bullet}. These designs lag in
+performance relative to switching ASICs, and are rarely used today in
+production network equipment. The Arista 7124 FX~\cite{7124fx} is a commercial
+switch with an on-board FPGA for latency-critical applications, but its
+capacity is limited to only 160 Gbits/sec when using the on-board FPGA---an
+order of magnitude less than the multi-terabit aggregate capacity of
+programmable merchant-silicon chips~\cite{xpliant}. In addition, FPGAs are not
+a convenient programming platform.
 
 Relative to these systems, \pktlanguage seeks to provide the best of both
 worlds: the line-rate performance of switching ASICs along with a high-level
@@ -60,22 +61,23 @@ programming model that is natural to network programmers.
 Many systems ease the process of programming the network control plane.
 Examples include Frenetic~\cite{frenetic} and Pyretic~\cite{pyretic}. We refer
 the reader to~\cite{language_survey} for a survey of such approaches.
-\pktlanguage focuses on the data plane, not the control plane.
+In contrast, \pktlanguage focuses on the data plane, not the control plane.
 
-Several DSLs explicitly target data-plane packet processing. Click~\cite{click} uses C++
-to write packet-processing code for software routers. Imperative languages such
-as NOVA~\cite{nova}, packetC~\cite{packetc} Intel's auto-partitioning C
-compiler~\cite{intel_uiuc_pldi},PacLang~\cite{paclang_lang,
+Several DSLs explicitly target data-plane packet processing. Click~\cite{click}
+uses C++ to express packet processing for software routers. Imperative
+languages such as NOVA~\cite{nova}, packetC~\cite{packetc} Intel's
+auto-partitioning C compiler~\cite{intel_uiuc_pldi},PacLang~\cite{paclang_lang,
 paclang_partitioner} and Microengine C~\cite{microenginec, intel_ixa} target
-network processors such as the Intel IXP~\cite{ixp2800, ixp4xx}.  PX~\cite{PX}
-is a language that targets packet processing on FPGA platforms.
+network processors such as the Intel IXP~\cite{ixp2800, ixp4xx}.
+%PX~\cite{PX}
+%is a language that targets packet processing on FPGA platforms.
 
-\pktlanguage's use of C syntax and the implicit sequential semantics of C are
-inspired by these languages. However \pktlanguage is more constrained than its
-predecessors: for instance, \pktlanguage forbids loops and includes no
-synchronization constructs because all state is internal to an atom. These were
-deliberately chosen to target line-rate switching chips with deterministic
-performance and shared-nothing memory architectures.
+\pktlanguage's use of C syntax and sequential semantics are inspired by these
+languages. However \pktlanguage is more constrained than its predecessors: for
+instance, \pktlanguage forbids loops and includes no synchronization constructs
+because all state is internal to an atom. These were deliberately chosen to
+target line-rate switching chips with deterministic performance and
+shared-nothing memory architectures.
 
 As a result, \pktlanguage's compiler presents a different programming model
 relative to these prior systems: all \pktlanguage programs that compile run at
@@ -93,19 +95,21 @@ concurrency and pipelining.
 assignment form~\cite{ssa}, and if conversion~\cite{if_conversion}, all of
 which are well-understood in the compiler literature. However, \pktlanguage's
 constrained design allows us to considerably simplify these techniques relative
-to their current uses in compilers. \tester can be viewed as an informal
-counterpart of translation validation~\cite{necula_translation_validation},
-which guarantees that a compiler pass preserves program semantics.
+to their use in mainstream compilers.
+
+%\tester can be viewed as an informal
+%counterpart of translation validation~\cite{necula_translation_validation},
+%which guarantees that a compiler pass preserves program semantics.
 % TODO: Consider removing translation validation. Too flaky?
 
-\pktlanguage use of strongly connected components to determine atom bodies is
-based on similar uses in software pipelining~\cite{software_pipelining} for
-VLIW and DSP architectures. However, dependence analysis for loop-carried
-dependencies in software pipelining (equivalent to state in \pktlanguage) is
-more involved than the simple syntactic analysis of dependencies employed by
-\pktlanguage. Lastly, the use of synthesis to fit atom bodies into sketches is
-based on Chlorophyll's~\cite{chlorophyll} use of program synthesis for
-compilation to unorthodox targets.
+The use of strongly connected components to determine atom bodies is based on
+similar uses in software pipelining~\cite{software_pipelining} for VLIW and DSP
+architectures. However, dependence analysis for loop-carried dependencies in
+software pipelining (equivalent to state in \pktlanguage) is more involved than
+the simple syntactic analysis of dependencies employed by \pktlanguage. Lastly,
+the use of synthesis to fit atom bodies into sketches is based on
+Chlorophyll's~\cite{chlorophyll} use of program synthesis for compilation to
+unorthodox targets.
 
 \textbf{Hardware compilation}
 Prior work ~\cite{nurvadathi, cash, bluespec} has focused on deriving hardware
@@ -116,7 +120,7 @@ all-or-nothing approach to performance: all code that compiles can run at
 line rate or is rejected by the compiler.
 
 Mapping from codelets to atoms is similar to technology mapping~\cite{micheli,
-flowmap, spectransform} where a target hardware circuit (represented as a
+flowmap, spectransform}, where a target hardware circuit (represented as a
 graph) is implemented by tiling the graph with several primitive circuits
 available in a technology library. However, our problem is simpler because we
 only need to verify if a specific codelet maps to a specific atom template; we
