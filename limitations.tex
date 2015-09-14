@@ -8,24 +8,22 @@ number of temporaries it creates. By flattening all statements to three-operand
 code form, it doesn't take advantage of more powerful atoms that might be
 available in the \absmachine instance.
 
-Taken together, this increases the width (because of redundant atoms that
-compute the same value twice in the same stage) and depth of the resulting
-pipeline (expression flattening could cause an additional stage, where one
-stage would have sufficed). We plan to address this by incorporating both
-standard compiler optimizations such as common subexpression elimination, copy
-propagation, and dead code elimination, and techniques such as
-superoptimization~\cite{stoke, superoptimizer} that explicitly target optimal
-code.
+This increases the width (because of redundant atoms that compute the same
+value twice in the same stage) and depth of the resulting pipeline (expression
+flattening could cause an additional stage, where one stage would have
+sufficed). We plan to address this by incorporating both standard compiler
+optimizations such as common subexpression elimination, copy propagation, and
+dead code elimination, and techniques such as superoptimization~\cite{stoke,
+superoptimizer} that explicitly target optimal code.
 
 The \pktlanguage compiler currently only handles a single packet transaction
 running on the abstract machine.  Extending \pktlanguage and its compiler to
-handle multiple potentially interacting packet transactions is another area of
-future work.
+handle multiple interacting packet transactions is another area of future work.
 
 % Anirudh->Hari: Do you buy this?
 Lastly, \pktlanguage doesn't yet generate code for actual hardware. We
 initially considered compiling \pktlanguage to P4, but decided against it
-because P4 currently has no constructs for sequential execution within a
+because P4 currently doesn't support sequential execution within a
 pipeline stage---required to correctly execute the codelets/atoms produced by
 \pktlanguage. Based on this work, we have submitted a proposal for sequential
 execution~\cite{p4-semantics} to the P4 language consortium. In the future, if
