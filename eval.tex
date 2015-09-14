@@ -111,54 +111,55 @@ CONGA~\cite{conga} & \pbox{0.74\textwidth}{Update best path's utilization/id if 
 %10. Alvin's feedback: Write about our experience writing these programs. Similar to Steven Chong's PLDI paper.
 To evaluate \pktlanguage, we express several well-known data-plane algorithms
 (Table~\ref{tab:algos}) using \pktlanguage and determine if they are
-implementable on different \absmachine instances that differ in the stateful
-atoms (Table~\ref{tab:templates}) that each provides.
+implementable on different \absmachine instances that provide different
+stateful atoms (Table~\ref{tab:templates}).
 
 \subsection{Experimental procedure}
 As mentioned earlier, we consider only stateful atoms because we assume
-three-address code instructions map one-to-one to stateless atoms for all
+stateless codelets map one-to-one to stateless atoms for all
 \absmachine instances. For simplicity, the stateful atoms we consider only
 permit updates to state variables and forbid packet field updates that might be
-mixed in with state updates. Assuming the \absmachine instance provides an atom
+result from these state updates. Assuming the \absmachine instance provides an atom
 to read a state variable\footnote{We think this is reasonable because the
 inability to read a state variable renders them meaningless!}, such packet
 updates can be treated as stateless operations in subsequent pipeline stages.
 
-To represent atoms succinctly using their atom templates in
-Table~\ref{tab:templates}, we use a shorthand notation for SKETCH, using ``x''
-and ``y'' for state variables, and using muxN(a1, a2, ..., aN) to represent a
-configurable choice between N operands such as the choice made by the 2-to-1
-multiplexer in Figure~\ref{fig:sketch}a.
+We represent atoms using their atom templates in Table~\ref{tab:templates},
+employing a shorthand notation for SKETCH. We use ``x'' and ``y'' for state
+variables, and muxN(a1, a2, ..., aN) to represent a configurable choice between
+N operands such as the choice made by the 2-to-1 multiplexer in
+Figure~\ref{fig:sketch}a.
 
-Table~\ref{tab:templates} gradually increases the expressiveness of the
-stateful atom provided by an \absmachine instance. These atoms form a
-containment hierarchy: going from left to right in Table~\ref{table:eval}, each
-atom is strictly more expressive than its predecessor to its left and hence can
-express all algorithms that its predecessor can.
+%Anirudh->Alvin: Is it clear now that each instance provides exactly one atom.
+We also assume every \absmachine instance provides exactly one
+stateful atom.  Table~\ref{tab:templates} gradually increases the capability of
+this single atom provided by a \absmachine instance.  The atoms in
+Table~\ref{tab:templates} form a containment hierarchy: going from top to
+bottom, each atom is strictly more expressive than its predecessor to the top
+and hence can express all data-plane algorithms that its predecessor can.
 
-We now consider every atom from Table~\ref{tab:templates}, and every data-plane
-algorithm from Table~\ref{tab:algos} to determine if each algorithm is
-\textit{implementable} using a particular atom. We say an algorithm is
-implementable using a particular atom if every stateful codelet within the
-algorithm can be successfully mapped to that atom's template using the
-procedure in \S\ref{ss:code_gen}.
+We now consider every atom/\absmachine instance from Table~\ref{tab:templates},
+and every data-plane algorithm from Table~\ref{tab:algos} to determine if each
+algorithm is \textit{implementable} on a particular \absmachine instance. We
+say an algorithm is implementable on a \absmachine instance, if every stateful
+codelet within the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to
+the single stateful atom provided by the \absmachine instance.
 
 \subsection{Interpreting these results}
 Table~\ref{table:eval} presents our results. There are two ways to interpret
 them. For a network programmer, the matrix in Table~\ref{table:eval} tells her
-if a particular data-plane algorithm can be implemented at line rate after a
-programmable switch has been built, assuming the \absmachine instance provides
-a particular atom.
+if a particular data-plane algorithm can be implemented at line rate, assuming
+the \absmachine instance provides a particular stateful atom.
 
 For an ASIC engineer designing programmable switching chips, the same table
 describes the algorithms that are implementable with a particular atom. For
-instance, the paired updates atom can implement all algorithms shown in
+instance, the paired updates atom can implement all six algorithms shown in
 Table~\ref{table:eval}, while a simpler increment atom can implement only
-two of the six algorithms.
+two.
 
 These results will change as programmable switches evolve and network
 programmers continuously push chip boundaries with new algorithms.  The larger
 takeaway from this evaluation is that programming in \pktlanguage allows us to
 rigorously determine if a particular high-level algorithm is implementable at
-line rate using a particular atom and conversely, if a particular atom suffices
-to implement a large number of algorithms.
+line rate on a particular \absmachine instance and conversely, if a particular
+atom suffices to implement a large number of algorithms.
