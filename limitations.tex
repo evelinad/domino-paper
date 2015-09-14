@@ -4,34 +4,35 @@
 \textbf{Limitations}
 While \pktlanguage's compiler guarantees correctness, it doesn't attempt
 optimality.  Specifically, \pktlanguage doesn't reduce or consolidate the
-number of packet temporary variables it creates. By flattening all statements
-to three-operand code form, it doesn't take advantage of more powerful atoms
-that might be available in the \absmachine instance.
+number of temporaries it creates. By flattening all statements to three-operand
+code form, it doesn't take advantage of more powerful atoms that might be
+available in the \absmachine instance.
 
-Taken together, this increases the width (because there might be redundant
-atoms that compute the same quantity twice in the same stage) and depth of the
-resulting pipeline (expression flattening could cause an additional stage,
-where one stage would have sufficed). We plan to address this by incorporating
-both standard compiler optimizations such as common subexpression elimination,
-copy propagation, and dead code elimination, and techniques such as
-superoptimization~\cite{stoke, superoptimizer} that explicitly aim for optimal
+Taken together, this increases the width (because of redundant atoms that
+compute the same value twice in the same stage) and depth of the resulting
+pipeline (expression flattening could cause an additional stage, where one
+stage would have sufficed). We plan to address this by incorporating both
+standard compiler optimizations such as common subexpression elimination, copy
+propagation, and dead code elimination, and techniques such as
+superoptimization~\cite{stoke, superoptimizer} that explicitly target optimal
 code.
 
-We also currently assume there is only one packet transaction that needs to be
-implemented by \pktlanguage. Extending \pktlanguage to handle multiple
-potentially interacting packet transactions is another area of future work.
+The \pktlanguage compiler currently only handles a single packet transaction
+running on the abstract machine.  Extending \pktlanguage and its compiler to
+handle multiple potentially interacting packet transactions is another area of
+future work.
 
 % Anirudh->Hari: Do you buy this?
-Lastly, \pktlanguage doesn't currently generate an implementation that runs on
-a programmable switch. We initially considered compiling \pktlanguage to
-P4, but decided against it because P4 currently has no constructs for
-sequential execution within a pipeline stage. Sequential execution within a
-stage is required to execute the codelets/atoms produced by \pktlanguage and
-guarantee correctness. Based on this work, we have submitted a proposal for
-sequential execution~\cite{p4-semantics} to the P4 language consortium. In the
-future, if P4 supports sequential execution, \pktlanguage could target P4 as a
-backend, allowing us to leverage ongoing work ~\cite{netronome,
-xilinx,lavanya_compiler} in compiling P4 to hardware targets.
+Lastly, \pktlanguage doesn't yet generate code for actual hardware. We
+initially considered compiling \pktlanguage to P4, but decided against it
+because P4 currently has no constructs for sequential execution within a
+pipeline stage---required to correctly execute the codelets/atoms produced by
+\pktlanguage. Based on this work, we have submitted a proposal for sequential
+execution~\cite{p4-semantics} to the P4 language consortium. In the future, if
+P4 supports sequential execution, \pktlanguage could target P4 as a backend,
+which would then allow \pktlanguage to compile to programmable switches by
+leveraging ongoing work~\cite{netronome, xilinx,lavanya_compiler} in compiling
+P4 to hardware targets.
 
 \textbf{Future Work}
 Currently, \pktlanguage rejects programs that don't compile with an error
@@ -39,17 +40,16 @@ message.  In the future, we plan to improve upon this by automatically
 suggesting ways in which the user could approximate the program so that it
 could compile. We imagine doing this in two ways. First, \pktlanguage could
 suggest ways to simplify a codelet that doesn't map so that it does map.
-Second, we could use primitives such as P4's recirculate primitive~\cite{p4spec}
-to send a packet back into the switch pipeline if the packet
-requires more processing than is available in one traversal of the switch
-pipeline. Reasoning about the semantics of these
+Second, we could use primitives such as P4's recirculate
+primitive~\cite{p4spec} to send a packet back into the switch pipeline if the
+packet requires more processing than is available in one traversal of the
+switch pipeline. Reasoning about the semantics of these
 approximations~\cite{sampsonApprox, chisel} is also another area for future
 work.
 
-We also plan to improve the \pktlanguage language by providing a stronger type
+We also plan to enhance the \pktlanguage language by providing a stronger type
 system, type inference, user-defined functions and types, and language
-constructs for packet processing such as match-action tables. Another area of
-future work is looking at whether \pktlanguage can be used (or extended) to
-express data-plane algorithms such as scheduling, active queue management, and
-buffer-management schemes such as Broadcom's dynamic buffer threshold policy.
-
+constructs for match-action tables. Another area of future work is looking at
+whether \pktlanguage can be used (or extended) to express data-plane algorithms
+such as scheduling, active queue management, and buffer-management
+schemes~\cite{broadcom_buffer}.
