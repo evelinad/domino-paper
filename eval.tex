@@ -104,8 +104,8 @@ CONGA~\cite{conga} & \pbox{0.74\textwidth}{Update best path's utilization/id if 
   CONGA                  & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
   \hline
   \end{tabular}
-\label{table:eval}
 \caption{Table summarizing algorithm implementability depending on the atoms provided by \absmachine}
+\label{table:eval}
 \end{table*}
 
 %10. Alvin's feedback: Write about our experience writing these programs. Similar to Steven Chong's PLDI paper.
@@ -117,7 +117,7 @@ atom templates (Table~\ref{tab:templates}) that they provide.
 \subsection{Experimental procedure}
 As mentioned earlier, we consider only stateful atom templates because we
 assume three-address code instructions map one-to-one to \absmachine atoms for
-stateless operations. Also, for simplicity, the atom templates we consider only
+stateless operations. For simplicity, the stateful atom templates we consider only
 permit updates to state variables and forbid packet field updates that might be
 mixed in with state updates. Assuming the \absmachine instance provides an atom
 template to read a state variable\footnote{We think this is reasonable because
@@ -132,31 +132,30 @@ Figure~\ref{fig:sketch}a.
 
 Table~\ref{tab:templates} gradually increases the expressiveness of atom
 templates provided by an \absmachine instance. These atom templates form a
-containment hierachy: going from left to right in Table~\ref{tab:templates}),
-each atom template is strictly more expressive than its predecessor to its left
-and hence can express all algorithms that its predecessor could.
+containment hierachy: going from left to right in Table~\ref{table:eval}, each
+atom template is strictly more expressive than its predecessor to its left and
+hence can express all algorithms that its predecessor can.
 
-We now look at every combination of atom templates from
+We now consider every combination of atom templates from
 Table~\ref{tab:templates}, and data-plane algorithms from Table~\ref{tab:algos}
 to determine if each algorithm is implementable using a particular atom
-template.  Table~\ref{table:eval} presents our results as a matrix.
+template.  Table~\ref{table:eval} presents our results.
 
 \subsection{Interpreting these results}
-There are two ways to interpret these results. From the perspective of a
-network programmer, the matrix in Table~\ref{table:eval} tells her whether a
-particular data-plane algorithm can be implemented at line-rate or not, given
-the availability of particular atom templates in the \absmachine instance.
+There are two ways to interpret these results. For a network programmer, the
+matrix in Table~\ref{table:eval} tells her if a particular data-plane algorithm
+can be implemented at line rate, given the availability of particular atom
+templates in the \absmachine instance.
 
-For an ASIC designer designing programmable switching chips, the same table
+For an ASIC engineer designing programmable switching chips, the same table
 describes the algorithms that are implementable with a particular atom. For
 instance, the paired updates atom can implement all algorithms shown in
 Table~\ref{table:eval}, while a simpler increment capability can implement only
 two of the six algorithms.
 
-These results will change as programmable switching chips evolve and network
-programmers continuously push the boundaries of these chips with new
-algorithms.  The larger takeaway from this evaluation is that programming in
-\pktlanguage allows us to empirically and rigorously determine if a particular
-high-level algorithm is implementable at line rate using the available atoms
-and conversely, if a particular atom suffices to implement a large number of
-algorithms.
+These results will change as programmable switches evolve and network
+programmers continuously push chip boundaries with new algorithms.  The larger
+takeaway from this evaluation is that programming in \pktlanguage allows us to
+rigorously determine if a particular high-level algorithm is implementable at
+line rate using the available atoms and conversely, if a particular atom
+suffices to implement a large number of algorithms.
