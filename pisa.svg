@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -6209,7 +6209,7 @@
          id="tspan5841-5"
          x="1789.6909"
          y="107.24341"
-         style="font-size:64px;font-weight:bold;-inkscape-font-specification:Arial Bold">The  Banzai abstract machine</tspan></text>
+         style="font-size:64px;font-weight:bold;-inkscape-font-specification:Arial Bold">The  PISA abstract machine</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:16;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker9616)"
        d="m 1419.8383,-310.77178 c 256,128 128,511.99978 -192,703.99978"
@@ -6227,7 +6227,7 @@
          sodipodi:role="line"
          id="tspan6926"
          x="3886.6667"
-         y="483.93393"></tspan></text>
+         y="483.93393" /></text>
   </g>
   <text
      xml:space="preserve"
