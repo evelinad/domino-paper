@@ -44,8 +44,8 @@
   \hline
   Paired Updates &
   {\begin{lstlisting}[style=customctable]
-  bit pred1 = mux3(pkt.f1, pkt.f2, ??) rel_op mux3(x, y,  ??);
-  bit pred2 = mux3(pkt.f1, pkt.f2, ??) rel_op mux3(x, y,  ??);
+  bit pred1 = mux3(x, y,  ??) rel_op mux3(pkt.f1, pkt.f2, ??);
+  bit pred2 = mux3(x, y,  ??) rel_op mux3(pkt.f1, pkt.f2, ??);
   if (pred1) {
     x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
     y = mux4(y, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
