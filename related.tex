@@ -10,7 +10,7 @@ considerable engineering effort required for hardware implementations. Further,
 the rapidly growing list of new algorithms~\cite{pdq, d3, detail, codel, conga}
 makes it challenging to commit to a hardware implementation for any of them.
 Expressing these in \pktlanguage allows network programmers to iterate on these
-algorithms at software timescales without committing hardware to any one
+algorithms at software timescales, without committing hardware to any one
 algorithm.
 
 \textbf{Abstract machines for line-rate switches}
@@ -63,9 +63,9 @@ In contrast, \pktlanguage focuses on the data plane, not the control plane.
 
 Several DSLs explicitly target data-plane packet processing. Click~\cite{click}
 uses C++ to express packet processing for software routers. Imperative
-languages such as NOVA~\cite{nova}, packetC~\cite{packetc} Intel's
-auto-partitioning C compiler~\cite{intel_uiuc_pldi},PacLang~\cite{paclang_lang,
-paclang_partitioner} and Microengine C~\cite{microenginec, intel_ixa} target
+languages such as NOVA~\cite{nova}, packetC~\cite{packetc}, Intel's
+auto-partitioning C compiler~\cite{intel_uiuc_pldi}, PacLang~\cite{paclang_lang,
+paclang_partitioner}, and Microengine C~\cite{microenginec, intel_ixa} target
 network processors such as the Intel IXP~\cite{ixp2800, ixp4xx}.
 %PX~\cite{PX}
 %is a language that targets packet processing on FPGA platforms.
@@ -115,6 +115,6 @@ line rate or is rejected by the compiler.
 Mapping from codelets to atoms is similar to technology mapping~\cite{micheli,
 flowmap, spectransform}, where a target hardware circuit (represented as a
 graph) is implemented by tiling the graph with several primitive circuits
-available in a technology library. However, our problem is simpler because we
+available in a technology library. \pktlanguage's problem is simpler because we
 only need to verify if a specific codelet maps to a specific atom template; we
 don't need to implement a codelet using multiple atoms.
