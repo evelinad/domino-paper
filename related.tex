@@ -5,21 +5,20 @@
 Several data-plane algorithms are now commonplace and available in all
 switches. Canonical examples are lookup algorithms based on longest-prefix,
 exact, or ternary matches. \pktlanguage focuses on data-plane algorithms that
-aren't in wide-spread use and hence aren't widely available because of the
-considerable engineering effort required for hardware implementations. Further,
-the rapidly growing list of new algorithms~\cite{pdq, d3, detail, codel, conga}
-makes it challenging to commit to a hardware implementation for any of them.
-Expressing these in \pktlanguage allows network programmers to iterate on these
-algorithms at software timescales, without committing hardware to any one
-algorithm.
+aren't widely available because of the considerable engineering effort required
+for hardware implementations. Further, the rapidly growing list of new
+algorithms~\cite{pdq, d3, detail, codel, conga} makes it challenging to commit
+to a hardware implementation for any of them.  Expressing these in \pktlanguage
+allows network programmers to iterate on these algorithms at software
+timescales, without committing hardware to any one algorithm.
 
 \textbf{Abstract machines for line-rate switches}
 The protocol-independent switch architecture~\cite{nick_p4} and P4's abstract
 switch model~\cite{p4} are two abstract machines for programmable switches.
 Relative to P4's abstract switch model, \absmachine contributes the notions of
 atoms, sequential execution within atoms, and state encapsulated by atoms.
-\absmachine can be seen as an executable instantiation of the
-protocol-independent switch architecture~\cite{nick_p4}.
+\absmachine can be seen as an executable and formal version of the
+protocol-independent switch architecture first proposed in~\cite{nick_p4}.
 
 Closest to \absmachine is NetASM~\cite{netasm}, which introduces an
 intermediate representation and abstract machine for programmable data planes.
@@ -27,8 +26,7 @@ intermediate representation and abstract machine for programmable data planes.
 two ways.  First, all state in \absmachine is internal to an atom (and hence
 internal to the atom's stage), while NetASM's ATM construct allows access to
 shared state from multiple pipeline stages. Second, \absmachine explicitly
-enforces constraints on the amount of useful work that can be carried out in an
-atom through atom templates.
+limits the amount of useful work that can be carried out in an atom.
 % --> Their cost models include area and latency. We leave this to P4.
 
 \textbf{Programmable Data Planes}
@@ -56,13 +54,13 @@ worlds: the line-rate performance of switching ASICs along with a high-level
 programming model that is natural to network programmers.
 
 \textbf{Packet-processing languages}
-Many systems ease the process of programming the network control plane.
-Examples include Frenetic~\cite{frenetic} and Pyretic~\cite{pyretic}. We refer
-the reader to~\cite{language_survey} for a survey of such approaches.
-In contrast, \pktlanguage focuses on the data plane, not the control plane.
+Many systems simplify programming the network control plane. Examples include
+Frenetic~\cite{frenetic}, Pyretic~\cite{pyretic}, and Maple~\cite{maple}. We
+refer the reader to~\cite{language_survey} for a survey of such approaches.  In
+contrast, \pktlanguage focuses on the data plane.
 
 Several DSLs explicitly target data-plane packet processing. Click~\cite{click}
-uses C++ to express packet processing for software routers. Imperative
+uses C++ for packet processing on software routers. Imperative
 languages such as NOVA~\cite{nova}, packetC~\cite{packetc}, Intel's
 auto-partitioning C compiler~\cite{intel_uiuc_pldi}, PacLang~\cite{paclang_lang,
 paclang_partitioner}, and Microengine C~\cite{microenginec, intel_ixa} target
@@ -70,18 +68,16 @@ network processors such as the Intel IXP~\cite{ixp2800, ixp4xx}.
 %PX~\cite{PX}
 %is a language that targets packet processing on FPGA platforms.
 
-\pktlanguage's use of C syntax and sequential semantics are inspired by these
-languages. However \pktlanguage is more constrained than its predecessors: for
-instance, \pktlanguage forbids loops and includes no synchronization constructs
+\pktlanguage's use of C syntax and sequential semantics is inspired by these
+languages. However \pktlanguage is constrained relative to its predecessors:
+for instance, it forbids loops and includes no synchronization constructs
 because all state is internal to an atom. These were deliberately chosen to
 target line-rate switching chips with deterministic performance and
-shared-nothing memory architectures.
-
-As a result, \pktlanguage's compiler presents a different programming model
-relative to these prior systems: all \pktlanguage programs that compile run at
-line-rate, while those that can't run at line rate are rejected outright. There
-is no slippery slope of degrading performance as the program's complexity
-increases.
+shared-nothing memory architectures.  As a result, \pktlanguage's compiler
+presents a different programming model relative to these prior systems: all
+\pktlanguage programs that compile run at line-rate, while those that can't run
+at line rate are rejected outright. There is no slippery slope of degrading
+performance as the program's complexity increases.
 
 P4~\cite{p4} is an emerging packet-processing language that explicitly targets
 line-rate programmable switching chips. However, P4's language constructs
@@ -99,10 +95,9 @@ The use of strongly connected components to determine atom bodies is based on
 similar uses in software pipelining~\cite{software_pipelining} for VLIW and DSP
 architectures. However, dependence analysis for loop-carried dependencies in
 software pipelining (equivalent to state in \pktlanguage) is more involved than
-the simple syntactic analysis of dependencies employed by \pktlanguage. Lastly,
-the use of synthesis to fit atom bodies into sketches is based on
-Chlorophyll's~\cite{chlorophyll} use of program synthesis for compilation to
-unorthodox targets.
+the simple syntactic employed by \pktlanguage. The use of synthesis to map
+codelets to atoms is based on Chlorophyll's~\cite{chlorophyll} use of program
+synthesis for compilation to unconventional targets.
 
 \textbf{Hardware compilation}
 Prior work ~\cite{nurvadathi, cash, bluespec} has focused on deriving hardware
