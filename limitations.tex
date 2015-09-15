@@ -2,32 +2,32 @@
 \label{s:limitations}
 
 \textbf{Limitations}
-While \pktlanguage's compiler guarantees correctness, it doesn't attempt
-optimality.  Specifically, \pktlanguage doesn't reduce or consolidate the
-number of temporaries it creates. By flattening all statements to three-operand
-code form, it doesn't take advantage of more powerful atoms that might be
-available in the \absmachine instance. By mapping stateful codelets to stateful
-atoms one-to-one, it doesn't take advantage of more powerful atoms, such as the
-paired update atom, which could express the operations of two stateful codelets
-in one atom.
+While \pktlanguage's compiler guarantees correctness, it doesn't guarantee
+optimality.  The \pktlanguage compiler doesn't reduce or consolidate the number
+of temporaries it creates. By flattening all statements to three-operand code
+form, it doesn't take advantage of more powerful atoms provided by the
+\absmachine instance. By mapping stateful codelets to stateful atoms
+one-to-one, it doesn't take advantage of more powerful stateful atoms, such as
+the paired update atom, which could express the operations of two stateful
+codelets in one atom.
 
-This increases the width and depth of the resulting pipeline. For instance,
-redundant stateless atoms that compute the same value twice in the same stage increase
-the pipeline width. Similarly, consider a data-plane algorithm such as a heavy
-hitter detection with $k$ hash functions. This results in $k$ stateful codelets
-with no dependencies between themselves, each of which increments a state
-variable. If a paired update atom was available, these $k$ stateful codelets
-could be consolidated into $\frac{k}{2}$ atoms, each of which operated on a
-pair of state variables. Mapping stateful codelets to atoms one-to-one misses
-this opportunity and increases the width of the pipeline by creating additional
-stateful atoms. Similarly, expression flattening could cause an additional stage,
-where one stage would have sufficed, increasing the pipeline depth in the process.
+These are suboptimal because they increase the width and depth of the resulting
+pipeline. For instance, redundant stateless atoms that compute the same value
+twice in the same stage increase the pipeline width. As another example,
+consider the heavy hitter detection algorithm with $k$ hash functions.  This
+results in $k$ stateful codelets with no dependencies between each other, and
+each of these codelets increments a state variable. If a paired update atom was
+available, these $k$ stateful codelets could be consolidated into $\frac{k}{2}$
+atoms, each of which operated on two state variables.  Mapping stateful
+codelets to atoms one-to-one misses this opportunity and increases pipeline
+width by creating additional stateful atoms.  As a final example, expression
+flattening could cause an additional stage and elongate the pipeline, where one
+stage would have sufficed.
 
-We plan to address these suboptimalities by incorporating both standard
-compiler optimizations such as common subexpression elimination, copy
-propagation, and dead code elimination, and techniques such as
-superoptimization~\cite{stoke, superoptimizer} that explicitly target optimal
-code.
+We plan to address these by incorporating both standard compiler optimizations
+such as common subexpression elimination, copy propagation, and dead code
+elimination, and techniques such as superoptimization~\cite{stoke,
+superoptimizer} that explicitly target optimal code.
 
 The \pktlanguage compiler currently only handles a single packet transaction
 running on the abstract machine.  Extending \pktlanguage and its compiler to
