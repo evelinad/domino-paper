@@ -45,17 +45,19 @@ burden on network programmers, who are used to writing sequential programs in a
 high-level language (such as C) for software routers~\cite{click} and network
 processors~\cite{ixp4xx, ixp2800}.
 
-This paper takes the natural evolution from SDKs to low-level languages to high-level
-languages to its logical extreme. We ask: what would a high-level language for
-data-plane programing look like? To answer this question, we present
-\pktlanguage, a new DSL for expressing data-plane algorithms. \pktlanguage is a
-high-level, imperative language based on C that allows programmers to express
-data-plane algorithms using {\em packet transactions} (\S\ref{s:transactions}).
-Packet transactions provide the abstraction of a sequential block of code that
-runs to completion on each packet before executing on the next packet. This is
-a convenient programming model, since it allows the programmer to focus on the
-operations needed for each packet without worrying about other packets
-concurrently being processed by the switch pipeline.
+This paper takes the natural evolution from SDKs to low-level languages to
+high-level languages to its logical extreme. We ask: what would a high-level
+language for data-plane programing look like?
+
+To answer this question, we present \pktlanguage, a new DSL for expressing
+data-plane algorithms. \pktlanguage is a high-level, imperative language based
+on C that allows programmers to express data-plane algorithms using {\em packet
+transactions} (\S\ref{s:transactions}).  Packet transactions provide the
+abstraction of a sequential block of code that runs to completion on each
+packet before executing on the next packet. This is a convenient programming
+model, since it allows the programmer to focus on the operations needed for
+each packet without worrying about other packets concurrently being processed
+by the switch pipeline.
 
 We have implemented a compiler for \pktlanguage that compiles \pktlanguage
 packet transactions and generates code for a family of abstract machines called
