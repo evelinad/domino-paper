@@ -75,9 +75,9 @@ architectures. The vector of atoms in each stage generalizes RMT's very-large
 instruction-word (VLIW)~\cite{rmt} that executes primitive actions on
 independent packet fields in parallel. The presence of internal state in an
 atom models persistent switch state residing on a switch such as meters,
-counters, and P4's register abstraction in a unified manner\footnote{We assume
-all state is initialized by the switch control plane, which we don't explicitly
-model in \absmachine}.
+counters, and P4's register abstraction in a unified manner. We assume all
+state is initialized by the switch control plane, which we don't explicitly
+model in \absmachine.
 
 \subsection{Constraining atoms}
 \absmachine assumes a synchronous pipeline where each atom executes on every
