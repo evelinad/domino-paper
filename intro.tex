@@ -36,16 +36,16 @@ Over time, languages such as P4~\cite{p4, p4spec} have raised the level of
 abstraction by providing a language that seeks to be protocol and target independent.
 
 While P4 considerably eases data-plane programming~\cite{dc_p4} relative to
-fixed SDKs, it still remains southbound relative to its
+fixed SDKs, it currently remains southbound relative to its
 counterparts~\cite{packetc, nova, click} for programming network processors and
-software routers. For instance, it requires the programmer to manually specify the sequence of
-match-action tables that every packet goes through. This forces programmers to
-reason about hardware details such as pipeline stages and tables, and places a high
-burden on network programmers, who are used to writing sequential programs in a
-high-level language (such as C) for software routers~\cite{click} and network
-processors~\cite{ixp4xx, ixp2800}.
+software routers. For instance, P4 requires the programmer to specify the
+sequence of match-action tables that every packet goes through, requiring
+programmers to understand hardware details such as pipeline stages and
+tables. Network programmers would prefer the convenience of a high-level
+language (such as C), similar to packet-processing languages for software
+routers~\cite{click} and network processors~\cite{ixp4xx, ixp2800}.
 
-This paper takes the natural evolution from SDKs to low-level languages to
+This paper takes this natural evolution from SDKs to low-level languages to
 high-level languages to its logical extreme. We ask: what would a high-level
 language for data-plane programing look like?
 
