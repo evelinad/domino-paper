@@ -10,10 +10,11 @@ used to program them.
 
 This paper presents \pktlanguage, a new language for expressing data-plane
 algorithms on programmable switches. \pktlanguage is a high-level, imperative
-language where developers express data-plane algorithms using packet functions
-with transactional semantics. We have implemented a compiler that translates
-\pktlanguage programs into pipelined implementations that run on \absmachine (for
-Protocol-Independent Switch Architecture), a
-family of abstract machines modeled after emerging programmable switch
-architectures. We evaluate \pktlanguage by expressing several well-known
-data-plane algorithms and compiling them to different \absmachine instances.
+language where developers express data-plane algorithms using packet
+transactions: sequential blocks of code that run to completion on each packet
+before processing the next one. We have implemented a compiler that translates
+\pktlanguage programs into pipelined implementations that run on \absmachine
+(for Protocol-Independent Switch Architecture), a family of abstract machines
+modeled after emerging programmable switch architectures. We evaluate
+\pktlanguage by expressing several well-known data-plane algorithms and
+compiling them to different \absmachine instances.
