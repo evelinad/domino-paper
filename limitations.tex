@@ -6,7 +6,7 @@ While \pktlanguage's compiler guarantees correctness, it doesn't guarantee
 optimality.  The \pktlanguage compiler doesn't reduce or consolidate the number
 of temporaries it creates. By flattening all statements to three-operand code
 form, it doesn't take advantage of more powerful atoms provided by the
-\absmachine instance. By mapping stateful codelets to stateful atoms
+\absmachine machine. By mapping stateful codelets to stateful atoms
 one-to-one, it doesn't take advantage of more powerful stateful atoms, such as
 the paired update atom, which could express the operations of two stateful
 codelets in one atom.

@@ -21,7 +21,7 @@ frontend catches several errors with no additional effort. It also
 allows us to use the C macro preprocessor for constants. Intrinsic
 functions representing hardware primitives (e.g.  hashes), can be
 implemented using arbitrary C code and linked with \pktlanguage code before
-running the resulting binary on a \absmachine instance.
+running the resulting binary on a \absmachine machine.
 %(\S\ref{ss:verification}).
 
 \subsection{If-conversion to straight-line code}
@@ -194,7 +194,7 @@ code into a pipeline of \textit{codelets}, where each codelet is a small
 sequential block of three-address code statements. We generate this pipeline of
 codelets, by exploiting parallelism within and across pipeline stages.
 Subsequently, we map each codelets one-to-one to atoms provided by a particular
-\absmachine instance~(\S\ref{ss:code_gen}), returning a compiler error if any
+\absmachine machine~(\S\ref{ss:code_gen}), returning a compiler error if any
 codelet doesn't map to an atom provided by the hardware.
 
 To partition code into codelets, we carry out the following steps:
@@ -246,7 +246,7 @@ packet temporaries.
 \subsection{Code generation: Mapping a codelet to an atom}
 \label{ss:code_gen}
 Next, we determine how the codelets created by code partitioning in the
-previous step map one-to-one to atoms provided by the \absmachine instance. We
+previous step map one-to-one to atoms provided by the \absmachine machine. We
 consider codelets that do and don't manipulate state separately because we
 handle each differently.
 
@@ -254,16 +254,16 @@ handle each differently.
 Expression flattening generates stateless codelets that each have only one
 instruction in three-address code form (e.g. any of the unshaded boxes in
 Figure~\ref{fig:flowlet}b). For this paper, we assume that all \absmachine
-instances support all atoms that correspond to a single statement in
+machines support all atoms that correspond to a single statement in
 three-address code form. This assumption is backed by the fact that P4's
 primitives~\cite{p4spec} and RMT's VLIW action set~\cite{rmt} both contain
 instructions that are in three-address code form. With this assumption, mapping
 a stateless codelet to an atom is trivial: each stateless codelet produced by
 code partitioning has exactly one three-address code instruction, which is
-equivalent to an atom available in the \absmachine instance. If the \absmachine
-instance supports complex atoms beyond three-address code instructions, this
+equivalent to an atom available in the \absmachine machine. If the \absmachine
+machine supports complex atoms beyond three-address code instructions, this
 approach is still correct, although suboptimal. For instance, if the
-\absmachine instance supports a multiply-and-accumulate atom~\cite{mac},
+\absmachine machine supports a multiply-and-accumulate atom~\cite{mac},
 expression flattening would generate two atoms (one each for the multiply and
 accumulate), where one suffices.
 
@@ -274,7 +274,7 @@ Figure~\ref{fig:flowlet}b requires a read, followed by a conditional write.  It
 is not readily apparent whether these codelets can be mapped to an available
 atom. We develop a general technique to determine the implementability of such
 stateful codelets, given as input the stateful atom template provided by the
-\absmachine instance.
+\absmachine machine.
 
 An atom template defines a space of possible computations (such as different
 ALU operations, or different permitted sequences of $N$ three-address
@@ -349,7 +349,7 @@ sketch_asplos} for a more detailed treatment of these topics.
 
 Using SKETCH to represent atom templates allows us to express the behavior of
 diverse atoms (Table~\ref{tab:templates}) using a natural imperative syntax.
-Because different \absmachine instances only differ in the atoms they provide,
+Because different \absmachine machines only differ in the atoms they provide,
 employing SKETCH for atom configuration lets us build a retargetable
 compiler~\cite{lcc} with little target-dependent work beyond specifying each
 target's atoms as partial programs in SKETCH.

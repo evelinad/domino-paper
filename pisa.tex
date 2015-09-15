@@ -48,7 +48,7 @@ assumes that packets arriving to it are already parsed.
 
 Each pipeline stage contains a vector of \textit{atoms}, with the atoms
 executing in parallel. Informally, an atom is an atomic unit of packet
-processing provided natively by an instance of \absmachine and is represented
+processing provided natively by a \absmachine machine and is represented
 as a body of imperative code that executes sequentially. An atom is assumed to
 complete execution and modify a packet before the next packet is processed by
 that atom.
@@ -103,7 +103,7 @@ Informally, an atom template is a program that is guaranteed to terminate and
 specifies how atoms are executed. One example of a template is an in-order CPU
 that can execute exactly $N$ instructions, each with a specific format. Another
 is an ALU with a restricted set of primitive operations to choose from. Atom
-templates allow us to create different instances of \absmachine that support
+templates allow us to create different \absmachine machines that support
 different atoms natively.
 
 These two atom templates are not exhaustive: as programmable switches evolve,
