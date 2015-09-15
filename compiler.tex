@@ -9,8 +9,7 @@
 The \pktlanguage compiler borrows several well-established techniques from the
 compiler literature~\cite{muchnik}. However, as we show throughout this
 section, constraining \pktlanguage for deterministic performance has a happy
-side effect: it allows us to considerably simplify the \pktlanguage compiler
-relative to mainstream compilers.
+side effect: it allows us to considerably simplify the \pktlanguage compiler.
 
 \subsection{Lexing, parsing, and semantic analysis}
 Because \pktlanguage's syntax is based on C, we use clang's library
@@ -112,7 +111,7 @@ last_time[pkt.id] = pkt.last_time;
 \label{fig:stateful_flanks}
 \end{figure*}
 
-\subsection{Renaming variables to static single-Assignment Form}
+\subsection{Renaming variables to SSA}
 \label{ss:ssa}
 
 We next convert to static single-assignment form (SSA)~\cite{ssa}, an

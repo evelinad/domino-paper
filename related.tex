@@ -13,12 +13,10 @@ allows network programmers to iterate on these algorithms at software
 timescales, without committing hardware to any one algorithm.
 
 \textbf{Abstract machines for line-rate switches}
-The protocol-independent switch architecture~\cite{nick_p4} and P4's abstract
-switch model~\cite{p4} are two abstract machines for programmable switches.
-Relative to P4's abstract switch model, \absmachine contributes the notions of
-atoms, sequential execution within atoms, and state encapsulated by atoms.
-\absmachine can be seen as an executable and formal version of the
-protocol-independent switch architecture first proposed in~\cite{nick_p4}.
+P4's abstract switch model~\cite{p4} is an abstract machine model for
+programmable switches.  Relative to P4's abstract switch model, \absmachine
+contributes the notions of atoms, sequential execution within atoms, and state
+encapsulated by atoms.
 
 Closest to \absmachine is NetASM~\cite{netasm}, which introduces an
 intermediate representation and abstract machine for programmable data planes.
@@ -47,11 +45,9 @@ switch with an on-board FPGA for latency-critical applications, but its
 capacity is limited to only 160 Gbits/sec when using the on-board FPGA---an
 order of magnitude less than the multi-terabit aggregate capacity of
 programmable merchant-silicon chips~\cite{xpliant}. In addition, FPGAs are not
-a convenient programming platform.
-
-Relative to these systems, \pktlanguage seeks to provide the best of both
-worlds: the line-rate performance of switching ASICs along with a high-level
-programming model that is natural to network programmers.
+a convenient programming platform. Relative to FPGAs, \pktlanguage seeks to
+provide both the line-rate performance of switching ASICs and a familiar
+programming model.
 
 \textbf{Packet-processing languages}
 Many systems simplify programming the network control plane. Examples include
@@ -64,7 +60,7 @@ uses C++ for packet processing on software routers. Imperative
 languages such as NOVA~\cite{nova}, packetC~\cite{packetc}, Intel's
 auto-partitioning C compiler~\cite{intel_uiuc_pldi}, PacLang~\cite{paclang_lang,
 paclang_partitioner}, and Microengine C~\cite{microenginec, intel_ixa} target
-network processors such as the Intel IXP~\cite{ixp2800, ixp4xx}.
+network processors~\cite{ixp2800, ixp4xx}.
 %PX~\cite{PX}
 %is a language that targets packet processing on FPGA platforms.
 
@@ -82,7 +78,7 @@ performance as the program's complexity increases.
 P4~\cite{p4} is an emerging packet-processing language that explicitly targets
 line-rate programmable switching chips. However, P4's language constructs
 resemble the underlying hardware---requiring the programmer to reason about
-concurrency and pipelining.
+tables and pipelining.
 
 \textbf{Compiler Techniques}
 \pktlanguage's compiler uses three-address codes~\cite{tac}, static-single
@@ -110,6 +106,6 @@ line rate or is rejected by the compiler.
 Mapping from codelets to atoms is similar to technology mapping~\cite{micheli,
 flowmap, spectransform}, where a target hardware circuit (represented as a
 graph) is implemented by tiling the graph with several primitive circuits
-available in a technology library. \pktlanguage's problem is simpler because we
-only need to verify if a specific codelet maps to a specific atom template; we
-don't need to implement a codelet using multiple atoms.
+available in a technology library. \pktlanguage's problem is simpler. We only
+need to verify if a codelet maps to an atom---not implement a codelet using
+multiple atoms.
