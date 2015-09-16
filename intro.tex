@@ -36,10 +36,12 @@ raised the level of abstraction by providing a language that seeks to be
 protocol and target independent.
 
 For instance, P4's language constructs allow the programmer to specify the
-sequence of match-action tables processing each packet and the operations
-carried out within each action when a packet is matched. This is a natural
-programming model for many data-plane tasks, such as switching, forwarding,
-tunneling, and access control~\cite{dc_p4}.
+headers in a packet, the packet's parse graph, the sequence of match-action
+tables processing each packet, and the operations carried out within each
+action when a packet is matched. This is a natural programming model for many
+data-plane tasks that involve packet parsing and header manipulation, such as
+handling new protocol formats, switching, forwarding, tunneling, and access
+control~\cite{dc_p4}.
 
 However, P4 today isn't suited for data-plane algorithms such as congestion
 control and active queue management, which manipulate state stored on the
