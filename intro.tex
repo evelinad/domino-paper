@@ -35,17 +35,17 @@ underlying hardware.  Over time, languages such as P4~\cite{p4, p4spec} have
 raised the level of abstraction by providing a language that seeks to be
 protocol and target independent.
 
-P4's language constructs allow the programmer to specify the sequence of
-match-action tables processing each packet and the operations carried out
-by each action when a packet is matched. This is a natural programming
-model for many data-plane tasks, such as switching, forwarding, tunneling, and
-access control~\cite{dc_p4}.
+For instance, P4's language constructs allow the programmer to specify the
+sequence of match-action tables processing each packet and the operations
+carried out within each action when a packet is matched. This is a natural
+programming model for many data-plane tasks, such as switching, forwarding,
+tunneling, and access control~\cite{dc_p4}.
 
 However, P4 today isn't suited for data-plane algorithms such as congestion
 control and active queue management, which manipulate state stored on the
 switch and have an algorithmic flavor capturing each algorithm's control logic.
-For such data-plane algorithms, network programmers would prefer a high-level
-imperative language that captures the intent of the algorithm, similar to how
+For such data-plane algorithms, network programmers would prefer the convenience
+of an imperative language that captures the intent of the algorithm, similar to how
 such algorithms are implemented in sofware routers~\cite{click}, network
 processors~\cite{packetc, nova}, and the Linux qdisc subsystem~\cite{qdisc}.
 
