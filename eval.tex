@@ -12,19 +12,19 @@
   x = mux2(pkt.f, ??);
   \end{lstlisting}} \\
   \hline
-  Increment &
+  Increment (++) &
   {\begin{lstlisting}[style=customctable]
   x = mux3(x, pkt.f, ??) + mux2(1, 0);
   \end{lstlisting}} \\
   \hline
-  ReadAddWrite &
+  ReadAddWrite (RAW) &
   {\begin{lstlisting}[style=customctable]
   x = mux3(x, pkt.f, ??) + mux2(??, pkt.f);
   \end{lstlisting}} \\
   \hline
   \pbox{0.15\textwidth}
   {Predicated\\
-  ReadAddWrite} &
+  ReadAddWrite (PRAW)} &
   {\begin{lstlisting}[style=customctable]
   if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
     x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
@@ -33,7 +33,8 @@
   \hline
   \pbox{0.15\textwidth}
   {If-Else\\
-   ReadAddWrite} &
+   ReadAddWrite\\
+   (If-Else RAW)} &
   {\begin{lstlisting}[style=customctable]
   if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
     x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
@@ -42,7 +43,7 @@
   }
   \end{lstlisting}} \\
   \hline
-  Paired Updates &
+  Paired Updates (Pairs) &
   {\begin{lstlisting}[style=customctable]
   bit pred1 = mux3(x, y,  ??) rel_op mux3(pkt.f1, pkt.f2, ??);
   bit pred2 = mux3(x, y,  ??) rel_op mux3(pkt.f1, pkt.f2, ??);
@@ -66,17 +67,15 @@
 \hline
 Algorithm & Stateful computation \\
 \hline
-Learning bloom filter & \pbox{0.74\textwidth}{Set membership bit on every packet.
-                                              We ``learn'' a new packet by adding it to the set.}\\
+Bloom filter & \pbox{0.74\textwidth}{Set membership bit on every packet.}\\
 \hline
-%TODO: Ask Lavanya exactly how heavy hitters works.
-Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet \\
+Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet. \\
 \hline
-Flowlet switching~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded \\
+Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. \\
 \hline
-RCP~\cite{rcp} & Accumulate RTT sum if RTT is under maximum allowable RTT \\
+RCP~\cite{rcp} & Accumulate RTT sum if RTT is under maximum allowable RTT. \\
 \hline
-Periodic sampling & \pbox{0.74\textwidth}{Sample/Mark a packet if packet count reaches N; reset count at N.} \\
+Sampling & \pbox{0.74\textwidth}{Sample/Mark a packet if packet count reaches N; reset count at N.} \\
 \hline
 CONGA~\cite{conga} & \pbox{0.74\textwidth}{Update best path's utilization/id if we see a better path.\\
                                            Update best path utilization alone if it changes.} \\
@@ -95,18 +94,18 @@ CONGA~\cite{conga} & \pbox{0.74\textwidth}{Update best path's utilization/id if 
 %10. Alvin's feedback: Write about our experience writing these programs. Similar to Steven Chong's PLDI paper.
 To evaluate \pktlanguage, we express several well-known data-plane algorithms
 (Table~\ref{tab:algos}) using \pktlanguage and determine if they are
-implementable on different \absmachine machines that provide different
-stateful atoms (Table~\ref{tab:templates}).
+implementable on different \absmachine machines that provide different stateful
+atoms (Table~\ref{tab:templates}).
 
 \subsection{Experimental procedure}
-As mentioned earlier, we consider only stateful atoms because we assume
-stateless codelets map one-to-one to stateless atoms for all
-\absmachine machines. For simplicity, the stateful atoms we consider only
-permit updates to state variables and forbid packet field updates that might be
-result from these state updates. Assuming the \absmachine machine provides an atom
-to read a state variable\footnote{We think this is reasonable because the
-inability to read a state variable renders them meaningless!}, such packet
-updates can be treated as stateless operations in subsequent pipeline stages.
+As mentioned before, we consider only stateful atoms by assuming stateless
+codelets map one-to-one to stateless atoms for all \absmachine machines. For
+simplicity, the stateful atoms only permit updates to state variables and
+forbid packet field updates resulting from these state updates.  Assuming the
+\absmachine machine provides an atom to read a state variable\footnote{We think
+this is reasonable because the inability to read a state variable renders it
+powerless!}, such packet updates can be treated as stateless operations in
+subsequent pipeline stages.
 
 We represent atoms using their atom templates in Table~\ref{tab:templates},
 employing a shorthand notation for SKETCH. We use ``x'' and ``y'' for state
@@ -115,12 +114,13 @@ N operands such as the choice made by the 2-to-1 multiplexer in
 Figure~\ref{fig:sketch}a.
 
 %Anirudh->Alvin: Is it clear now that each machine provides exactly one atom.
-We also assume every \absmachine machine provides exactly one
-stateful atom.  Table~\ref{tab:templates} gradually increases the capability of
-this single atom provided by a \absmachine machine.  The atoms in
-Table~\ref{tab:templates} form a containment hierarchy: going from top to
-bottom, each atom is strictly more expressive than its predecessor to the top
-and hence can express all data-plane algorithms that its predecessor can.
+We also assume every \absmachine machine provides exactly one stateful atom.
+Table~\ref{tab:templates} gradually increases the capability of this single
+atom provided by a \absmachine machine.  The atoms in Table~\ref{tab:templates}
+, and the \absmachine machines providing them, form a containment hierarchy
+(Figure~\ref{fig:eval}): each atom is strictly more expressive than its
+predecessor and hence can express all data-plane algorithms that its
+predecessor can.
 
 We now consider every atom/\absmachine machine from Table~\ref{tab:templates},
 and every data-plane algorithm from Table~\ref{tab:algos} to determine if each
@@ -130,20 +130,18 @@ codelet within the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to
 the single stateful atom provided by the \absmachine machine.
 
 \subsection{Interpreting these results}
-Table~\ref{table:eval} presents our results. There are two ways to interpret
-them. For a network programmer, the matrix in Table~\ref{table:eval} tells her
-if a particular data-plane algorithm can be implemented at line rate, assuming
-the \absmachine machine provides a particular stateful atom.
-
-For an ASIC engineer designing programmable switching chips, the same table
-describes the algorithms that are implementable with a particular atom. For
-instance, the paired updates atom can implement all six algorithms shown in
-Table~\ref{table:eval}, while a simpler increment atom can implement only
-two.
+Figure~\ref{fig:eval} tells a network programmer if a particular data-plane
+algorithm can be implemented at line rate, assuming the \absmachine machine
+provides a particular stateful atom. For an ASIC engineer designing
+programmable switching chips, the same figure describes the algorithms that are
+implementable on a particular \absmachine machine. For instance, a \absmachine
+machine with the paired updates atom can implement all six algorithms shown in
+Figure~\ref{fig:eval}, while a machine with a simpler increment atom can
+implement only two.
 
 These results will change as programmable switches evolve and network
-programmers continuously push chip boundaries with new algorithms.  The larger
-takeaway from this evaluation is that programming in \pktlanguage allows us to
-rigorously determine if a particular high-level algorithm is implementable at
-line rate on a particular \absmachine machine and conversely, if a particular
-atom suffices to implement a large number of algorithms.
+programmers push chip boundaries with new algorithms.  The larger takeaway is
+that programming in \pktlanguage allows us to rigorously determine if a
+particular high-level algorithm is implementable at line rate on a particular
+\absmachine machine. Conversely, it tells us if a particular \absmachine
+machine suffices to implement a large number of algorithms.
