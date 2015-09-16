@@ -86,27 +86,11 @@ CONGA~\cite{conga} & \pbox{0.74\textwidth}{Update best path's utilization/id if 
 \label{tab:algos}
 \end{table*}
 
-\begin{table*}[!t]
-  \begin{tabular}{|p{0.20\textwidth}|p{0.04\textwidth}|p{0.09\textwidth}|p{0.14\textwidth}|p{0.14\textwidth}|p{0.14\textwidth}|p{0.05\textwidth}|}
-  \hline
-    & Write & Increment & ReadAddWrite & Predicated ReadAddWrite & IfElse ReadAddWrite & Paired Updates \\
-  \hline
-  Learning bloom filter & \cmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
-  \hline
-  Heavy hitters          & \xmark & \cmark & \cmark & \cmark & \cmark & \cmark \\
-  \hline
-  Flowlet switching      & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
-  \hline
-  RCP                    & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark \\
-  \hline
-  Periodic sampling & \xmark & \xmark & \xmark & \xmark & \cmark & \cmark \\
-  \hline
-  CONGA                  & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark \\
-  \hline
-  \end{tabular}
-\caption{Data-plane algorithm implementability on different \absmachine machines}
-\label{table:eval}
-\end{table*}
+\begin{figure*}[!t]
+  \includegraphics[width=\textwidth]{atom_hierarchy.pdf}
+  \caption{Containment hierarchy of \absmachine machines and what data-plane algorithms each can implement.}
+\label{fig:eval}
+\end{figure*}
 
 %10. Alvin's feedback: Write about our experience writing these programs. Similar to Steven Chong's PLDI paper.
 To evaluate \pktlanguage, we express several well-known data-plane algorithms
