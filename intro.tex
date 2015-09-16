@@ -41,20 +41,20 @@ by each action when a packet is matched. This is a natural programming
 model for many data-plane tasks, such as switching, forwarding, tunneling, and
 access control~\cite{dc_p4}.
 
-However, P4 today isn't suited for data-plane \textit{algorithms} such as
-congestion control and active queue management, which manipulate state stored
-on the switch and have an algorithmic flavor that captures each algorithm's
-control logic. For such data-plane algorithms, network programmers would prefer
-a high-level imperative language that captures the intent of the algorithm,
-similar to how such algorithms are implemented in sofware routers~\cite{click},
-network processors~\cite{packetc, nova}, and the Linux kernel~\cite{qdisc}.
+However, P4 today isn't suited for data-plane algorithms such as congestion
+control and active queue management, which manipulate state stored on the
+switch and have an algorithmic flavor capturing each algorithm's control logic.
+For such data-plane algorithms, network programmers would prefer a high-level
+imperative language that captures the intent of the algorithm, similar to how
+such algorithms are implemented in sofware routers~\cite{click}, network
+processors~\cite{packetc, nova}, and the Linux qdisc subsystem~\cite{qdisc}.
 
 This paper presents \pktlanguage, a new DSL for expressing data-plane
 algorithms. \pktlanguage is an imperative language based on C that allows
 programmers to express data-plane algorithms using {\em packet transactions}
 (\S\ref{s:transactions}).  Packet transactions provide the abstraction of a
 sequential block of code that runs to completion on each packet before
-executing on the next packet. This is a convenient programming model, since it
+executing on the next packet. This is a convenient programming model, because it
 allows the programmer to focus on the operations needed for each packet without
 worrying about other packets that are concurrently being processed.
 
@@ -76,10 +76,10 @@ atomic increment.
 %\pktlanguage compiler for code generation.
 
 The \pktlanguage compiler guarantees deterministic performance for packet
-transactions: all packet transactions that are implementable on a given switch
-architecture will be executed at the switch's line rate, or they will be
-rejected by the compiler if the atoms provided by a \absmachine machine cannot
-implement the programmer-supplied transaction.
+transactions: all packet transactions that are implementable on a given
+\absmachine machine will run at line rate, or they will be rejected by the
+compiler if the atoms provided by a \absmachine machine cannot implement the
+programmer-supplied transaction.
 
 To evaluate the usefulness of \pktlanguage, we use \pktlanguage to express
 several data-plane algorithms~(\S\ref{s:eval}) such as flowlet
