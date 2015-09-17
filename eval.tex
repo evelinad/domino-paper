@@ -12,11 +12,6 @@
   x = mux2(pkt.f, ??);
   \end{lstlisting}} \\
   \hline
-  Increment (++) &
-  {\begin{lstlisting}[style=customctable]
-  x = mux3(x, pkt.f, ??) + mux2(1, 0);
-  \end{lstlisting}} \\
-  \hline
   ReadAddWrite (RAW) &
   {\begin{lstlisting}[style=customctable]
   x = mux3(x, pkt.f, ??) + mux2(??, pkt.f);
@@ -39,7 +34,18 @@
   if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
     x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
   } else {
-    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2)};
+    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
+  }
+  \end{lstlisting}} \\
+  \hline
+  \pbox{0.15\textwidth}
+  {4-operand instructions\\
+   (4oper)} &
+  {\begin{lstlisting}[style=customctable]
+  if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
+    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+  } else { 
+    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
   }
   \end{lstlisting}} \\
   \hline
@@ -48,11 +54,11 @@
   bit pred1 = mux3(x, y,  ??) rel_op mux3(pkt.f1, pkt.f2, ??);
   bit pred2 = mux3(x, y,  ??) rel_op mux3(pkt.f1, pkt.f2, ??);
   if (pred1) {
-    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
-    y = mux4(y, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
+    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+    y = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
   } else if (pred2) {
-    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
-    y = mux4(y, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
+    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+    y = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
   }
   \end{lstlisting}} \\
   \hline
@@ -76,6 +82,8 @@ Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceede
 RCP~\cite{rcp} & Accumulate RTT sum if RTT is under maximum allowable RTT. \\
 \hline
 Sampling & \pbox{0.74\textwidth}{Sample/Mark a packet if packet count reaches N; reset count at N.} \\
+\hline
+HULL~\cite{hull} & Update counter for virtual queue.\\
 \hline
 CONGA~\cite{conga} & \pbox{0.74\textwidth}{Update best path's utilization/id if we see a better path.\\
                                            Update best path utilization alone if it changes.} \\
