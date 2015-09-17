@@ -14,7 +14,7 @@
   \hline
   ReadAddWrite (RAW) &
   {\begin{lstlisting}[style=customctable]
-  x = mux3(x, pkt.f, ??) + mux2(??, pkt.f);
+  x = mux2(x, ??) + mux2(??, pkt.f);
   \end{lstlisting}} \\
   \hline
   \pbox{0.15\textwidth}
@@ -22,7 +22,7 @@
   ReadAddWrite (PRAW)} &
   {\begin{lstlisting}[style=customctable]
   if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
-    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
+    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2);
   }
   \end{lstlisting}} \\
   \hline
@@ -32,9 +32,9 @@
    (If-Else RAW)} &
   {\begin{lstlisting}[style=customctable]
   if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
-    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
+    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2);
   } else {
-    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2);
+    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2);
   }
   \end{lstlisting}} \\
   \hline
@@ -43,9 +43,9 @@
    (4oper)} &
   {\begin{lstlisting}[style=customctable]
   if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
-    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
   } else { 
-    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
   }
   \end{lstlisting}} \\
   \hline
@@ -54,11 +54,11 @@
   bit pred1 = mux3(x, y,  ??) rel_op mux3(pkt.f1, pkt.f2, ??);
   bit pred2 = mux3(x, y,  ??) rel_op mux3(pkt.f1, pkt.f2, ??);
   if (pred1) {
-    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
-    y = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+    y = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
   } else if (pred2) {
-    x = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
-    y = mux4(x, pkt.f1, pkt.f2, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+    y = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
   }
   \end{lstlisting}} \\
   \hline
