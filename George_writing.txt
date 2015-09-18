@@ -16,7 +16,7 @@ if else statements.
 Minor issues:
 ----------------
 1. Flattening to three-address code (don't break lines).
-2. Fit it on one line (widows and ...)
+2. Fit it on one line (widows and orphans)
 
 Substantial:
 -----------------
@@ -41,8 +41,12 @@ Figure 7 flowlet switching
 Add a footnote that pkt.id is reordered
 because it is an index expression of a read flank.
 
+Verbosity:
+----------------------------
 Everything can be shortened quite a bit.
 
+Atom templates:
+------------------------------
 Atom templates is really wierd to follow in Section 2.
 Throw a forward pointer to Figure 10 from Section 2.
 
@@ -108,15 +112,13 @@ Mention tradeoffs: some can and can't be done.
 
 Verbose text
 --------------------
-
 * Abstract is too verbose.
 * There is no one line takeaway.
 * Introduction could be tightened.
 
 Can you think of examples that Click can do that we can't do?
 -------------------------------------------
-
-* Encryption.
+* Encryption (BlindBox) 
 * Arbitrary processing on the headers and data in Click.
 
 Clarify what you can't do
