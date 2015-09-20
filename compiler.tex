@@ -242,6 +242,11 @@ packet temporaries.
 \label{fig:partitioning}
 \end{figure*}
 
+\subsection{Optimizations}
+
+% Mention some optimizations here: Expression propagation, CSE, dead code removal
+% (when partitioning)
+
 \subsection{Code generation: Mapping a codelet to an atom}
 \label{ss:code_gen}
 Next, we determine how the codelets created by code partitioning in the
@@ -376,6 +381,3 @@ implementation. We then feed the same number of test packets to both the
 specification and implementation and compare outputs at the end of the
 pipeline. This allows to quickly ``spot check'' our compilations and
 helped discover a few compiler bugs during development.
-
-% Mention some optimizations here: Expression propagation, CSE, dead code removal
-% (when partitioning)

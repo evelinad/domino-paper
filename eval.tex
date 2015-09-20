@@ -13,12 +13,16 @@
     \hline
     ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. \\
     \hline
-    Predicated ReadAddWrite (RAW) & Execute RAW only if a predicate is true, otherwise leave unchanged. \\
+    Predicated ReadAddWrite (RAW) & Execute RAW on state variable only if a predicate is true, otherwise leave unchanged. \\
     \hline
     IfElse ReadAddWrite (IfElseRaw) & Execute two separate RAWs: one each for when a predicate is true or false.\\
-    4 operands (4oper) & Same as IfElseRaw, with the improvement that we allow for subtracting a packet field / constant. \\
-    Nested Ifs (Nested) & Same as 4 operands, but allow one additional level of nesting. \\
-    Paired updates (pairs) & Update a pair of state variables, where each predicate might depend on both state variables. \\
+    \hline
+    Subtract (Sub) & Same as IfElseRaw, but also allow subtracting a packet field/constant. \\
+    \hline
+    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting. \\
+    \hline
+    Paired updates (pairs) & Samed as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. \\
+    \hline
   \end{tabular}
   \end{scriptsize}
   \caption{Atoms used in evaluation.}
@@ -44,7 +48,6 @@
 \caption{Circuit depth (and hence propagation delay) increases with complexity of atoms.}
   \label{tab:circuit_depth}
 \end{table}
-%TODO: Mention something about how propagation delay goes up as complexity increases.
 
 \begin{table*}[!t]
   \begin{tabular}{|p{0.20\textwidth}|p{0.54\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|}
@@ -93,19 +96,18 @@ atoms (Table~\ref{tab:templates}).
 As mentioned before, we consider only stateful atoms by assuming stateless
 codelets map one-to-one to stateless atoms for all \absmachine machines. For
 simplicity, the stateful atoms only permit updates to state variables and
-forbid packet field updates resulting from these state updates.  Assuming the
+forbid packet field updates mixed in with these state updates.  Assuming the
 \absmachine machine provides an atom to read a state variable\footnote{The
 inability to read a state variable renders it powerless!}, such packet updates
-can be treated as stateless operations in subsequent pipeline stages. We
-represent atoms using their atom templates in Table~\ref{tab:templates},
-employing the notation in Table~\ref{tab:sketch_functions}.
+can be treated as stateless operations in subsequent pipeline stages.
 
 %Anirudh->Alvin: Is it clear now that each machine provides exactly one atom.
 We also assume every \absmachine machine provides exactly one stateful atom.
 Table~\ref{tab:templates} gradually increases the capability of this single
-atom.  The atoms in Table~\ref{tab:templates} , and the \absmachine machines
-providing them, form a containment hierarchy (Figure~\ref{fig:eval}): each atom
-can express all data-plane algorithms that its predecessor can.
+atom.  We designed the atoms in Table~\ref{tab:templates}, and the \absmachine
+machines providing them, to form a containment hierarchy
+(Figure~\ref{fig:eval}): each atom can express all data-plane algorithms that
+its predecessor can.
 
 We now consider every atom/\absmachine machine from Table~\ref{tab:templates},
 and every data-plane algorithm from Table~\ref{tab:algos} to determine if each
@@ -114,16 +116,14 @@ say an algorithm is implementable on a \absmachine machine, if every stateful
 codelet within the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to
 the single stateful atom provided by the \absmachine machine.
 
-\subsection{Compilation times}
-
 \subsection{Interpreting these results}
 Figure~\ref{fig:eval} tells a network programmer if a particular data-plane
 algorithm can be implemented at line rate, assuming the \absmachine machine
 provides a particular stateful atom. For an ASIC engineer designing
 programmable switching chips, the same figure describes the algorithms that are
 implementable on a particular \absmachine machine. For instance, a \absmachine
-machine with the paired updates atom can implement all six algorithms shown in
-Figure~\ref{fig:eval}, while a machine with a simpler increment atom can
+machine with the paired updates atom can implement eight algorithms shown in
+Figure~\ref{fig:eval}, while a machine with a simpler read-add-write atom can
 implement only two.
 
 These results will change as programmable switches evolve and network
@@ -132,3 +132,5 @@ that programming in \pktlanguage allows us to rigorously determine if a
 particular high-level algorithm is implementable at line rate on a particular
 \absmachine machine. Conversely, it tells us if a particular \absmachine
 machine suffices to implement a large number of algorithms.
+
+\subsection{Compilation times}
