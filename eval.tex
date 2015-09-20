@@ -1,119 +1,50 @@
 \section{Evaluation}
-% TODO: Replace SKETCH programs with actual circuits
-\begin{table}
-  \begin{scriptsize}
-  \begin{tabular}{p{0.3\columnwidth}p{0.7\columnwidth}}
-  SKETCH construct & Description \\
-  \hline
-  MuxN(a1, a2, \dots, aN) & \pbox{0.7\columnwidth}{N-to-1 multiplexer with enable bit.\\If enabled, return one of a1, a2, \dots aN.\\If disabled, return 0.}\\
-  Opt(a)        & Return a or 0. \\
-  rel\_op(x, y) & Return one of $x < y$, $x > y$, $x != y$, $x == y$.\\
-  C() & Return an integer constant in the range [0, 31].\footnote{We restrict constants to 5 bits because all constants in our dataplane algorithms are under 32. Larger ranges increase synthesis time.} \\
-  state\_1, state\_2 & State variables \\
-  pkt\_1, pkt\_2 & Packet fields \\
-  \end{tabular}
-  \end{scriptsize}
-  \caption{SKETCH notation used in atom templates}
-  \label{tab:sketch_constructs}
-\end{table}
-
-%TODO: Add compilation times
-%TODO: Add number of stages for each algorithm.
-%TODO: Mention something about how propagation delay goes up as complexity increases.
 %TODO: Is there a good technical reason why every \absmachine machine
 % should have exactly one large stateful atom as opposed to many small stateful atoms?
 \label{s:eval}
-\begin{table*}[!t]
+
+\begin{table}[!t]
   \begin{scriptsize}
-  \begin{tabular}{|p{0.15\textwidth}|p{0.8\textwidth}|}
+  \begin{tabular}{|p{0.1\textwidth}|p{0.35\textwidth}|}
+    \hline
+    Atom & Description \\
+    \hline
+    Write & Write packet field/constant into single state variable. \\
+    \hline
+    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. \\
+    \hline
+    Predicated ReadAddWrite (RAW) & Execute RAW only if a predicate is true, otherwise leave unchanged. \\
+    \hline
+    IfElse ReadAddWrite (IfElseRaw) & Execute two separate RAWs: one each for when a predicate is true or false.\\
+    4 operands (4oper) & Same as IfElseRaw, with the improvement that we allow for subtracting a packet field / constant. \\
+    Nested Ifs (Nested) & Same as 4 operands, but allow one additional level of nesting. \\
+    Paired updates (pairs) & Update a pair of state variables, where each predicate might depend on both state variables. \\
+  \end{tabular}
+  \end{scriptsize}
+  \caption{Atoms used in evaluation.}
+  \label{tab:templates}
+\end{table}
+
+\begin{table}[!t]
+  \begin{scriptsize}
+    \begin{tabular}{|p{0.1\textwidth}|p{0.3\textwidth}|p{0.03\textwidth}|}
   \hline
-  Atom template & SKETCH shorthand\\
+  Atom & Circuit & Depth \\
   \hline
-  Write &
-  {\begin{lstlisting}[style=customctable]
-  state_1 = Mux2(pkt_1, C());;
-  \end{lstlisting}} \\
+  Write & \includegraphics[width=0.2\textwidth]{rw.pdf} & 1 \\
   \hline
-  ReadAddWrite (RAW) &
-  {\begin{lstlisting}[style=customctable]
-  state_1 = Opt(state_1) + Mux2(pkt_1, C())
-  \end{lstlisting}} \\
+  ReadAddWrite (RAW) & \includegraphics[width=0.2\textwidth]{raw.pdf} & 2\\
   \hline
-  \pbox{0.15\textwidth}
+  \pbox{0.1\textwidth}
   {Predicated\\
-  ReadAddWrite (PRAW)} &
-  {\begin{lstlisting}[style=customctable]
-   if (rel_op(Opt(state_1), Mux3(pkt_1, pkt_2, C()))) {
-     state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C());
-   }
-  \end{lstlisting}} \\
-  \hline
-  \pbox{0.15\textwidth}
-  {If-Else\\
-   ReadAddWrite\\
-   (If-Else RAW)} &
-  {\begin{lstlisting}[style=customctable]
-  if (rel_op(Opt(state_1), Mux3(pkt_1, pkt_2, C()))) {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C());
-  } else {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C());
-  }
-  \end{lstlisting}} \\
-  \hline
-  \pbox{0.15\textwidth}
-  {4-operand instructions\\
-   (4oper)} &
-  {\begin{lstlisting}[style=customctable]
-  if (rel_op(Opt(state_1), Mux3(pkt_1, pkt_2, C()))) {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-  } else {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-  }
-  \end{lstlisting}} \\
-  \hline
-  Nested Ifs (Nested) &
-  {\begin{lstlisting}[style=customctable]
-  if (rel_op(Opt(state_1) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
-   if (rel_op(Opt(state_1) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-   } else {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-   }
-  } else {
-   if (rel_op(Opt(state_1) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-   } else {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-   }
-  }
-  \end{lstlisting}}\\
-  \hline
-  Paired Updates (Pairs) &
-  {\begin{lstlisting}[style=customctable]
-  if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
-   if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-   } else {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-   }
-  } else if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
-   if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-   } else {
-    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
-   }
-  }
-  \end{lstlisting}} \\
+  ReadAddWrite (PRAW)} & \includegraphics[width=0.3\textwidth]{pred_raw.pdf}  & 3\\
   \hline
   \end{tabular}
 \end{scriptsize}
-\caption{Atom templates used in evaluation written in SKETCH notation (Table~\ref{tab:sketch_constructs}.}
-  \label{tab:templates}
-\end{table*}
+\caption{Circuit depth (and hence propagation delay) increases with complexity of atoms.}
+  \label{tab:circuit_depth}
+\end{table}
+%TODO: Mention something about how propagation delay goes up as complexity increases.
 
 \begin{table*}[!t]
   \begin{tabular}{|p{0.20\textwidth}|p{0.54\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|}
