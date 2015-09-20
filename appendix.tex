@@ -1,0 +1,17 @@
+% Atom, description, circuit, SKETCH
+\begin{table}
+  \begin{scriptsize}
+  \begin{tabular}{p{0.3\columnwidth}p{0.7\columnwidth}}
+  SKETCH construct & Description \\
+  \hline
+  MuxN(a1, a2, \dots, aN) & \pbox{0.7\columnwidth}{N-to-1 multiplexer with enable bit.\\If enabled, return one of a1, a2, \dots aN.\\If disabled, return 0.}\\
+  Opt(a)        & Return a or 0. \\
+  rel\_op(x, y) & Return one of $x < y$, $x > y$, $x != y$, $x == y$.\\
+  C() & Return an integer constant in the range [0, 31].\footnote{We restrict constants to 5 bits because all constants in our dataplane algorithms are under 32. Larger ranges increase synthesis time.} \\
+  state\_1, state\_2 & State variables \\
+  pkt\_1, pkt\_2 & Packet fields \\
+  \end{tabular}
+  \end{scriptsize}
+  \caption{SKETCH notation used in atom templates}
+  \label{tab:sketch_constructs}
+\end{table}

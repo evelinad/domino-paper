@@ -1,0 +1,38 @@
+%%%  Nested Ifs (Nested) &
+%%%  {\begin{lstlisting}[style=customctable]
+%%%  if (rel_op(Opt(state_1) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+%%%   if (rel_op(Opt(state_1) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+%%%    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%   } else {
+%%%    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%   }
+%%%  } else {
+%%%   if (rel_op(Opt(state_1) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+%%%    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%   } else {
+%%%    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%   }
+%%%  }
+%%%  \end{lstlisting}}\\
+%%%  \hline
+%%%  Paired Updates (Pairs) &
+%%%  {\begin{lstlisting}[style=customctable]
+%%%  if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+%%%   if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+%%%    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%   } else {
+%%%    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%   }
+%%%  } else if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+%%%   if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+%%%    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%   } else {
+%%%    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+%%%   }
+%%%  }
+%%%  \end{lstlisting}} \\
+
