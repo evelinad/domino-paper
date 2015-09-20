@@ -368,6 +368,7 @@ by the transaction. We then initialize each of these fields by sampling
 independently and uniformly from the space of all 32-bit signed integers.
 
 % TODO: Mihai thought I could shrink this.
+% TODO: George thought we could mention KLEE here.
 To compare outputs from the packet transaction and its implementation, we track
 renames that occur because of SSA. We compare each output field in the
 transactional form with the last rename of the same output field in the
@@ -375,3 +376,6 @@ implementation. We then feed the same number of test packets to both the
 specification and implementation and compare outputs at the end of the
 pipeline. This allows to quickly ``spot check'' our compilations and
 helped discover a few compiler bugs during development.
+
+% Mention some optimizations here: Expression propagation, CSE, dead code removal
+% (when partitioning)
