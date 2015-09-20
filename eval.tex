@@ -1,8 +1,27 @@
 \section{Evaluation}
+\begin{table}
+  \begin{scriptsize}
+  \begin{tabular}{p{0.3\columnwidth}p{0.7\columnwidth}}
+  SKETCH construct & Description \\
+  \hline
+  MuxN(a1, a2, \dots, aN) & \pbox{0.7\columnwidth}{N-to-1 multiplexer with enable bit.\\If enabled, return one of a1, a2, \dots aN.\\If disabled, return 0.}\\
+  Opt(a)        & Return a or 0. \\
+  rel\_op(x, y) & Return one of $x < y$, $x > y$, $x != y$, $x == y$.\\
+  C() & Return an integer constant in the range [0, 31].\footnote{We restrict constants to 5 bits because all constants in our dataplane algorithms are under 32. Larger ranges increase synthesis time.} \\
+  x, y & State variables \\
+  pkt\_1, pkt\_2 & Packet fields \\
+  \end{tabular}
+  \end{scriptsize}
+  \caption{SKETCH shorthand used in atom templates}
+  \label{tab:sketch_constructs}
+\end{table}
+
+%TODO: Add compilation times
+%TODO: Add number of stages for each algorithm.
+%TODO: Mention something about how propagation delay goes up as complexity increases.
 %TODO: Is there a good technical reason why every \absmachine machine
 % should have exactly one large stateful atom as opposed to many small stateful atoms?
 \label{s:eval}
-%TODO: Maybe make up a table for SKETCH shorthand right at the top.
 \begin{table*}[!t]
   \begin{scriptsize}
   \begin{tabular}{|p{0.15\textwidth}|p{0.8\textwidth}|}
@@ -116,16 +135,11 @@ As mentioned before, we consider only stateful atoms by assuming stateless
 codelets map one-to-one to stateless atoms for all \absmachine machines. For
 simplicity, the stateful atoms only permit updates to state variables and
 forbid packet field updates resulting from these state updates.  Assuming the
-\absmachine machine provides an atom to read a state variable\footnote{We think
-this is reasonable because the inability to read a state variable renders it
-powerless!}, such packet updates can be treated as stateless operations in
-subsequent pipeline stages.
-
-We represent atoms using their atom templates in Table~\ref{tab:templates},
-employing a shorthand notation for SKETCH. We use ``x'' and ``y'' for state
-variables, and muxN(a1, a2, ..., aN) to represent a configurable choice between
-N operands such as the choice made by the 2-to-1 multiplexer in
-Figure~\ref{fig:sketch}a.
+\absmachine machine provides an atom to read a state variable\footnote{The
+inability to read a state variable renders it powerless!}, such packet updates
+can be treated as stateless operations in subsequent pipeline stages. We
+represent atoms using their atom templates in Table~\ref{tab:templates},
+employing a shorthand notation for SKETCH (Table~\ref{tab:sketch_functions}).
 
 %Anirudh->Alvin: Is it clear now that each machine provides exactly one atom.
 We also assume every \absmachine machine provides exactly one stateful atom.
