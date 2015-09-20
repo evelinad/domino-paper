@@ -115,30 +115,30 @@
 \end{table*}
 
 \begin{table*}[!t]
-\begin{tabular}{|p{0.20\textwidth}|p{0.74\textwidth}|}
+  \begin{tabular}{|p{0.20\textwidth}|p{0.54\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|}
 \hline
-Algorithm & Stateful computation \\
+Algorithm & Stateful computation & Pipeline depth & Pipeline width \\
 \hline
-Bloom filter & \pbox{0.74\textwidth}{Set membership bit on every packet.}\\
+Bloom filter & \pbox{0.74\textwidth}{Set membership bit on every packet.} & & \\
 \hline
-Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet. \\
+Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet. & & \\
 \hline
-Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. \\
+Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & & \\
 \hline
-RCP~\cite{rcp} & Accumulate RTT sum if RTT is under maximum allowable RTT. \\
+RCP~\cite{rcp} & Accumulate RTT sum if RTT is under maximum allowable RTT. & & \\
 \hline
-Sampling & \pbox{0.74\textwidth}{Sample/Mark a packet if packet count reaches N; reset count at N.} \\
+Sampling & \pbox{0.74\textwidth}{Sample/Mark a packet if packet count reaches N; reset count to 0 at N.} & &\\
 \hline
-HULL~\cite{hull} & Update counter for virtual queue.\\
+HULL~\cite{hull} & Update counter for virtual queue. & & \\
 \hline
-Adaptive Virtual Queue~\cite{avq} & .\\
+Adaptive Virtual Queue~\cite{avq} & & & \\
 \hline
 CONGA~\cite{conga} & \pbox{0.74\textwidth}{Update best path's utilization/id if we see a better path.\\
-                                           Update best path utilization alone if it changes.} \\
+                                           Update best path utilization alone if it changes.}  & & \\
 \hline
-trTCM~\cite{trTCM} & \\
+trTCM~\cite{trTCM} & & & \\
 \hline
-CoDel~\cite{codel} & \\
+CoDel~\cite{codel} & & & \\
 \hline
 \end{tabular}
 \caption{Data-plane algorithms}
@@ -181,6 +181,8 @@ algorithm is \textit{implementable} on a particular \absmachine machine. We
 say an algorithm is implementable on a \absmachine machine, if every stateful
 codelet within the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to
 the single stateful atom provided by the \absmachine machine.
+
+\subsection{Compilation times}
 
 \subsection{Interpreting these results}
 Figure~\ref{fig:eval} tells a network programmer if a particular data-plane
