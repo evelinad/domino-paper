@@ -8,11 +8,11 @@
   Opt(a)        & Return a or 0. \\
   rel\_op(x, y) & Return one of $x < y$, $x > y$, $x != y$, $x == y$.\\
   C() & Return an integer constant in the range [0, 31].\footnote{We restrict constants to 5 bits because all constants in our dataplane algorithms are under 32. Larger ranges increase synthesis time.} \\
-  x, y & State variables \\
+  state\_1, state\_2 & State variables \\
   pkt\_1, pkt\_2 & Packet fields \\
   \end{tabular}
   \end{scriptsize}
-  \caption{SKETCH shorthand used in atom templates}
+  \caption{SKETCH notation used in atom templates}
   \label{tab:sketch_constructs}
 \end{table}
 
@@ -30,21 +30,21 @@
   \hline
   Write &
   {\begin{lstlisting}[style=customctable]
-  x = mux2(pkt.f, ??);
+  state_1 = Mux2(pkt_1, C());;
   \end{lstlisting}} \\
   \hline
   ReadAddWrite (RAW) &
   {\begin{lstlisting}[style=customctable]
-  x = mux2(x, ??) + mux2(??, pkt.f);
+  state_1 = Opt(state_1) + Mux2(pkt_1, C())
   \end{lstlisting}} \\
   \hline
   \pbox{0.15\textwidth}
   {Predicated\\
   ReadAddWrite (PRAW)} &
   {\begin{lstlisting}[style=customctable]
-  if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
-    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2);
-  }
+   if (rel_op(Opt(state_1), Mux3(pkt_1, pkt_2, C()))) {
+     state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C());
+   }
   \end{lstlisting}} \\
   \hline
   \pbox{0.15\textwidth}
@@ -52,10 +52,10 @@
    ReadAddWrite\\
    (If-Else RAW)} &
   {\begin{lstlisting}[style=customctable]
-  if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
-    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2);
+  if (rel_op(Opt(state_1), Mux3(pkt_1, pkt_2, C()))) {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C());
   } else {
-    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2);
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C());
   }
   \end{lstlisting}} \\
   \hline
@@ -63,29 +63,54 @@
   {4-operand instructions\\
    (4oper)} &
   {\begin{lstlisting}[style=customctable]
-  if(mux2(x, ??) rel_op mux3(pkt.f1, pkt.f2, ??)) {
-    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
-  } else { 
-    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+  if (rel_op(Opt(state_1), Mux3(pkt_1, pkt_2, C()))) {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+  } else {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
   }
   \end{lstlisting}} \\
   \hline
+  Nested Ifs (Nested) &
+  {\begin{lstlisting}[style=customctable]
+  if (rel_op(Opt(state_1) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+   if (rel_op(Opt(state_1) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+   } else {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+   }
+  } else {
+   if (rel_op(Opt(state_1) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+   } else {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+   }
+  }
+  \end{lstlisting}}\\
+  \hline
   Paired Updates (Pairs) &
   {\begin{lstlisting}[style=customctable]
-  bit pred1 = mux3(x, y,  ??) rel_op mux3(pkt.f1, pkt.f2, ??);
-  bit pred2 = mux3(x, y,  ??) rel_op mux3(pkt.f1, pkt.f2, ??);
-  if (pred1) {
-    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
-    y = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
-  } else if (pred2) {
-    x = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
-    y = mux2(x, ??) + mux3(??, pkt.f1, pkt.f2) - mux3(??, pkt.f1, pkt.f2);
+  if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+   if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+   } else {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+   }
+  } else if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+   if (rel_op(Mux2(state_1, state_2) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), C())) {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+   } else {
+    state_1 = Opt(state_1) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+    state_2 = Opt(state_2) + Mux3(pkt_1, pkt_2, C()) - Mux3(pkt_1, pkt_2, C());
+   }
   }
   \end{lstlisting}} \\
   \hline
   \end{tabular}
 \end{scriptsize}
-  \caption{Atom templates used in evaluation. rel\_op $\in \{<, >, != , ==\}$ stands for a relational operator. ?? refers to a SKETCH hole that can be filled in with an unsigned integer in the range $[0, 2^n]$.}
+\caption{Atom templates used in evaluation written in SKETCH notation (Table~\ref{tab:sketch_constructs}.}
   \label{tab:templates}
 \end{table*}
 
@@ -139,16 +164,14 @@ forbid packet field updates resulting from these state updates.  Assuming the
 inability to read a state variable renders it powerless!}, such packet updates
 can be treated as stateless operations in subsequent pipeline stages. We
 represent atoms using their atom templates in Table~\ref{tab:templates},
-employing a shorthand notation for SKETCH (Table~\ref{tab:sketch_functions}).
+employing the notation in Table~\ref{tab:sketch_functions}.
 
 %Anirudh->Alvin: Is it clear now that each machine provides exactly one atom.
 We also assume every \absmachine machine provides exactly one stateful atom.
 Table~\ref{tab:templates} gradually increases the capability of this single
-atom provided by a \absmachine machine.  The atoms in Table~\ref{tab:templates}
-, and the \absmachine machines providing them, form a containment hierarchy
-(Figure~\ref{fig:eval}): each atom is strictly more expressive than its
-predecessor and hence can express all data-plane algorithms that its
-predecessor can.
+atom.  The atoms in Table~\ref{tab:templates} , and the \absmachine machines
+providing them, form a containment hierarchy (Figure~\ref{fig:eval}): each atom
+can express all data-plane algorithms that its predecessor can.
 
 We now consider every atom/\absmachine machine from Table~\ref{tab:templates},
 and every data-plane algorithm from Table~\ref{tab:algos} to determine if each
