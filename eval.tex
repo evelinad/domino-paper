@@ -52,41 +52,41 @@
 \begin{table*}[!t]
   \begin{tabular}{|p{0.20\textwidth}|p{0.54\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|}
 \hline
-Algorithm & Stateful computation & Pipeline depth & Pipeline width \\
+Algorithm & Stateful computation & Least expressive atom Required & Pipeline depth, width \\
 \hline
-Bloom filter & \pbox{0.74\textwidth}{Set membership bit on every packet.} & & \\
+Bloom filter & \pbox{0.74\textwidth}{Set membership bit on every packet.} & Write & \\
 \hline
-Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet. & & \\
+Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & \\
 \hline
-Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & & \\
+Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & \\
 \hline
-RCP~\cite{rcp} & Accumulate RTT sum if RTT is under maximum allowable RTT. & & \\
+RCP~\cite{rcp} & Accumulate RTT sum if RTT is under maximum allowable RTT. & PRAW & \\
 \hline
-Sampling & \pbox{0.74\textwidth}{Sample/Mark a packet if packet count reaches N; reset count to 0 at N.} & &\\
+Sampling & \pbox{0.74\textwidth}{Sample/Mark a packet if packet count reaches N; reset count to 0 at N.} & If-Else RAW &\\
 \hline
-HULL~\cite{hull} & Update counter for virtual queue. & & \\
+HULL~\cite{hull} & Update counter for virtual queue. & Sub & \\
 \hline
-Adaptive Virtual Queue~\cite{avq} & & & \\
+Adaptive Virtual Queue~\cite{avq} & & Nested & \\
 \hline
 CONGA~\cite{conga} & \pbox{0.74\textwidth}{Update best path's utilization/id if we see a better path.\\
-                                           Update best path utilization alone if it changes.}  & & \\
+                                           Update best path utilization alone if it changes.}  & Pairs & \\
 \hline
-trTCM~\cite{trTCM} & & & \\
+trTCM~\cite{trTCM} & & Doesn't map & \\
 \hline
-CoDel~\cite{codel} & & & \\
+CoDel~\cite{codel} & & Doesn't map & \\
 \hline
 \end{tabular}
 \caption{Data-plane algorithms}
 \label{tab:algos}
 \end{table*}
 
-\begin{figure}[!t]
-  \begin{center}
-  \includegraphics[width=0.5\columnwidth]{atom_hierarchy.pdf}
-  \end{center}
-  \caption{Containment hierarchy of \absmachine machines and what data-plane algorithms each can implement.}
-\label{fig:eval}
-\end{figure}
+%%\begin{figure}[!t]
+%%  \begin{center}
+%%  \includegraphics[width=0.5\columnwidth]{atom_hierarchy.pdf}
+%%  \end{center}
+%%  \caption{Containment hierarchy of \absmachine machines and what data-plane algorithms each can implement.}
+%%\label{fig:eval}
+%%\end{figure}
 
 %10. Alvin's feedback: Write about our experience writing these programs. Similar to Steven Chong's PLDI paper.
 To evaluate \pktlanguage, we express several well-known data-plane algorithms
