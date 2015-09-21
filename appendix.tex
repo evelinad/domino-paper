@@ -75,6 +75,44 @@ if (rel_op(Opt(state_1),
 4 \\
 
 \hline
+\pbox{0.1\textwidth}
+{Nested Ifs (Nested)} &
+\includegraphics[width=0.5\textwidth]{nested.pdf} &
+{\begin{lstlisting}[style=customctable]
+  if (rel_op(Opt(state_1)
+      + Mux2(pkt_1, pkt_2)
+      - Mux2(pkt_1, pkt_2),
+      C())) {
+   if (rel_op(Opt(state_1)
+              + Mux2(pkt_1, pkt_2)
+              - Mux2(pkt_1, pkt_2),
+              C())) {
+    state_1 = Opt(state_1)
+              + Mux3(pkt_1, pkt_2, C())
+              - Mux3(pkt_1, pkt_2, C());
+   } else {
+    state_1 = Opt(state_1)
+              + Mux3(pkt_1, pkt_2, C())
+              - Mux3(pkt_1, pkt_2, C());
+   }
+  } else {
+   if (rel_op(Opt(state_1)
+              + Mux2(pkt_1, pkt_2)
+              - Mux2(pkt_1, pkt_2),
+              C())) {
+    state_1 = Opt(state_1)
+              + Mux3(pkt_1, pkt_2, C())
+              - Mux3(pkt_1, pkt_2, C());
+   } else {
+    state_1 = Opt(state_1)
+              + Mux3(pkt_1, pkt_2, C())
+              - Mux3(pkt_1, pkt_2, C());
+   }
+  }
+ \end{lstlisting}} &
+ 5 \\
+
+\hline
   \end{longtable}
   \end{scriptsize}
 
