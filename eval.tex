@@ -53,15 +53,15 @@
 \end{table}
 
 \begin{table*}[!t]
-  \begin{tabular}{|p{0.16\textwidth}|p{0.47\textwidth}|p{0.10\textwidth}|p{0.10\textwidth}|}
+  \begin{tabular}{|p{0.16\textwidth}|p{0.47\textwidth}|p{0.10\textwidth}|p{0.5\textwidth}|p{0.5\textwidth}}
 \hline
-Algorithm & Stateful computation & Least expressive atom & Pipeline depth, width \\
+Algorithm & Stateful computation & Least expressive atom & Pipeline depth & Pipeline width \\
 \hline
-Bloom filter~\cite{bloom} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & \\
+Bloom filter~\cite{bloom} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4 & 3\\
 \hline
-Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & \\
+Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10 & 9 \\
 \hline
-Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & \\
+Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6 & 3 \\
 \hline
 RCP~\cite{rcp} & \pbox{0.54\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & \\
 \hline
