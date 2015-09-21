@@ -4,13 +4,20 @@
 This paper presented \pktlanguage, a high-level language that allows
 programmers to write packet-processing code using packet transactions:
 sequential code blocks that run to completion on every packet before processing
-the next packet. The \pktlanguage compiler compiles packet transactions in
+the next one. The \pktlanguage compiler compiles packet transactions in
 \pktlanguage to \absmachine, a family of abstract machines modeled after
 emerging programmable line-rate switch architectures~\cite{flexpipe, xpliant,
-rmt}. The compiler guarantees that all packet transactions that compile will
-run at line rate and rejects \pktlanguage programs that cannot run at line rate
-(Figure~\ref{fig:eval}). Our results suggest that it is possible to
-simultaneously have the convenience of high-level programming and the
-performance of line-rate switches. While much work (\S\ref{s:limitations})
-remains before packet transactions can run on real hardware, we hope to have
-convinced the reader that it is possible.
+rmt}. Our results suggest that it is possible to simultaneously have the
+convenience of high-level programming and the performance of line-rate
+switches, contrary to claims in~\cite{p4} that a high-level language is
+insufficiently constrained for programming line-rate switches.
+
+In light of those claims, our position is that---when carefully
+constrained---it is possible to design a language that finds a sweet spot
+between expressiveness and performance somewhere between the extremes of P4 as
+it stands today and Click. P4 as a language is still evolving and we hope some
+of these results prompt a larger conversation around the utility of having
+higher-level abstractions (such as transactions) in P4. As this paper shows,
+these abstractions come at no cost to performance. While much work remains
+before packet transactions can run on real hardware, we hope to have convinced
+the reader that it is possible.
