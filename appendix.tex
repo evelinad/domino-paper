@@ -2,30 +2,7 @@
 \appendix
 \section{SKETCH code and circuit diagrams for atoms}
 
-We now describe the atoms in Table~\ref{tab:templates} in further detail by
-providing circuit diagrams for each and SKETCH code for the atom templates.
-Table~\ref{tab:sketch_constructs} summarizes the SKETCH notation we use in this
-section.
-
-\begin{table}
-  \begin{scriptsize}
-  \begin{tabular}{p{0.3\columnwidth}p{0.7\columnwidth}}
-  SKETCH construct & Description \\
-  \hline
-  MuxN(a1, a2, \dots, aN) & \pbox{0.7\columnwidth}{N-to-1 multiplexer with enable bit.\\If enabled, return one of a1, a2, \dots aN.\\If disabled, return 0.}\\
-  Opt(a)        & Return a or 0. \\
-  rel\_op(x, y) & Return one of $x < y$, $x > y$, $x != y$, $x == y$.\\
-  C() & Return an integer constant in the range [0, 31].\footnote{We restrict constants to 5 bits because all constants in our dataplane algorithms are under 32. Larger ranges increase synthesis time.} \\
-  state\_1, state\_2 & State variables \\
-  pkt\_1, pkt\_2 & Packet fields \\
-  \end{tabular}
-  \end{scriptsize}
-  \caption{SKETCH notation used in atom templates}
-  \label{tab:sketch_constructs}
-\end{table}
-
 \onecolumn
-
 \begin{scriptsize}
 \begin{longtable}{|p{0.1\textwidth}|p{0.5\textwidth}|p{0.35\textwidth}|p{0.03\textwidth}|}
       \hline
@@ -102,3 +79,27 @@ if (rel_op(Opt(state_1),
   \end{scriptsize}
 
 \twocolumn
+
+We now describe the atoms in Table~\ref{tab:templates} in further detail by
+providing circuit diagrams for each and SKETCH code for the atom templates.
+Table~\ref{tab:sketch_constructs} summarizes the SKETCH notation we use in this
+section.
+
+\begin{table}
+  \begin{scriptsize}
+  \begin{tabular}{p{0.3\columnwidth}p{0.7\columnwidth}}
+  SKETCH construct & Description \\
+  \hline
+  MuxN(a1, a2, \dots, aN) & \pbox{0.7\columnwidth}{N-to-1 multiplexer with enable bit.\\If enabled, return one of a1, a2, \dots aN.\\If disabled, return 0.}\\
+  Opt(a)        & Return a or 0. \\
+  rel\_op(x, y) & Return one of $x < y$, $x > y$, $x != y$, $x == y$.\\
+  C() & Return an integer constant in the range [0, 31].\footnote{We restrict constants to 5 bits because all constants in our dataplane algorithms are under 32. Larger ranges increase synthesis time.} \\
+  state\_1, state\_2 & State variables \\
+  pkt\_1, pkt\_2 & Packet fields \\
+  \end{tabular}
+  \end{scriptsize}
+  \caption{SKETCH notation used in atom templates}
+  \label{tab:sketch_constructs}
+\end{table}
+
+
