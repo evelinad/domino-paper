@@ -158,7 +158,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -178,17 +178,17 @@
        xml:space="preserve"
        style="font-size:42.41059875px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
        x="210.28471"
-       y="785.94025"
+       y="761.25909"
        id="text13615"
        sodipodi:linespacing="100%"
-       transform="scale(1.0283737,0.97240917)"><tspan
+       transform="scale(1.0283737,0.97240916)"><tspan
          sodipodi:role="line"
          id="tspan13617"
          x="210.28471"
-         y="785.94025">32-bit</tspan><tspan
+         y="761.25909" /><tspan
          sodipodi:role="line"
          x="210.28471"
-         y="828.35083"
+         y="803.66968"
          id="tspan13621">Adder</tspan></text>
     <text
        xml:space="preserve"
@@ -240,17 +240,17 @@
        xml:space="preserve"
        style="font-size:42.41059875px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
        x="542.59808"
-       y="784.54572"
+       y="761.92133"
        id="text13615-0"
        sodipodi:linespacing="100%"
-       transform="scale(1.0283737,0.97240917)"><tspan
+       transform="scale(1.0283737,0.97240916)"><tspan
          sodipodi:role="line"
          id="tspan13617-2"
          x="542.59808"
-         y="784.54572">32-bit</tspan><tspan
+         y="761.92133" /><tspan
          sodipodi:role="line"
          x="542.59808"
-         y="826.9563"
+         y="804.33191"
          id="tspan13621-7">Subtractor</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:5.03389883;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"

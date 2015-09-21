@@ -320,7 +320,7 @@ programmer to specify a partial program with \textit{holes} that are then
   \begin{center}
   \begin{lstlisting}
   bit choice = ??(1);
-  int constant = ??(16);
+  int constant = ??(5);
   if (bit) {
     x = x + constant;
   } else {
@@ -336,11 +336,10 @@ Each ``??(n)'' represents a hole that can be filled in with values in
 \label{fig:alu_in_sketch}
 \end{figure}
 
-% TODO: Write around constants in SKETCH.
 We use SKETCH to solve the atom configuration problem.  Consider an atom
 template that models an ALU (Figure~\ref{fig:alu_in_sketch}a) taking two
 configuration parameters: an opcode, \texttt{choice}, specifying an addition or
-subtraction operation, and a positive constant, \texttt{constant}.  The ALU's
+subtraction operation, and a 5-bit positive constant, \texttt{constant}.  The ALU's
 functionality is to add or subtract this constant from one state variable. This
 ALU can be represented by the SKETCH partial program given in
 Figure~\ref{fig:alu_in_sketch}b.
