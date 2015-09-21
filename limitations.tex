@@ -11,40 +11,6 @@ one-to-one, it doesn't take advantage of more powerful stateful atoms, such as
 the paired update atom, which could express the operations of two stateful
 codelets in one atom.
 
-These are suboptimal because they increase the width and depth of the resulting
-pipeline. For instance, redundant stateless atoms that compute the same value
-twice in the same stage increase the pipeline width. As another example,
-consider the heavy hitter detection algorithm with $k$ hash functions.  This
-results in $k$ stateful codelets with no dependencies between each other, and
-each of these codelets increments a state variable. If a paired update atom was
-available, these $k$ stateful codelets could be consolidated into $\frac{k}{2}$
-atoms, each of which operated on two state variables.  Mapping stateful
-codelets to atoms one-to-one misses this opportunity and increases pipeline
-width by creating additional stateful atoms.  As a final example, expression
-flattening could cause an additional stage and elongate the pipeline, where one
-stage would have sufficed.
-
-We plan to address these by incorporating both standard compiler optimizations
-such as common subexpression elimination, copy propagation, and dead code
-elimination, and techniques such as superoptimization~\cite{stoke,
-superoptimizer} that explicitly target optimal code.
-
-The \pktlanguage compiler currently only handles a single packet transaction
-running on the abstract machine.  Extending \pktlanguage and its compiler to
-handle multiple interacting packet transactions is another area of future work.
-
-% Anirudh->Hari: Do you buy this?
-Lastly, \pktlanguage doesn't yet generate code for actual hardware. We
-initially considered compiling \pktlanguage to P4. However, P4 currently
-doesn't support sequential execution within a pipeline stage---required to
-correctly execute the codelets/atoms produced by \pktlanguage. Based on this
-work, we have submitted a proposal for sequential execution~\cite{p4-semantics}
-to the P4 language consortium. In the future, if P4 supports sequential
-execution, \pktlanguage could target P4 as a backend, which would then allow
-\pktlanguage to compile to programmable switches by leveraging ongoing
-work~\cite{netronome, xilinx,lavanya_compiler} in compiling P4 to hardware
-targets.
-
 \textbf{Future Work}
 Currently, \pktlanguage rejects programs that don't compile with an error
 message.  In the future, we plan to improve upon this by automatically
