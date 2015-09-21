@@ -133,4 +133,18 @@ that can be used to implement a data-plane algorithm in Table~\ref{tab:algos}.
 %\absmachine machine. Conversely, it tells us if a particular \absmachine
 %machine suffices to implement a large number of algorithms.
 %
-%\subsection{Compilation times}
+
+\subsection{Compilation times}
+The data-plane algorithms that we consider are all under 100 LOC. As a result,
+our front-end compilation times are negligible; compilation times are dominated
+by  SKETCH trying to map codelets to atoms. However, the bit widths that we
+feed in to SKETCH for its holes are limited to 5 bits because the constants we
+see in the data-plane algorithms are small as well. This reduces the search
+space for SKETCH.  The worst-case compilation time is when a large algorithm
+does not map to a complex atom, because then SKETCH has to rule out every
+possible configuration, which can become expensive for large atoms. Even so,
+our worst-case compilation time is 10 seconds when CoDel doesn't map to a
+\absmachine machine with the pairs atom. It is conceivable that this time will
+increase as we increase the bit width of constants that SKETCH has to search;
+howerver, because the data-plane algorithms are themselves small, we don't
+anticipate compilation times being a concern.
