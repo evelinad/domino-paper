@@ -53,7 +53,7 @@
 \end{table}
 
 \begin{table*}[!t]
-  \begin{tabular}{|p{0.16\textwidth}|p{0.47\textwidth}|p{0.10\textwidth}|p{0.5\textwidth}|p{0.5\textwidth}}
+  \begin{tabular}{|p{0.16\textwidth}|p{0.47\textwidth}|p{0.10\textwidth}|p{0.07\textwidth}|p{0.07\textwidth}|}
 \hline
 Algorithm & Stateful computation & Least expressive atom & Pipeline depth & Pipeline width \\
 \hline
@@ -61,22 +61,22 @@ Bloom filter~\cite{bloom} & \pbox{0.54\textwidth}{Set membership bit on every pa
 \hline
 Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10 & 9 \\
 \hline
-Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6 & 3 \\
+Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6 & 2 \\
 \hline
-RCP~\cite{rcp} & \pbox{0.54\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & \\
+RCP~\cite{rcp} & \pbox{0.54\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3 & 3 \\
 \hline
-Sampling & \pbox{0.54\textwidth}{Sample/Mark a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & If-Else RAW &\\
+Sampling & \pbox{0.54\textwidth}{Sample/Mark a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & If-Else RAW & 4 & 2\\
 \hline
-HULL~\cite{hull} & Update counter for virtual queue. & Sub & \\
+HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7 & 1 \\
 \hline
-AVQ~\cite{avq} & Update virtual queue size and virtual capacity & Nested & \\
+AVQ~\cite{avq} & Update virtual queue size and virtual capacity & Nested & 7 & 3 \\
 \hline
 CONGA~\cite{conga} & \pbox{0.54\textwidth}{Update best path's utilization/id if we see a better path.\\
-                                           Update best path utilization alone if it changes.}  & Pairs & \\
+                                           Update best path utilization alone if it changes.}  & Pairs & 4 & 2\\
 \hline
-trTCM~\cite{trTCM} & Update token counts for each token bucket & Doesn't map & \\
+trTCM~\cite{trTCM} & Update token counts for each token bucket & Doesn't map & 7 & 3 \\
 \hline
-CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are dropping or not.\\Time for next drop.\\Number of drops so far.\\Time at which min. queuing delay has exceeded target.}& Doesn't map & \\
+CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are dropping or not.\\Time for next drop.\\Number of drops so far.\\Time at which min. queuing delay has exceeded target.}& Doesn't map & 14 & 3\\
 \hline
 \end{tabular}
 \caption{Data-plane algorithms}
