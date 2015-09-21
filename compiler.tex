@@ -140,7 +140,7 @@ last_time[@\textcolor{blue}{pkt.id}@] = @\textcolor{blue}{pkt.last\_time}@;
   \begin{minipage}{0.57\textwidth}
   \begin{small}
   \begin{lstlisting}[style=customc]
-@\textcolor{blue}{pkt.id0}@ = hash2(pkt.sport, @\textcolor{blue}{// Rewritten}@
+  @\textcolor{blue}{pkt.id0}@ = hash2(pkt.sport, @\textcolor{blue}{// Rewritten}@ @\label{line:assign}@
                pkt.dport)
                % NUM_FLOWLETS;
 @\textcolor{blue}{pkt.last\_time0}@ = last_time[@\textcolor{blue}{pkt.id0}@];  @\textcolor{blue}{// Rewritten}@
@@ -153,15 +153,14 @@ last_time[@\textcolor{blue}{pkt.id0}@] = @\textcolor{blue}{pkt.last\_time1}@;  @
   \caption{SSA transformation\protect\footnotemark}
 \label{fig:ssa}
 \end{figure*}
-\footnotetext{We rename all assignments, not just reassignments (such as the
-assignment to pkt.id) because reads could precede these assignments.}
+\footnotetext{We rename all assignments, not just reassignments (such as line~\ref{line:assign}) because reads could precede an assignment.}
 
 \begin{figure*}[!t]
 \begin{lstlisting}[style=customc]
-pkt.id            = hash2(pkt.sport, pkt.dport) % NUM_FLOWLETS;
+pkt.id            = hash2(pkt.sport, pkt.dport) % NUM_FLOWLETS; @\label{line:id}@
 pkt.saved_hop     = saved_hop[pkt.id]; @\label{line:stateRead}@
 pkt.last_time     = last_time[pkt.id];
-pkt.new_hop       = hash3(pkt.sport, pkt.dport, pkt.arrival) % NUM_HOPS;
+pkt.new_hop       = hash3(pkt.sport, pkt.dport, pkt.arrival) % NUM_HOPS; @\label{line:newhop}@
 pkt.tmp           = pkt.arrival - pkt.last_time;
 pkt.tmp2          = pkt.tmp > THRESHOLD;
 pkt.next_hop      = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop;
@@ -171,9 +170,9 @@ last_time[pkt.id] = pkt.arrival;
 \caption{Flowlet switching in three-address code\protect\footnotemark}
 \label{fig:three_address}
 \end{figure*}
-\footnotetext{The assignments to pkt.id and pkt.saved\_hop are flipped
-  because pkt.id is an array index expression and is moved into
-the read flank.}
+\footnotetext{Assignments to pkt.id (line~\ref{line:id}) and pkt.new\_hop
+(line~\ref{line:newhop}) are flipped relative to Figure~\ref{fig:flowlet}a
+because pkt.id is an array index expression and is moved into the read flank.}
 
 \subsection{Flattening to three-address code}
 We next transform into three-address code~\cite{tac}, where all instructions
