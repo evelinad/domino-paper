@@ -15,7 +15,11 @@ effect: it allows us to considerably simplify the techniques in \pktlanguage's
 compiler relative to their use in mainstream compilers. Because \pktlanguage's
 syntax is based on C, we use clang's library interface~\cite{libclang} to
 generate an Abstract Syntax Tree (AST) for packet transactions written in
-\pktlanguage. The remaining compiler passes operate on this AST.
+\pktlanguage. The remaining compiler passes operate on this AST. Throughout
+this section, we use flowlet switching from Figure~\ref{fig:flowlet}a as a
+running example to demonstrate compiler passes. While we rename variables for
+readability, the code output by the \pktlanguage compiler after each pass isn't
+materially different from the version presented here.
 
 \subsection{If-conversion to straight-line code}
 A packet transaction's body can contain if-else statements that alter control
@@ -167,7 +171,7 @@ pkt.next_hop      = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop;
 saved_hop[pkt.id] = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop; @\label{line:stateWrite}@
 last_time[pkt.id] = pkt.arrival;
 \end{lstlisting}
-\caption{Flowlet switching in three-address code\protect\footnotemark}
+\caption{Flowlet switching in three-address code.\protect\footnotemark}
 \label{fig:three_address}
 \end{figure*}
 \footnotetext{Assignments to pkt.id (line~\ref{line:id}) and pkt.new\_hop
