@@ -46,7 +46,9 @@
 pkt.id = hash2(pkt.sport,
                pkt.dport)
          % NUM_FLOWLETS;
+...
 @\textcolor{blue}{last\_time[pkt.id] = pkt.arrival;}@
+...
   \end{lstlisting}
   \end{small}
   \end{minipage}
@@ -57,9 +59,9 @@ pkt.id = hash2(pkt.sport,         // Read flank
                pkt.dport)
          % NUM_FLOWLETS;
 pkt.last_time = last_time[pkt.id];// Read flank
-
+...
 @\textcolor{blue}{pkt.last\_time = pkt.arrival; // Rewritten}@
-
+...
 last_time[pkt.id] = pkt.last_time;// Write flank
   \end{lstlisting}
   \end{small}
