@@ -87,7 +87,7 @@ To evaluate \pktlanguage, we express several data-plane algorithms
 (Table~\ref{tab:algos}) using \pktlanguage and determine if they are
 implementable on different \absmachine machines that provide different stateful
 atoms (Table~\ref{tab:templates}). Appendix A contains circuit diagrams and
-SKETCH code for each of these atoms.
+SKETCH code for these atoms.
 
 \subsection{Experimental procedure}
 As mentioned in \S\ref{ss:code_gen}, we consider only stateful atoms by
@@ -150,9 +150,8 @@ the two-rate three-color meter~\cite{trTCM}. The good news, however, is that
 the codelets in these cases are still restricted to a pair of state variables.
 We haven't yet encountered a case where a triplet of state variables all fall
 in the same strongly connected component, requiring a three-way state update.
-We leave the problem of approximating an algorithm to fit within a particular
-atom or conversely, designing more complex atoms to support such algorithms to
-future work.
+We leave the problem of approximating CoDel/trTCM to fit within a particular
+atom or conversely, designing more complex atoms to support them to future work.
 
 While a more expressive atom is strictly better for mapping data-plane
 algorithms, it does have a cost. A larger atom takes up more gate area when
@@ -169,11 +168,12 @@ this further.
 
 These results will change as programmable switches evolve and network
 programmers push chip boundaries with new algorithms.  The larger takeaway is
-that we can now begin to quantify the programmability-performance
-tradeoff that chip designers have so far had only a gut instinct for.  We can
-rigorously\footnote{Modulo inefficiencies in the compiler itself.}
-determine if a particular set of high-level algorithms can run at a given line
-rate, given the atoms supported by the \absmachine machine at that line rate.
+that we can now begin to quantify the programmability-performance tradeoff that
+chip designers have so far had only a gut instinct for. Using the \pktlanguage
+compiler, we can rigorously\footnote{Modulo inefficiencies in the compiler
+itself.} determine if a particular set of high-level algorithms can run at a
+given line rate, given the atoms supported by the \absmachine machine at that
+line rate.
 
 %TODO: This isn't written as strongly as we could write this.
 % Not sure whether we want to have this at all.
@@ -184,9 +184,8 @@ SKETCH trying to map codelets to atoms. However, we limit the bit-width of
 SKETCH holes to 5 bits because the constants we see in our algorithms are
 small.  This reduces the search space for SKETCH.  The worst-case occurs when a
 large algorithm does not map to a large atom, because then SKETCH has to rule
-out every possible configuration, which can become expensive for large atoms.
-Even so, our worst-case compilation time is 10 seconds when CoDel doesn't map
-to a \absmachine machine with the pairs atom. It is conceivable that this time
-will increase as we increase the bit width of constants that SKETCH has to
-search; howerver, because the data-plane algorithms are themselves small, we
-don't anticipate compilation times being a concern.
+out every possible configuration. Even so, our worst-case compilation time is
+10 seconds when CoDel doesn't map to a \absmachine machine with the pairs atom.
+This time will increase as we increase the bit width of constants that SKETCH
+has to search; howerver, because the data-plane algorithms are themselves
+small, we don't anticipate compilation times being a concern.

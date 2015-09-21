@@ -12,12 +12,13 @@ convenience of high-level programming and the performance of line-rate
 switches, contrary to claims in~\cite{p4} that a high-level language is
 insufficiently constrained for programming line-rate switches.
 
-In light of those claims, our position is that---when carefully
-constrained---it is possible to design a language that finds a sweet spot
-between expressiveness and performance somewhere between the extremes of P4 as
-it stands today and Click. P4 as a language is still evolving and we hope some
-of these results prompt a larger conversation around the utility of having
-higher-level abstractions, such as transactions, in P4. As this paper shows,
+In light of those claims, our position is that---when carefully designed---it
+is possible to design a language that finds a sweet spot between expressiveness
+and performance somewhere between the extremes of P4 as it stands today and
+Click. Further, this careful design pays off when implementing the compiler for
+the langauge as well. P4 as a language is still evolving and we hope some of
+these results prompt a larger conversation around the utility of having
+higher-level abstractions, such as packet transactions, in P4. As this paper shows,
 these abstractions come at no cost to performance. While much work remains
 before packet transactions can run on real hardware, we hope to have convinced
 the reader that it is possible.
