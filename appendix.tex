@@ -3,116 +3,12 @@
 \appendix
 \section{SKETCH code and circuit diagrams for atoms}
 
-\begin{table*}[t!]
-\begin{scriptsize}
-  \begin{tabular}{|p{0.1\textwidth}|p{0.8\textwidth}|p{0.03\textwidth}|p{0.05\textwidth}|}
-      \hline
-      Atom & SKETCH code & Circuit depth & Figure \\
-\hline
-Write &
-{\begin{lstlisting}[style=customctable]
-x = Mux2(pkt_1, Const());
-\end{lstlisting}} &
-  1  & \\
-
-\hline
-ReadAddWrite (RAW) &
-{\begin{lstlisting}[style=customctable]
-x = Opt(x) + Mux2(pkt_1, Const());
-\end{lstlisting}} &
- 2 & \\
-
-\hline
-\pbox{0.1\textwidth}
-{Predicated\\
-ReadAddWrite (PRAW)} &
-{\begin{lstlisting}[style=customctable]
-if (rel_op(Opt(x), Mux3(pkt_1, pkt_2, Const()))) {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const());
-}
-\end{lstlisting}} &
-3 & \\
-
-\hline
-\pbox{0.1\textwidth}
-{If-Else\\
-ReadAddWrite (IfElseRAW)} &
-{\begin{lstlisting}[style=customctable]
-if (rel_op(Opt(x), Mux3(pkt_1, pkt_2, Const()))) {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const());
-} else {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const());
-}
-\end{lstlisting}} &
-3 & \\
-
-\hline
-\pbox{0.1\textwidth}
-{Subtract (Sub)} &
-{\begin{lstlisting}[style=customctable]
-if (rel_op(Opt(x), Mux3(pkt_1, pkt_2, Const()))) {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
-} else {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
-}
-\end{lstlisting}}&
-4 & \\
-
-\hline
-\pbox{0.1\textwidth}
-{Nested Ifs (Nested)} &
-{\begin{lstlisting}[style=customctable]
-if (rel_op(Opt(x) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), Const())) {
- if (rel_op(Opt(x) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), Const())) {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
- } else {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
- }
-} else {
- if (rel_op(Opt(x) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), Const())) {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
- } else {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
- }
-}
-\end{lstlisting}} &
-  6 & \\
-
-\hline
-\pbox{0.1\textwidth}
-{Paired Updates (Pairs)} &
-{\begin{lstlisting}[style=customctable]
-if (rel_op(Mux2(x, y) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), Const())) {
- if (rel_op(Mux2(x, y) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), Const())) {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
-  y = Opt(y) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
- } else {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
-  y = Opt(y) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
- }
-} else if (rel_op(Mux2(x, y) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), Const())) {
- if (rel_op(Mux2(x, y) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), Const())) {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
-  y = Opt(y) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
- } else {
-  x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
-  y = Opt(y) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
- }
-}
-\end{lstlisting}} &
-6 & \\
-\hline
-
-  \end{tabular}
-  \end{scriptsize}
-  \caption{SKETCH code for atoms described in Table~\ref{tab:templates}}
-\end{table*}
-
-
+\input{sketch_table}
+\FloatBarrier
 The appendix provides circuit diagrams and SKETCH code for the atoms in
 Table~\ref{tab:templates}. Table~\ref{tab:sketch_constructs} summarizes the
 SKETCH notation we use in this section.
-\begin{table}[h]
+\begin{table}[!htbp]
   \begin{scriptsize}
   \begin{tabular}{p{0.3\columnwidth}p{0.7\columnwidth}}
   SKETCH construct & Description \\
@@ -129,46 +25,59 @@ SKETCH notation we use in this section.
   \label{tab:sketch_constructs}
 \end{table}
 
+\FloatBarrier
 
-\begin{figure}
+\begin{figure}[!htbp]
   \includegraphics[width=\columnwidth]{rw.pdf}
   \caption{Circuit for Write atom with depth 1.}
   \label{fig:rw}
 \end{figure}
 
-\begin{figure}
+\FloatBarrier
+
+\begin{figure}[!htbp]
   \includegraphics[width=\columnwidth]{raw.pdf}
   \caption{Circuit for RAW atom with depth 2.}
   \label{fig:raw}
 \end{figure}
 
-\begin{figure}
+\FloatBarrier
+
+\begin{figure}[!htbp]
   \includegraphics[width=\columnwidth]{pred_raw.pdf}
   \caption{Circuit for PRAW atom with depth 3.}
   \label{fig:praw}
 \end{figure}
 
-\begin{figure}
+\FloatBarrier
+
+\begin{figure}[!htbp]
   \includegraphics[width=\columnwidth]{if_else.pdf}
   \caption{Circuit for IfElseRAW atom with depth 3.}
   \label{fig:ifelseraw}
 \end{figure}
 
-\begin{figure}
+\FloatBarrier
+
+\begin{figure}[!htbp]
   \includegraphics[width=\columnwidth]{sub.pdf}
   \caption{Circuit for Sub atom with depth 4.}
   \label{fig:sub}
 \end{figure}
 
+\FloatBarrier
+
 \newpage
-\begin{figure*}
+\begin{figure*}[!htbp]
   \includegraphics[width=\textwidth]{nested.pdf}
   \caption{Circuit for Nested atom with depth 6.}
   \label{fig:sub}
 \end{figure*}
 
+\FloatBarrier
+
 \newpage
-\begin{figure*}
+\begin{figure*}[!htbp]
   \includegraphics[width=\textwidth]{pairs.pdf}
   \caption{One-half of the circuit for the Pairs atom with depth 6. The other
   half is identical, except that it updates y instead of x, and isn't shown for
