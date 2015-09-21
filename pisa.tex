@@ -45,7 +45,7 @@ arriving to it are already parsed.
 Each pipeline stage contains a vector of \textit{atoms}, with the atoms
 executing in parallel. Informally, an atom is an atomic unit of packet
 processing provided natively by a \absmachine machine and is represented as a
-sequential code block. An atom completes execution and modifies a packet before
+body of sequential code. An atom completes execution and modifies a packet before
 the next packet is processed by that atom.
 
 An atom may also contain internal state that persists across packets and
