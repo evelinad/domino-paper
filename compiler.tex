@@ -181,11 +181,13 @@ manipulations of the form: \texttt{pkt.f1 = pkt.f2 op pkt.f3;} where
 allow either pkt.f2 or pkt.f3 to be function call to an intrinsic, because we
 assume these are supported in hardware. To generate three-address code, we
 flatten expressions that are not already legal in three-address code, by
-introducing enough temporaries
-(Figure~\ref{fig:three_address}).
-%Three-address code instructions are similar to P4's action
-%primitives~\cite{p4spec} and RMT's VLIW instruction set~\cite{rmt}. 
-%TODO: Do we mention CSE here? Seems like the appropriate location.
+introducing enough temporaries (Figure~\ref{fig:three_address}).
+
+Flattening expressions may result in temporaries that compute the same
+subexpression. For instance, if the two statements \texttt{x = a * 5 + b;} and
+\texttt{x = a * 5 + c;} were flattened, the subexpression \texttt{a * 5} would
+be computed by two temporaries. We eliminate such temporaries using
+common subexpression elimination~\cite{cse}.
 
 \subsection{Code partitioning to codelets}
 \label{ss:partitioning}
@@ -243,7 +245,7 @@ packet temporaries.
 \label{fig:partitioning}
 \end{figure*}
 
-\subsection{Code generation: Mapping a codelet to an atom}
+\subsection{Mapping a codelet to an atom}
 \label{ss:code_gen}
 Next, we determine how the codelets created by code partitioning in the
 previous step map one-to-one to atoms provided by the \absmachine machine. We
