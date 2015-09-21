@@ -150,10 +150,11 @@ last_time[@\textcolor{blue}{pkt.id0}@] = @\textcolor{blue}{pkt.last\_time1}@;  @
   \end{lstlisting}
   \end{small}
   \end{minipage}
-  \caption{SSA transformation}
+  \caption{SSA transformation\protect\footnotemark}
 \label{fig:ssa}
 \end{figure*}
-% TODO: Mention how we rename all definitions, because it's just simpler.
+\footnotetext{We rename all assignments, not just reassignments (such as the
+assignment to pkt.id) because reads could precede these assignments.}
 
 \begin{figure*}[!t]
 \begin{lstlisting}[style=customc]
@@ -167,11 +168,12 @@ pkt.next_hop      = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop;
 saved_hop[pkt.id] = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop; @\label{line:stateWrite}@
 last_time[pkt.id] = pkt.arrival;
 \end{lstlisting}
-\caption{Flowlet switching in three-address code}
+\caption{Flowlet switching in three-address code\protect\footnotemark}
 \label{fig:three_address}
 \end{figure*}
-% TODO: Regenerate this code (this one's taken from the proposal) and explain
-% why it is reordered. George and Alvin were both confused by this.
+\footnotetext{The assignments to pkt.id and pkt.saved\_hop are flipped
+  because pkt.id is an array index expression and is moved into
+the read flank.}
 
 \subsection{Flattening to three-address code}
 We next transform into three-address code~\cite{tac}, where all instructions
