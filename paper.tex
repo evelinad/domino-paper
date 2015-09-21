@@ -44,6 +44,7 @@
 \usepackage{listings}
 \usepackage{breakurl}
 \usepackage{inconsolata}
+\usepackage{longtable}
 \usepackage{pbox}
 \usepackage{pifont}% http://ctan.org/pkg/pifont
 \usepackage{tablefootnote}
@@ -77,6 +78,7 @@
  numbers=left, numberstyle=\tiny\color{gray}
 }
 
+%TODO: No clue how to fix the spacing in longtable
 \lstdefinestyle{customctable}{
  aboveskip=-\medskipamount,
  belowskip=-\medskipamount,
@@ -141,7 +143,7 @@
 %\input{limitations}
 \input{related}
 \input{conclusion}
-
+\input{appendix}
 \balance
 {\footnotesize \bibliographystyle{acm}
 \bibliography{paper}}

@@ -17,13 +17,13 @@
     \hline
     Predicated ReadAddWrite (RAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. \\
     \hline
-    IfElse ReadAddWrite (IfElseRaw) & Execute two separate RAWs: one each for when a predicate is true or false.\\
+    IfElse ReadAddWrite (IfElseRAW) & Execute two separate RAWs: one each for when a predicate is true or false.\\
     \hline
-    Subtract (Sub) & Same as IfElseRaw, but also allow subtracting a packet field/constant. \\
+    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. \\
     \hline
     Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. \\
     \hline
-    Paired updates (pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. \\
+    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. \\
     \hline
   \end{tabular}
   \end{scriptsize}
@@ -65,7 +65,7 @@ Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceede
 \hline
 RCP~\cite{rcp} & \pbox{0.54\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3 & 3 \\
 \hline
-Sampling & \pbox{0.54\textwidth}{Sample/Mark a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & If-Else RAW & 4 & 2\\
+Sampling & \pbox{0.54\textwidth}{Sample/Mark a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4 & 2\\
 \hline
 HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7 & 1 \\
 \hline
@@ -185,7 +185,7 @@ SKETCH holes to 5 bits because the constants we see in our algorithms are
 small.  This reduces the search space for SKETCH.  The worst-case occurs when a
 large algorithm does not map to a large atom, because then SKETCH has to rule
 out every possible configuration. Even so, our worst-case compilation time is
-10 seconds when CoDel doesn't map to a \absmachine machine with the pairs atom.
+10 seconds when CoDel doesn't map to a \absmachine machine with the Pairs atom.
 This time will increase as we increase the bit width of constants that SKETCH
 has to search; howerver, because the data-plane algorithms are themselves
 small, we don't anticipate compilation times being a concern.
