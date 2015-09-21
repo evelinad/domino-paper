@@ -1,41 +1,12 @@
 \section{The \pktlanguage compiler}
 \label{s:compiler}
 
+%TODO: Help! Footnotes are inverted.
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{compiler.pdf}
   \caption{Passes in the \pktlanguage compiler}
 \end{figure*}
 
-The \pktlanguage compiler borrows liberally from the compiler
-literature~\cite{muchnik}. However, no prior work that we know of synthesizes
-compiler techniques in the same manner---prompting us to write the \pktlanguage
-compiler in the first place. Further, as we illustrate throughout this section,
-constraining \pktlanguage for deterministic performance has a happy side
-effect: it allows us to considerably simplify the techniques in \pktlanguage's
-compiler relative to their use in mainstream compilers. Because \pktlanguage's
-syntax is based on C, we use clang's library interface~\cite{libclang} to
-generate an Abstract Syntax Tree (AST) for packet transactions written in
-\pktlanguage. The remaining compiler passes operate on this AST. Throughout
-this section, we use flowlet switching from Figure~\ref{fig:flowlet}a as a
-running example to demonstrate compiler passes. While we rename variables for
-readability, the code output by the \pktlanguage compiler after each pass isn't
-materially different from the version presented here.
-
-\subsection{If-conversion to straight-line code}
-A packet transaction's body can contain if-else statements that alter control
-flow and complicate dependence analysis. As an example, we refer the reader to
-the pseudocode of the CoDel algorithm available at~\cite{codel_code}. We
-eliminate if-else statements by transforming them into the C conditional
-operator, starting from the innermost if statements and recursing outwards
-(Figure~\ref{fig:if_convert}). This procedure is called
-if-conversion~\cite{if_conversion}. It is much simpler in \pktlanguage because
-only if-else statements alter control flow in \pktlanguage and all other control
-transfer is forbidden.  This transformation creates
-straight-line code, where control passes sequentially without branching.
-Straight-line code simplifies the rest of the compiler, like computing the
-static single-assignment form(\S\ref{ss:ssa}).
-
-%TODO: Ask Alvin how this can be fixed.
 \begin{figure*}[!t]
   \begin{minipage}{0.47\textwidth}
   \begin{small}
@@ -63,23 +34,6 @@ static single-assignment form(\S\ref{ss:ssa}).
 \caption{Conversion to straight-line code}
 \label{fig:if_convert}
 \end{figure*}
-\subsection{Converting to load/store form}
-
-We next identify both array and scalar state variables used in a packet
-transaction, such as \texttt{last\_time} and \texttt{saved\_hop} in
-Figure~\ref{fig:flowlet}. For each state variable, we create a \textit{read
-flank} to read the state variable into a temporary packet field. For an array,
-we also move the index expression into the read flank, exploiting the fact that
-only one array index is accessed by each packet in valid \pktlanguage programs.
-Then, throughout the packet transaction, we the state variable with the packet
-temporary, and create a \textit{write flank} to write the packet temporary back
-into the state variable.  Figure ~\ref{fig:stateful_flanks} illustrates this
-transformation on a fragment.  After this pass, the code resembles code for a
-load-store architecture~\cite{load_store}: state variables only support reads
-and writes; arithmetic happens on packet variables.  Restricting operations on
-state variables simplifies their treatment during code partitioning
-(\S\ref{ss:partitioning}).
-
 
 \begin{figure*}[!t]
   \begin{minipage}{0.43\textwidth}
@@ -109,23 +63,6 @@ last_time[pkt.id] = pkt.last_time;// Write flank
   \caption{Adding read and write flanks}
 \label{fig:stateful_flanks}
 \end{figure*}
-
-\subsection{Renaming variables to SSA}
-\label{ss:ssa}
-
-We next convert to static single-assignment form (SSA)~\cite{ssa}, an
-intermediate form used by many compilers~\cite{tree_ssa, llvm}, where every
-variable is assigned exactly once. To compute the SSA, we replace every
-definition of a packet variable with a new packet variable and propagate this
-new packet variable until the next definition of the same packet variable.
-State variables are already in SSA form: after their flanks have been added,
-every state variable is written exactly once in the write flank.  While general
-algorithms for computing the SSA are fairly involved~\cite{ssa}, \pktlanguage's
-SSA computation is simpler because it operates on straight-line code.  SSA
-simplifies further analysis because every variable is assigned exactly once.
-This implies that there are no Write-After-Read or Write-After-Write
-dependencies. Only Read-After-Write dependencies remain, simplifying dependency
-analysis during code partitioning (\S\ref{ss:partitioning}).
 
 \begin{figure*}[!t]
   \begin{minipage}{0.43\textwidth}
@@ -177,6 +114,73 @@ last_time[pkt.id] = pkt.arrival;
 \footnotetext{Assignments to pkt.id (line~\ref{line:id}) and pkt.new\_hop
 (line~\ref{line:newhop}) are flipped relative to Figure~\ref{fig:flowlet}a
 because pkt.id is an array index expression and is moved into the read flank.}
+
+
+
+
+The \pktlanguage compiler borrows liberally from the compiler
+literature~\cite{muchnik}. However, no prior work that we know of synthesizes
+compiler techniques in the same manner---prompting us to write the \pktlanguage
+compiler in the first place. Further, as we illustrate throughout this section,
+constraining \pktlanguage for deterministic performance has a happy side
+effect: it allows us to considerably simplify the techniques in \pktlanguage's
+compiler relative to their use in mainstream compilers. Because \pktlanguage's
+syntax is based on C, we use clang's library interface~\cite{libclang} to
+generate an Abstract Syntax Tree (AST) for packet transactions written in
+\pktlanguage. The remaining compiler passes operate on this AST. Throughout
+this section, we use flowlet switching from Figure~\ref{fig:flowlet}a as a
+running example to demonstrate compiler passes. While we rename variables for
+readability, the code output by the \pktlanguage compiler after each pass isn't
+materially different from the version presented here.
+
+\subsection{If-conversion to straight-line code}
+A packet transaction's body can contain if-else statements that alter control
+flow and complicate dependence analysis. As an example, we refer the reader to
+the pseudocode of the CoDel algorithm available at~\cite{codel_code}. We
+eliminate if-else statements by transforming them into the C conditional
+operator, starting from the innermost if statements and recursing outwards
+(Figure~\ref{fig:if_convert}). This procedure is called
+if-conversion~\cite{if_conversion}. It is much simpler in \pktlanguage because
+only if-else statements alter control flow in \pktlanguage and all other control
+transfer is forbidden.  This transformation creates
+straight-line code, where control passes sequentially without branching.
+Straight-line code simplifies the rest of the compiler, like computing the
+static single-assignment form(\S\ref{ss:ssa}).
+
+%TODO: Ask Alvin how this can be fixed.
+\subsection{Converting to load/store form}
+
+We next identify both array and scalar state variables used in a packet
+transaction, such as \texttt{last\_time} and \texttt{saved\_hop} in
+Figure~\ref{fig:flowlet}. For each state variable, we create a \textit{read
+flank} to read the state variable into a temporary packet field. For an array,
+we also move the index expression into the read flank, exploiting the fact that
+only one array index is accessed by each packet in valid \pktlanguage programs.
+Then, throughout the packet transaction, we the state variable with the packet
+temporary, and create a \textit{write flank} to write the packet temporary back
+into the state variable.  Figure ~\ref{fig:stateful_flanks} illustrates this
+transformation on a fragment.  After this pass, the code resembles code for a
+load-store architecture~\cite{load_store}: state variables only support reads
+and writes; arithmetic happens on packet variables.  Restricting operations on
+state variables simplifies their treatment during code partitioning
+(\S\ref{ss:partitioning}).
+
+\subsection{Renaming variables to SSA}
+\label{ss:ssa}
+
+We next convert to static single-assignment form (SSA)~\cite{ssa}, an
+intermediate form used by many compilers~\cite{tree_ssa, llvm}, where every
+variable is assigned exactly once. To compute the SSA, we replace every
+definition of a packet variable with a new packet variable and propagate this
+new packet variable until the next definition of the same packet variable.
+State variables are already in SSA form: after their flanks have been added,
+every state variable is written exactly once in the write flank.  While general
+algorithms for computing the SSA are fairly involved~\cite{ssa}, \pktlanguage's
+SSA computation is simpler because it operates on straight-line code.  SSA
+simplifies further analysis because every variable is assigned exactly once.
+This implies that there are no Write-After-Read or Write-After-Write
+dependencies. Only Read-After-Write dependencies remain, simplifying dependency
+analysis during code partitioning (\S\ref{ss:partitioning}).
 
 \subsection{Flattening to three-address code}
 We next transform into three-address code~\cite{tac}, where all instructions
