@@ -8,14 +8,14 @@ Write &
 {\begin{lstlisting}[style=customctable]
 x = Mux2(pkt_1, Const());
 \end{lstlisting}} &
-  1  & \\
+1  & Figure~\ref{fig:rw}\\
 
 \hline
 ReadAddWrite (RAW) &
 {\begin{lstlisting}[style=customctable]
 x = Opt(x) + Mux2(pkt_1, Const());
 \end{lstlisting}} &
- 2 & \\
+2 & Figure~\ref{fig:raw}\\
 
 \hline
 \pbox{0.1\textwidth}
@@ -26,7 +26,7 @@ if (rel_op(Opt(x), Mux3(pkt_1, pkt_2, Const()))) {
   x = Opt(x) + Mux3(pkt_1, pkt_2, Const());
 }
 \end{lstlisting}} &
-3 & \\
+3 & Figure~\ref{fig:praw}\\
 
 \hline
 \pbox{0.1\textwidth}
@@ -39,7 +39,7 @@ if (rel_op(Opt(x), Mux3(pkt_1, pkt_2, Const()))) {
   x = Opt(x) + Mux3(pkt_1, pkt_2, Const());
 }
 \end{lstlisting}} &
-3 & \\
+3 & Figure~\ref{fig:ifelseraw}\\
 
 \hline
 \pbox{0.1\textwidth}
@@ -51,7 +51,7 @@ if (rel_op(Opt(x), Mux3(pkt_1, pkt_2, Const()))) {
   x = Opt(x) + Mux3(pkt_1, pkt_2, Const()) - Mux3(pkt_1, pkt_2, Const());
 }
 \end{lstlisting}}&
-4 & \\
+4 & Figure~\ref{fig:sub}\\
 
 \hline
 \pbox{0.1\textwidth}
@@ -71,7 +71,7 @@ if (rel_op(Opt(x) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), Const())) {
  }
 }
 \end{lstlisting}} &
-  6 & \\
+6 & Figure~\ref{fig:nested}\\
 
 \hline
 \pbox{0.1\textwidth}
@@ -95,12 +95,13 @@ if (rel_op(Mux2(x, y) + Mux2(pkt_1, pkt_2) - Mux2(pkt_1, pkt_2), Const())) {
  }
 }
 \end{lstlisting}} &
-6 & \\
+6 & Figure~\ref{fig:pairs}\\
 \hline
 
   \end{tabular}
   \end{scriptsize}
   \caption{SKETCH code for atoms described in Table~\ref{tab:templates}}
+  \label{tab:atom_code}
 \end{table*}
 
 
