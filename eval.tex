@@ -1,8 +1,10 @@
 \section{Evaluation}
-%TODO: Is there a good technical reason why every \absmachine machine
+% TODO: Is there a good technical reason why every \absmachine machine
 % should have exactly one large stateful atom as opposed to many small stateful atoms?
+
 % TODO: Show how pipeline width / depth changes
 % by adding more complicated atoms? This might be a little more work though.
+
 \label{s:eval}
 
 \begin{table}[!t]
@@ -90,46 +92,46 @@ atoms (Table~\ref{tab:templates}). Appendix A contains circuit diagrams and
 SKETCH code for these atoms.
 
 \subsection{Experimental procedure}
-As mentioned in \S\ref{ss:code_gen}, we consider only stateful atoms by
-assuming stateless codelets map one-to-one to stateless atoms for all
-\absmachine machines. For simplicity, the stateful atoms only permit updates to
-state variables and forbid packet field updates mixed in with these state
-updates.  Assuming the \absmachine machine provides an atom to read a state
+As mentioned in \S\ref{ss:code_gen}, we consider only stateful atoms and assume
+stateless codelets map one-to-one to stateless atoms for all \absmachine
+machines. For simplicity, the stateful atoms only permit updates to state
+variables and forbid packet field updates mixed in with these state updates.
+Assuming the \absmachine machine provides an atom to read a state
 variable\footnote{The inability to read a state variable renders it
-powerless!}, such packet updates can be treated as stateless operations in
+powerless!}, such field updates can be treated as stateless operations in
 subsequent pipeline stages.
 
-We also assume every \absmachine machine provides exactly one stateful atom.
+We also assume every \absmachine machine provides exactly one kind of stateful
+atom although we don't restrict the number of instances of this stateful atom.
 Table~\ref{tab:templates} gradually increases the capability of this single
 atom.  We designed the atoms in Table~\ref{tab:templates}, and hence the
 \absmachine machines providing them, to form a containment hierarchy: each atom
 can express all data-plane algorithms that its predecessor can.
 
 We now consider every atom/\absmachine machine from Table~\ref{tab:templates},
-and every data-plane algorithm from Table~\ref{tab:algos} to determine if each
+and every data-plane algorithm from Table~\ref{tab:algos} to determine if the
 algorithm is \textit{implementable} on a particular \absmachine machine. We say
 an algorithm is implementable on a \absmachine machine, if every stateful
 codelet within the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to
-the single stateful atom provided by the \absmachine machine. Because atoms are
+the stateful atom provided by the \absmachine machine. Because atoms are
 arranged in a containment hierarchy, we list the \textit{least expressive} atom
 that can be used to implement a data-plane algorithm in Table~\ref{tab:algos}.
 
 \subsection{Interpreting the results}
-Table~\ref{tab:algos} tells a network programmer the minimal atom required for
-a data-plane algorithm to run at line rate. For an ASIC engineer designing
+Table~\ref{tab:algos} tells a network programmer the minimal atom required to
+run a data-plane algorithm at line rate. For an ASIC engineer designing
 programmable switches, the same table describes the algorithms that are
-implementable on a particular \absmachine machine with a specific stateful
-atom. For instance, a \absmachine machine with the paired updates atom can
-implement eight algorithms, while a machine with a simpler read-add-write atom
-can implement only two.
+implementable on a \absmachine machine with a specific stateful atom. For
+instance, a \absmachine machine with the Pairs atom can implement the first
+eight algorithms, while a machine with a simpler RAW atom can implement only
+the first two.
 
-We also discuss broader lessons for designing programmable switching chips.
-First, atoms that support stateful operations only on a single state variable
-are already good enough for several data-plane algorithms (Bloom Filters
-through AVQ in Table~\ref{tab:algos}). However, there are data-plane algorithms
-for which the switch needs to provide an ability to update a pair of state
-variables based on the other's previous values. The simplest example
-is CONGA, whose code we reproduce below:
+We also extract broader lessons for designing programmable switching chips.
+First, atoms supporting stateful operations on a single state variable are
+sufficient for several data-plane algorithms (Bloom Filters through AVQ in
+Table~\ref{tab:algos}). However, there are algorithms that need the ability to
+update a pair of state variables based on the previous value of the pair. One
+example is CONGA, whose code we reproduce below:
 \begin{verbatim}
   if (p.util < best_path_util[p.src]) {
     best_path_util[p.src] = p.util;
@@ -139,37 +141,43 @@ is CONGA, whose code we reproduce below:
   }
 \end{verbatim}
 Here, \texttt{best\_path} (the ID of the best path for a particular
-destination) is updated conditioned on \texttt{best\_path\_util} (the utilization of
-the best path to that destination) and vice versa. There is no way to separate
-the two state variables into separate stages and guarantee correctness.
+destination) is updated conditioned on \texttt{best\_path\_util} (the
+utilization of the best path to that destination)\footnote{p.src is the address
+  of the host originating this utilization message, and hence the
+destintation for the host receiving it and executing the CONGA algorithm.} and
+vice versa. There is no way to separate the two state variables into separate
+stages and guarantee correctness.
+%TODO: Add figure of CONGA here maybe?
 
-However, even the paired update atom, where the update to a state variable is
-conditioned on a predicate of a pair of variables, is insufficient.  There are
-algorithms that can still not run at line-rate such as CoDel~\cite{codel} and
-the two-rate three-color meter~\cite{trTCM}. The good news, however, is that
-the codelets in these cases are still restricted to a pair of state variables.
-We haven't yet encountered a case where a triplet of state variables all fall
-in the same strongly connected component, requiring a three-way state update.
-We leave the problem of approximating CoDel/trTCM to fit within a particular
-atom or conversely, designing more complex atoms to support them to future work.
+The Pairs atom, where the update to a state variable is conditioned on a
+predicate of a pair of state variables, allows us to implement CONGA at line
+rate.  However, it is still insufficient for some algorithms. Algorithms such
+as CoDel~\cite{codel} and the two-rate three-color meter~\cite{trTCM}(trTCM)
+can still not run at line rate---even if a Pairs atom is available.
 
-While a more expressive atom is strictly better for mapping data-plane
-algorithms, it does have a cost. A larger atom takes up more gate area when
-synthesized to a digital circuit and results in longer propagation delays. As
-an illustration, consider the circuits for three atoms shown in
-Figure~\ref{fig:circuit_depth}, the first three atoms from
-Table~\ref{tab:templates}. We use the number of elements that a wire has to
-pass through between input and output (the circuit depth) as a proxy for
-propagation delay. We see that the circuit depth increases as we add
-complexity to atoms. At some point, the propagation delay may be large enough
-that the resulting circuit may not meet timing for a particular line rate. We
-plan to synthesize these atoms to circuits in a standard cell library to study
-this further.
+On a positive note, however, the codelets in both trTCM and CoDel are still
+restricted to a pair of state variables.  We haven't yet encountered a case
+where a triplet of state variables all fall in the same strongly connected
+component/codelet, requiring a three-way state update.  We leave the problem of
+approximating CoDel/trTCM to fit within a particular atom or conversely,
+designing more complex atoms to support them to future work.
+
+While an expressive atom is better for mapping more data-plane algorithms, it
+does have a cost. A larger and more expressive atom takes up more gate area
+when synthesized to a digital circuit and results in longer propagation delays.
+As an illustration, consider the circuits for the first three atoms from Table
+~\ref{tab:templates} shown in Figure~\ref{fig:circuit_depth}. We use the number
+of elements that a wire has to pass through between input and output (the
+circuit depth) as a proxy for propagation delay. We see that the circuit depth
+increases as we add complexity to atoms. At some point, the propagation delay
+may be large enough that the resulting circuit may not meet timing to sustain a
+particular line rate. We plan to synthesize these atoms to circuits in a
+standard cell library to study this further.
 
 These results will change as programmable switches evolve and network
 programmers push chip boundaries with new algorithms.  The larger takeaway is
 that we can now begin to quantify the programmability-performance tradeoff that
-chip designers have so far had only a gut instinct for. Using the \pktlanguage
+chip designers have so far intuitively understood. Using the \pktlanguage
 compiler, we can rigorously\footnote{Modulo inefficiencies in the compiler
 itself.} determine if a particular set of high-level algorithms can run at a
 given line rate, given the atoms supported by the \absmachine machine at that
@@ -184,8 +192,8 @@ SKETCH trying to map codelets to atoms. However, we limit the bit-width of
 SKETCH holes to 5 bits because the constants we see in our algorithms are
 small.  This reduces the search space for SKETCH.  The worst-case occurs when a
 large algorithm does not map to a large atom, because then SKETCH has to rule
-out every possible configuration. Even so, our worst-case compilation time is
-10 seconds when CoDel doesn't map to a \absmachine machine with the Pairs atom.
-This time will increase as we increase the bit width of constants that SKETCH
-has to search; howerver, because the data-plane algorithms are themselves
-small, we don't anticipate compilation times being a concern.
+out every possible configuration. Quantitatively, our worst-case compilation
+time is 10 seconds when CoDel doesn't map to a \absmachine machine with the
+Pairs atom.  This time will increase if we increase the bit width of constants
+that SKETCH has to search; howerver, because the data-plane algorithms are
+themselves small, we don't anticipate compilation times being a concern.
