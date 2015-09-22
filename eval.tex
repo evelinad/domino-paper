@@ -59,9 +59,9 @@
 \hline
 Algorithm & Stateful computation & Least expressive atom & Pipeline depth & Pipeline width \\
 \hline
-Bloom filter~\cite{bloom} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4 & 3\\
+\pbox{0.16\textwidth}{Bloom filter~\cite{bloom}\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4 & 3\\
 \hline
-Heavy Hitters~\cite{opensketch} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10 & 9 \\
+\pbox{0.16\textwidth}{Heavy Hitters~\cite{opensketch}\\(3 hash functions)} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10 & 9 \\
 \hline
 Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6 & 2 \\
 \hline
