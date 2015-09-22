@@ -311,7 +311,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -519,7 +519,7 @@
          sodipodi:role="line"
          x="537.36237"
          y="302.95901"
-         id="tspan6967">CMP</tspan></text>
+         id="tspan6967">RELOP</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:5.03399992;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Mend-4)"
        d="m -3.3230408,906.64328 200.0000008,0"
