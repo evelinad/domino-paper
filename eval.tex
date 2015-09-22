@@ -70,6 +70,7 @@ Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceede
 RCP~\cite{rcp} & \pbox{0.54\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress \\
 \hline
 Sampling & \pbox{0.54\textwidth}{Sample/Mark a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either\\
+% psamp, sflow, etc.
 \hline
 HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress \\
 \hline
