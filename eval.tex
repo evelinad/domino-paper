@@ -78,7 +78,7 @@ CONGA~\cite{conga} & \pbox{0.54\textwidth}{Update best path's utilization/id if 
 \hline
 trTCM~\cite{trTCM} & Update token counts for each token bucket & Doesn't map & 7, 3 & Either \\
 \hline
-CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are dropping/marking or not.\\Time for next drop/mark.\\Number of drops/marks so far.\\Time at which min. queuing delay will exceed target.}& Doesn't map & 15, 3 & Egress \\
+CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queuing delay will exceed target.}& Doesn't map & 15, 3 & Egress \\
 \hline
 \end{tabular}
 \caption{Data-plane algorithms}
@@ -90,6 +90,15 @@ To evaluate \pktlanguage, we express several data-plane algorithms
 implementable on different \absmachine machines that provide different stateful
 atoms (Table~\ref{tab:templates}). Appendix A contains circuit diagrams and
 SKETCH code for these atoms.
+
+We expressed most data-plane algorithms in \pktlanguage by simply translating
+their imperative code/pseudocode to \pktlanguage. We did, however, modify
+CoDel. Because CoDel drops from the head of a queue, it uses a
+loop~\cite{codel_code} to repeatedly dequeue packets until it can send one out.
+We replaced the loop with an if statement and mark packets instead of dropping
+them. This reflects the reality that a switch running at line rate can dequeue
+packets exactly once. Dropping these dequeued packets leads to an idle line and
+wasted capacity.
 
 \subsection{Experimental procedure}
 As mentioned in \S\ref{ss:code_gen}, we consider only stateful atoms and assume
