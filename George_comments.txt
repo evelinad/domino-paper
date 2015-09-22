@@ -1,10 +1,1 @@
 1. Can you add the three-operand codes by linking to a website?
-Lavanya's paper:
--------------------
-
-Mention this all in related work:
-----------------------------------------
-Domino vs. P4: stateful vs. stateless processing.
-Domino vs. P4: code generation vs. no code generation.
-Domino vs. P4: They do table spreading we don't.
-Per-flow tables might make stateful processing hard as well. 
