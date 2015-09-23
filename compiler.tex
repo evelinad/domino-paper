@@ -75,6 +75,7 @@ last_time[pkt.id] = pkt.last_time;// Write flank
 \end{figure*}
 
 \begin{figure*}[!t]
+  \begin{minipage}{\textwidth}
   \begin{minipage}{0.43\textwidth}
   \begin{small}
   \begin{lstlisting}[style=customc]
@@ -101,12 +102,12 @@ last_time[@\textcolor{blue}{pkt.id0}@] = @\textcolor{blue}{pkt.last\_time1}@;  @
   \end{lstlisting}
   \end{small}
   \end{minipage}
-  \caption{SSA transformation\protect\footnotemark}
-\label{fig:ssa}
+  \caption[title]{SSA transformation\footnote{We rename all assignments, not just reassignments (such as line~\ref{line:assign}) because reads could precede an assignment.}}
+  \label{fig:ssa}
+\end{minipage}
 \end{figure*}
-\footnotetext{We rename all assignments, not just reassignments (such as line~\ref{line:assign}) because reads could precede an assignment.}
-
 \begin{figure*}[!t]
+\begin{minipage}{\textwidth}
 \begin{lstlisting}[style=customc]
 pkt.id            = hash2(pkt.sport, pkt.dport) % NUM_FLOWLETS; @\label{line:id}@
 pkt.saved_hop     = saved_hop[pkt.id]; @\label{line:stateRead}@
@@ -118,12 +119,14 @@ pkt.next_hop      = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop;
 saved_hop[pkt.id] = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop; @\label{line:stateWrite}@
 last_time[pkt.id] = pkt.arrival;
 \end{lstlisting}
-\caption{Flowlet switching in three-address code.\protect\footnotemark}
+\caption[title2]{Flowlet switching in three-address
+code.\footnote{Lines~\ref{line:id} and ~\ref{line:newhop}) are flipped relative
+to Figure~\ref{fig:flowlet}a because pkt.id is an array index expression and is
+moved into the read flank.}}
 \label{fig:three_address}
+\end{minipage}
+\vspace{-0.5cm}
 \end{figure*}
-\footnotetext{Assignments to pkt.id (line~\ref{line:id}) and pkt.new\_hop
-(line~\ref{line:newhop}) are flipped relative to Figure~\ref{fig:flowlet}a
-because pkt.id is an array index expression and is moved into the read flank.}
 
 The \pktlanguage compiler borrows liberally from the compiler
 literature~\cite{muchnik}. However, no prior work that we know of synthesizes
