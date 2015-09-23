@@ -2,8 +2,9 @@
 \label{s:intro}
 
 Data-plane algorithms~\cite{cestan} are algorithms implemented within a network
-switch. These algorithms process every data packet passing through the switch,
-transforming the packet and often some state stored on the switch.  Examples
+switch. These algorithms process every data packet passing through the switch by
+transforming the packet and optionally altering the switch's internal state.
+Examples
 include in-network congestion control~\cite{xcp, rcp, pdq, dctcp}, active queue
 management~\cite{codel}, network measurement~\cite{opensketch, bitmap_george,
 elephant_george}, and load-balanced data-plane routing~\cite{conga}.
@@ -11,7 +12,7 @@ elephant_george}, and load-balanced data-plane routing~\cite{conga}.
 Because data-plane algorithms process every packet, an important implementation
 requirement is the ability to process packets at line rate.  As a result, these
 algorithms are typically implemented using dedicated hardware. However,
-hardware designs are rigid, preventing reconfigurability in the field. This
+hardware designs are rigid and prevent reconfigurability in the field. This
 rigidity affects network switch vendors building switch
 boxes~\cite{cisco_nexus, dell_force10, arista_7050} based on merchant-silicon
 switch chips~\cite{trident, tomahawk, mellanox}, network operators using
@@ -20,33 +21,41 @@ researchers developing new switch algorithms~\cite{xcp, codel, d3, detail,
 pdq}. Today, the only way to implement a new data-plane algorithm at line rate
 is to build hardware for it.
 
-Programmable switching chips~\cite{flexpipe, xpliant, rmt}, competitive with
-state of the art fixed-function chipsets~\cite{trident, tomahawk, mellanox},
+Programmable switching chips~\cite{flexpipe, xpliant, rmt} that are competitive with
+state of the art fixed-function chipsets~\cite{trident, tomahawk, mellanox}
 present an alternative.  These chips allow network programmers to express their
-algorithms using primitives provided by the chip.  Programming these chips has
+algorithms using the primitives provided by the chip.  Programming these chips has
 become more user-friendly over time. Initially, such chips were programmed
 using proprietary SDKs such as those from XPliant~\cite{xpliant_sdk,
-xpliant_sdk2} and Intel~\cite{intel_sdk} that were closely tied to the
-underlying hardware.  Over time, languages such as P4~\cite{p4, p4spec} have
-raised the level of abstraction for programming such chips.
+xpliant_sdk2} and Intel~\cite{intel_sdk}. Such SDKs are closely tied to the
+underlying hardware and make it difficult for network programmers, who are more familiar
+with programming models such as C, to work with.
+%Over time, languages such as P4~\cite{p4, p4spec} have
+%raised the level of abstraction for programming such chips.
 
+P4~\cite{p4, p4spec} represents a programming model that is closer to 
+what network programmers are familiar with \ac{need rephrasing}.
 For instance, P4 allows the programmer to specify a packet's headers, its
 parse graph, the sequence of match-action tables processing each
 packet, and the operations carried out by each action when a packet is
-matched. P4 is a natural programming model for many data-plane tasks
-involving packet parsing and header manipulation, such as handling new protocol
+matched. 
+%P4 is a natural programming model for many data-plane tasks
+Many common data-plane tasks have been implemented in P4, including
+%involving packet parsing and header manipulation, such as 
+handling new protocol
 formats, switching, forwarding, tunneling, and access control~\cite{dc_p4}.
 
 However, P4 today isn't suited to data-plane algorithms such as congestion
 control and active queue management, which manipulate state stored on the
 switch and have an \textit{algorithmic} flavor capturing each algorithm's
 control logic.  For such data-plane algorithms, network programmers would
-prefer the convenience of an imperative language that captures the intent of
+prefer the convenience of an imperative language such as C that captures the intent of
 the algorithm, similar to how such algorithms are implemented in sofware
 routers~\cite{click}, network processors~\cite{packetc, nova}, and the Linux
 qdisc subsystem~\cite{qdisc}.
 
-This paper presents \pktlanguage, a new DSL for data-plane algorithms.
+This paper presents \pktlanguage, a new domain-specific language (DSL) 
+for data-plane algorithms.
 \pktlanguage is an imperative language based on C that allows programmers to
 express data-plane algorithms using {\em packet transactions}
 (\S\ref{s:transactions}).  Packet transactions provide the abstraction of a
@@ -55,17 +64,18 @@ executing on the next packet. This is a convenient programming model, because
 it allows the programmer to focus on the operations needed for each packet
 without worrying about other packets that are concurrently being processed.
 
-We have implemented a compiler for \pktlanguage that compiles \pktlanguage
-packet transactions and generates code for a family of abstract machines called
+We have implemented a \pktlanguage compiler that converts  
+packet transactions and to be executed on a family of abstract machines called
 \absmachine~(\S\ref{s:absmachine}) (for Protocol-Independent Switch
 Architecture). \absmachine generalizes the Reconfigurable Match-Action
 Table~\cite{rmt} model and captures essential features of line-rate programmable
 switch architectures~\cite{rmt, xpliant, flexpipe}.
 
 In addition, \absmachine introduces the concept of {\em atoms} to represent
-atomic computations provided natively by a \absmachine machine much like
+atomic computations provided natively by a \absmachine machine, much like
 load-link/store-conditional, compare-and-exchange, and packed-multiply-and-add
-on x86 machines today~\cite{x86_manual}.  Atoms provide the underlying atomic
+on x86 machines today~\cite{x86_manual} \ac{is it important to raise 3 examples here?}. 
+Atoms provide the underlying atomic
 hardware operations required to implement packet transactions, similar to how
 an atomic test-and-set can implement an atomic increment.
 
