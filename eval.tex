@@ -99,8 +99,8 @@ CoDel. Because CoDel drops from the head of a queue, it uses a
 loop~\cite{codel_code} to repeatedly dequeue packets until it can send one out.
 We replaced the loop with an if statement and mark packets instead of dropping
 them. This reflects the reality that a switch running at line rate can dequeue
-packets exactly once. Dropping these dequeued packets leads to an idle line and
-wasted capacity.
+packets exactly once. Dropping these dequeued packets, instead of marking them,
+leads to an idle line and wasted capacity.
 
 \subsection{Experimental procedure}
 As mentioned in \S\ref{ss:code_gen}, we consider only stateful atoms and assume
