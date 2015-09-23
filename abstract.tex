@@ -1,21 +1,16 @@
 \subsection*{Abstract}
-Data-plane algorithms are algorithms that execute on every packet. They
-encompass many packet-processing routines including congestion control, network
+Data-plane algorithms are algorithms that execute on every packet and encompass
+many packet-processing routines including congestion control, network
 measurement, active queue management, and load balancing. Such algorithms are
 implemented in hardware today, prohibiting reconfigurability in the field.
-While programmable line-rate switches have been proposed, they are difficult to
-utilize due to the low-level nature of the languages used to program them.
+Programmable line-rate switches have been proposed. However, the languages used
+to program them resemble the underlying hardware and aren't convenient to use.
 
-This paper presents \pktlanguage, a high-level\ac{I thought we are not doing the 
-high level language story anymore}, imperative language for
-expressing data-plane algorithms. Programmers write data-plane algorithms in
-\pktlanguage using packet transactions, which conceptually are 
-sequential code blocks that run to
-completion on each packet before processing the next one. The \pktlanguage compiler translates
-the code to be executed on \absmachine, a family of abstract machines
-based on emerging programmable line-rate switch architectures. We evaluate
-\pktlanguage by expressing several data-plane algorithms in \pktlanguage and
-compiling them to different \absmachine machines. Our results suggest---contrary
-to concerns raised in~\cite{p4}---that there is no reason to sacrifice the
-convenience of high-level programming for line-rate performance.\ac{If we are not
-going for high level language then we shouldn't be drawing this conclusion}
+This paper presents \pktlanguage, an imperative language for data-plane
+algorithms. Programmers write data-plane algorithms in \pktlanguage using
+packet transactions: sequential code blocks that run to completion on each
+packet before processing the next one. The \pktlanguage compiler translates
+\pktlanguage code to binaries that can be executed on \absmachine, a family of
+abstract machines based on emerging programmable line-rate switches.  We
+evaluate \pktlanguage by expressing several data-plane algorithms in
+\pktlanguage and compiling them to different \absmachine machines.
