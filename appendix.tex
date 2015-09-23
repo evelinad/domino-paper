@@ -14,7 +14,7 @@ SKETCH notation we use in this section.
   MuxN(a1, a2, \dots, aN) & \pbox{0.7\columnwidth}{N-to-1 multiplexer with enable bit.\\If enabled, return one of a1, a2, \dots aN.\\If disabled, return 0.}\\
   Opt(a)        & Return a or 0. \\
   rel\_op(x, y) & Return one of $x < y$, $x > y$, $x != y$, $x == y$.\\
-  Const() & Return an integer constant in the range [0, 31].\footnote{We restrict constants to 5 bits because all constants in our dataplane algorithms are under 32. Larger ranges increase synthesis time.} \\
+  Const() & Return an integer constant in the range [0, 31].\footnote{We restrict constants to 5 bits because all constants within stateful codelets in our dataplane algorithms are under 32. Larger ranges increase synthesis time.} \\
   x, y & State variables \\
   pkt\_1, pkt\_2 & Packet fields \\
   \end{tabular}
