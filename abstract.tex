@@ -3,14 +3,21 @@ Data-plane algorithms are algorithms that execute on every packet and encompass
 many packet-processing routines including congestion control, network
 measurement, active queue management, and load balancing. Such algorithms are
 implemented in hardware today, prohibiting reconfigurability in the field.
-Programmable line-rate switches have been proposed. However, the languages used
-to program them resemble the underlying hardware and aren't convenient to use.
+Programmable line-rate switches have been proposed. However, the languages that
+program them still resemble the underlying hardware and aren't convenient for a
+network programmer to use.
 
+% Anirudh->Alvin: I don't like the phrase "to be executed".
+% It sounds like a processor, and is a little wierd to me grammatically.
+% Technically, we would say to binaries that execute on a family of abs. machines,
+% but that would require explaining how we generate the binaries and again gives
+% the impression of a processor.
+% compiling to \absmachine is my fix to this, and is what we use in the proposal.
 This paper presents \pktlanguage, an imperative language for data-plane
 algorithms. Programmers write data-plane algorithms in \pktlanguage using
 packet transactions: sequential code blocks that run to completion on each
-packet before processing the next one. The \pktlanguage compiler translates
-\pktlanguage code to binaries that can be executed on \absmachine, a family of
-abstract machines based on emerging programmable line-rate switches.  We
-evaluate \pktlanguage by expressing several data-plane algorithms in
-\pktlanguage and compiling them to different \absmachine machines.
+packet before processing the next one. The \pktlanguage compiler compiles
+\pktlanguage code to \absmachine, a family of abstract machines based on
+emerging programmable line-rate switches.  We evaluate \pktlanguage by
+expressing several data-plane algorithms in \pktlanguage and compiling them to
+different \absmachine machines.

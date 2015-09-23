@@ -4,12 +4,12 @@
 %TODO: Consider Alvin's point about global shared state
 % being another feature of domino.
 Data-plane algorithms~\cite{cestan} are algorithms implemented within a network
-switch. These algorithms process every data packet passing through the switch by
-transforming the packet and optionally altering the switch's internal state.
-Examples
-include in-network congestion control~\cite{xcp, rcp, pdq, dctcp}, active queue
-management~\cite{codel}, network measurement~\cite{opensketch, bitmap_george,
-elephant_george}, and load-balanced data-plane routing~\cite{conga}.
+switch. These algorithms process every data packet passing through the switch
+by transforming the packet and optionally altering the switch's internal state.
+Examples include in-network congestion control~\cite{xcp, rcp, pdq, dctcp},
+active queue management~\cite{codel}, network measurement~\cite{opensketch,
+bitmap_george, elephant_george}, and load-balanced data-plane
+routing~\cite{conga}.
 
 Because data-plane algorithms process every packet, an important implementation
 requirement is the ability to process packets at line rate.  As a result, these
@@ -23,83 +23,73 @@ researchers developing new switch algorithms~\cite{xcp, codel, d3, detail,
 pdq}. Today, the only way to implement a new data-plane algorithm at line rate
 is to build hardware for it.
 
-Programmable switching chips~\cite{flexpipe, xpliant, rmt} that are competitive with
-state of the art fixed-function chipsets~\cite{trident, tomahawk, mellanox}
-present an alternative.  These chips allow network programmers to express their
-algorithms using the primitives provided by the chip.  Programming these chips has
-become more user-friendly over time. Initially, such chips were programmed
-using proprietary SDKs such as those from XPliant~\cite{xpliant_sdk,
-xpliant_sdk2} and Intel~\cite{intel_sdk}. Such SDKs are closely tied to the
-underlying hardware and make it difficult for network programmers, who are more familiar
-with programming models such as C, to work with.
-%Over time, languages such as P4~\cite{p4, p4spec} have
-%raised the level of abstraction for programming such chips.
+Programmable switching chips~\cite{flexpipe, xpliant, rmt}, which are
+competitive with state of the art fixed-function chipsets~\cite{trident,
+tomahawk, mellanox}, present an alternative.  These chips allow network
+programmers to express their algorithms using primitives provided by the chip.
+Programming these chips has become more user-friendly over time.  Initially,
+such chips were programmed using proprietary SDKs such as those from
+XPliant~\cite{xpliant_sdk, xpliant_sdk2} and Intel~\cite{intel_sdk}. Such SDKs
+resemble the underlying hardware making them inconvenient for network
+programmers, who are more familiar with programming models such as C.
 
-P4~\cite{p4, p4spec} represents a programming model that is closer to 
-what network programmers are familiar with \ac{need rephrasing}.
-For instance, P4 allows the programmer to specify a packet's headers, its
-parse graph, the sequence of match-action tables processing each
-packet, and the operations carried out by each action when a packet is
-matched. 
-%P4 is a natural programming model for many data-plane tasks
-Many common data-plane tasks have been implemented in P4, including
-%involving packet parsing and header manipulation, such as 
-handling new protocol
-formats, switching, forwarding, tunneling, and access control~\cite{dc_p4}.
+P4~\cite{p4, p4spec} is a packet-processing language for switching chips that
+raises the level of abstraction relative to these SDKs.  For instance, P4
+allows the programmer to specify packet parsing and processing without
+restricting itself the set of protocol formats or the set of actions that can
+be executed on packet headers. Many common data-plane tasks have been
+implemented in P4, including handling new protocol formats, switching,
+forwarding, tunneling, and access control~\cite{dc_p4}.
 
 However, P4 today isn't suited to data-plane algorithms such as congestion
-control and active queue management, which manipulate state stored on the
-switch and have an \textit{algorithmic} flavor capturing each algorithm's
-control logic.  For such data-plane algorithms, network programmers would
-prefer the convenience of an imperative language such as C that captures the intent of
-the algorithm, similar to how such algorithms are implemented in sofware
-routers~\cite{click}, network processors~\cite{packetc, nova}, and the Linux
-qdisc subsystem~\cite{qdisc}.
+control and active queue management, which don't rewrite headers, but instead
+manipulate state stored on the switch in a manner unique to each algorithm.
+For such data-plane algorithms, network programmers would prefer the
+convenience of an imperative language such as C that captures the intent of the
+algorithm. This is predominantly how such data-plane algorithms are implemented
+today in sofware routers~\cite{click, dpdk, routebricks}, network
+processors~\cite{packetc, nova} and the Linux qdisc subsystem~\cite{qdisc} or
+expressed as pseudocode when they are initially developed/simulated~\cite{red,
+csfq, codel_code, avq, blue}.
 
-This paper presents \pktlanguage, a new domain-specific language (DSL) 
-for data-plane algorithms.
-\pktlanguage is an imperative language based on C that allows programmers to
-express data-plane algorithms using {\em packet transactions}
-(\S\ref{s:transactions}).  Packet transactions provide the abstraction of a
-sequential block of code that runs to completion on each packet before
-executing on the next packet. This is a convenient programming model, because
-it allows the programmer to focus on the operations needed for each packet
-without worrying about other packets that are concurrently being processed.
+This paper presents \pktlanguage, a new domain-specific language (DSL) for
+data-plane algorithms.  \pktlanguage is an imperative language based on C that
+allows programmers to express data-plane algorithms using {\em packet
+transactions} (\S\ref{s:transactions}).  Packet transactions provide the
+abstraction of a sequential block of code that runs to completion on each
+packet before executing on the next packet. This is a convenient programming
+model, because it allows the programmer to focus on the operations needed for
+each packet without worrying about other packets that are concurrently being
+processed.
 
-We have implemented a \pktlanguage compiler that converts  
-packet transactions and to be executed on a family of abstract machines called
-\absmachine~(\S\ref{s:absmachine}) (for Protocol-Independent Switch
-Architecture). \absmachine generalizes the Reconfigurable Match-Action
-Table~\cite{rmt} model and captures essential features of line-rate programmable
-switch architectures~\cite{rmt, xpliant, flexpipe}.
+% Anirudh->Alvin: I don't like the phrase "to be executed".
+% It sounds like a processor, and is a little wierd to me grammatically.
+% Technically, we would say to binaries that execute on a family of abs. machines,
+% but that would require explaining how we generate the binaries and again gives
+% the impression of a processor.
+% compiling to \absmachine is my fix to this, and is what we use in the proposal.
+We have implemented a \pktlanguage compiler that compiles packet transactions
+to a family of abstract machines called \absmachine~(\S\ref{s:absmachine}) (for
+Protocol-Independent Switch Architecture). \absmachine generalizes the
+Reconfigurable Match-Action Table~\cite{rmt} model and captures essential
+features of line-rate programmable switches~\cite{rmt, xpliant, flexpipe}. In
+addition, \absmachine introduces {\em atoms} to represent atomic computations
+provided natively by a \absmachine machine, much like
+load-link/store-conditional, and packed-multiply-and-add on x86 machines
+today~\cite{x86_manual}.  Atoms provide hardware support for packet
+transactions, similar to how an atomic test-and-set can implement an atomic
+increment.
 
-In addition, \absmachine introduces the concept of {\em atoms} to represent
-atomic computations provided natively by a \absmachine machine, much like
-load-link/store-conditional, compare-and-exchange, and packed-multiply-and-add
-on x86 machines today~\cite{x86_manual} \ac{is it important to raise 3 examples here?}. 
-Atoms provide the underlying atomic
-hardware operations required to implement packet transactions, similar to how
-an atomic test-and-set can implement an atomic increment.
-
-The \pktlanguage compiler guarantees deterministic performance for packet
-transactions: all packet transactions that are implementable on a \absmachine
-machine will run at its line rate, or they will be rejected by the compiler if
-the atoms provided by that \absmachine machine cannot implement the
-transaction. \ac{this paragraph seems out of context.}
-
-To evaluate \pktlanguage, we use it to express several data-plane
-algorithms~(\S\ref{s:eval}) such as flowlet switching~\cite{flowlets},
-data-plane bloom filters~\cite{bloom}, heavy-hitter
-detection~\cite{opensketch}, and CONGA~\cite{conga}.  The \pktlanguage compiler
-determines if each algorithm can run at line rate on several different
-\absmachine machines that differ in the atoms they provide. \ac{can you say
-something about ease of implementation?}
-
-Our results suggest that it is possible to have both the convenience of
-high-level programming and line-rate performance. This is surprising in light
-of the argument made in~\cite{p4} regarding the unsuitability of high-level
-languages such as Click~\cite{click} for high-speed packet processing. 
-\ac{I don't think we want to write a paper that targets a point made by P4.}
-\pktlanguage sits at a sweet spot in the level of abstraction between P4 and
-Click: at a much higher level than P4, but still constrained relative to Click.
-\ac{what's the point of comparing with click here? This conclusion sounds too narrow.}
+To evaluate \pktlanguage, we express several data-plane
+algorithms~(\S\ref{s:eval}) such as RCP~\cite{rcp}, CoDel~\cite{codel},
+heavy-hitter detection~\cite{opensketch}, and CONGA~\cite{conga}, as packet
+transactions in \pktlanguage. Expressing these algorithms was a straightforward
+translation of the algorithm's source code to \pktlanguage syntax.  The
+\pktlanguage compiler guarantees deterministic performance: all packet
+transactions that compile run at line rate on a \absmachine machine, or will be
+rejected by the compiler.  We use the \pktlanguage compiler to determine if
+each algorithm can run at line rate on several different \absmachine machines
+that differ in the atoms they provide.  Our results suggest that it is possible
+to have both a familiar programming model, resembling DSLs for software routers
+and NPUs, and line-rate performance---contrary to concerns raised in~\cite{p4}
+regarding the unsuitability of expressive languages for line-rate packet processing.
