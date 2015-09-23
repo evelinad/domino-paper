@@ -1566,8 +1566,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.26"
-     inkscape:cx="1435.7042"
-     inkscape:cy="3986.5826"
+     inkscape:cx="1281.858"
+     inkscape:cy="2294.2749"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -1600,7 +1600,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1789,7 +1789,7 @@
          sodipodi:role="line"
          x="-359.79797"
          y="-255.3414"
-         id="tspan6967">CMP1</tspan></text>
+         id="tspan6967">RELOP</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:5.03399992;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Mend-4)"
        d="m -1414.9435,522.88317 200,0"
@@ -3235,7 +3235,7 @@
          sodipodi:role="line"
          x="-381.84357"
          y="2089.2446"
-         id="tspan6967-4">CMP2</tspan></text>
+         id="tspan6967-4">RELOP</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:5.03389883;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Mend-4)"
        d="m -575.81854,1936.6376 109.5166,1.2539"
@@ -3520,7 +3520,7 @@
          sodipodi:role="line"
          x="1328.0576"
          y="536.15662"
-         id="tspan6967-3">CMP1</tspan></text>
+         id="tspan6967-3">RELOP</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:5.03389883;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Mend-4)"
        d="m 1174.1802,416.64511 109.5166,1.25386"
