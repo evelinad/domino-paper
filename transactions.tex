@@ -1,4 +1,6 @@
 \section{Programming using packet transactions}
+%TODO: Mihai's comments about how we can add return and switch
+% statements to the language. Don't undersell!
 \label{s:transactions}
 \begin{figure*}[!t]
 \begin{minipage}{0.6\textwidth}
@@ -30,8 +32,8 @@ void flowlet(struct Packet pkt) {
                   pkt.dport)
             % NUM_FLOWLETS;
 
-  if (pkt.arrival - last_time[pkt.id] 
-      > THRESHOLD) 
+  if (pkt.arrival - last_time[pkt.id]
+      > THRESHOLD)
   { saved_hop[pkt.id] = pkt.new_hop; }
 
   last_time[pkt.id] = pkt.arrival;
