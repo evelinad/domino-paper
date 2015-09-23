@@ -2,6 +2,20 @@
 %TODO: Mihai's comments about how we can add return and switch
 % statements to the language. Don't undersell!
 \label{s:transactions}
+
+\begin{table}
+  \begin{tabular}{p{0.9\columnwidth}}
+    No iteration (while, for, do-while).\\
+    No switch, goto, return, break, or continue.\\
+    No pointers.\\
+    No dynamic memory allocation / heap.\\
+    Array index must be constant over the duration of a packet. \ac{what does
+    duration a packet mean?}\\
+    No access to packet data.\\
+  \end{tabular}
+  \caption{Restrictions in \pktlanguage}
+  \label{tab:restrict}
+\end{table}
 \begin{figure*}[!t]
 \begin{minipage}{0.6\textwidth}
 \begin{small}
@@ -90,31 +104,9 @@ intrinsic's signature to infer dependencies and supplies a canned run-time
 implementation, but otherwise does not interpret or analyze intrinsics. The
 overall language is essentially a constrained subset of C
 (Table~\ref{tab:restrict}).
-
-\begin{table}
-  \begin{tabular}{|p{0.05\columnwidth}|p{0.8\columnwidth}|}
-    \hline
-    \# & Restriction \\
-    \hline
-    1 & No iteration (while, for, do-while).\\
-    \hline
-    2 & No switch, goto, return, break, or continue.\\
-    \hline
-    3 & No pointers.\\
-    \hline
-    4 & No dynamic memory allocation / heap.\\
-    \hline
-    5 & Array index must be constant over the duration of a packet. \ac{what does
-    duration a packet mean?}\\
-    \hline
-    6 & No access to packet data.\\
-    \hline
-  \end{tabular}
-  \caption{Restrictions in \pktlanguage \ac{This essentially is an imprecise version of the 
-  grammar. Maybe this is more understandable to networking audience? 
-  Why are the restrictions numbered? Do you refer to the restrictions by numbers?}}
-  \label{tab:restrict}
-\end{table}
+% Anirudh->Alvin: Yes. No one will get BNF :)
+%\ac{This essentially is an imprecise version of the 
+%  grammar. Maybe this is more understandable to networking audience?
 
 As an illustration of the restrictions, 
 arrays can be used as state variables alone but not as packet fields.
