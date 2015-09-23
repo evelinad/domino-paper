@@ -3,19 +3,6 @@
 % statements to the language. Don't undersell!
 \label{s:transactions}
 
-\begin{table}
-  \begin{tabular}{p{0.9\columnwidth}}
-    No iteration (while, for, do-while).\\
-    No switch, goto, return, break, or continue.\\
-    No pointers.\\
-    No dynamic memory allocation / heap.\\
-    Array index must be constant over the duration of a packet. \ac{what does
-    duration a packet mean?}\\
-    No access to packet data.\\
-  \end{tabular}
-  \caption{Restrictions in \pktlanguage}
-  \label{tab:restrict}
-\end{table}
 \begin{figure*}[!t]
 \begin{minipage}{0.6\textwidth}
 \begin{small}
@@ -72,66 +59,75 @@ We now illustrate programming using packet transactions in \pktlanguage, using
 flowlet switching~\cite{flowlets} as an example. Flowlet switching is a
 load-balancing algorithm that sends bursts of packets (called flowlets) from a
 TCP flow on different paths, provided the bursts are separated by a large
-enough interval in time to ensure packets do not arrive out of order at the TCP
-receiver. Figure~\ref{fig:flowlet} shows how flowlet switching is expressed in
+enough interval in time to ensure packets do not arrive out of order at a TCP
+receiver. Figure~\ref{fig:flowlet} shows flowlet switching as expressed in
 \pktlanguage. For simplicity, the example hashes only the source and
-destination ports; it is easy to extend this to the full 5-tuple.
+destination ports; it is easy to extend it to the full 5-tuple.
 
 This example demonstrates the core language constructs in \pktlanguage. All
 packet processing happens in the context of a packet transaction (the function
-\texttt{flowlet} starting on line 17). %, a C function taking a C struct as an argument.
-The parameter {\tt pkt} declares the fields in a packet (lines 5--12)\footnote{We use fields
-to refer to both packet headers such as source port ({\tt sport}) and destination
-port ({\tt dport}) and packet metadata ({\tt id}).} that can be referenced by the function
-body (lines 18--32).  In addition, the function body can reference state
-variables that represent persistent state stored on the switch. These are
-declared as global variables (e.g. \texttt{last\_time} and \texttt{saved\_hop}
-declared on lines 14 and 15, respectively).
+\texttt{flowlet} starting at line 17). The function's argument {\tt pkt} declares the
+fields in a packet (lines 5--12)\footnote{We use fields to refer to both packet
+headers such as source port ({\tt sport}) and destination port ({\tt dport})
+and packet metadata ({\tt id}).} that can be referenced by the function body
+(lines 18--32).  In addition, the function body can reference state variables
+that represent persistent state stored on the switch. These are declared as
+global variables (e.g. \texttt{last\_time} and \texttt{saved\_hop} declared on
+lines 14 and 15, respectively).
 
-Conceptually, the switch invokes 
-the packet transaction function on each incoming packet sequentially.
-% modifies the passed-in packet argument
-%until the end of the function body, before processing the next packet.
-%\pktlanguage forbids return statements implying that execution will always end
-%at the end of the function body. 
-The language does not include statements that alter control flow, hence each
-packet transaction function is executed in its entirety.
-The function may invoke
+Conceptually, the switch invokes the packet transaction function on each
+incoming packet sequentially. The function modifies the passed-in packet
+argument in place until the end of the function body, before processing the
+next packet.  \pktlanguage forbids return statements implying that execution
+will always end at the end of the function body. The function may invoke
 \textit{intrinsics} such as \texttt{hash2} on lines 23 and \texttt{hash3} on
-line 18 in the example.  Intrinsics are hardware primitives provided by the abstract machine
-that are not interpreted by \pktlanguage. The \pktlanguage compiler uses an
-intrinsic's signature to infer dependencies and supplies a canned run-time
-implementation, but otherwise does not interpret or analyze intrinsics. The
-overall language is essentially a constrained subset of C
-(Table~\ref{tab:restrict}).
+line 18 in the example.  Intrinsics are hardware primitives provided by the
+abstract machine that are not interpreted by \pktlanguage. The \pktlanguage
+compiler uses an intrinsic's signature to infer dependencies and supplies a
+canned run-time implementation, but otherwise does not interpret or analyze
+intrinsics. The overall language is a constrained subset of C (Table~\ref{tab:restrict}).
 % Anirudh->Alvin: Yes. No one will get BNF :)
 %\ac{This essentially is an imprecise version of the 
 %  grammar. Maybe this is more understandable to networking audience?
+\begin{table}
+  \begin{tabular}{p{0.9\columnwidth}}
+    No iteration (while, for, do-while).\\
+    No switch, goto, return, break, or continue.\\
+    No pointers.\\
+    No dynamic memory allocation / heap.\\
+    Array index must be constant for every execution of the transaction.\\
+    No access to packet data.\\
+  \end{tabular}
+  \caption{Restrictions in \pktlanguage}
+  \label{tab:restrict}
+\end{table}
 
-As an illustration of the restrictions, 
-arrays can be used as state variables alone but not as packet fields.
-Furthermore, all accesses to a given array inside a transaction are restricted
-to the same index.
-%while a packet transaction's body is being executed for a
-%specific packet, all accesses to an array variable must use the same index. 
-%For subsequent packets, this index can be different. 
-For instance, all accesses to
-the array \texttt{last\_time} use the index \texttt{pkt.id}, which is constant
-for each packet, but changes from one packet to the next. This restriction
-simplifies the treatment of arrays in the compiler, while still allowing us to
-express several data-plane algorithms of practical interest. \ac{how is this enforced?}
+As an illustration of the restrictions, arrays can be used as state variables
+alone but not as packet fields.  Furthermore, all accesses to a given array
+within one execution of a transaction (i.e. on packet) are restricted to the
+same index. For instance, all accesses to the array \texttt{last\_time} use the
+index \texttt{pkt.id}, which is constant for each packet, but changes from one
+packet to the next. This restriction simplifies the treatment of arrays in the
+compiler, while still allowing us to express data-plane algorithms of practical interest.
 
-These restrictions seem overly severe, but are required to provide
-deterministic performance guarantees. Memory allocation, unbounded iteration
-counts, and unstructured control flow cause unpredictable run-time
-performance. These are also precisely the restrictions in \pktlanguage relative
-to languages like Click~\cite{click} that target general-purpose software
-routers with greater flexibility and more variable performance.
+%\ac{how is this enforced?}
+%It isn't :) because I didn't get around to writing a validator pass yet.
+The restrictions in Table~\ref{tab:restrict} seem severe, but are required
+for deterministic performance.  Memory allocation, unbounded iteration counts,
+and unstructured control flow cause variable performance. These are precisely
+the restrictions in \pktlanguage relative to software routers like
+Click~\cite{click} with greater flexibility and variable performance.
 
 When compiled to a \absmachine machine (\S\ref{s:absmachine}), the \pktlanguage
-compiler converts the code in Figure~\ref{fig:flowlet}a into the pipelined form
-shown in Figure~\ref{fig:flowlet}b. Today, programmable switch chips are
-programmed by manually specifying low-level configurations resembling
-Figure~\ref{fig:flowlet}b using a language like P4. \pktlanguage's compiler
-automates this process. \ac{I don't get this. Isn't translating from domino to 
-pisa to same as translating P4 to hardware primitives?}
+compiler converts the code in Figure~\ref{fig:flowlet}a into the atom pipeline
+shown in Figure~\ref{fig:flowlet}b. The rest of this paper describes the steps
+involved in this compilation.
+
+%
+%Today, programmable switch chips are
+%programmed by manually specifying low-level configurations resembling
+%Figure~\ref{fig:flowlet}b using a language like P4. \pktlanguage's compiler
+%automates this process. \ac{I don't get this. Isn't translating from domino to 
+%pisa to same as translating P4 to hardware primitives?}
+% You are right. This is confusing. I am commenting this out.
+% It isn't precisely correct either.
