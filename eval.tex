@@ -57,7 +57,7 @@
 \end{table}
 
 \begin{table*}[!t]
-  \begin{tabular}{|p{0.16\textwidth}|p{0.47\textwidth}|p{0.09\textwidth}|p{0.07\textwidth}|p{0.07\textwidth}|}
+  \begin{tabular}{|p{0.16\textwidth}|p{0.47\textwidth}|p{0.09\textwidth}|p{0.06\textwidth}|p{0.07\textwidth}|}
 \hline
 Algorithm & Stateful computation & Least expressive atom & Pipeline depth, width & Ingress or Egress Pipeline?\\
 \hline
@@ -67,14 +67,13 @@ Algorithm & Stateful computation & Least expressive atom & Pipeline depth, width
 \hline
 Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6, 2 & Ingress \\
 \hline
-RCP~\cite{rcp} & \pbox{0.54\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress \\
+RCP~\cite{rcp} & \pbox{0.47\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress \\
 \hline
-Sampling & \pbox{0.54\textwidth}{Sample/Mark a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either\\
-% psamp, sflow, etc.
+\pbox{0.16\textwidth}{Sampled\\NetFlow~\cite{sampled_nflow}} & \pbox{0.47\textwidth}{Sample a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either\\
 \hline
 HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress \\
 \hline
-AVQ~\cite{avq} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress \\
+\pbox{0.16\textwidth}{Adaptive\\Virtual Queue~\cite{avq}} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress \\
 \hline
 CONGA~\cite{conga} & \pbox{0.54\textwidth}{Update best path's utilization/id if we see a better path.\\
                                            Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress\\
