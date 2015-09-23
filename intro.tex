@@ -83,18 +83,21 @@ The \pktlanguage compiler guarantees deterministic performance for packet
 transactions: all packet transactions that are implementable on a \absmachine
 machine will run at its line rate, or they will be rejected by the compiler if
 the atoms provided by that \absmachine machine cannot implement the
-transaction.
+transaction. \ac{this paragraph seems out of context.}
 
 To evaluate \pktlanguage, we use it to express several data-plane
 algorithms~(\S\ref{s:eval}) such as flowlet switching~\cite{flowlets},
 data-plane bloom filters~\cite{bloom}, heavy-hitter
 detection~\cite{opensketch}, and CONGA~\cite{conga}.  The \pktlanguage compiler
 determines if each algorithm can run at line rate on several different
-\absmachine machines that differ in the atoms they provide.
+\absmachine machines that differ in the atoms they provide. \ac{can you say
+something about ease of implementation?}
 
 Our results suggest that it is possible to have both the convenience of
 high-level programming and line-rate performance. This is surprising in light
 of the argument made in~\cite{p4} regarding the unsuitability of high-level
-languages such as Click~\cite{click} for high-speed packet processing.
+languages such as Click~\cite{click} for high-speed packet processing. 
+\ac{I don't think we want to write a paper that targets a point made by P4.}
 \pktlanguage sits at a sweet spot in the level of abstraction between P4 and
 Click: at a much higher level than P4, but still constrained relative to Click.
+\ac{what's the point of comparing with click here? This conclusion sounds too narrow.}
