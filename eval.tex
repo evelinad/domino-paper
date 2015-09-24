@@ -197,11 +197,14 @@ decreases (performance).
 \subsection{Compilation times}
 The data-plane algorithms we consider are all under 100 lines of code.  Time
 spent in the front-end is negligible; instead, compilation time is dominated by
-SKETCH. However, we limit the bit-width of SKETCH holes to 5 bits because the
-constants we see within stateful codelets in our algorithms are small, which
-reduces the search space for SKETCH.  The worst-case occurs when a large
-algorithm does not map to a large atom, because then SKETCH has to rule out
-every possible configuration.  Quantitatively, our longest compilation time is
+SKETCH. To speed up the search, 
+we limit SKETCH to search for constants (e.g., for addition)
+of size up to 5 bits,
+given that the size of the stateful codelets in our algorithms are small.
+%The worst-case occurs when a large
+%algorithm does not map to a large atom, because then SKETCH has to rule out
+%every possible configuration.  
+Quantitatively, our longest compilation time is
 10 seconds when CoDel doesn't map to a \absmachine machine with the Pairs atom.
 This time will increase if we increase the bit width of constants that SKETCH
 has to search; however, because the data-plane algorithms are themselves small,
