@@ -3,11 +3,11 @@
 
 This paper presented \pktlanguage, an imperative language that allows
 programmers to write packet-processing code using packet transactions:
-sequential code blocks that run to completion on every packet before processing
-the next one. The \pktlanguage compiler compiles packet transactions to
-\absmachine, a family of abstract machines based on programmable line-rate
-switch architectures~\cite{flexpipe, xpliant, rmt}. Our results suggest that it
-is possible to have both a familiar programming model and line-rate
+sequential code blocks that are atomic and isolated from other such code
+blocks. The \pktlanguage compiler compiles packet transactions to \absmachine,
+a family of abstract machines based on programmable line-rate switch
+architectures~\cite{flexpipe, xpliant, rmt}. Our results suggest that it is
+possible to have both a familiar programming model and line-rate
 performance---if the algorithm can indeed run at line rate.
 
 %TODO: Don't know if this serves the right purpose, but this is genuinely

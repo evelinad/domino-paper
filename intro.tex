@@ -64,13 +64,13 @@ processors~\cite{packetc, nova}, and at network endpoints~\cite{qdisc}.
 This paper presents \pktlanguage, a new domain-specific language (DSL) for
 data-plane algorithms.  \pktlanguage is an imperative language with C-like
 syntax. The key abstraction in \pktlanguage is a {\em packet transaction}
-(\S\ref{s:transactions}): a sequential block of code that runs to completion on
-each packet before executing on the next packet. Packet transactions provide a
-convenient programming model, because they allows the programmer to focus on
-the operations needed for each packet without worrying about other packets that
-are concurrently being processed.
+(\S\ref{s:transactions}): a sequential code block that is atomic and isolated
+from other such code blocks. Packet transactions provide a convenient
+programming model, because they allows the programmer to focus on the
+operations needed for each packet without worrying about other packets that are
+concurrently being processed.
 
-The \pktlanguage compiler transforms packet transactions to a family of
+The \pktlanguage compiler compiles packet transactions to a family of
 abstract machines called \absmachine~(\S\ref{s:absmachine}) (for
 Protocol-Independent Switch Architecture). \absmachine generalizes the
 Reconfigurable Match-Action Table~\cite{rmt} model and captures essential
