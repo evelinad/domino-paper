@@ -42,17 +42,19 @@ void flowlet(struct Packet pkt) {
 }
 \end{lstlisting}
 \end{small}
+\caption{Flowlet switching written in \pktlanguage}
+\label{fig:flowlet_code}
 \end{minipage}
 %
 \vrule\quad
 %
 \begin{minipage}{0.4\textwidth}
 \includegraphics[width=0.8\columnwidth]{pipe.pdf}
+\caption{Compiled 6-stage \absmachine pipeline implementing flowlet
+switching.  Control flows from top to bottom. Atoms manipulating state are
+shaded in blue.}
+\label{fig:flowlet_pipeline}
 \end{minipage}
-\caption{\small (a) Flowlet switching written in \pktlanguage (left);
-(b) Compiled 6-stage pipeline in \absmachine implementing (a).  Control flows
-from top to bottom. Atoms manipulating state are shaded in blue (right).}
-\label{fig:flowlet}
 \end{figure*}
 
 We now illustrate programming using packet transactions in \pktlanguage, using
@@ -60,7 +62,7 @@ flowlet switching~\cite{flowlets} as an example. Flowlet switching is a
 load-balancing algorithm that sends bursts of packets (called flowlets) from a
 TCP flow on different paths, provided the bursts are separated by a large
 enough interval in time to ensure packets do not arrive out of order at a TCP
-receiver. Figure~\ref{fig:flowlet} shows flowlet switching as expressed in
+receiver. Figure~\ref{fig:flowlet_code} shows flowlet switching as expressed in
 \pktlanguage. For simplicity, the example hashes only the source and
 destination ports; it is easy to extend it to the full 5-tuple.
 
@@ -78,7 +80,7 @@ lines 14 and 15, respectively).
 Conceptually, the switch invokes the packet transaction function on each
 incoming packet sequentially. The function modifies the passed-in packet
 argument in place until the end of the function body, before processing the
-next packet.  \pktlanguage forbids return statements implying that execution
+next packet.  \pktlanguage forbids return statements, and hence execution
 will always end at the end of the function body. The function may invoke
 \textit{intrinsics} such as \texttt{hash2} on lines 23 and \texttt{hash3} on
 line 18 in the example.  Intrinsics are hardware primitives provided by the
@@ -119,9 +121,9 @@ the restrictions in \pktlanguage relative to software routers like
 Click~\cite{click} with greater flexibility and variable performance.
 
 When compiled to a \absmachine machine (\S\ref{s:absmachine}), the \pktlanguage
-compiler converts the code in Figure~\ref{fig:flowlet}a into the atom pipeline
-shown in Figure~\ref{fig:flowlet}b. The rest of this paper describes the steps
-involved in this compilation.
+compiler converts the code in Figure~\ref{fig:flowlet_code} into the atom
+pipeline shown in Figure~\ref{fig:flowlet_pipeline}. The rest of this paper
+describes the steps involved in this compilation.
 
 %
 %Today, programmable switch chips are
