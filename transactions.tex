@@ -31,9 +31,9 @@ void flowlet(struct Packet pkt) {
                   pkt.dport)
             % NUM_FLOWLETS;
 
-  if (pkt.arrival - last_time[pkt.id]
+  if (pkt.arrival - last_time[pkt.id] @\label{line:ifStart}@
       > THRESHOLD)
-  { saved_hop[pkt.id] = pkt.new_hop; }
+  { saved_hop[pkt.id] = pkt.new_hop; } @\label{line:ifEnd}@
 
   last_time[pkt.id] = pkt.arrival;
   pkt.next_hop = saved_hop[pkt.id];

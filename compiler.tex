@@ -77,9 +77,9 @@ last_time[pkt.id] = pkt.last_time;  @\textcolor{magenta}{// Write flank}
 
 \begin{figure*}[!t]
   \begin{minipage}{\textwidth}
-  \begin{minipage}{0.43\textwidth}
+  \begin{minipage}{0.4\textwidth}
   \begin{small}
-  \begin{lstlisting}[style=customc]
+  \begin{lstlisting}[style=customc, numbers=none, frame=none]
 @\textcolor{blue}{pkt.id}@ = hash2(pkt.sport,
               pkt.dport)
               % NUM_FLOWLETS;
@@ -90,23 +90,30 @@ last_time[@\textcolor{blue}{pkt.id}@] = @\textcolor{blue}{pkt.last\_time}@;
   \end{lstlisting}
   \end{small}
   \end{minipage}
-  \begin{minipage}{0.57\textwidth}
+ % 
+  %\hspace{-0.1in}
+  $\Longrightarrow$
+  \hspace{-0.2in}
+%
+  \begin{minipage}{0.6\textwidth}
   \begin{small}
-  \begin{lstlisting}[style=customc]
-  @\textcolor{blue}{pkt.id0}@ = hash2(pkt.sport, @\textcolor{blue}{// Rewritten}@ @\label{line:assign}@
+  \begin{lstlisting}[style=customc, numbers=none, frame=none]
+@\textcolor{blue}{pkt.id0}@ = hash2(pkt.sport,          @\textcolor{magenta}{// Rewritten}@ @\label{line:assign}@
                pkt.dport)
-               % NUM_FLOWLETS;
-@\textcolor{blue}{pkt.last\_time0}@ = last_time[@\textcolor{blue}{pkt.id0}@];  @\textcolor{blue}{// Rewritten}@
+               % NUM_FLOWLETS;  
+@\textcolor{blue}{pkt.last\_time0}@ = last_time[@\textcolor{blue}{pkt.id0}@];  @\textcolor{magenta}{// Rewritten}@
 ...
-@\textcolor{blue}{pkt.last\_time1}@ = pkt.arrival;  @\textcolor{blue}{// Rewritten}@
-last_time[@\textcolor{blue}{pkt.id0}@] = @\textcolor{blue}{pkt.last\_time1}@;  @\textcolor{blue}{// Rewritten}@
+@\textcolor{blue}{pkt.last\_time1}@ = pkt.arrival;        @\textcolor{magenta}{// Rewritten}@
+last_time[@\textcolor{blue}{pkt.id0}@] = @\textcolor{blue}{pkt.last\_time1}@;  @\textcolor{magenta}{// Rewritten}@
   \end{lstlisting}
   \end{small}
   \end{minipage}
-  \caption[title]{SSA transformation\footnote{We rename all assignments, not just reassignments (such as line~\ref{line:assign}) because reads could precede an assignment.}}
+  \caption[title]{SSA transformation. Note that all assignments are renamed as they can be preceded by reads.}
   \label{fig:ssa}
 \end{minipage}
 \end{figure*}
+
+
 \begin{figure*}[!t]
 \begin{minipage}{\textwidth}
 \begin{lstlisting}[style=customc]
@@ -121,50 +128,57 @@ saved_hop[pkt.id] = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop; @\label{line:stateWr
 last_time[pkt.id] = pkt.arrival;
 \end{lstlisting}
 \caption[title2]{Flowlet switching in three-address
-code.\footnote{Lines~\ref{line:id} and ~\ref{line:newhop}) are flipped relative
-  to Figure~\ref{fig:flowlet_code} because pkt.id is an array index expression and is
-moved into the read flank.}}
+code. Lines~\ref{line:id} and \ref{line:newhop} are flipped relative
+to Figure~\ref{fig:flowlet_code} because {\tt pkt.id} is an array index expression and is
+moved into the read flank.}
 \label{fig:three_address}
 \end{minipage}
 \vspace{-0.5cm}
 \end{figure*}
 
 The \pktlanguage compiler borrows many techniques from the compiler
-literature~\cite{muchnik}. However, no prior work that we know of synthesizes
-compiler techniques in the manner that we do. Further, as we illustrate
-throughout this section, constraining \pktlanguage for deterministic
-performance has a happy side effect: it simplifies the techniques in
-\pktlanguage's compiler relative to mainstream compilers. Because
-\pktlanguage's syntax is a subset of C, we use clang's library
-interface~\cite{libclang} to generate an Abstract Syntax Tree (AST) for packet
-transactions written in \pktlanguage. The remaining compiler
-passes~(Figure\ref{fig:passes}) operate on this AST. Throughout this section,
+literature~\cite{muchnik}. The \absmachine architecture, however, 
+poses unique challenges for compilation.
+%Further, as we illustrate
+%throughout this section, constraining \pktlanguage for deterministic
+%performance has a happy side effect: it simplifies the techniques in
+%\pktlanguage's compiler relative to mainstream compilers. 
+Since \pktlanguage's syntax is effectively a subset of C, 
+we use Clang's library interface~\cite{libclang} to parse and implement
+the passes in the compiler. The overall architecture is shown 
+in Figure~\ref{fig:passes}. Throughout this section,
 we use flowlet switching from Figure~\ref{fig:flowlet_code} as a running
-example to demonstrate compiler passes.  While we simplify code for
+example to demonstrate compiler passes.  While we have simplified the code for
 readability, the code output by the \pktlanguage compiler after each pass isn't
 materially different from the version presented here.
 
 \subsection{If-conversion to straight-line code}
-A packet transaction's body can contain nested if-else statements. CoDel's
-pseudocode~\cite{codel_code} presents one such example. These statements alter
-control flow and complicate dependence analysis. We eliminate if-else
-statements by transforming them into the C conditional operator, starting from
+A packet transaction's body can contain (potentially nested) conditional statements 
+(e.g., Lines~\ref{line:ifStart} to \ref{line:ifEnd} in Figure~\ref{fig:flowlet_code},
+or CoDel~\cite{codel_code}). These statements alter
+control flow and complicate dependence analysis \ac{what dependence analysis?}. 
+We eliminate such
+statements by transforming them into the ternary conditional operator, starting from
 the innermost if statements and recursing outwards
-(Figure~\ref{fig:if_convert}). This procedure is called
-if-conversion~\cite{if_conversion}. It is much simpler in \pktlanguage because
-only if-else statements alter control flow in \pktlanguage and all other
-control transfer is forbidden.  This transformation creates straight-line code,
-where control passes sequentially without branching.  Straight-line code
-simplifies the rest of the compiler, like computing the static
-single-assignment form(\S\ref{ss:ssa}).
+(Figure~\ref{fig:if_convert}). This procedure is known as
+if-conversion~\cite{if_conversion}. Unlike traditional languages, performing
+if-conversion in \pktlanguage is easy as there is no unstructured control flows.
+The conversion effectively turns the body of packet transactions into straight-line code,
+where control passes sequentially without branching. As we will see, this 
+simplifies the rest of the compiler.
+% Straight-line code
+%simplifies the rest of the compiler, like computing the static
+%single-assignment form(\S\ref{ss:ssa}).
 
-\subsection{Converting to load/store form}
+\subsection{Rewriting state variable operations} %Converting to load/store form}
 \label{ss:load/store}
 
 We next identify both array and scalar state variables used in a packet
 transaction, such as \texttt{last\_time} and \texttt{saved\_hop} in
 Figure~\ref{fig:flowlet_code}. State variables are easy to identify
-syntactically by name, because we forbid pointers. For each state variable, we
+syntactically, since all variables are either packet fields or state
+variables. %, because we forbid pointers. 
+For each state variable, we
 create a \textit{read flank} to read the state variable into a temporary packet
 field. For an array, we also move the index expression into the read flank,
 exploiting the fact that only one array index is accessed by each packet in
@@ -173,17 +187,17 @@ replace the state variable with the packet temporary, and create a
 \textit{write flank} to write the packet temporary back into the state
 variable.  Figure~\ref{fig:stateful_flanks} illustrates this transformation.
 After this pass, the code resembles code for a load-store
-architecture~\cite{load_store}: state variables only support reads and writes;
-arithmetic happens on packet variables.  Restricting operations on state
-variables simplifies their treatment during code partitioning
-(\S\ref{ss:partitioning}).
+architecture~\cite{load_store}: all state variables must be loaded into packet
+variables before they can be operated.
+Restricting operations on state
+variables simplifies subsequent code partitioning (\S\ref{ss:partitioning}).
 
-\subsection{Renaming variables to SSA}
+\subsection{Converting to single-assignment form} %Renaming variables to SSA}
 \label{ss:ssa}
 
-We next convert the code at the end of \S\ref{ss:load/store} to static
-single-assignment form (SSA)~\cite{ssa} (Figure~\ref{fig:ssa}), an intermediate
-form where every variable is assigned once. To compute the SSA, we replace
+We next convert the code to static
+single-assignment form (SSA), as shown in Figure~\ref{fig:ssa}). In SSA form,
+every variable is assigned exactly once. To compute the SSA, we replace
 every definition of a packet variable with a new packet variable and propagate
 this new variable until the next definition of the same variable. State
 variables are already in SSA: after their flanks have been added, every state
@@ -199,17 +213,18 @@ packet variables.
 
 \subsection{Flattening to three-address code}
 
-We next transform into three-address code~\cite{tac}, where all instructions
-are either reads / writes into stateful variables or carry out packet
-manipulations of the form: \texttt{pkt.f1 = pkt.f2 op pkt.f3;} where
-\texttt{op} includes all conditional\footnote{We permit 4 addresses for
-conditional operators alone.}, arithmetic, logical, and relational operators.
-We also allow either pkt.f2 or pkt.f3 to be an intrinsic function call. To
-generate three-address code, we flatten expressions that are not already legal
-in three-address code, by introducing temporaries
-(Figure~\ref{fig:three_address}).  Flattening expressions may result in
-redundant temporaries that compute the same subexpression.  We eliminate such
-temporaries using common subexpression elimination~\cite{cse}.
+The input is next converted to three-address code~\cite{tac}, where all instructions
+are either reads / writes into state variables or operations on packet variables
+of the form \texttt{pkt.f1 = pkt.f2 op pkt.f3;} where
+\texttt{op} can be a conditional,\footnote{Ternary operators take in 4 addresses
+instead of 3.} arithmetic, logical, or relational operator.
+We also allow either {\tt pkt.f2} or {\tt pkt.f3} to be an intrinsic function call. 
+\ac{can both be function calls?} 
+All expressions that are not already 
+in three-address code are flattened by introducing temporaries as illustrated in
+Figure~\ref{fig:three_address}.  While flattening expressions may result in
+redundant temporaries that compute the same subexpression, such
+temporaries are removed using common subexpression elimination~\cite{cse}.
 
 %For instance, if the t
 %wo statements \texttt{x = a * 5 + b;} and \texttt{x = a * 5 + c;} were
