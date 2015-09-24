@@ -11,10 +11,9 @@ This paper presents \pktlanguage, a C-like imperative language to express
 data-plane algorithms. \pktlanguage introduces the notion of a {\em packet
 transaction}, defined as a sequential code block that is atomic and isolated
 from other such code blocks.  The \pktlanguage compiler compiles \pktlanguage
-code to \absmachine, a family of abstract machines that map to the architecture
-of emerging programmable switch chipsets. We show how \pktlanguage enables
-several data-plane algorithms written in C syntax to run at hardware line
-rates.
+code to \absmachine, a family of abstract machines based on emerging
+programmable switch chipsets. We show how \pktlanguage enables several
+data-plane algorithms written in C syntax to run at hardware line rates.
 %Programmers write data-plane algorithms in \pktlanguage using
 %packet transactions: sequential code blocks that run to completion on each
 %packet before processing the next one.  
