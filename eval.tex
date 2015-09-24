@@ -35,7 +35,7 @@
   \begin{scriptsize}
     \begin{tabular}{|p{0.08\textwidth}|p{0.3\textwidth}|p{0.03\textwidth}|}
   \hline
-  Atom & Circuit & Circuit depth \\
+  Atom & Circuit & Element depth \\
   \hline
   Write & \includegraphics[width=0.2\textwidth]{rw.pdf} & 1 \\
   \hline
@@ -47,8 +47,8 @@
   \hline
   \end{tabular}
 \end{scriptsize}
-\caption{Circuit depth and propagation delay increases with complexity of atoms.}
-  \label{fig:circuit_depth}
+\caption{Element depth and propagation delay increases with complexity of atoms.}
+  \label{fig:element_depth}
 \end{table}
 
 \begin{table*}[!t]
@@ -174,12 +174,13 @@ component/codelet, requiring a three-way state update.
 While powerful atoms like Pairs can implement more data-plane algorithms, they
 come at a cost.  A more expressive atom needs more gates in hardware and incurs
 longer propagation delays.  As an illustration, consider the circuits
-(Table~\ref{fig:circuit_depth}) for the first three atoms from Table
-~\ref{tab:templates}. We use the number of elements between input and output,
-the circuit depth, as a proxy for propagation delay, and observe that it
-increases with atom complexity. At some point, the propagation delay may
-prevent the circuit from meeting a particular line rate.  We plan to synthesize
-these atoms to circuits in a standard cell library to study this further.
+(Table~\ref{fig:element_depth}) for the first three atoms from Table
+~\ref{tab:templates}. We use the number of elements (muxes, adders,
+subtractors, and relational operators) between input and output, the element
+depth, as a crude proxy for propagation delay, and observe that it increases
+with atom complexity. At some point, the propagation delay may prevent the
+circuit from meeting a particular line rate.  We plan to synthesize these atoms
+to circuits in a standard cell library to study this further.
 
 The larger takeaway is that we can begin to quantify the
 programmability-performance tradeoff that switch designers intuitively
