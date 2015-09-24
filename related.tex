@@ -2,7 +2,7 @@
 \label{s:related}
 %TODO: opendataplane.org
 \textbf{Data-Plane Algorithms}
-Several data-plane algorithms are now commonplace, e.g. lookup algorithms based
+Several data-plane algorithms are now commonplace, e.g., lookup algorithms based
 on longest-prefix, exact, or ternary matches.  \pktlanguage focuses on
 data-plane algorithms that aren't widely available because of the engineering
 effort required for hardware implementations.  Further, the growing list of new
@@ -56,7 +56,7 @@ network processors~\cite{ixp2800, ixp4xx}.
 %PX~\cite{PX}
 %is a language that targets packet processing on FPGA platforms.
 
-\pktlanguage's C syntax and sequential semantics are inspired by these
+\pktlanguage's C-like syntax and sequential semantics are inspired by these
 languages. However \pktlanguage is constrained relative to its predecessors:
 for instance, it forbids loops and includes no synchronization constructs
 because all state is internal to an atom. These constraints were chosen to
@@ -69,7 +69,7 @@ no slippery slope of degrading performance with increasing program complexity.
 P4~\cite{p4} is an emerging packet-processing language that explicitly targets
 line-rate programmable switching chips. However, while P4 is a natural model
 for many header-manipulation tasks such as switching, ACLs, routing, and
-tunnelling~\cite{dc_p4}, it is ill suited to programming data-plane algorithms that
+tunnelling~\cite{dc_p4}, it is ill-suited to programming data-plane algorithms that
 rely on intricate state manipulation.
 
 \textbf{Compiler Techniques}
@@ -86,7 +86,7 @@ atoms is based on Chlorophyll's~\cite{chlorophyll} use of program synthesis for
 compilation to unconventional targets.
 
 \textbf{Hardware compilation}
-Prior work ~\cite{nurvadathi, cash, bluespec} has focused on deriving digital
+Prior work~\cite{nurvadathi, cash, bluespec} has focused on deriving digital
 circuits from imperative programs. These approaches simplify hardware
 development, but the performance of each program depends on its complexity.
 \pktlanguage has an all-or-nothing guarantee: all code that compiles can run at
