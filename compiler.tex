@@ -305,42 +305,40 @@ each for the multiply and accumulate), although one already suffices.
 \paragraph{Stateful codelets}
 Stateful codelets have multi-line bodies that need to execute atomically. For
 instance, updating the state variable \texttt{saved\_hop} in
-Figure~\ref{fig:flowlet_pipeline} requires a read followed by a conditional write.  It
-is not apparent whether such codelets can be mapped to an available atom. We
-develop a new technique to determine the implementability of such stateful
-codelets. 
-%given as input the stateful atom template provided by the \absmachine
-%machine.
-First, each atom template is parameterized, where
-the parameters determine the actual functionality provided by the atom. 
-For instance, Figure~\ref{fig:alu_diag} shows a hardware circuit
-that is capable of performing stateful addition or subtraction, depending
-on the value of the constant and which output is selected from the multiplexer.
-Its template representation is shown in Figure~\ref{fig:alu_in_sketch}, where
-{\tt choice} and {\tt constant} represent the tunable parameters.
-Each codelet can be viewed as a functional specification of the atom.
-With that in mind,
-the mapping problem is equivalent to searching for the value of the 
-parameters to
+Figure~\ref{fig:flowlet_pipeline} requires a read followed by a conditional
+write.  It is not apparent whether such codelets can be mapped to an available
+atom. We develop a new technique to determine the implementability of such
+stateful codelets, on a \absmachine machine that provides a specific stateful
+atom template.
+
+First, each atom template is parameterized, where the parameters determine the
+actual functionality provided by the atom.  For instance,
+Figure~\ref{fig:alu_diag} shows a hardware circuit that is capable of
+performing stateful addition or subtraction, depending on the value of the
+constant and which output is selected from the multiplexer.  Its template
+representation is shown in Figure~\ref{fig:alu_in_sketch}, where {\tt choice}
+and {\tt constant} represent the tunable parameters.  Each codelet can be
+viewed as a functional specification of the atom.  With that in mind, the
+mapping problem is equivalent to searching for the value of the parameters to
 configure the atom such that it implements the provided specification.
 
-While many algorithms can be used to perform the search, in the \pktlanguage compiler
-we use the SKETCH program synthesizer~\cite{sketch_asplos} for this purpose, as
-the atom templates can be easily expressed using SKETCH, while SKETCH also provides
-efficient search algorithms and has been used for similar purposes across
-different domains~\cite{bitstreaming, lifejoin, qbs}.
-As an illustration, 
-assume we want to map the codelet {\tt x=x+1} to the atom template
-shown in Figure~\ref{fig:alu_in_sketch}. The \pktlanguage compiler feeds in the codelet and 
-the atom template into SKETCH, and SKETCH will search for possible values of 
-the parameters such that the resulting atom performs the same functionality as 
-the codelet, for all possible input values of {\tt x}.
-In this case this is done by setting {\tt choice=0} and {\tt constant=1}.
-In contrast, if the codelet {\tt x=x*x} was supplied as the specification, SKETCH
-will return an error as no such parameter value exists. To minimize search time, 
-the range of possible inputs and parameter values need to be specified in the 
-template (e.g., all 8 bit integers), and our experiments have shown that 
-the search finishes quickly, taking XXX secs at most.
+While many algorithms can be used to perform the search, in the \pktlanguage
+compiler we use the SKETCH program synthesizer~\cite{sketch_asplos} for this
+purpose, as the atom templates can be easily expressed using SKETCH, while
+SKETCH also provides efficient search algorithms and has been used for similar
+purposes across different domains~\cite{bitstreaming, lifejoin, qbs}.
+
+As an illustration, assume we want to map the codelet {\tt x=x+1} to the atom
+template shown in Figure~\ref{fig:alu_in_sketch}. The \pktlanguage compiler
+feeds in the codelet and the atom template into SKETCH, and SKETCH will search
+for possible values of the parameters such that the resulting atom performs the
+same functionality as the codelet, for all possible input values of {\tt x}.
+In this case this is done by setting {\tt choice=0} and {\tt constant=1}.  In
+contrast, if the codelet {\tt x=x*x} was supplied as the specification, SKETCH
+will return an error as no such parameter value exists. To minimize search
+time, the range of possible inputs and parameter values need to be specified in
+the template (e.g., all 8 bit integers), and our experiments have shown that
+the search finishes quickly, taking 10 secs at most.
 
 \begin{figure}[!b]
   \begin{center}
@@ -375,56 +373,6 @@ the search finishes quickly, taking XXX secs at most.
   \end{minipage}
 \end{figure}
 
-
-% old text below
-\if 0
-An atom template defines a space of possible computations such as
-permissable ALU operations.  The specific computation is selected by
-\textit{configuring} the atom. The codelet is a specification that is to be
-checked for functional equivalence against one of the atom configurations
-supported by the atom template. We need to \textit{synthesize} the atom's
-\textit{configuration}, given an \textit{atom template} describing the atom's
-functionality.
-
-This is the realm of syntax-guided program synthesis~\cite{sgsyn}, where the
-programmer supplies a partial program or template (hence the term
-syntax-guided) with missing details, and a specification. A \textit{program
-synthesis tool} then synthesizes these details in the partial program so that
-it matches up with the specification. One such program synthesis tool is
-SKETCH~\cite{bitstreaming, sketch_asplos, sketch_manual}, which allows the
-programmer to specify a partial program with \textit{holes} that are then
-``filled in'' by SKETCH to match the specification (Figure~\ref{fig:sketch}).
-
-
-We use SKETCH to solve the atom configuration problem.  Consider an atom
-template that models an ALU (Figure~\ref{fig:alu_diag}) taking two
-configuration parameters: an opcode, \texttt{choice}, specifying an addition or
-subtraction operation, and a 5-bit positive constant, \texttt{constant}.  The
-ALU can either add or subtract this constant from one state variable. This ALU
-can be represented by the SKETCH partial program given in
-Figure~\ref{fig:alu_in_sketch}.
-
-Assume we want to map the codelet x=x+1 to this atom. The codelet is then fed
-into SKETCH as the desired specification and the atom template is fed into
-SKETCH as the partial program (Figure~\ref{fig:sketch}). SKETCH will configure
-the atom template by setting \texttt{choice} to 0 and \texttt{constant} to 1.
-In contrast, if the codelet x = x * x was supplied as the specification, SKETCH
-will return an error because the specification cannot be mapped to any of the
-atom's computations. We don't describe the algorithms underlying SKETCH because
-we treat SKETCH as a blackbox in the \pktlanguage compiler. The interested
-reader is referred to~\cite{bitstreaming, sketch_asplos} for a more detailed
-treatment of these topics.
-
-Using SKETCH to represent atom templates allows us to express the behavior of
-diverse atoms (Table~\ref{tab:templates}) using a natural imperative syntax.
-Because different \absmachine machines only differ in the atoms they provide,
-employing SKETCH for atom configuration lets us build a retargetable
-compiler~\cite{lcc} with little target-dependent work beyond specifying each
-target's atoms as partial programs in SKETCH.
-\fi
-%end old text
-
-
 \subsection{Verifying compilations}
 \label{ss:verification}
 
@@ -455,5 +403,5 @@ support sequential execution within a pipeline stage or the conditional
 operator as a primitive action. Both are required to correctly execute the
 codelets/atoms produced by \pktlanguage (Figure~\ref{fig:flowlet_pipeline}).
 We have submitted a proposal~\cite{p4-semantics} for both to the P4 language
-consortium. The proposal has been tentatively accepted and looks likely to be
+consortium. The proposal has been tentatively accepted and is likely to be
 included in P4 v1.1.
