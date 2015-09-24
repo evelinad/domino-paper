@@ -6,7 +6,7 @@
 
 \begin{table}[!t]
   \begin{scriptsize}
-  \begin{tabular}{|p{0.1\textwidth}|p{0.35\textwidth}|}
+  \begin{tabular}{|p{0.1\textwidth}|p{0.33\textwidth}|}
     \hline
     Atom & Description \\
     \hline
@@ -33,7 +33,7 @@
 
 \begin{table}[!t]
   \begin{scriptsize}
-    \begin{tabular}{|p{0.08\textwidth}|p{0.3\textwidth}|p{0.03\textwidth}|}
+    \begin{tabular}{|p{0.08\textwidth}|p{0.29\textwidth}|p{0.04\textwidth}|}
   \hline
   Atom & Circuit & Element depth \\
   \hline
@@ -102,8 +102,8 @@ convenient to use.
 \subsection{Experimental procedure}
 As mentioned in \S\ref{ss:code_gen}, we focus only on stateful atoms and assume
 all stateless codelets are supported by a \absmachine machine because they are
-single three-address code statements. For simplicity, the stateful atoms only
-permit state updates and forbid packet field updates intermixed with state
+single three-address code statements. For simplicity, the stateful atoms we consider
+only permit state updates and forbid packet field updates intermixed with state
 updates.  Assuming the ability to read a state variable\footnote{The inability
 to read a state variable renders it powerless!}, such field updates can be
 treated as stateless operations in subsequent pipeline stages.
@@ -162,15 +162,15 @@ The Pairs atom, where the update to a state variable is conditioned on a
 predicate of a pair of state variables, allows us to implement CONGA at line
 rate.  However, it is \textit{still} insufficient for algorithms such as
 CoDel~\cite{codel} and the two-rate three-color meter~\cite{trTCM}(trTCM).  On
-a positive note, however, the codelets in both trTCM and CoDel are still
-restricted to a pair of state variables.  We haven't yet encountered a triplet
-of state variables all falling in the same strongly connected
+a positive note, however, we observed that the codelets in both trTCM and CoDel
+are still restricted to a pair of state variables.  We haven't yet encountered
+a triplet of state variables all falling in the same strongly connected
 component/codelet, requiring a three-way state update.
 
 %%We leave the problem of
 %%approximating CoDel/trTCM to fit within a particular atom or conversely,
 %%designing more complex atoms to support them to future work.
-\subsection{Performance programmability tradeoffs}
+\subsection{Performance vs. programmability}
 \label{ss:perfprog}
 
 While powerful atoms like Pairs can implement more data-plane algorithms, they
@@ -178,11 +178,12 @@ come at a cost.  A more expressive atom needs more gates in hardware and incurs
 longer propagation delays.  As an illustration, consider the circuits
 (Table~\ref{fig:element_depth}) for the first three atoms from Table
 ~\ref{tab:templates}. We use the number of elements (muxes, adders,
-subtractors, and relational operators) between input and output, the element
-depth, as a crude proxy for propagation delay, and observe that it increases
-with atom complexity. At some point, the propagation delay may prevent the
-circuit from meeting a particular line rate.  We plan to synthesize these atoms
-to circuits in a standard cell library to study this further.
+subtractors, and relational operators) on the longest path between input and
+output, the element depth, as a crude proxy for propagation delay, and observe
+that it increases with atom complexity. At some point, the propagation delay
+may prevent the circuit from meeting a particular line rate.  We plan to
+synthesize these atoms to circuits in a standard cell library to study this
+more rigorously.
 
 The larger takeaway is that we can begin to quantify the
 programmability-performance tradeoff that switch designers intuitively
@@ -198,11 +199,11 @@ decreases (performance).
 The data-plane algorithms we consider are all under 100 lines of code.  Time
 spent in the front-end is negligible; instead, compilation time is dominated by
 SKETCH. To speed up the search, we limit SKETCH to search for constants (e.g.,
-for addition) of size up to 5 bits, given that the size of the stateful
-codelets in our algorithms are small.
+for addition) of size up to 5 bits, given that the constants we observe within
+stateful codelets in our algorithms are small.
 
 Quantitatively, our longest compilation time is
 10 seconds when CoDel doesn't map to a \absmachine machine with the Pairs atom.
 This time will increase if we increase the bit width of constants that SKETCH
-has to search; however, because the data-plane algorithms are themselves small,
-we don't anticipate compilation times being a concern.
+has to search; however, because data-plane algorithms are small,
+we don't expect compilation times to be a concern.
