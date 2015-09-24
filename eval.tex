@@ -82,12 +82,14 @@ CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or no
 \label{tab:algos}
 \end{table*}
 
-To evaluate \pktlanguage, we express several data-plane algorithms
+To evaluate \pktlanguage, we expressed several data-plane algorithms
 (Table~\ref{tab:algos}) in \pktlanguage to determine if they can be implemented
-on different \absmachine machines that provide different kinds of stateful
-atoms (Table~\ref{tab:templates}). We expressed most data-plane algorithms in
-\pktlanguage by simply translating their imperative code/pseudocode to
-\pktlanguage.
+on different \absmachine machines that provide different types of stateful
+atoms (Table~\ref{tab:templates}). Expressing most of these algorithms in
+\pktlanguage involved little effort beyond simply translating their imperative
+code/pseudocode to \pktlanguage---a sign that \pktlanguage's abstractions are
+convenient to use.
+%TODO: Maybe we should do a user study in 6.829 or another class sometime :)?
 
 %Anirudh: Chang felt this was incidental.
 %%We did, however, modify CoDel. CoDel is a head-drop active queue
@@ -99,22 +101,22 @@ atoms (Table~\ref{tab:templates}). We expressed most data-plane algorithms in
 
 \subsection{Experimental procedure}
 As mentioned in \S\ref{ss:code_gen}, we focus only on stateful atoms and assume
-all stateless codelets are supported by a \absmachine machine. For simplicity,
-the stateful atoms only permit state updates and forbid packet field updates
-intermixed with state updates.  Assuming the \absmachine machine provides an
-atom to read a state variable\footnote{The inability to read a state variable
-renders it powerless!}, such field updates can be treated as stateless
-operations in subsequent pipeline stages.
+all stateless codelets are supported by a \absmachine machine because they are
+single three-address code statements. For simplicity, the stateful atoms only
+permit state updates and forbid packet field updates intermixed with state
+updates.  Assuming the ability to read a state variable\footnote{The inability
+to read a state variable renders it powerless!}, such field updates can be
+treated as stateless operations in subsequent pipeline stages.
 
 We also assume every \absmachine machine provides only one stateful atom
 template, though we don't restrict the number of instances of this template.
-This is because switch designers would prefer to design, implement, verify, and
-optimize (at the gate level) one circuit for all stateful operations, thereby
-amortizing design effort.  Table~\ref{tab:templates} gradually increases the
-capability of this single atom template.  We designed the atoms in
-Table~\ref{tab:templates}, and hence the \absmachine machines providing them,
-to form a containment hierarchy: each atom can express all data-plane
-algorithms that its predecessor can.
+This is because ASIC engineers prefer to design, implement, verify, and
+physically layout one circuit for all stateful operations, thereby amortizing
+design and layout effort over multiple instances of the same circuit.
+Table~\ref{tab:templates} gradually increases the capability of this single
+atom template.  We designed the atoms in Table~\ref{tab:templates}, and hence
+the \absmachine machines providing them, to form a containment hierarchy: each
+atom can express all data-plane algorithms that its predecessor can.
 
 We now consider every atom/\absmachine machine from Table~\ref{tab:templates},
 and every data-plane algorithm from Table~\ref{tab:algos} to determine if the
@@ -148,7 +150,7 @@ CONGA, whose code we reproduce below:
     best_path_util[p.src] = p.util;
   }
 \end{verbatim}
-Here, \texttt{best\_path} (the ID of the best path for a particular
+Here, \texttt{best\_path} (the path id of the best path for a particular
 destination) is updated conditioned on \texttt{best\_path\_util} (the
 utilization of the best path to that destination)\footnote{p.src is the address
   of the host originating this message, and hence the destination for the host
@@ -168,7 +170,7 @@ component/codelet, requiring a three-way state update.
 %%We leave the problem of
 %%approximating CoDel/trTCM to fit within a particular atom or conversely,
 %%designing more complex atoms to support them to future work.
-
+\subsection{A performance-programmability tradeoff}
 While powerful atoms like Pairs can implement more data-plane algorithms, they
 come at a cost.  A more expressive atom needs more gates in hardware and incurs
 longer propagation delays.  As an illustration, consider the circuits
