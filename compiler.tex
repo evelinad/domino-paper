@@ -137,38 +137,37 @@ moved into the read flank.}
 \end{figure*}
 
 The \pktlanguage compiler borrows many techniques from the compiler
-literature~\cite{muchnik}. The \absmachine architecture, however, 
-poses unique challenges for compilation.
-%Further, as we illustrate
-%throughout this section, constraining \pktlanguage for deterministic
-%performance has a happy side effect: it simplifies the techniques in
-%\pktlanguage's compiler relative to mainstream compilers. 
-Since \pktlanguage's syntax is effectively a subset of C, 
-we use Clang's library interface~\cite{libclang} to parse and implement
-the passes in the compiler. The overall architecture is shown 
-in Figure~\ref{fig:passes}. Throughout this section,
-we use flowlet switching from Figure~\ref{fig:flowlet_code} as a running
-example to demonstrate compiler passes.  While we have simplified the code for
-readability, the code output by the \pktlanguage compiler after each pass isn't
-materially different from the version presented here.
+literature~\cite{muchnik}. The \absmachine architecture, however, poses unique
+challenges for compilation requiring a synthesis of techniques that, to the
+best of our knowledge, hasn't been done before. Further, as we illustrate
+throughout this section, constraining \pktlanguage for deterministic
+performance has a happy side effect: it simplifies the techniques in
+\pktlanguage's compiler relative to mainstream compilers.  Since \pktlanguage's
+syntax is effectively a subset of C, we use Clang's library
+interface~\cite{libclang} to parse and implement the passes in the compiler.
+The overall architecture of the compiler is shown in Figure~\ref{fig:passes}.
+Throughout this section, we use flowlet switching from
+Figure~\ref{fig:flowlet_code} as a running example to demonstrate compiler
+passes.  While we have simplified the code for readability, the code output by
+the \pktlanguage compiler after each pass isn't materially different from the
+version presented here.
 
 \subsection{If-conversion to straight-line code}
-A packet transaction's body can contain (potentially nested) conditional statements 
-(e.g., Lines~\ref{line:ifStart} to \ref{line:ifEnd} in Figure~\ref{fig:flowlet_code},
-or CoDel~\cite{codel_code}). These statements alter
-control flow and complicate dependence analysis \ac{what dependence analysis?}. 
-We eliminate such
-statements by transforming them into the ternary conditional operator, starting from
-the innermost if statements and recursing outwards
+
+A packet transaction's body can contain (potentially nested) conditional
+statements (e.g., Lines~\ref{line:ifStart} to \ref{line:ifEnd} in
+Figure~\ref{fig:flowlet_code}, or CoDel~\cite{codel_code}). These statements
+alter control flow and complicate dependence analysis between statements i.e.
+whether a statement should follow or precede another.  We eliminate such
+statements by transforming them into the ternary conditional operator, starting
+from the innermost if statements and recursing outwards
 (Figure~\ref{fig:if_convert}). This procedure is known as
 if-conversion~\cite{if_conversion}. Unlike traditional languages, performing
-if-conversion in \pktlanguage is easy as there is no unstructured control flows.
-The conversion effectively turns the body of packet transactions into straight-line code,
-where control passes sequentially without branching. As we will see, this 
-simplifies the rest of the compiler.
-% Straight-line code
-%simplifies the rest of the compiler, like computing the static
-%single-assignment form(\S\ref{ss:ssa}).
+if-conversion in \pktlanguage is easy as there is no unstructured control
+flows.  The conversion effectively turns the body of packet transactions into
+straight-line code, where control passes sequentially without branching.
+Straight-line code simplifies the rest of the compiler, like computing the
+static single-assignment form(\S\ref{ss:ssa}).
 
 \subsection{Rewriting state variable operations} %Converting to load/store form}
 \label{ss:load/store}
@@ -176,72 +175,58 @@ simplifies the rest of the compiler.
 We next identify both array and scalar state variables used in a packet
 transaction, such as \texttt{last\_time} and \texttt{saved\_hop} in
 Figure~\ref{fig:flowlet_code}. State variables are easy to identify
-syntactically, since all variables are either packet fields or state
-variables. %, because we forbid pointers. 
-For each state variable, we
-create a \textit{read flank} to read the state variable into a temporary packet
-field. For an array, we also move the index expression into the read flank,
-exploiting the fact that only one array index is accessed by each packet in
-valid \pktlanguage programs.  Then, throughout the packet transaction, we
-replace the state variable with the packet temporary, and create a
-\textit{write flank} to write the packet temporary back into the state
-variable.  Figure~\ref{fig:stateful_flanks} illustrates this transformation.
-After this pass, the code resembles code for a load-store
+syntactically, since all variables are either packet fields or state variables.
+For each state variable, we create a \textit{read flank} to read the state
+variable into a temporary packet field. For an array, we also move the index
+expression into the read flank, exploiting the fact that only one array index
+is accessed by each packet in valid \pktlanguage programs.  Then, throughout
+the packet transaction, we replace the state variable with the packet
+temporary, and create a \textit{write flank} to write the packet temporary back
+into the state variable.  Figure~\ref{fig:stateful_flanks} illustrates this
+transformation.  After this pass, the code resembles code for a load-store
 architecture~\cite{load_store}: all state variables must be loaded into packet
-variables before they can be operated.
-Restricting operations on state
+variables before they can be operated.  Restricting operations on state
 variables simplifies subsequent code partitioning (\S\ref{ss:partitioning}).
 
-\subsection{Converting to single-assignment form} %Renaming variables to SSA}
+\subsection{Converting to static single-assignment form}
 \label{ss:ssa}
 
-We next convert the code to static
-single-assignment form (SSA), as shown in Figure~\ref{fig:ssa}). In SSA form,
-every variable is assigned exactly once. To compute the SSA, we replace
-every definition of a packet variable with a new packet variable and propagate
-this new variable until the next definition of the same variable. State
-variables are already in SSA: after their flanks have been added, every state
-variable is written exactly once in the write flank.  While general algorithms
-for computing the SSA are fairly involved~\cite{ssa}, \pktlanguage's SSA
-computation is simpler because it runs after if conversion and hence operates
-on straight-line code.  Because every variable is assigned exactly once, SSA
-removes Write-After-Read and Write-After-Write dependencies. Only
-Read-After-Write dependencies remain, simplifying dependency analysis during
-code partitioning (\S\ref{ss:partitioning}). We execute copy
+We next convert the code to static single-assignment form (SSA), as shown in
+Figure~\ref{fig:ssa}). In SSA form, every variable is assigned exactly once. To
+compute the SSA, we replace every definition of a packet variable with a new
+packet variable and propagate this new variable until the next definition of
+the same variable. State variables are already in SSA: after their flanks have
+been added, every state variable is written exactly once in the write flank.
+While general algorithms for computing the SSA are fairly involved~\cite{ssa},
+\pktlanguage's SSA computation is simpler because it runs after if conversion
+and hence operates on straight-line code.  Because every variable is assigned
+exactly once, SSA removes Write-After-Read and Write-After-Write dependencies.
+Only Read-After-Write dependencies remain, simplifying dependency analysis
+during code partitioning (\S\ref{ss:partitioning}). We execute copy
 propagation~\cite{copy_prop} after SSA to reduce the incidence of temporary
 packet variables.
 
 \subsection{Flattening to three-address code}
 
-The input is next converted to three-address code~\cite{tac}, where all instructions
-are either reads / writes into state variables or operations on packet variables
-of the form \texttt{pkt.f1 = pkt.f2 op pkt.f3;} where
-\texttt{op} can be a conditional,\footnote{Ternary operators take in 4 addresses
-instead of 3.} arithmetic, logical, or relational operator.
-We also allow either {\tt pkt.f2} or {\tt pkt.f3} to be an intrinsic function call. 
-\ac{can both be function calls?} 
-All expressions that are not already 
-in three-address code are flattened by introducing temporaries as illustrated in
+The input is next converted to three-address code~\cite{tac}, where all
+instructions are either reads / writes into state variables or operations on
+packet variables of the form \texttt{pkt.f1 = pkt.f2 op pkt.f3;} where
+\texttt{op} can be a conditional,\footnote{Ternary/Conditional operators take
+in 4 addresses instead of 3.} arithmetic, logical, or relational operator.
+We also allow either one of {\tt pkt.f2} or {\tt pkt.f3} to be an intrinsic
+function call.  All expressions that are not already in three-address code
+are flattened by introducing temporaries as illustrated in
 Figure~\ref{fig:three_address}.  While flattening expressions may result in
-redundant temporaries that compute the same subexpression, such
-temporaries are removed using common subexpression elimination~\cite{cse}.
+redundant temporaries that compute the same subexpression, such temporaries
+are removed using common subexpression elimination~\cite{cse}.
 
-%For instance, if the t
-%wo statements \texttt{x = a * 5 + b;} and \texttt{x = a * 5 + c;} were
-%flattened, the subexpression \texttt{a * 5} would be computed by two
-%temporaries.
 \subsection{Code partitioning to codelets}
 \label{ss:partitioning}
 At this point, the code is still sequential. Code partitioning turns sequential
 code into a pipeline of \textit{codelets}, where each codelet is a small
-sequential block of three-address code statements. 
-%We do so by exploiting
-%parallelism within and across pipeline stages in a \absmachine machine.
-%Subsequently, we map each codelets one-to-one to atoms provided by a particular
-Each codelet is then mapped to an atom provide by a particular
-\absmachine machine~(\S\ref{ss:code_gen}), or an error is returned if it cannot
-be mapped.
-%codelet in the algorithm doesn't map to an atom provided by the hardware.
+sequential block of three-address code statements. Each codelet is then mapped
+to an atom provide by a particular \absmachine machine~(\S\ref{ss:code_gen}),
+or an error is returned if it cannot be mapped.
 
 To partition code into codelets, we carry out the following steps:
 \begin{CompactEnumerate}
@@ -250,32 +235,32 @@ To partition code into codelets, we carry out the following steps:
   \item Create a bidirectional edge between nodes N1 and N2, where N1 is a read from a
     state scalar / state array and N2 is a write into the same variable.
     This step captures the constraint that state is internal to an
-    atom in \absmachine. Because state variables don't occur in any
-    instructions besides reads and writes, this suffices to handle state variables. \ac{what dos 'suffice' mean?}
-  \item Create an edge (N1, N2) for every pair of nodes N1, N2 where N2 reads
-    a variable written by N1. We only check read-after-write dependencies because
-    control dependencies turn into data dependencies after if conversion, and all
-    other dependencies are removed after converting the code into SSA.
-    %SSA removes all write-after-read and write-after-write dependencies.
+    atom in \absmachine.
+  \item Create an edge (N1, N2) for every pair of nodes N1, N2 where N2 reads a
+    variable written by N1. We only check read-after-write dependencies because
+    control dependencies turn into data dependencies after if conversion, and
+    write-after-read and write-after-write dependencies are removed after
+    converting the code into SSA.
   \item Generate strongly connected components (SCCs) of the resulting graph
-    (Figure~\ref{fig:partitioning_before}) and condense the SCCs to create a directed
-    acyclic graph (DAG) (Figure~\ref{fig:partitioning_after}). This step captures the
-    constraint that all operations on a given state variable
-    must reside within the same atom as state is distributed across them.
+    (Figure~\ref{fig:partitioning_before}) and condense the SCCs to create a
+    directed acyclic graph (DAG) (Figure~\ref{fig:partitioning_after}). This
+    step captures the constraint that all operations on a given state variable
+    must reside within the same atom.
+    %as state is distributed across them.
   \item Schedule the resulting DAG using critical path
     scheduling~\cite{crit_path_sched} by creating a new pipeline stage every time
-    one operation needs to follow another (Figure~\ref{fig:flowlet_pipeline}).
-    \ac{what does 'operation' and 'follow' mean?}
+    one operation needs to follow another according to the precedence relationship
+    established by the DAG (Figure~\ref{fig:partitioning_after}).
 \end{CompactEnumerate}
-The resulting codelet pipeline\footnote{We refer to this both as a codelet
-and an atom pipeline because codelets map one-to-one atoms
-(\S\ref{ss:code_gen}).} shown in Figure~\ref{fig:flowlet_pipeline} 
-implements the flowlet packet transaction.  Further, the
-codelets have a stylized form.  Codelets that don't manipulate state contain
-exactly one three-address code instruction after expression flattening;
-codelets that manipulate state contain at least two statements: a read from a
-state variable and a write to a state variable, with optionally one
-or more updates to the state variable through packet temporaries in between.
+The resulting codelet pipeline\footnote{We refer to this both as a codelet and
+an atom pipeline because codelets map one-to-one atoms (\S\ref{ss:code_gen}).}
+shown in Figure~\ref{fig:flowlet_pipeline} implements the flowlet packet
+transaction.  Further, the codelets have a stylized form.  Codelets that don't
+manipulate state contain exactly one three-address code instruction after
+expression flattening; codelets that manipulate state contain at least two
+statements: a read from a state variable and a write to a state variable, with
+optionally one or more updates to the state variable through packet temporaries
+in between.
 
 \begin{figure*}[!t]
 \begin{minipage}{0.5\textwidth}
@@ -311,8 +296,11 @@ each such codelet is mapped to an atom provided by the
 a single three-address code statement, this is still correct, although
 suboptimal. For instance, if the \absmachine machine supports a
 multiply-and-accumulate atom~\cite{mac}, our approach generates two atoms (one
-each for the multiply and accumulate), although one already suffices.\ac{say something
-about it doesn't affect much for the examples we use in the experiment}
+each for the multiply and accumulate), although one already suffices.
+% Anirudh->Alvin: It doesn't for a rather sloppy reason.
+% We basically assume only stateless atoms are supported.
+%\ac{say something
+%about it doesn't affect much for the examples we use in the experiment}
 
 \paragraph{Stateful codelets}
 Stateful codelets have multi-line bodies that need to execute atomically. For
