@@ -391,14 +391,16 @@ few compiler bugs during development.
 
 \subsection{Targeting real switches}
 \label{ss:real}
-\pktlanguage doesn't yet generate code for actual hardware. We initially
-considered compiling \pktlanguage to P4. However, P4 currently doesn't support
-sequential execution within a pipeline stage---required to correctly execute
-the codelets/atoms produced by \pktlanguage. Based on this work, we have
-submitted a proposal for sequential execution~\cite{p4-semantics} to the P4
-language consortium. In the future, if P4 supports sequential execution,
-\pktlanguage could target P4 as a backend, which would then allow \pktlanguage
-to target programmable switches by leveraging ongoing work~\cite{netronome,
-xilinx,lavanya_compiler} in P4 compilation.
+\pktlanguage doesn't yet generate code for actual hardware. To target real
+switches, we initially considered compiling \pktlanguage to P4. However, P4
+currently doesn't support sequential execution within a pipeline stage or the
+conditional operator as a primitive action. Both are required to correctly
+execute the codelets/atoms produced by \pktlanguage. Based on this work, we
+have submitted a proposal for sequential execution and the conditional
+operator~\cite{p4-semantics} to the P4 language consortium. In the future, if
+this proposal were to be approved, \pktlanguage could target P4 as a backend,
+which would then allow \pktlanguage to target programmable switches by
+leveraging ongoing work~\cite{netronome, xilinx,lavanya_compiler} in P4
+compilation.
 % Anirudh->Chang: Can I say that this has been accepted for v1.1 or is that
 % still under wraps?
