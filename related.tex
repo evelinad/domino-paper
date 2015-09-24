@@ -60,17 +60,16 @@ network processors~\cite{ixp2800, ixp4xx}.
 languages. However \pktlanguage is constrained relative to its predecessors:
 for instance, it forbids loops and includes no synchronization constructs
 because all state is internal to an atom. These constraints were chosen to
-target line-rate switching chips with deterministic performance and
-shared-nothing memory architectures. As a result, \pktlanguage's compiler
-presents a different programming model: all \pktlanguage programs that compile
-run at line-rate, while those that can't run at line rate are rejected
-outright. There is no slippery slope of degrading performance with increasing
-program complexity.
+target line-rate switching chips with shared-nothing memory architectures. As a
+result, \pktlanguage's compiler presents a different programming model: all
+\pktlanguage programs that compile run at line-rate, while those that can't run
+at line rate are rejected outright. Unlike an NPU or software router, there is
+no slippery slope of degrading performance with increasing program complexity.
 
 P4~\cite{p4} is an emerging packet-processing language that explicitly targets
 line-rate programmable switching chips. However, while P4 is a natural model
 for many header-manipulation tasks such as switching, ACLs, routing, and
-tunelling, it is ill suited to programming data-plane algorithms that
+tunelling~\cite{dc_p4}, it is ill suited to programming data-plane algorithms that
 rely on intricate state manipulation.
 
 \textbf{Compiler Techniques}
