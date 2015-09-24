@@ -377,11 +377,11 @@ target's atoms as partial programs in SKETCH.
 \subsection{Verifying compilations}
 \label{ss:verification}
 
-Our testing infrastructure verifies that the compilation is correct i.e. the
-externally visible behavior of the packet transaction
+Our testing infrastructure verifies that the compilation is correct. By this,
+we mean that the externally visible behavior of the packet transaction
 (Figure~\ref{fig:flowlet_code}) is indistinguishable from its pipelined
-implementation (Figure~\ref{fig:flowlet_pipeline}). We verify correctness by feeding in
-the same set of test packets to both the packet transaction and its
+implementation (Figure~\ref{fig:flowlet_pipeline}). We verify correctness by
+feeding in the same set of test packets to both the packet transaction and its
 implementation and comparing the outputs from both programs on the set of
 externally visible fields.
 
