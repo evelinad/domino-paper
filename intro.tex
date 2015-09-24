@@ -33,16 +33,16 @@ starting from efforts on active networks~\cite{active-nets} to network
 processors~\cite{npu_survey} to software routers~\cite{click,routebricks}. All
 these efforts have compromised on speed to provide programmability, typically
 running an order of magnitude (or worse) slower than hardware line rates.
-Unfortunately, such a reduction in performance has meant that these systems are
+Unfortunately, this reduction in performance has meant that these systems are
 rarely deployed in production networks, if at all.
 
 Programmable switching chips~\cite{flexpipe, xpliant, rmt}, which are
 competitive with state-of-the-art fixed-function chipsets~\cite{trident,
 tomahawk, mellanox}, are a recent alternative.  These chips implement a few
 low-level hardware primitives that can be configured by software into a
-processing pipeline~\cite{xpliant_sdk,xpliant_sdk2,intel_sdk,rmt,p4}. This
-approach is attractive because it does not compromise on data rates and the
-area overhead is small.
+processing pipeline~\cite{xpliant_sdk,xpliant_sdk2,intel_sdk}. This approach is
+attractive because it does not compromise on data rates and the area overhead
+of programmability is small~\cite{rmt}.
 
 P4~\cite{p4, p4spec} is an emerging packet-processing language for
 such chips. P4 allows the programmer to specify packet parsing and
