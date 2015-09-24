@@ -1,18 +1,18 @@
 % Atom, description, circuit, SKETCH
 \appendix
-\section{Pseudocode and circuit diagrams for atoms}
+\section{SKETCH code and circuit diagrams for atoms}
 The appendix provides circuit diagrams (Figures~\ref{fig:rw}--~\ref{fig:pairs})
-and pseudocode (Table~\ref{tab:atom_code}) for the atoms in
+and SKETCH code (Table~\ref{tab:atom_code}) for the atoms in
 Table~\ref{tab:templates}. Table~\ref{tab:sketch_constructs} summarizes the
 notation we use in this section.
 \begin{table}[!htbp]
   \begin{minipage}{\columnwidth}
   \begin{scriptsize}
   \begin{tabular}{p{0.3\columnwidth}p{0.7\columnwidth}}
-  SKETCH construct & Description \\
+  Construct & Description \\
   \hline
   MuxN(a1, a2, \dots, aN) & \pbox{0.7\columnwidth}{N-to-1 multiplexer with enable bit.\\If enabled, return one of a1, a2, \dots aN.\\If disabled, return 0.}\\
-  Opt(a)        & Return a or 0. \\
+  Opt(a)        & Return a or 0. (Equivalent to Mux1(a)).
   rel\_op(x, y) & Return one of $x < y$, $x > y$, $x != y$, $x == y$.\\
   Const() & Return an integer constant in the range [0, 31].\footnote{We restrict constants to 5 bits because all constants within stateful codelets in our dataplane algorithms are under 32. Larger ranges increase synthesis time.} \\
   x, y & State variables \\
