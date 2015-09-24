@@ -87,12 +87,15 @@ To evaluate \pktlanguage, we express several data-plane algorithms
 on different \absmachine machines that provide different kinds of stateful
 atoms (Table~\ref{tab:templates}). We expressed most data-plane algorithms in
 \pktlanguage by simply translating their imperative code/pseudocode to
-\pktlanguage. We did, however, modify CoDel. CoDel is a head-drop active queue
-management scheme, which uses a loop~\cite{codel_code} to repeatedly dequeue
-packets until it can send one out.  We replaced the while loop with an if
-statement and mark dequeued packets instead of dropping them. A line-rate
-switch can dequeue only once per packet. Dropping these dequeued packets,
-instead of marking them, leads to an idle line and wasted capacity.
+\pktlanguage.
+
+%Anirudh: Chang felt this was incidental.
+%%We did, however, modify CoDel. CoDel is a head-drop active queue
+%%management scheme, which uses a loop~\cite{codel_code} to repeatedly dequeue
+%%packets until it can send one out.  We replaced the while loop with an if
+%%statement and mark dequeued packets instead of dropping them. A line-rate
+%%switch can dequeue only once per packet. Dropping these dequeued packets,
+%%instead of marking them, leads to an idle line and wasted capacity.
 
 \subsection{Experimental procedure}
 As mentioned in \S\ref{ss:code_gen}, we focus only on stateful atoms and assume
