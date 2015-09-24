@@ -10,7 +10,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="879.03125"
-   height="1216.2188"
+   height="1216.9375"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
@@ -69,7 +69,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.35"
      inkscape:cx="-92.700893"
-     inkscape:cy="465.20032"
+     inkscape:cy="465.91907"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -90,7 +90,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -147,7 +147,7 @@
          id="tspan4290"
          x="-5.7142868"
          y="-116.20924"
-         style="font-size:70px">Partial</tspan><tspan
+         style="font-size:70px">SKETCH</tspan><tspan
          sodipodi:role="line"
          x="-5.7142868"
          y="-28.709244"
@@ -197,26 +197,26 @@
        y="-213.78802"
        ry="65.237411" />
     <rect
-       style="fill:none;stroke:#000000;stroke-width:9.1999464;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:none;stroke:#000000;stroke-width:10.62126541;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect4326-2-4"
-       width="633.95514"
+       width="844.96844"
        height="251.41196"
-       x="69.644981"
+       x="-10.355019"
        y="741.56256"
        ry="39.780376" />
     <text
        xml:space="preserve"
        style="font-size:84px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
-       x="94.285706"
+       x="14.285706"
        y="840.93359"
        id="text4382"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4384"
-         x="94.285706"
-         y="840.93359">Values for holes</tspan><tspan
+         x="14.285706"
+         y="840.93359">Values for parameters</tspan><tspan
          sodipodi:role="line"
-         x="94.285706"
+         x="14.285706"
          y="945.93359"
          id="tspan4386">(atom config.)</tspan></text>
   </g>

@@ -1,8 +1,6 @@
 \section{The \pktlanguage compiler}
 \label{s:compiler}
 
-%TODO: Mihai: Mention how the complex atoms could be used to carry out stateless
-%operations as well by reducing the number of stages.
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{compiler.pdf}
   \caption{Passes in the \pktlanguage compiler}
@@ -136,19 +134,21 @@ moved into the read flank.}
 \vspace{-0.5cm}
 \end{figure*}
 
-The \pktlanguage compiler borrows many techniques from the compiler
-literature~\cite{muchnik}. The \absmachine architecture, however, poses unique
-challenges for compilation requiring a synthesis of techniques that, to the
-best of our knowledge, hasn't been done before. Further, as we illustrate
-throughout this section, constraining \pktlanguage for deterministic
-performance simplifies the \pktlanguage compiler.  Since \pktlanguage's syntax
-is effectively a subset of C, we use Clang's library interface~\cite{libclang}
-to parse and implement the passes in the compiler.  The overall architecture of
-the compiler is shown in Figure~\ref{fig:passes}.  Throughout this section, we
-use flowlet switching from Figure~\ref{fig:flowlet_code} as a running example
-to demonstrate compiler passes.  While we have simplified the code for
-readability, the code output by the \pktlanguage compiler after each pass isn't
-materially different from the version presented here.
+The \pktlanguage compiler borrows many techniques from the compiler literature.
+The \absmachine architecture, however, poses unique challenges for compilation
+requiring a synthesis of techniques that, to the best of our knowledge, is
+novel. Further, as we illustrate throughout this section, constraining
+\pktlanguage for deterministic performance simplifies the \pktlanguage
+compiler relative to mainstream compilers for imperative languages.
+
+Because \pktlanguage's syntax is a subset of C, we use Clang's library
+interface~\cite{libclang} to parse and implement the passes in the compiler.
+The overall architecture of the compiler is shown in Figure~\ref{fig:passes}.
+Throughout this section, we use flowlet switching from
+Figure~\ref{fig:flowlet_code} as a running example to demonstrate compiler
+passes.  While we have simplified the code for readability, the code output by
+the \pktlanguage compiler after each pass isn't materially different from the
+version presented here.
 
 \subsection{If-conversion to straight-line code}
 
@@ -162,7 +162,7 @@ from the innermost if statements and recursing outwards
 (Figure~\ref{fig:if_convert}). This procedure is known as
 if-conversion~\cite{if_conversion}. Unlike traditional languages, performing
 if-conversion in \pktlanguage is easy as there is no unstructured control
-flows.  The conversion effectively turns the body of packet transactions into
+flow.  If conversion turns the body of packet transactions into
 straight-line code, where control passes sequentially without branching.
 Straight-line code simplifies the rest of the compiler, like computing the
 static single-assignment form(\S\ref{ss:ssa}).
@@ -183,10 +183,10 @@ temporary, and create a \textit{write flank} to write the packet temporary back
 into the state variable.  Figure~\ref{fig:stateful_flanks} illustrates this
 transformation.  After this pass, the code resembles code for a load-store
 architecture~\cite{load_store}: all state variables must be loaded into packet
-variables before they can be operated.  Restricting operations on state
+variables before arithmetic can be performed on them.  Restricting operations on state
 variables simplifies subsequent code partitioning (\S\ref{ss:partitioning}).
 
-\subsection{Converting to static single-assignment form}
+\subsection{Converting to single-assignment form}
 \label{ss:ssa}
 
 We next convert the code to static single-assignment form (SSA), as shown in
@@ -201,7 +201,7 @@ and hence operates on straight-line code.  Because every variable is assigned
 exactly once, SSA removes Write-After-Read and Write-After-Write dependencies.
 Only Read-After-Write dependencies remain, simplifying dependency analysis
 during code partitioning (\S\ref{ss:partitioning}). We execute copy
-propagation~\cite{copy_prop} after SSA to reduce the incidence of temporary
+propagation~\cite{copy_prop} after SSA to reduce the number of temporary
 packet variables.
 
 \subsection{Flattening to three-address code}
@@ -215,8 +215,8 @@ We also allow either one of {\tt pkt.f2} or {\tt pkt.f3} to be an intrinsic
 function call.  All expressions that are not already in three-address code
 are flattened by introducing temporaries as illustrated in
 Figure~\ref{fig:three_address}.  While flattening expressions may result in
-redundant temporaries that compute the same subexpression, such temporaries
-are removed using common subexpression elimination~\cite{cse}.
+redundant temporaries that compute the same subexpression, we remove such temporaries
+ using common subexpression elimination~\cite{cse}.
 
 \subsection{Code partitioning to codelets}
 \label{ss:partitioning}
@@ -237,13 +237,12 @@ To partition code into codelets, we carry out the following steps:
   \item Create an edge (N1, N2) for every pair of nodes N1, N2 where N2 reads a
     variable written by N1. We only check read-after-write dependencies because
     control dependencies turn into data dependencies after if conversion, and
-    write-after-read and write-after-write dependencies are removed after
-    converting the code into SSA.
+    write-after-read and write-after-write dependencies don't exist in SSA.
   \item Generate strongly connected components (SCCs) of the resulting graph
     (Figure~\ref{fig:partitioning_before}) and condense the SCCs to create a
     directed acyclic graph (DAG) (Figure~\ref{fig:partitioning_after}). This
-    step captures the constraint that all operations on a given state variable
-    must reside within the same atom.
+    step captures the constraint that all operations on a state variable
+    must reside within the same atom because state is internal to an atom.
     %as state is distributed across them.
   \item Schedule the resulting DAG using critical path
     scheduling~\cite{crit_path_sched} by creating a new pipeline stage every time
@@ -254,7 +253,7 @@ The resulting codelet pipeline\footnote{We refer to this both as a codelet and
 an atom pipeline because codelets map one-to-one atoms (\S\ref{ss:code_gen}).}
 shown in Figure~\ref{fig:flowlet_pipeline} implements the flowlet packet
 transaction.  Further, the codelets have a stylized form.  Codelets that don't
-manipulate state contain exactly one three-address code instruction after
+manipulate state contain exactly one three-address code statement after
 expression flattening; codelets that manipulate state contain at least two
 statements: a read from a state variable and a write to a state variable, with
 optionally one or more updates to the state variable through packet temporaries
@@ -294,7 +293,7 @@ each such codelet is mapped to an atom provided by the
 a single three-address code statement, this is still correct, although
 suboptimal. For instance, if the \absmachine machine supports a
 multiply-and-accumulate atom~\cite{mac}, our approach generates two atoms (one
-each for the multiply and accumulate), although one already suffices.
+each for the multiply and accumulate), although one suffices.
 % Anirudh->Alvin: It doesn't for a rather sloppy reason.
 % We basically assume only stateless atoms are supported.
 %\ac{say something
@@ -313,8 +312,8 @@ First, each atom template is parameterized, where the parameters determine the
 actual functionality provided by the atom.  For instance,
 Figure~\ref{fig:alu_diag} shows a hardware circuit that is capable of
 performing stateful addition or subtraction, depending on the value of the
-constant and which output is selected from the multiplexer.  Its template
-representation is shown in Figure~\ref{fig:alu_in_sketch}, where {\tt choice}
+constant and which output is selected from the multiplexer.  Its atom template
+ is shown in Figure~\ref{fig:alu_in_sketch}, where {\tt choice}
 and {\tt constant} represent the tunable parameters.  Each codelet can be
 viewed as a functional specification of the atom.  With that in mind, the
 mapping problem is equivalent to searching for the value of the parameters to
@@ -336,7 +335,7 @@ by setting {\tt choice=0} and {\tt constant=1}.  In contrast, if the codelet
 {\tt x=x*x} was supplied as the specification, SKETCH will return an error as
 no such parameter value exists. To minimize search time, the range of possible
 inputs and parameter values need to be specified in the template (e.g., all 8
-bit integers), and our experiments have shown that the search finishes quickly,
+bit integers), and our experiments show that the search finishes quickly,
 taking 10 secs at most.
 
 \begin{figure}[!b]
@@ -358,9 +357,9 @@ taking 10 secs at most.
   \hspace{0.05\columnwidth}
   \begin{minipage}{0.55\columnwidth}
   \begin{lstlisting}
-  bit outputAdd = ??;
+  bit choice = ??;
   int constant = ??;
-  if (outputAdd) {
+  if (choice) {
     x = x + constant;
   } else {
     x = x - constant;
@@ -380,8 +379,7 @@ we mean that the externally visible behavior of the packet transaction
 (Figure~\ref{fig:flowlet_code}) is indistinguishable from its pipelined
 implementation (Figure~\ref{fig:flowlet_pipeline}). We verify correctness by
 feeding in the same set of test packets to both the packet transaction and its
-implementation and comparing the outputs from both programs on the set of
-externally visible fields.
+implementation and comparing the outputs from both on the set of externally visible fields.
 
 To create test packets, we scan the packet transaction and generate the set of
 all fields read from or written to by the transaction. We initialize each field
