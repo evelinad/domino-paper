@@ -152,7 +152,7 @@ CONGA, whose code we reproduce below:
 \end{verbatim}
 Here, \texttt{best\_path} (the path id of the best path for a particular
 destination) is updated conditioned on \texttt{best\_path\_util} (the
-utilization of the best path to that destination)\footnote{p.src is the address
+utilization of the best path to that destination)\footnote{{\tt p.src} is the address
   of the host originating this message, and hence the destination for the host
 receiving it and executing CONGA.} and vice versa. There is no way to separate
 the two state variables into separate stages and still guarantee correctness.
@@ -161,7 +161,7 @@ the two state variables into separate stages and still guarantee correctness.
 The Pairs atom, where the update to a state variable is conditioned on a
 predicate of a pair of state variables, allows us to implement CONGA at line
 rate.  However, it is \textit{still} insufficient for algorithms such as
-CoDel~\cite{codel} and the two-rate three-color meter~\cite{trTCM}(trTCM).  On
+CoDel~\cite{codel} and the two-rate three-color meter (trTCM)~\cite{trTCM}.  On
 a positive note, however, we observed that the codelets in both trTCM and CoDel
 are still restricted to a pair of state variables.  We haven't yet encountered
 a triplet of state variables all falling in the same strongly connected
