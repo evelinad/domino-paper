@@ -1,24 +1,24 @@
 \section{Conclusion}
 \label{s:conclusion}
 
-This paper presented \pktlanguage, an imperative language that allows
+This paper presented \pktlanguage, a C-like imperative language that allows
 programmers to write packet-processing code using packet transactions:
-sequential code blocks that run to completion on every packet before processing
-the next one. The \pktlanguage compiler compiles packet transactions
-to \absmachine, a family of abstract machines based on
-programmable line-rate switch architectures~\cite{flexpipe, xpliant, rmt}. Our
-results suggest that it is possible to have both a familiar programming model
-and line-rate performance---if the algorithm can indeed run at line rate.
+sequential code blocks that are atomic and isolated from other such code
+blocks. The \pktlanguage compiler compiles packet transactions to \absmachine,
+a family of abstract machines based on programmable line-rate switch
+architectures~\cite{flexpipe, xpliant, rmt}. Our results suggest that it is
+possible to have both a familiar programming model and line-rate
+performance---if the algorithm can indeed run at line rate.
 
 %TODO: Don't know if this serves the right purpose, but this is genuinely
 % what I think about the work. That the compiler is rather straightforward ...
-This is somewhat in contrast to claims in~\cite{p4} that a high-level language
-such as Click~\cite{click} is unsuitable for line-rate switches. \pktlanguage
-shows that---with careful design---it is possible to find a sweet spot between
-expressiveness and performance, somewhere between P4 today and Click. Further,
-as \S\ref{s:compiler} shows, careful language design simplifies the compiler.
-In summary, packet transactions are more familiar to the user, do not sacrifice
-performance, and result in a simple compiler.  Packet-processing languages such
-as P4 are still in their infancy and we hope these results prompt a larger
-conversation on the benefits of user-friendly abstractions, such as packet
-transactions, for packet processing.
+This is in contrast to claims in recent work~\cite{p4} that an expressive
+language such as Click~\cite{click} is unsuitable for line-rate switches.
+\pktlanguage shows that---with careful design---it is possible to find a sweet
+spot between expressiveness and performance, somewhere between P4 and Click.
+Further, as \S\ref{s:compiler} shows, careful language design simplifies the
+compiler.  In summary, packet transactions are more familiar to the user, do
+not sacrifice performance, and result in a simple compiler.  Packet-processing
+languages such as P4 are still in their infancy and we hope these results
+prompt a larger conversation on the benefits of user-friendly abstractions,
+such as packet transactions, for packet processing.
