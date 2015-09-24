@@ -11,14 +11,14 @@
 
 This section describes \absmachine (Protocol-Independent Switch
 Architecture~\cite{nick_p4}), a family of abstract machines that differ in the
-computational capabilities they provide. \absmachine machines serve as targets
-for \pktlanguage programs. The design of \absmachine is inspired by recent
+computational capabilities they provide. \absmachine machines serve as compiler
+targets for \pktlanguage programs. \absmachine's design is inspired by recent
 line-rate programmable switch architectures, such as RMT~\cite{rmt}, Intel's
 FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
 Architecture~\cite{xpliant}, which we describe briefly first.
 
 \subsection{The architecture of a programmable switch}
-Programmable switches today follow the switch model shown at the top of
+Programmable switches follow the switch model shown at the top of
 Figure~\ref{fig:switch}.  Packets arriving to the switch are parsed by a
 programmable parser that turns packets into header fields. These header fields
 are first processed by an ingress pipeline consisting of match-action tables
@@ -31,13 +31,11 @@ egress pipeline before being transmitted from the switch.
 \absmachine (the bottom half of Figure~\ref{fig:switch}) models a switch
 pipeline such as the ingress or egress pipeline. A pipeline consists of a
 number of pipeline stages that execute synchronously on every time step. An
-incoming packet is processed by each stage sequentially until it exits the
-pipeline. Each stage has one time step of latency, where the time step
-is a physical quantity determined by the hardware. The inverse of this time
-step is the line rate supported by the pipeline. For instance, the RMT
+incoming packet is processed by each stage and handed off to the next, until it
+exits the pipeline. Each stage has one time step of latency, where the time
+step is a physical quantity determined by the hardware. The inverse of this
+time step is the line rate supported by the pipeline. For instance, the RMT
 architecture~\cite{rmt} has a line rate of 960 Million pkts / sec.
-% Note to Chang: I hope saying this is ok?
-% This is from the SIGCOMM paper and gives away no speeds and feeds.
 
 As an abstract machine, \absmachine only models components pertinent to
 data-plane algorithms. In particular, it models the computation within
@@ -46,26 +44,17 @@ table), but not the match semantics (e.g., direct, ternary, or longest prefix).
 \absmachine also does not model packet parsing and assumes that packets
 arriving to it are already parsed.
 
-%%\ac{so is pipeline stage a concept in actual
-%%hardware switches or is this something invented in \absmachine? The description 
-%%in two paragraphs earlier seem to imply former, but last paragraph implies the latter.}
-%%Anirudh: Both. We are deriving an abstract model, based on a real switch and we choose
-%% to model the pipeline stage explicitly.
-
 \subsection{Atoms: \absmachine's processing units}
 
-%\ac{you mean hardware? otherwise what
-%does 'provided natively' mean?}
-% changed it to support natively. Hopefully that sounds better.
 In \absmachine, each pipeline stage contains a vector of \textit{atoms}. All
 atoms in this vector execute in parallel whenever the given stage executes.
 Informally, an atom is an atomic unit of packet processing, which the
-\absmachine machine supports natively in hardware, and is represented as a body
-of sequential code. An atom completes execution of this body of code and
-modifies a packet before processing the next packet.  An atom
-may also contain internal state that persists across packets and influences the
-atom's behavior from one packet to the next.  For instance, a switch counter that
-wraps around at 100 can be written as the atom below.\footnote{We use {\tt p.x} to represent
+\absmachine machine supports natively in hardware. We represent an atom as a
+body of sequential code. An atom completes execution of this body of code and
+modifies a packet before processing the next packet.  An atom may also contain
+internal state that persists across packets and influences the atom's behavior
+from one packet to the next.  For instance, a switch counter that wraps around
+at 100 can be written as the atom below.\footnote{We use {\tt p.x} to represent
   field {\tt x} within a packet {\tt p} and {\tt x} to represent the state
 variable {\tt x} that persists across packets.}
   \begin{lstlisting}[style=customc, numbers=none, frame=none]
@@ -80,11 +69,6 @@ modify\_field} primitive~\cite{p4spec}) can be written as the atom below:
   p.field = value;
 \end{lstlisting}
 
-% Anirudh->Alvin: There is no "instruction set" for the atoms. The atoms are
-% the instruction set and you can write whatever you want in them.
-% All I care about is that their execution time is bounded. I can't get too
-% formal about that, which is why the description is rather informal here.
-
 \absmachine generalizes several aspects of existing programmable switch
 architectures. The vector of atoms in each stage generalizes RMT's very-large
 instruction-word (VLIW)~\cite{rmt} that executes primitive actions on packet
@@ -95,10 +79,6 @@ plane, which we don't explicitly model in \absmachine.
 
 \subsection{Constraining atoms}
 \label{s:atomConstraints}
-
-%Anirudh->Alvin: Hopefully that is cleaerer.
-%\ac{I don't see how writing simultaneously at the end of a time step
-%prohibits data races.}
 
 Atoms in \absmachine execute on every time step, reading all packet fields at
 the beginning and writing all packet fields at the end of a time step. To
@@ -117,13 +97,12 @@ technically challenging because it requires multi-ported RAMs and routing long
 wires on the chip.
 
 Second, we constrain the complexity of atoms by defining {\it atom templates}
-(\S\ref{ss:code_gen}).  Informally, an atom template is a program that always
-terminates and specifies how the atom is executed. One example is an ALU with a
-restricted set of primitive operations to choose from
-(Figure~\ref{fig:alu_diag}). Atom templates allow us to create different
-\absmachine machines that support different atoms natively. In practice, we
-expect such atom templates be designed by an ASIC engineer and exposed as part
-of a \absmachine machine's instruction set. As programmable switches evolve, we
-expect the capabilities of atoms to evolve as well. However, atoms cannot be
-arbitrary: the line rate is inversely proportional to an atom's execution
-latency.
+(\S\ref{ss:code_gen}).  An atom template is a program that always terminates
+and specifies how the atom is executed. One example is an ALU with a restricted
+set of primitive operations to choose from (Figure~\ref{fig:alu_diag}). Atom
+templates allow us to create different \absmachine machines that support
+different atoms natively. In practice, we expect such atom templates to be
+designed by an ASIC engineer and exposed as part of a \absmachine machine's
+instruction set. As programmable switches evolve, we expect the capabilities of
+atoms to evolve as well. However, atoms cannot be arbitrary: the line rate is
+inversely proportional to an atom's execution latency.
