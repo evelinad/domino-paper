@@ -9,20 +9,24 @@
   \label{fig:switch}
 \end{figure*}
 
-We first describe \absmachine (Protocol-Independent Switch
+This section describes \absmachine (Protocol-Independent Switch
 Architecture~\cite{nick_p4}), a family of abstract machines that differ in the
 computational capabilities they provide. \absmachine machines serve as targets
-for \pktlanguage programs. \absmachine's design is inspired by recent line-rate
-programmable switch architectures, such as RMT~\cite{rmt}, Intel's
-FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet Architecture~\cite{xpliant}.  These
-architectures assume the switch model at the top of Figure~\ref{fig:switch}.
+for \pktlanguage programs. The design of \absmachine is inspired by recent
+line-rate programmable switch architectures, such as RMT~\cite{rmt}, Intel's
+FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
+Architecture~\cite{xpliant}, which we describe briefly first.
 
-In the top half of Figure~\ref{fig:switch}, packets arriving to the switch are
-parsed by a programmable parser that turns packets into header fields. These
-header fields are first processed by an ingress pipeline consisting of
-match-action tables arranged in stages.  Following the ingress pipeline, the
-packet is queued. Once the packet is dequeued by the switch scheduler, it is
-processed by a similar egress pipeline before being transmitted from the switch.
+\subsection{The architecture of a programmable switch}
+Programmable switches today follow the switch model shown at the top of
+Figure~\ref{fig:switch}.  Packets arriving to the switch are parsed by a
+programmable parser that turns packets into header fields. These header fields
+are first processed by an ingress pipeline consisting of match-action tables
+arranged in stages.  Following the ingress pipeline, the packet is queued. Once
+the packet is dequeued by the switch scheduler, it is processed by a similar
+egress pipeline before being transmitted from the switch.
+
+\subsection{The \absmachine abstract machine}
 
 \absmachine (the bottom half of Figure~\ref{fig:switch}) models a switch
 pipeline such as the ingress or egress pipeline. A pipeline consists of a
@@ -120,5 +124,5 @@ restricted set of primitive operations to choose from
 expect such atom templates be designed by an ASIC engineer and exposed as part
 of a \absmachine machine's instruction set. As programmable switches evolve, we
 expect the capabilities of atoms to evolve as well. However, atoms cannot be
-arbitrarily complex: the line rate is inversely proportional to the maximum
-execution latency of all its atoms.
+arbitrary: the line rate is inversely proportional to an atom's execution
+latency.

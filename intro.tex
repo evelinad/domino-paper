@@ -63,8 +63,19 @@ and the area overhead is small.
 %chipset, making them inconvenient for network programmers who are more
 %familiar with a language like C.
 
+\if 0
+P4~\cite{p4, p4spec} is a packet-processing language for switching chips that
+raises the level of abstraction relative to these SDKs.  For instance, P4
+allows the programmer to specify packet parsing and processing without
+restricting the set of protocol formats or the set of actions that can be
+executed when matching packet headers in a match-action table. Many common
+data-plane tasks that require header rewriting can now be expressed
+naturally in P4, such as handling new protocol formats, switching, forwarding,
+tunneling, and access control~\cite{dc_p4}.
+\fi
+
 P4~\cite{p4, p4spec} is an emerging packet-processing language for
-these chips. P4 allows the programmer to specify packet parsing and
+such chips. P4 allows the programmer to specify packet parsing and
 processing without restricting the set of protocol formats or the set
 of actions that can be executed when matching packet headers in a
 match-action table. Data-plane tasks that require header rewriting can
@@ -132,3 +143,8 @@ programming model, resembling DSLs for software routers and NPUs, and
 also achieve line-rate performance. These findings help resolve the
 concerns raised in recent work~\cite{p4} that expressive languages are
 unsuitable for line-rate packet processing.
+
+%Will move this to the conclusion, otherwise it sounds repetitive.
+%contrary to concerns raised in~\cite{p4} regarding the
+%unsuitability of expressive languages for line-rate packet processing.
+
