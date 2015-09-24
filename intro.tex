@@ -71,16 +71,17 @@ programming model, because they allow the programmer to focus on the operations
 needed for each packet without worrying about other packets that are
 concurrently being processed.
 
-The \pktlanguage compiler compiles packet transactions to a family of abstract
-machines called \absmachine~(\S\ref{s:absmachine}) (for Protocol-Independent
-Switch Architecture). \absmachine generalizes the Reconfigurable Match-Action
-Table (RMT)~\cite{rmt} model and captures essential features of line-rate
-programmable switches~\cite{rmt, xpliant, flexpipe}. In addition, \absmachine
-introduces {\em atoms} to represent atomic computations provided natively by a
-\absmachine machine, much like load-link/store-conditional, and
-packed-multiply-and-add on x86 machines today~\cite{x86_manual}.  Atoms provide
-hardware support for packet transactions, similar to how an atomic test-and-set
-can implement an atomic increment.
+The \pktlanguage compiler~(\S\ref{s:compiler}) compiles packet transactions to
+a family of abstract machines called \absmachine~(\S\ref{s:absmachine}) (for
+Protocol-Independent Switch Architecture). \absmachine generalizes the
+Reconfigurable Match-Action Table (RMT)~\cite{rmt} model and captures essential
+features of line-rate programmable switches~\cite{rmt, xpliant, flexpipe}. In
+addition, \absmachine introduces {\em atoms} to represent atomic computations
+provided natively by a \absmachine machine, much like
+load-link/store-conditional, and packed-multiply-and-add on x86 machines
+today~\cite{x86_manual}.  Atoms provide hardware support for packet
+transactions, similar to how an atomic test-and-set can implement an atomic
+increment.
 
 To evaluate \pktlanguage, we express algorithms such as RCP~\cite{rcp},
 CoDel~\cite{codel}, heavy-hitter detection~\cite{opensketch}, and
@@ -90,8 +91,8 @@ algorithm's reference code to \pktlanguage syntax.  The \pktlanguage compiler
 guarantees deterministic performance for these algorithms: all packet
 transactions that compile run at line rate on a \absmachine machine, or will be
 rejected by the compiler.  We use the \pktlanguage compiler to determine if
-each algorithm can run at line rate on several different \absmachine machines
-that differ in the atoms they provide (Table~\ref{tab:algos}).
+each algorithm can run at line rate (Table~\ref{tab:algos}) on several
+different \absmachine machines that differ in the atoms they provide.
 
 Our results indicate that it is possible to provide a familiar programming
 model, resembling DSLs for software routers and NPUs, and also achieve
