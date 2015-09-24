@@ -109,11 +109,12 @@ distinguish \absmachine from software routers~\cite{click} and network
 processors~\cite{ixp4xx} that sacrifice determinism for programmability.
 
 First, \absmachine machines are \textit{shared-nothing}: each atom maintains a
-certain number of state variables.  Their values can only be communicated to
-atoms in subsequent stages via packet fields. This restriction reflects the
-capabilities of line-rate switches: accessing shared memory from multiple
-switch stages is technically challenging because it requires multi-ported RAMs
-and routing long wires on the chip.
+certain number of state variables that are local to that atom alone. Their
+values can be communicated to atoms in subsequent stages only when the values
+are copied into packet fields. This restriction reflects the capabilities of
+line-rate switches: accessing shared memory from multiple switch stages is
+technically challenging because it requires multi-ported RAMs and routing long
+wires on the chip.
 
 Second, we constrain the complexity of atoms by defining {\it atom templates}
 (\S\ref{ss:code_gen}).  Informally, an atom template is a program that always
