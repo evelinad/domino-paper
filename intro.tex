@@ -1,11 +1,11 @@
 \section{Introduction}
 \label{s:intro}
 
-Network switches and routers in modern datacenters, enterprises, and service
-provider networks perform a variety of tasks in addition to standard packet
-forwarding. The set of requirements for routers has only increased with time as
-network operators have sought to exercise greater control over performance and
-security, and to support an evolving set of network protocols.
+Network switches and routers in modern datacenters, enterprises, and
+service-provider networks perform a variety of tasks in addition to standard
+packet forwarding. The set of requirements for routers has only increased with
+time as network operators have sought to exercise greater control over
+performance and security, and to support an evolving set of network protocols.
 
 Performance and security may be improved using both data-plane and
 control-plane mechanisms. This paper focuses on data-plane algorithms. These
@@ -17,11 +17,11 @@ measurement~\cite{opensketch, bitmap_george, elephant_george}, and
 load-balanced routing in the data plane~\cite{conga}.
 
 Because data-plane algorithms process every packet, an important requirement is
-the ability to process packets at the line rate.  As a result, these algorithms
-are typically implemented using dedicated hardware. However, hardware designs
-are rigid and prevent reconfigurability in the field making it difficult to
-implement and deploy new algorithms without investing in new hardware---a
-time-consuming and expensive proposition.
+the ability to process packets at the switch's line rate.  As a result, these
+algorithms are typically implemented using dedicated hardware. However,
+hardware designs are rigid and prevent reconfigurability in the field. They
+make it difficult to implement and deploy new algorithms without investing in
+new hardware---a time-consuming and expensive proposition.
 
 This rigidity affects vendors~\cite{cisco_nexus, dell_force10, arista_7050}
 building network switches with merchant-silicon chips~\cite{trident, tomahawk,
@@ -55,32 +55,32 @@ By contrast, many data-plane algorithms don't rewrite headers, but instead
 manipulate internal switch state in a manner unique to each algorithm. We
 believe that network programmers would prefer the convenience of an imperative
 language such as C that directly captures the algorithm's intent without
-shoehorning them into hardware constructs such as a sequence of match-action
-tables like P4 requires them to.  Furthermore, this is predominantly how such
-algorithms are expressed in pseudocode~\cite{red, csfq, codel_code, avq, blue},
-and implemented in sofware routers~\cite{click, dpdk, routebricks}, network
-processors~\cite{packetc, nova}, and at network endpoints~\cite{qdisc}.
+shoehorning algorithms into hardware constructs such as a sequence of
+match-action tables like P4 requires them to.  Furthermore, this is
+predominantly how such algorithms are expressed in pseudocode~\cite{red, csfq,
+codel_code, avq, blue}, and implemented in sofware routers~\cite{click, dpdk,
+routebricks}, network processors~\cite{packetc, nova}, and at network
+endpoints~\cite{qdisc}.
 
 This paper presents \pktlanguage, a new domain-specific language (DSL) for
 data-plane algorithms.  \pktlanguage is an imperative language with C-like
 syntax. The key abstraction in \pktlanguage is a {\em packet transaction}
 (\S\ref{s:transactions}): a sequential code block that is atomic and isolated
 from other such code blocks. Packet transactions provide a convenient
-programming model, because they allows the programmer to focus on the
-operations needed for each packet without worrying about other packets that are
+programming model, because they allow the programmer to focus on the operations
+needed for each packet without worrying about other packets that are
 concurrently being processed.
 
-The \pktlanguage compiler compiles packet transactions to a family of
-abstract machines called \absmachine~(\S\ref{s:absmachine}) (for
-Protocol-Independent Switch Architecture). \absmachine generalizes the
-Reconfigurable Match-Action Table~\cite{rmt} model and captures essential
-features of line-rate programmable switches~\cite{rmt, xpliant, flexpipe}. In
-addition, \absmachine introduces {\em atoms} to represent atomic computations
-provided natively by a \absmachine machine, much like
-load-link/store-conditional, and packed-multiply-and-add on x86 machines
-today~\cite{x86_manual}.  Atoms provide hardware support for packet
-transactions, similar to how an atomic test-and-set can implement an atomic
-increment.
+The \pktlanguage compiler compiles packet transactions to a family of abstract
+machines called \absmachine~(\S\ref{s:absmachine}) (for Protocol-Independent
+Switch Architecture). \absmachine generalizes the Reconfigurable Match-Action
+Table (RMT)~\cite{rmt} model and captures essential features of line-rate
+programmable switches~\cite{rmt, xpliant, flexpipe}. In addition, \absmachine
+introduces {\em atoms} to represent atomic computations provided natively by a
+\absmachine machine, much like load-link/store-conditional, and
+packed-multiply-and-add on x86 machines today~\cite{x86_manual}.  Atoms provide
+hardware support for packet transactions, similar to how an atomic test-and-set
+can implement an atomic increment.
 
 To evaluate \pktlanguage, we express algorithms such as RCP~\cite{rcp},
 CoDel~\cite{codel}, heavy-hitter detection~\cite{opensketch}, and
