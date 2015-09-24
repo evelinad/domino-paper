@@ -12,13 +12,16 @@ performance---i.e. if the algorithm can indeed run at line rate.
 
 %TODO: Don't know if this serves the right purpose, but this is genuinely
 % what I think about the work. That the compiler is rather straightforward ...
-This is in contrast to claims in recent work~\cite{p4} that an expressive
-language such as Click~\cite{click} is unsuitable for line-rate switches.
-\pktlanguage shows that---with careful design---it is possible to find a sweet
-spot between expressiveness and performance, somewhere between P4 and Click.
-Further, as \S\ref{s:compiler} shows, careful language design simplifies the
-compiler.  In summary, packet transactions are more familiar to the user,
-provide line-rate performance, and result in a simple compiler.
-Packet-processing languages are still in their infancy and we hope these
-results prompt a larger conversation on the benefits of user-friendly
-abstractions, such as packet transactions, for packet processing.
+These results suggest that, unlike a claim posited in recent
+work~\cite{p4}, it is possible to express data-plane algorithms in a
+C-like language and achieve line-rate performance. \pktlanguage shows
+that it is possible with careful design to find a sweet spot between
+expressiveness and performance, somewhere between P4 and Click.
+Further, as \S\ref{s:compiler} shows, careful language design
+simplifies the compiler.  
+
+Our conclusion is that packet transactions provide a familiar
+programming abstraction, can achieve line-rate performance, and result
+in a simple compiler.  Packet-processing languages are still in their
+infancy; we hope these results prompt further work on programming
+abstractions for packet processing hardware.
