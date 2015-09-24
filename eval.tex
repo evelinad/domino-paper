@@ -111,12 +111,12 @@ treated as stateless operations in subsequent pipeline stages.
 We also assume every \absmachine machine provides only one stateful atom
 template, though we don't restrict the number of instances of this template.
 This is because ASIC engineers prefer to design, implement, verify, and
-physically layout one circuit for all stateful operations, thereby amortizing
-design and layout effort over multiple instances of the same circuit.
-Table~\ref{tab:templates} gradually increases the capability of this single
-atom template.  We designed the atoms in Table~\ref{tab:templates}, and hence
-the \absmachine machines providing them, to form a containment hierarchy: each
-atom can express all data-plane algorithms that its predecessor can.
+physically layout one circuit, thereby amortizing design and layout effort over
+multiple instances of the same circuit.  Table~\ref{tab:templates} gradually
+increases the capability of this single atom template.  We designed the atoms
+in Table~\ref{tab:templates}, and hence the \absmachine machines providing
+them, to form a containment hierarchy: each atom can express all data-plane
+algorithms that its predecessor can.
 
 We now consider every atom/\absmachine machine from Table~\ref{tab:templates},
 and every data-plane algorithm from Table~\ref{tab:algos} to determine if the
@@ -170,7 +170,7 @@ component/codelet, requiring a three-way state update.
 %%We leave the problem of
 %%approximating CoDel/trTCM to fit within a particular atom or conversely,
 %%designing more complex atoms to support them to future work.
-\subsection{A performance-programmability tradeoff}
+\subsection{Performance programmability tradeoffs}
 While powerful atoms like Pairs can implement more data-plane algorithms, they
 come at a cost.  A more expressive atom needs more gates in hardware and incurs
 longer propagation delays.  As an illustration, consider the circuits
