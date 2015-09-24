@@ -80,7 +80,7 @@ incoming packet sequentially. The function modifies the passed-in packet
 argument until the end of the function body, before processing the next packet.
 \pktlanguage forbids return statements, and hence execution will always end at
 the end of the function body. The function may invoke \textit{intrinsics} such
-as \texttt{hash2} on lines 23 and \texttt{hash3} on line 18 in the example.
+as \texttt{hash2} on lines 23 and \texttt{hash3} on line 18.
 Intrinsics are hardware primitives provided by the abstract machine that are
 not interpreted by \pktlanguage. The \pktlanguage compiler uses an intrinsic's
 signature to infer dependencies and supplies a canned run-time implementation,
@@ -105,8 +105,8 @@ a constrained subset of C (Table~\ref{tab:restrict}).
 
 As an illustration of \pktlanguage's constraints, arrays can be used as state
 variables alone but not as packet fields.  Furthermore, all accesses to a given
-array within one execution of a transaction (i.e. one packet) must use the same
-array index. For instance, all accesses to the array \texttt{last\_time} use
+array within one execution of a transaction, i.e. one packet, must use the same
+array index. For instance, accesses to the array \texttt{last\_time} use
 the index \texttt{pkt.id}, which is constant for each packet, but changes from
 one packet to the next. This restriction simplifies the treatment of arrays in
 the compiler, while still allowing us to express data-plane algorithms of
