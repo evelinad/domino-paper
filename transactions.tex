@@ -103,24 +103,24 @@ a constrained subset of C (Table~\ref{tab:restrict}).
   \label{tab:restrict}
 \end{table}
 
-As an illustration of the restrictions, arrays can be used as state variables
-alone but not as packet fields.  Furthermore, all accesses to a given array
-within one execution of a transaction (i.e. one packet) are restricted to the
-same index. For instance, all accesses to the array \texttt{last\_time} use the
-index \texttt{pkt.id}, which is constant for each packet, but changes from one
-packet to the next. This restriction simplifies the treatment of arrays in the
-compiler, while still allowing us to express data-plane algorithms of practical
-interest. The restrictions in Table~\ref{tab:restrict} seem severe, but are
-required for deterministic performance.  Memory allocation, unbounded iteration
-counts, and unstructured control flow cause variable performance. These are
-precisely the restrictions in \pktlanguage relative to software routers like
-Click~\cite{click} with greater flexibility and variable performance.
+As an illustration of \pktlanguage's constraints, arrays can be used as state
+variables alone but not as packet fields.  Furthermore, all accesses to a given
+array within one execution of a transaction (i.e. one packet) must use the same
+array index. For instance, all accesses to the array \texttt{last\_time} use
+the index \texttt{pkt.id}, which is constant for each packet, but changes from
+one packet to the next. This restriction simplifies the treatment of arrays in
+the compiler, while still allowing us to express data-plane algorithms of
+practical interest. The restrictions in Table~\ref{tab:restrict} seem severe,
+but are required for deterministic performance.  Memory allocation, unbounded
+iteration counts, and unstructured control flow cause variable performance.
+These are precisely the restrictions in \pktlanguage relative to software
+routers like Click~\cite{click} with greater flexibility and variable
+performance.
 
 When compiled to a \absmachine machine (\S\ref{s:absmachine}), the \pktlanguage
 compiler converts the code in Figure~\ref{fig:flowlet_code} into the atom
-pipeline shown in Figure~\ref{fig:flowlet_pipeline}. The rest of this paper
-describes the steps involved in this compilation.
-
+pipeline shown in Figure~\ref{fig:flowlet_pipeline}. The next section describes
+the steps involved in this compilation.
 %
 %Today, programmable switch chips are
 %programmed by manually specifying low-level configurations resembling
