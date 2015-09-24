@@ -10,29 +10,31 @@
 \end{figure*}
 
 \begin{figure*}[!t]
-  \begin{minipage}{0.47\textwidth}
+  \hspace{-0.3in}
+  \begin{minipage}{0.55\textwidth}
   \begin{small}
-  \begin{lstlisting}[style=customc]
-  if (@\textcolor{blue}{pkt.arrival - \\
-      last\_time[pkt.id] \\
-      > THRESHOLD}@) {
+  \begin{lstlisting}[style=customc, numbers=none, frame=none]
+  if (@\textcolor{blue}{pkt.arrival - last\_time[pkt.id] > THRESHOLD}@) {
     saved_hop[pkt.id] = pkt.new_hop;
   }
   \end{lstlisting}
   \end{small}
   \end{minipage}
-  \begin{minipage}{0.53\textwidth}
+%  
+  \hspace{-0.5in}
+  $\Longrightarrow$ 
+  \hspace{-0.3in}
+%  
+  \begin{minipage}{0.6\textwidth}
   \begin{small}
-  \begin{lstlisting}[style=customc]
-  @\textcolor{blue}{pkt.tmp = pkt.arrival - \\
-            last\_time[pkt.id] \\
-            > THRESHOLD}@;
-  saved_hop[pkt.id] = @\textcolor{blue}{pkt.tmp}@ ? @\textcolor{blue}{// Rewritten}@
-                      pkt.new_hop :
-                      saved_hop[pkt.id];
+  \begin{lstlisting}[style=customc, numbers=none, frame=none]
+  @\textcolor{blue}{pkt.tmp = pkt.arrival - last\_time[pkt.id]  > THRESHOLD}@;
+  saved_hop[pkt.id] = @\textcolor{magenta}{// Rewritten}@
+    @\textcolor{blue}{pkt.tmp}@ ? pkt.new_hop : saved_hop[pkt.id];
   \end{lstlisting}
   \end{small}
   \end{minipage}
+\vspace{-.2in}
 \caption{Conversion to straight-line code}
 \label{fig:if_convert}
 \end{figure*}
@@ -40,7 +42,7 @@
 \begin{figure*}[!t]
   \begin{minipage}{0.43\textwidth}
   \begin{small}
-  \begin{lstlisting}[style=customc]
+  \begin{lstlisting}[style=customc, numbers=none, frame=none]
 pkt.id = hash2(pkt.sport,
                pkt.dport)
          % NUM_FLOWLETS;
@@ -50,17 +52,22 @@ pkt.id = hash2(pkt.sport,
   \end{lstlisting}
   \end{small}
   \end{minipage}
+%  
+  \hspace{-0.5in}
+  $\Longrightarrow$ 
+  \hspace{-0.2in}
+%  
   \begin{minipage}{0.61\textwidth}
   \begin{small}
-  \begin{lstlisting}[style=customc]
-pkt.id = hash2(pkt.sport,         // Read flank
+  \begin{lstlisting}[style=customc, numbers=none, frame=none]
+pkt.id = hash2(pkt.sport,           @\textcolor{magenta}{// Read flank}@
                pkt.dport)
          % NUM_FLOWLETS;
-pkt.last_time = last_time[pkt.id];// Read flank
+pkt.last_time = last_time[pkt.id];  @\textcolor{magenta}{// Read flank}@
 ...
-@\textcolor{blue}{pkt.last\_time = pkt.arrival; // Rewritten}@
+@\textcolor{blue}{pkt.last\_time = pkt.arrival;}@             @\textcolor{magenta}{// Rewritten}@
 ...
-last_time[pkt.id] = pkt.last_time;// Write flank
+last_time[pkt.id] = pkt.last_time;  @\textcolor{magenta}{// Write flank}
   \end{lstlisting}
   \end{small}
   \end{minipage}
