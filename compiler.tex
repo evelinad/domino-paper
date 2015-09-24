@@ -141,16 +141,14 @@ literature~\cite{muchnik}. The \absmachine architecture, however, poses unique
 challenges for compilation requiring a synthesis of techniques that, to the
 best of our knowledge, hasn't been done before. Further, as we illustrate
 throughout this section, constraining \pktlanguage for deterministic
-performance has a happy side effect: it simplifies the techniques in
-\pktlanguage's compiler relative to mainstream compilers.  Since \pktlanguage's
-syntax is effectively a subset of C, we use Clang's library
-interface~\cite{libclang} to parse and implement the passes in the compiler.
-The overall architecture of the compiler is shown in Figure~\ref{fig:passes}.
-Throughout this section, we use flowlet switching from
-Figure~\ref{fig:flowlet_code} as a running example to demonstrate compiler
-passes.  While we have simplified the code for readability, the code output by
-the \pktlanguage compiler after each pass isn't materially different from the
-version presented here.
+performance simplifies the \pktlanguage compiler.  Since \pktlanguage's syntax
+is effectively a subset of C, we use Clang's library interface~\cite{libclang}
+to parse and implement the passes in the compiler.  The overall architecture of
+the compiler is shown in Figure~\ref{fig:passes}.  Throughout this section, we
+use flowlet switching from Figure~\ref{fig:flowlet_code} as a running example
+to demonstrate compiler passes.  While we have simplified the code for
+readability, the code output by the \pktlanguage compiler after each pass isn't
+materially different from the version presented here.
 
 \subsection{If-conversion to straight-line code}
 
