@@ -1,7 +1,6 @@
 \section{An abstract machine for switches}
 \label{s:absmachine}
 
-%TODO: Maybe we could minipage the two halves of the figure.
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{pisa.pdf}
   \caption{The \absmachine abstract machine and its relationship to
@@ -29,18 +28,19 @@ egress pipeline before being transmitted from the switch.
 \subsection{The \absmachine abstract machine}
 
 \absmachine (the bottom half of Figure~\ref{fig:switch}) models a switch
-pipeline such as the ingress or egress pipeline. A pipeline consists of a
-number of pipeline stages that execute synchronously on every time step. An
-incoming packet is processed by each stage and handed off to the next, until it
-exits the pipeline. Each stage has one time step of latency, where the time
-step is a physical quantity determined by the hardware. The inverse of this
-time step is the line rate supported by the pipeline. For instance, the RMT
-architecture~\cite{rmt} has a line rate of 960 Million pkts / sec.
+pipeline such as the ingress or egress pipeline. A pipeline in \absmachine
+consists of a number of pipeline stages that execute synchronously on every
+time step. An incoming packet is processed by each stage and handed off to the
+next, until it exits the pipeline. Each stage has one time step of latency,
+where the time step is a physical quantity determined by the hardware. The
+inverse of this time step is the line rate supported by the pipeline. For
+instance, the RMT architecture~\cite{rmt} has a line rate of 960 Million pkts /
+sec.
 %TODO: Mention line rate vs. bit rate?
 
 As an abstract machine, \absmachine only models components pertinent to
-data-plane algorithms. In particular, it models the computation within
-a match-action table in a stage (i.e., the action half of the match-action
+data-plane algorithms. In particular, it models the computation within a
+match-action table in a stage (i.e., the action half of the match-action
 table), but not the match semantics (e.g., direct, ternary, or longest prefix).
 \absmachine also does not model packet parsing and assumes that packets
 arriving to it are already parsed.
@@ -56,7 +56,7 @@ before processing the next packet.  An atom may also contain internal state
 that persists across packets and influences the atom's behavior from one packet
 to the next.  For instance, a switch counter that wraps around at 100 can be
 written as the atom below.\footnote{We use {\tt p.x} to represent field {\tt x}
-  within a packet {\tt p} and {\tt x} to represent the state variable {\tt x}
+  within a packet {\tt p} and {\tt x} to represent a state variable {\tt x}
 that persists across packets.}
   \begin{lstlisting}[style=customc, numbers=none, frame=none]
   if (counter < 99)
@@ -106,4 +106,4 @@ different atoms natively. In practice, we expect such atom templates to be
 designed by an ASIC engineer and exposed as part of a \absmachine machine's
 instruction set. As programmable switches evolve, we expect the capabilities of
 atoms to evolve as well. However, atoms cannot be arbitrary: the line rate is
-inversely proportional to an atom's execution latency.
+inversely proportional to an atom's execution latency~(\S\ref{ss:perfprog}).
