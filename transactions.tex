@@ -1,6 +1,4 @@
 \section{Programming using packet transactions}
-%TODO: Mihai's comments about how we can add return and switch
-% statements to the language. Don't undersell!
 \label{s:transactions}
 
 \begin{figure*}[!t]
@@ -68,26 +66,26 @@ destination ports; it is easy to extend it to the full 5-tuple.
 
 This example demonstrates the core language constructs in \pktlanguage. All
 packet processing happens in the context of a packet transaction (the function
-\texttt{flowlet} starting at line 17). The function's argument {\tt pkt} declares the
-fields in a packet (lines 5--12)\footnote{We use fields to refer to both packet
-headers such as source port ({\tt sport}) and destination port ({\tt dport})
-and packet metadata ({\tt id}).} that can be referenced by the function body
-(lines 18--32).  In addition, the function body can reference state variables
-that represent persistent state stored on the switch. These are declared as
-global variables (e.g. \texttt{last\_time} and \texttt{saved\_hop} declared on
-lines 14 and 15, respectively).
+\texttt{flowlet} starting at line 17). The function's argument {\tt pkt}
+declares the fields in a packet (lines 5--12)\footnote{We use fields to refer
+to both packet headers such as source port ({\tt sport}) and destination port
+({\tt dport}) and packet metadata ({\tt id}).} that can be referenced by the
+function body (lines 18--32).  In addition, the function body can reference
+state variables that represent persistent state stored on the switch. These are
+declared as global variables (e.g. \texttt{last\_time} and \texttt{saved\_hop}
+declared on lines 14 and 15, respectively).
 
 Conceptually, the switch invokes the packet transaction function on each
 incoming packet sequentially. The function modifies the passed-in packet
-argument in place until the end of the function body, before processing the
-next packet.  \pktlanguage forbids return statements, and hence execution
-will always end at the end of the function body. The function may invoke
-\textit{intrinsics} such as \texttt{hash2} on lines 23 and \texttt{hash3} on
-line 18 in the example.  Intrinsics are hardware primitives provided by the
-abstract machine that are not interpreted by \pktlanguage. The \pktlanguage
-compiler uses an intrinsic's signature to infer dependencies and supplies a
-canned run-time implementation, but otherwise does not interpret or analyze
-intrinsics. The overall language is a constrained subset of C (Table~\ref{tab:restrict}).
+argument until the end of the function body, before processing the next packet.
+\pktlanguage forbids return statements, and hence execution will always end at
+the end of the function body. The function may invoke \textit{intrinsics} such
+as \texttt{hash2} on lines 23 and \texttt{hash3} on line 18 in the example.
+Intrinsics are hardware primitives provided by the abstract machine that are
+not interpreted by \pktlanguage. The \pktlanguage compiler uses an intrinsic's
+signature to infer dependencies and supplies a canned run-time implementation,
+but otherwise does not interpret or analyze intrinsics. The overall language is
+a constrained subset of C (Table~\ref{tab:restrict}).
 % Anirudh->Alvin: Yes. No one will get BNF :)
 %\ac{This essentially is an imprecise version of the 
 %  grammar. Maybe this is more understandable to networking audience?
@@ -99,6 +97,7 @@ intrinsics. The overall language is a constrained subset of C (Table~\ref{tab:re
     No dynamic memory allocation / heap.\\
     Array index must be constant for every execution of the transaction.\\
     No access to packet data i.e. unparsed portion of the packet.\\
+    No arrays in packet fields.\\
   \end{tabular}
   \caption{Restrictions in \pktlanguage}
   \label{tab:restrict}
@@ -106,18 +105,15 @@ intrinsics. The overall language is a constrained subset of C (Table~\ref{tab:re
 
 As an illustration of the restrictions, arrays can be used as state variables
 alone but not as packet fields.  Furthermore, all accesses to a given array
-within one execution of a transaction (i.e. on packet) are restricted to the
+within one execution of a transaction (i.e. one packet) are restricted to the
 same index. For instance, all accesses to the array \texttt{last\_time} use the
 index \texttt{pkt.id}, which is constant for each packet, but changes from one
 packet to the next. This restriction simplifies the treatment of arrays in the
-compiler, while still allowing us to express data-plane algorithms of practical interest.
-
-%\ac{how is this enforced?}
-%It isn't :) because I didn't get around to writing a validator pass yet.
-The restrictions in Table~\ref{tab:restrict} seem severe, but are required
-for deterministic performance.  Memory allocation, unbounded iteration counts,
-and unstructured control flow cause variable performance. These are precisely
-the restrictions in \pktlanguage relative to software routers like
+compiler, while still allowing us to express data-plane algorithms of practical
+interest. The restrictions in Table~\ref{tab:restrict} seem severe, but are
+required for deterministic performance.  Memory allocation, unbounded iteration
+counts, and unstructured control flow cause variable performance. These are
+precisely the restrictions in \pktlanguage relative to software routers like
 Click~\cite{click} with greater flexibility and variable performance.
 
 When compiled to a \absmachine machine (\S\ref{s:absmachine}), the \pktlanguage
