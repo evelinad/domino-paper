@@ -1,0 +1,8 @@
+1. Amy's comments.
+2. Differences between the techniques in domino and the compiler literature.
+   Make a table summarizing the differences.
+3. More articulate characterization of the related work.
+4. Fix issues with SKETCH and bounded integer width.
+5. Point out the many areas of future work.
+6. Simplify description of the routine parts of the compiler.
+7. Verilog circuits now that we have access to CAD libraries.
