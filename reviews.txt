@@ -1,0 +1,248 @@
+===========================================================================
+                           NSDI '16 Review #329A
+---------------------------------------------------------------------------
+Paper #329: Packet Transactions: A Programming Model for Data-Plane
+            Algorithms at Hardware Speed
+---------------------------------------------------------------------------
+
+How confident are you in your review?: 2. 
+                                        Reasonably, I think I got the main
+                                        points.
+Is this paper exciting or thought-provoking?:
+                                     3. Yes, I can't stop thinking about
+                                        it!
+Does the paper convince you of the merits of its contribution?:
+                                     3. Kind of, but I will not make a case
+                                        for it.
+
+                         ===== Paper summary =====
+
+The area of programming hardware line-rate switches in a flexible manner is one of the most vibrant areas of networking research right now. The Domino language attempts to provide an imperative programming language in which it is relatively easy to express common data plane algorithms of various sorts (congestion control, flowlet switching, Bloom filters, etc) yet compile to highly constrained and regularized ASIC blocks that can execute deterministically at line rate. The paper shows convincingly that many common algorithms can both be expressed easily and compile successfully to reasonable ASIC capabilities. Many of the compiler techniques are well known from the literature - the novelty is in the semantic model adopted and the tradeoffs between expressiveness and feasible wire-rate implementation.
+
+           ===== What are the best things about the paper? =====
+
+Very stimulating. The authors do a convincing job of justifying their design decisions and walking the fine line between expressiveness and hardware complexity and speed. The paper is very well written and while the evaluation is mostly qualitative they provide good arguments for the ability to compile Domino to Pisa, and map that onto current and future programmable switches.
+
+       ===== What changes would make you value the paper more? =====
+
+A real running wire-rate demonstration on an existing rich-featured programmable switch would have been icing on the cake.
+
+               ===== Detailed comments for the authors =====
+
+Actually I have little to say about this paper. It's nicely constructed, technically convincing, and a clear advance on the state of the art in programming data planes. A couple of areas I would have liked to get a better sense of are:
+a)  when you combine multiple algorithms for different functions on the data path, where do you run out of steam depending on the amount of parallel execution the ASIC is capable of. 
+b) while Domino supports global state variables, how do you express consistent state constraints on variables that need atomicity across packets as opposed to within processing a single packet?
+
+===========================================================================
+                           NSDI '16 Review #329B
+---------------------------------------------------------------------------
+Paper #329: Packet Transactions: A Programming Model for Data-Plane
+            Algorithms at Hardware Speed
+---------------------------------------------------------------------------
+
+How confident are you in your review?: 2. 
+                                        Reasonably, I think I got the main
+                                        points.
+Is this paper exciting or thought-provoking?:
+                                     2. Somewhat, I learned a few things.
+Does the paper convince you of the merits of its contribution?:
+                                     2. Not really, but I will not make a
+                                        case against it.
+
+                         ===== Paper summary =====
+
+This paper has several components: the first is a domain specific language, called Domino, for expressing data plane algorithms, where the basic construct is a packet transaction which is an atomic block of code that is executed sequentially and in a shared-nothing manner. The blocks of code are also restricted in what they can do to ensure implementation feasibility and line-rate operation. Second, the paper proposes a compiler that compiles domino code to abstract machines that are "based on" programmable switch chipsets (E.g., along the lines of RMT or Flexpipe). Finally, the paper presents examples of data plane algorithms that can or cannot be expressed using Domino.
+
+           ===== What are the best things about the paper? =====
+
+Forward looking proposal.
+The DSL and compiler design are both interesting.
+
+       ===== What changes would make you value the paper more? =====
+
+Unfortunately none of this is "real". 
+Paper appears incomplete and preliminary. More below
+
+               ===== Detailed comments for the authors =====
+
+Designing a programming language for expressing data plane algorithms is a valuable contribution. The fact that the language is sufficiently expressive for a class of useful data plane functions is also interesting.
+
+But this paper was frustrating to read and left me scratching my head. Perhaps this is tied to my being not really a hardware/compiler expert. But more than that I believe the paper has some basic issues.
+
+Other than the above two vague things, I did not really find any key takeaways from the paper. The other major problem is that the language and it's features appear to be designed for hardware that doesn't yet exist today (?) And, there is no real evaluation. More on these below
+
+Contributions:
+
+I get the point of packet transactions-which I found interesting-but the compiler part was largely opaque. The paper claims that the tricks here are standard, but the "synthesis is novel". I failed to see how this claim holds up. What exactly was hard/novel here?
+
+Hardware:
+
+A big issue I struggled with is whether the language is assuming something about the underlying hardware and its programmability, and whether it places demands on what the hardware ought to support. 
+
+For most of the paper, the language, compiler optimizations and data plane algorithms are described assuming that the hardware can be programmed to do all those things. What I struggled with is what defines the boundary of things that can be programmed into the data plane? You cherry picked a few things in section 5 and showed that some can be expressed and others cannot in your language:
+
+* How was this list picked? 
+
+* Is the hardware you are expecting to design this for something like RMT++? It is not clear to me how the match-action abstraction of RMT suffices to support some of the constructs you'd need for data plane algorithms (e.g., conditionals; updating various per-port state variables to track the "best" for some definition of best, etc). A clearer description of the hardware platform you are designing this for in Section 2 would have helped me a lot. 
+
+The paper vaguely touches upon this issue of hardware support in Section 5.3, where the argument of what can/not be expressed is couched as an exploration of performance vs. programmability. Two things:
+
+* I would have liked to seem something *quantitative* here. The text in this section is begging an analysis of various delays that are introduced are a function of complexity of a  code block, and how that complexity maps to the nature of data plane algorithms that can be expressed using the code block.
+
+* If you are implying that "the hardware stays the same, but depending on the data plane algorithms that you plan to run, achieving line rate may be hard", then say so clearly. At this point, it would help to reiterate what exactly you have in mind for the underlying hardware and how you hope to achieve the kind of programmability you are targeting, and finally show something more quantitative to reinforce the claim in quotes above. The appendix includes a bunch of hardware diagrams, looking at which makes me wonder things like cost, power-efficiency, design feasibility etc.
+
+Evaluation:
+
+Well the "evaluation" section of the paper is really just a bunch of text. No really insight into why some things could not be expressed. Nothing was really "implemented" and "evaluated". All of these are just proposals.
+
+In all, I'm just not sure this paper is ready for publication. It seems like a bunch of interesting, far out ideas where: (a) the underlying assumptions about the ideas are not explained clearly, (b) the trade-offs are not explored, and (c) perhaps there ideas' time has not come yet.
+
+===========================================================================
+                           NSDI '16 Review #329C
+---------------------------------------------------------------------------
+Paper #329: Packet Transactions: A Programming Model for Data-Plane
+            Algorithms at Hardware Speed
+---------------------------------------------------------------------------
+
+How confident are you in your review?: 2. 
+                                        Reasonably, I think I got the main
+                                        points.
+Is this paper exciting or thought-provoking?:
+                                     2. Somewhat, I learned a few things.
+Does the paper convince you of the merits of its contribution?:
+                                     1. No and I will make a case against
+                                        it.
+
+                         ===== Paper summary =====
+
+The paper presents a C-like imperative domain specific language and a compiler that allows programmers to succinctly express data plane algorithms that can then be executed at line speed in modern programmable switch chipsets. The paper describes how programs are compiled into codelets that are then mapped into 'atoms' provided by the underlying hardware (actually, an abstraction of the hardware called 'PISA'). The technique is evaluated by translating 10 common algorithms into their corresponding atoms in a family of PISA abstract machines with increasing levels of complexity.
+
+           ===== What are the best things about the paper? =====
+
+The paper is incredibly well-written and a model of clarity. It is innovative, in that it combines cutting-edge developments in programming languages (i.e. SKETCH and domain-specific languages) and programmable switch design.
+
+       ===== What changes would make you value the paper more? =====
+
+1. Although I loved reading the paper, I feel that it does not add too much to NetASM [81]. NetASM proposes an intermediate language that hides details of multiple hardware architectures. It is very similar to the 3-address code generated from Domino; indeed Domino could easily have generated NetASM. It also provides atomicity using the ATM directive. The main differences between this work and [81] are 
+
+a. Domino is a high-level language and 
+b. Atoms prevent state sharing across pipeline stages. 
+
+Although NetASM is not high-level, the task of compiling from a high-level language to 3-address code is completely standard, so there is not too much innovation here. Second, by preventing state sharing across stages, Domino can go at line speed, but it cannot express algorithms such as a stateful firewall. Indeed, all 10 algorithms studied in Domino are fairly trivial. I don't see how Domino could express DPI or load-balancing, for example, which NetASM can. 
+
+To summarize, my concern is that this paper does not give enough credit to NetASM, which is very close prior work. Moreover, it does not compare itself with NetASM in any quantitative way. The paper would be much stronger if it were to carefully position itself with regard to NetASM in the expressiveness/performance tradeoff.
+
+2. The paper does not adequately motivate the choice of atoms in Table 2. These atoms are essentially the machine-level code generated by Domino (and correspond to the NetASM instruction set). However, unlike the NetASM instructions, which are relatively straightforward, the atoms here are quite complex (e.g. IFElseRAW). What is the reasoning behind choosing this primitive? 
+
+
+3. The paper should be more explicit about the limitations of the approach. What are the limits to Domino's expressivity? What is the most that can be achieved at line speed with today's technology? Is state sharing across pipelines stages impossible? Said differently, is Domino overly restricted? Perhaps a slight relaxation of Domino can make it more expressive and still maintain performance?
+
+4. The paper observes at several places that it negates a claim in [39] about the ability to express data-plane algorithms in a C-like language and still achieve line speeds. However, this paper and [39] share two principal authors. So, this is curious. Does it mean that the authors in common have changed their minds? If so, it should be stated as such.
+
+               ===== Detailed comments for the authors =====
+
+1. In Table 3, some atoms use a pkt_2 variable that does not appear in Table 6. This is confusing and should be addressed.
+
+2. The running example is wonderful, but I was left with the feeling that these are standard programming languages technology, so perhaps don't need to be explicated in such loving detail.
+
+3. Why did you choose SKETCH over the dataflow approach taken by NetASM? Is one superior to the other or are they comparable?
+
+4. Can trTCM and CoDEL be expressed by NetASM? If so, why should we prefer Domino to NetASM?
+
+===========================================================================
+                           NSDI '16 Review #329D
+---------------------------------------------------------------------------
+Paper #329: Packet Transactions: A Programming Model for Data-Plane
+            Algorithms at Hardware Speed
+---------------------------------------------------------------------------
+
+How confident are you in your review?: 3. 
+                                        Very, I am confident I understood
+                                        it well.
+Is this paper exciting or thought-provoking?:
+                                     1. No, the paper has little
+                                        originality.
+Does the paper convince you of the merits of its contribution?:
+                                     2. Not really, but I will not make a
+                                        case against it.
+
+                         ===== Paper summary =====
+
+The paper is focused on DOMINO, a straight-line programming subset of C, and an associated set of compilation tools intended to target line-rate programmable network switches. Interesting challenges include translating program graphs to straight line code and meeting tight timing targets for small program elements named "flowlets".
+
+           ===== What are the best things about the paper? =====
+
+1. It makes the case for the importance of programmability at line rates
+2. It demonstrates a way to compile a constrained C-like language to target architectures that can operate at line speeds
+
+       ===== What changes would make you value the paper more? =====
+
+1. Should contrast DOMINO with SNAP (discussed in "Practical Programmable Packets", Moore, et al. in INFOCOM 2001) which shared many of the restrictions listed in Table 1 but SNAP had the extremely important (and formalized) property that its resource usage could be determined directly from the length of the program.
+
+2. Many of these programming/DSL issues were examined in detail in "Smart packets: Applying Active Networks to Network Management", Schwartz, et al. in ACM Transactions on Computer Systems, Feb. 2000. You should compare DOMINO's solutions to those of Schwartz, et al.
+
+               ===== Detailed comments for the authors =====
+
+Programmable data planes have been extensively examined in the network literature and the challenges of a particular speed regime have been addressed many times as we have moved up in speed - the performance/programmability tradeoffs are, and have been, well-understood for decades. For example, Bruce Davie examined such issues, e.g., the instructions available for an ATM cell arriving at OC-12 rates, in "A Host-Network Interface Architecture for ATM" in SIGCOMM '91, and Hadzic and Smith examined the use of small modules comprising elements of a protocol stack compiled for a gate array in "Balancing Performance and Flexibility with Hardware Support for Network Architectures" in ACM ToCS, Nov. 2000. It is generally the cost of FPGAs that prohibits their use, not the performance differences versus merchant silicon (which I think you overstate in any case).
+
+===========================================================================
+                           NSDI '16 Review #329E
+---------------------------------------------------------------------------
+Paper #329: Packet Transactions: A Programming Model for Data-Plane
+            Algorithms at Hardware Speed
+---------------------------------------------------------------------------
+
+How confident are you in your review?: 2. 
+                                        Reasonably, I think I got the main
+                                        points.
+Is this paper exciting or thought-provoking?:
+                                     2. Somewhat, I learned a few things.
+Does the paper convince you of the merits of its contribution?:
+                                     2. Not really, but I will not make a
+                                        case against it.
+
+                         ===== Paper summary =====
+
+Domino is a restricted subset of C that can be compiled down to an abstract representation that is similar to the architecture of emerging line-rate programmable switch chips.  Domino sits in between highly-expressive packet-processing languages like Click that may or may not run at line-rate and the stateless language P4 that will always run at line-rate.  Domino can be used implement some stateful dataplane algorithms and guarantees they will run at line-rate if they compile. The domino compiler uses many standard compiler techniques, but is able to use them in simplified form, and the paper claims the combination is novel.
+
+           ===== What are the best things about the paper? =====
+
+Packet-processing languages for programmable switches are a very hot topic
+
+Suggests programmable switch chips can handle more stateful dataplane tasks than previously thought
+
+Fun, easy-to-follow discussion of simple compiler techniques
+
+       ===== What changes would make you value the paper more? =====
+
+More precise and supported claims of novelty and contributions would make it much easier for me to evaluate the paper.  The paper seems like it might be obviously great to an expert in the area, but that's not me.  I'm not sure if Domino is a big advancement that brings new functionality to the updatable dataplane, or if Domino is either impractical, or making a simple, rare task a bit easier (more below).
+
+Implementation and evaluation with hardware would go a long way to increasing my confidence in the value of Domino.
+
+               ===== Detailed comments for the authors =====
+
+I'm not an expert in this area and so it's hard for me to judge this work.  I could have been convinced Domino was a significant contribution that I should fight for, but I was not.  My comments focus on how I could have been convinced.  Typically the paper seems to assume readers will recognize the significance and importance of the work instead of making precise, concrete claims and then backing them up with evidence.
+
+Is domino really practical?  The paper avoids making precise statements about how practical domino actually is. For instance, "We assume that all PISA machines support stateless atoms that correspond to a single statement in three-address code. P4’s primitives [27] and RMT’s VLIW action set [40] both resemble this form."  This is too generic of a statement for me to evaluate if this is actually practical.  What does “resemble this form” mean? What are the differences? Would the same techniques generally apply?  Why not precisely match the form of these actual languages?
+
+Is domino solving a hard problem? The paper avoids making clear statements about how difficult it would be to actually implement the stateful dataplane algorithms of Table 4 without Domino.  The abstract says using something like P4 would be "inconvenient."  How inconvenient would they be?  Would no one actually implement such algorithms because they are too tedious? The idea of manually putting state into temporary packet header fields that are propagated along the pipeline doesn't seem that tedious, at least for the rare changes to dataplane algorithms.  Perhaps a better use of appendix space would be P4 versions of the algorithms in Table 4 vs Domino versions of the algorithms.  This would make it clear how much simpler Domino actually makes programs.  (And perhaps less error-prone?)
+
+Is domino solving a common problem? How often would these stateful dataplane algorithms really need to be changed? Is Table 4 the full set of interesting stateful algorithms?  Is there a burgeoning area of research in stateful dataplane algorithms that Domino would enable?
+
+The paper describes differences with P4 and netASM, but does not explain why they matter. Is P4 not appropriate for these more complex algorithms? Is NetASM going to require shared memory that will overly complicate ASICs?  NetASM could implement all the algorithms in Table 4 though right?
+
+Table 2 and the circuit diagrams for atoms is confusing.  What do the 3+ available, real chipsets provide?  I have no idea, but I'd guess they provide none of these atoms and these are all circuits that you will advocate are added to next-gen chipsets?  If this is the case, perhaps the paper should be reframed to be more about guiding the field.
+
+Why is only compiling programs that run at line-rate the right design choice? 
+
+RouteBricks and Click are old, citing and comparing to more recent software packet processors (that are dramatically faster) would strengthen the paper.
+
+What would be necessary to implement trTCM and CoDel?
+
+"Verifying compilations" would be better named "Testing compilations" and the first paragraph of that subsection should be toned down because it is not complete.
+
+===========================================================================
+                                  Comment
+---------------------------------------------------------------------------
+The TPC appreciated the timely and important problem Packet Transactions addresses. Finding primitives that are both general and realizable cost effectively in switch hardware is challenging. The language aspects in Domino, both in language design and compilation techniques also were considered a good contribution. The paper also was clear and well written. There were some significant concerns however. First, the reviewers did not see a big enough delta over the earlier NetASM work as we would like. Second, the work is still preliminary as it has not been actually implemented on any switch chip. Therefore, assessing its actual practicality is difficult.
+
