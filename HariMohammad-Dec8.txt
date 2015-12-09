@@ -13,3 +13,5 @@ I think I can explain why:
 Don't say stuff like the synthesis of techniques is novel.
 
 90 references is overwhelming. Clearly say how we are different from prior art.
+Focus a bit more on the usability and performance of packet transactions
+and less on the compiler techniques.
