@@ -1,0 +1,23 @@
+1. Read/Write flanks seem like an implementation convenience, not a core algorithmic innovation.
+2. SSA algorithm being simpler for us seems like an implementation convenience, again not a core algorithmic innovation.
+   Because the post-dom tree algorithm might actually work fine for us as well. It's just that I chose to rediscover it from first principles.
+
+3. If conversion is an important step and Hari thinks this is worth stressing because it was a previously discarded idea.
+   Read Ferante's paper to understand why it was discarded.
+
+4. Strongly connected components: Time vs. space dichotomy of the resulting codelets.
+
+5. Atom mapping:
+   This is different from technology mapping and instruction selection because
+   we are trying to do one-to-one mappings, not tiling.
+
+Run these by Alvin/George to make sure we are all on the same page.
+
+Hari's point:
+=================================
+* The pipeline scheduling step isn't totally important.
+* We can determine feasibility even without that.
+
+What is the paper about?
+================================
+Stateful dataplane algorithms and how they can be implemented at line rate.
