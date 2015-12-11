@@ -1,0 +1,14 @@
+1. Explain why sharing memory across stages is wrong for both correctness and wiring reasons.
+   This will solidify the abstract machine model much further.
+
+2. Be a little more natural about the progression of atoms so that it seems more natural.
+   This way we get to present the model as a case study of how we could apply the compiler
+   in the future.
+
+3. Add the performance-programmability graph as a result.
+
+4. Don't claim simplicity in the compiler as a technical contribution. Just make it a remark.
+
+5. Do add the switch designer view point as a minor remark in evaluation.
+
+6. Add LOC in P4 and in domino as comparison of expressiveness of the language.
