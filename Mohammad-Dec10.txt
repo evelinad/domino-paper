@@ -12,3 +12,6 @@
 5. Do add the switch designer view point as a minor remark in evaluation.
 
 6. Add LOC in P4 and in domino as comparison of expressiveness of the language.
+
+Three contributions: abstract machine model, programming model, and compiler.
+Two findings: LOC vs. P4. The performance-programmability graph.
