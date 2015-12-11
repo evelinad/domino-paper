@@ -11,3 +11,4 @@
 10. Add summary of high-level synthesis (synopsis C compiler, Vivado HLS, etc.)
 11. Talk about how transactions can be composed as well.
 12. What can Domino not do?
+13. Distinguish it against SNAP as well.
