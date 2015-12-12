@@ -12,3 +12,4 @@
 11. Talk about how transactions can be composed as well.
 12. What can Domino not do?
 13. Distinguish it against SNAP as well.
+14. Distinguish between what's new in the compiler vs. what's simpler in the compiler.
