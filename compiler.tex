@@ -1,4 +1,20 @@
 \section{The \pktlanguage compiler}
+
+% TODO: The compiler's biggest contribution is separating out the stateful
+% portions of the architecture from the stateless ones.
+
+% And this is important, because the stateless ones can ALWAYS be implemented,
+% while the stateful ones are more constrained.
+
+% Like Hari said, the critical path scheduling doesn't affect feasibility.
+% It only affects optimality.
+
+% The hardest thing about the compiler is the stateful vs. stateless separation.
+% And mapping the stateful operations to the hardware constraints.
+
+% But at the same time, not having the pipeline/crit. path scheduling makes it
+% a tool, not a compiler anymore.
+
 \label{s:compiler}
 
 \begin{figure*}[!t]
