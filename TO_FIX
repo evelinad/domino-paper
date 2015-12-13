@@ -28,3 +28,5 @@ They are simpler:
 --> Instruction selection is simpler because we map one-to-one unlike tech. mapping,
 maximal munch, and technology mapping.
 
+Compiler's single goal is to figure how to separate out the stateful portions
+from the stateless portions.
