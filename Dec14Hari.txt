@@ -1,0 +1,13 @@
+Come up with a one page architecture diagram / document
+and a one paragraph compiler novelty story relative to prior work
+(why the applications are new, why the techniques are simplified relative to prior work).
+
+Explain it by analogy to the compiler world:
+
+C --> LLVM --> x86 (the C world)
+  --> Pipelined Virtual Switch --> PISA (our world)
+
+Try and make the pipelined virtual switch analogous to LLVM.
+* Also explain why LLVM doesn't cut it.
+* Talk about our experiences compiling to LLVM and why a register machine
+optimizes things willy nilly without respecting program semantics.
