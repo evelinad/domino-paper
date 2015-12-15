@@ -86,9 +86,6 @@ not interpreted by \pktlanguage. The \pktlanguage compiler uses an intrinsic's
 signature to infer dependencies and supplies a canned run-time implementation,
 but otherwise does not interpret or analyze intrinsics. The overall language is
 a constrained subset of C (Table~\ref{tab:restrict}).
-% Anirudh->Alvin: Yes. No one will get BNF :)
-%\ac{This essentially is an imprecise version of the 
-%  grammar. Maybe this is more understandable to networking audience?
 \begin{table}
   \begin{tabular}{p{0.9\columnwidth}}
     No iteration (while, for, do-while).\\
@@ -121,11 +118,3 @@ When compiled to a \absmachine machine (\S\ref{s:absmachine}), the \pktlanguage
 compiler converts the code in Figure~\ref{fig:flowlet_code} into the atom
 pipeline shown in Figure~\ref{fig:flowlet_pipeline}. The next section describes
 the steps involved in this compilation.
-%
-%Today, programmable switch chips are
-%programmed by manually specifying low-level configurations resembling
-%Figure~\ref{fig:flowlet}b using a language like P4. \pktlanguage's compiler
-%automates this process. \ac{I don't get this. Isn't translating from domino to 
-%pisa to same as translating P4 to hardware primitives?}
-% You are right. This is confusing. I am commenting this out.
-% It isn't precisely correct either.

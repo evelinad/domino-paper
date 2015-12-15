@@ -1,6 +1,5 @@
 \section{Related work}
 \label{s:related}
-%TODO: opendataplane.org
 \textbf{Data-Plane Algorithms}
 Several data-plane algorithms are now commonplace, e.g., lookup algorithms based
 on longest-prefix, exact, or ternary matches.  \pktlanguage focuses on
@@ -28,8 +27,6 @@ lack the performance required for deployments. Network
 Processors~\cite{ixp2800, ixp4xx} (NPUs) were an attempt to bridge the gap.
 While NPUs are faster than software routers, they remain an order of magnitude
 slower than merchant silicon chips~\cite{rmt}.
-%and have not found success in the
-%market~\cite{npfail}.
 
 An alternative is to use FPGAs to improve performance relative to software
 routers and NPUs; examples include NetFPGA~\cite{netfpga},
@@ -53,8 +50,6 @@ packetC~\cite{packetc}, Intel's auto-partitioning C
 compiler~\cite{intel_uiuc_pldi}, PacLang~\cite{paclang_lang,
 paclang_partitioner}, and Microengine C~\cite{microenginec, intel_ixa} target
 network processors~\cite{ixp2800, ixp4xx}.
-%PX~\cite{PX}
-%is a language that targets packet processing on FPGA platforms.
 
 \pktlanguage's C-like syntax and sequential semantics are inspired by these
 languages. However \pktlanguage is constrained relative to its predecessors:

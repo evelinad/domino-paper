@@ -294,10 +294,6 @@ a single three-address code statement, this is still correct, although
 suboptimal. For instance, if the \absmachine machine supports a
 multiply-and-accumulate atom~\cite{mac}, our approach generates two atoms (one
 each for the multiply and accumulate), although one suffices.
-% Anirudh->Alvin: It doesn't for a rather sloppy reason.
-% We basically assume only stateless atoms are supported.
-%\ac{say something
-%about it doesn't affect much for the examples we use in the experiment}
 
 \paragraph{Stateful codelets}
 Stateful codelets have multi-line bodies that need to execute atomically. For

@@ -1,6 +1,4 @@
 \section{Evaluation}
-% TODO: Show how pipeline width / depth changes
-% by adding more complicated atoms? This might be a little more work though.
 
 \label{s:eval}
 
@@ -89,15 +87,6 @@ atoms (Table~\ref{tab:templates}). Expressing most of these algorithms in
 \pktlanguage involved little effort beyond simply translating their imperative
 code/pseudocode to \pktlanguage---a sign that \pktlanguage's abstractions are
 convenient to use.
-%TODO: Maybe we should do a user study in 6.829 or another class sometime :)?
-
-%Anirudh: Chang felt this was incidental.
-%%We did, however, modify CoDel. CoDel is a head-drop active queue
-%%management scheme, which uses a loop~\cite{codel_code} to repeatedly dequeue
-%%packets until it can send one out.  We replaced the while loop with an if
-%%statement and mark dequeued packets instead of dropping them. A line-rate
-%%switch can dequeue only once per packet. Dropping these dequeued packets,
-%%instead of marking them, leads to an idle line and wasted capacity.
 
 \subsection{Experimental procedure}
 As mentioned in \S\ref{ss:code_gen}, we focus only on stateful atoms and assume
@@ -156,7 +145,6 @@ utilization of the best path to that destination)\footnote{{\tt p.src} is the ad
   of the host originating this message, and hence the destination for the host
 receiving it and executing CONGA.} and vice versa. There is no way to separate
 the two state variables into separate stages and still guarantee correctness.
-%TODO: Mihai: Add figure of CONGA's SCC here maybe?
 
 The Pairs atom, where the update to a state variable is conditioned on a
 predicate of a pair of state variables, allows us to implement CONGA at line
@@ -167,9 +155,6 @@ are still restricted to a pair of state variables.  We haven't yet encountered
 a triplet of state variables all falling in the same strongly connected
 component/codelet, requiring a three-way state update.
 
-%%We leave the problem of
-%%approximating CoDel/trTCM to fit within a particular atom or conversely,
-%%designing more complex atoms to support them to future work.
 \subsection{Performance vs. programmability}
 \label{ss:perfprog}
 
