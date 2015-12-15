@@ -22,7 +22,7 @@ all: $(PDFS)
 	pdflatex $*.tex
 
 clean:
-	/bin/rm -f $(PDFS) *.dvi *.aux *.ps *~ *.log *.out *.lot *.lof *.toc *.blg *.bbl url.sty
+	/bin/rm -f $(PDFS) *.dvi *.aux *.ps *~ *.log *.out *.lot *.lof *.toc *.blg
 
 FORCE:
 
