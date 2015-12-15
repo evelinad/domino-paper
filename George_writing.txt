@@ -1,1 +1,0 @@
-(Sampling: Sampled NetFlow or CISCO sampling).
