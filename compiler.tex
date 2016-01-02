@@ -166,73 +166,57 @@ passes.  While we have simplified the code for readability, the code output by
 the \pktlanguage compiler after each pass isn't materially different from the
 version presented here.
 
-\subsection{If-conversion to straight-line code}
+\subsection{Normalization}
 
-A packet transaction's body can contain (potentially nested) conditional
-statements (e.g., Lines~\ref{line:ifStart} to \ref{line:ifEnd} in
-Figure~\ref{fig:flowlet_code}, or CoDel~\cite{codel_code}). These statements
-alter control flow and complicate dependence analysis between statements i.e.
-whether a statement should follow or precede another.  We eliminate such
-statements by transforming them into the ternary conditional operator, starting
-from the innermost if statements and recursing outwards
-(Figure~\ref{fig:if_convert}). This procedure is known as
-if-conversion~\cite{if_conversion}. Unlike traditional languages, performing
-if-conversion in \pktlanguage is easy as there is no unstructured control
-flow.  If conversion turns the body of packet transactions into
-straight-line code, where control passes sequentially without branching.
-Straight-line code simplifies the rest of the compiler, like computing the
-static single-assignment form(\S\ref{ss:ssa}).
+\textbf{Converting to straight-line code: }A packet transaction's body can
+contain (potentially nested) branches (e.g., Lines~\ref{line:ifStart} to
+\ref{line:ifEnd} in Figure~\ref{fig:flowlet_code}, or CoDel~\cite{codel_code}).
+These statements alter control flow and complicate dependence analysis i.e.
+whether a statement should follow or precede another.  We transform these
+statements using the conditional operator, starting from the innermost
+\texttt{if} and recursing outwards (Figure~\ref{fig:if_convert}).  This turns
+the transaction body into straight-line code, where control passes sequentially
+without branching. Straight-line code simplifies the rest of the compiler, by
+simplifying dependency analysis and conversion to static single-assignment
+form(\S\ref{ss:ssa}).
 
-\subsection{Rewriting state variable operations} %Converting to load/store form}
-\label{ss:load/store}
+\textbf{Rewriting state variable operations: }We next identify state variables
+used in a packet transaction, such as \texttt{last\_time} and
+\texttt{saved\_hop} in Figure~\ref{fig:flowlet_code}.  For each state variable,
+we create a \textit{read flank} to read the state variable into a temporary
+packet field. For an array, we also move the index expression into the read
+flank because only one array index is accessed by each packet in valid
+\pktlanguage programs.  Throughout the packet transaction, we replace the state
+variable with the packet temporary, and create a \textit{write flank} to write
+the packet temporary back into the state variable
+(Figure~\ref{fig:stateful_flanks}). After this pass, the only operations on
+state variables are reads and writes; all arithmetic happens on packet
+variables. Restricting operations on state variables simplifies handling of
+state variables during pipelining.
 
-We next identify both array and scalar state variables used in a packet
-transaction, such as \texttt{last\_time} and \texttt{saved\_hop} in
-Figure~\ref{fig:flowlet_code}. State variables are easy to identify
-syntactically, since all variables are either packet fields or state variables.
-For each state variable, we create a \textit{read flank} to read the state
-variable into a temporary packet field. For an array, we also move the index
-expression into the read flank, exploiting the fact that only one array index
-is accessed by each packet in valid \pktlanguage programs.  Then, throughout
-the packet transaction, we replace the state variable with the packet
-temporary, and create a \textit{write flank} to write the packet temporary back
-into the state variable.  Figure~\ref{fig:stateful_flanks} illustrates this
-transformation.  After this pass, the code resembles code for a load-store
-architecture~\cite{load_store}: all state variables must be loaded into packet
-variables before arithmetic can be performed on them.  Restricting operations on state
-variables simplifies subsequent code partitioning (\S\ref{ss:partitioning}).
+\textbf{Converting to single-assignment form: }We next convert the code to
+static single-assignment form (SSA)~\cite{ssa}, as shown in
+Figure~\ref{fig:ssa}). In SSA, every variable is assigned exactly once. To
+compute the SSA, we replace every assignment to a packet variable with a new
+packet variable and propagate this until the next assignment to the same
+variable.  Because every variable is assigned exactly once, SSA removes
+Write-After-Read and Write-After-Write dependencies.  Only Read-After-Write
+dependencies remain, simplifying dependency analysis during
+pipelining(\S\ref{ss:partitioning}).
 
-\subsection{Converting to single-assignment form}
-\label{ss:ssa}
-
-We next convert the code to static single-assignment form (SSA), as shown in
-Figure~\ref{fig:ssa}). In SSA form, every variable is assigned exactly once. To
-compute the SSA, we replace every definition of a packet variable with a new
-packet variable and propagate this new variable until the next definition of
-the same variable. State variables are already in SSA: after their flanks have
-been added, every state variable is written exactly once in the write flank.
-While general algorithms for computing the SSA are fairly involved~\cite{ssa},
-\pktlanguage's SSA computation is simpler because it runs after if conversion
-and hence operates on straight-line code.  Because every variable is assigned
-exactly once, SSA removes Write-After-Read and Write-After-Write dependencies.
-Only Read-After-Write dependencies remain, simplifying dependency analysis
-during code partitioning (\S\ref{ss:partitioning}). We execute copy
-propagation~\cite{copy_prop} after SSA to reduce the number of temporary
-packet variables.
-
-\subsection{Flattening to three-address code}
-
-The input is next converted to three-address code~\cite{tac}, where all
-instructions are either reads / writes into state variables or operations on
-packet variables of the form \texttt{pkt.f1 = pkt.f2 op pkt.f3;} where
-\texttt{op} can be a conditional,\footnote{Ternary/Conditional operators take
-in 4 addresses instead of 3.} arithmetic, logical, or relational operator.
-We also allow either one of {\tt pkt.f2} or {\tt pkt.f3} to be an intrinsic
-function call.  All expressions that are not already in three-address code
-are flattened by introducing temporaries as illustrated in
-Figure~\ref{fig:three_address}.  While flattening expressions may result in
-redundant temporaries that compute the same subexpression, we remove such temporaries
- using common subexpression elimination~\cite{cse}.
+%%We execute copy propagation~\cite{copy_prop} after
+%%SSA to reduce the number of temporary packet variables.
+\textbf{Flattening to three-address code: } Three-address code~\cite{tac} is a
+representation where all instructions are either reads / writes into state
+variables or operations on packet variables of the form \texttt{pkt.f1 = pkt.f2
+op pkt.f3;} where \texttt{op} can be a
+conditional,\footnote{Ternary/Conditional operators take in 4 addresses instead
+of 3.} arithmetic, logical, or relational operator.  We also allow either one
+of {\tt pkt.f2} or {\tt pkt.f3} to be an intrinsic function call.  To convert
+to three-adress code, we flatten expressions that are not in three-address code
+by introducing temporaries (Figure~\ref{fig:three_address}).  Flattening could
+result in redundant temporaries computing the same subexpression; we remove
+these using common subexpression elimination~\cite{cse}.
 
 \subsection{Code partitioning to codelets}
 \label{ss:partitioning}
@@ -428,3 +412,13 @@ requiring a synthesis of techniques that, to the best of our knowledge, is
 novel. Further, as we illustrate throughout this section, constraining
 \pktlanguage for deterministic performance simplifies the \pktlanguage
 compiler relative to mainstream compilers for imperative languages.
+
+This procedure is known as
+if-conversion~\cite{if_conversion}. Unlike traditional languages, performing
+if-conversion in \pktlanguage is easy as there is no unstructured control
+flow.  
+%%State variables are already in SSA: after their flanks
+%%have been added, every state variable is written exactly once in the write
+%%flank.  While general algorithms for computing the SSA are fairly
+%%involved~\cite{ssa}, \pktlanguage's SSA computation is simpler because it runs
+%%after if conversion and hence operates on straight-line code. 
