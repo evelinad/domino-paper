@@ -371,38 +371,6 @@ taking 10 secs at most.
   \end{minipage}
 \end{figure}
 
-\subsection{Verifying compilations}
-\label{ss:verification}
-
-Our testing infrastructure verifies that the compilation is correct. By this,
-we mean that the externally visible behavior of the packet transaction
-(Figure~\ref{fig:flowlet_code}) is indistinguishable from its pipelined
-implementation (Figure~\ref{fig:flowlet_pipeline}). We verify correctness by
-feeding in the same set of test packets to both the packet transaction and its
-implementation and comparing the outputs from both on the set of externally visible fields.
-
-To create test packets, we scan the packet transaction and generate the set of
-all fields read from or written to by the transaction. We initialize each field
-by sampling independently and uniformly from the space of all 32-bit signed
-integers.  To compare outputs from the packet transaction and its
-implementation, we track renames that occur after SSA and compare each output
-field in the transactional form with its last rename in the implementation.
-This lets us quickly ``spot check'' our compilations and helped us discover a
-few compiler bugs during development.
-
-\subsection{Targeting real switches}
-\label{ss:real}
-\pktlanguage doesn't yet generate code for actual hardware. We considered
-compiling \pktlanguage to P4, which would then allow \pktlanguage to target
-programmable switches by leveraging ongoing work~\cite{netronome,
-xilinx,lavanya_compiler} in P4 compilation. However, P4 currently doesn't
-support sequential execution within a pipeline stage or the conditional
-operator as a primitive action. Both are required to correctly execute the
-codelets/atoms produced by \pktlanguage (Figure~\ref{fig:flowlet_pipeline}).
-We have submitted a proposal~\cite{p4-semantics} for both to the P4 language
-consortium. The proposal has been tentatively accepted and is likely to be
-included in P4 v1.1.
-
 % TODO: Simplify this considerably.
 % Also, per George, stress clearly what is new relative to standard compiler techniques.
 \subsection{Discussion}
