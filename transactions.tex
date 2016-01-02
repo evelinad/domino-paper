@@ -84,6 +84,8 @@ The \pktlanguage compiler uses an intrinsic's
 signature to infer dependencies and supplies a canned run-time implementation,
 but otherwise does not interpret or analyze an intrinsics's internal behavior.
 
+\subsection{Constraints on the language}
+
 The overall language is
 a constrained subset of C (Table~\ref{tab:restrict}).
 These restrictions are required for deterministic performance.  Memory allocation, unbounded
@@ -116,10 +118,23 @@ where supporting distinct read and write addresses every clock cycle is challeng
   \label{tab:restrict}
 \end{table}
 
+\subsection{All-or-nothing compilation}
+
 When compiled to a \absmachine machine (\S\ref{s:absmachine}), the \pktlanguage
-compiler converts the code in Figure~\ref{fig:flowlet_code} into the atom
-pipeline shown in Figure~\ref{fig:flowlet_pipeline}. The next section describes
-the steps involved in this compilation.
+compiler (\S\ref{s:compiler}) converts the code in Figure~\ref{fig:flowlet_code}
+into the atom pipeline shown in Figure~\ref{fig:flowlet_pipeline}. The compiler
+guarantees that code that is accepted by the compiler can run at line rate on
+the abstract machine or rejects it outright; there is no smooth tradeoff between
+a program's performance and its complexity.
+
+This all-or-nothing compilation model is unusual in the context of programming
+other computational substrates such as a CPU, GPU, or DSP, but it reflects how
+routers and switches have been used for decades now. Routers are rated
+for a particular line rate, regardless of the feature set that is currently turned
+on in the router. The all-or-nothing model provides predictable performance for
+free---in contrast to software router platforms that need to be explicitly architected
+for predictability~\cite{dobrescu2012, wenfei15}.
+
 %
 %Today, programmable switch chips are
 %programmed by manually specifying low-level configurations resembling
@@ -128,10 +143,6 @@ the steps involved in this compilation.
 %pisa to same as translating P4 to hardware primitives?}
 % You are right. This is confusing. I am commenting this out.
 % It isn't precisely correct either.
-
-%TODO: Hari's point
-% Write about how line-rate or nothing is a good programming model
-% that gives us all considerable peace of mind.
 
 %TODO: Talk about how transactions can be composed.
 % We 'll need to do this for the PIFO work as well.
