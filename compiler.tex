@@ -218,46 +218,53 @@ by introducing temporaries (Figure~\ref{fig:three_address}).  Flattening could
 result in redundant temporaries computing the same subexpression; we remove
 these using common subexpression elimination~\cite{cse}.
 
-\subsection{Code partitioning to codelets}
+\subsection{Pipelining}
 \label{ss:partitioning}
 At this point, the code is still sequential. Code partitioning turns sequential
 code into a pipeline of \textit{codelets}, where each codelet is a small
-sequential block of three-address code statements. Each codelet is then mapped
-to an atom provide by a particular \absmachine machine~(\S\ref{ss:code_gen}),
-or an error is returned if it cannot be mapped.
+sequential block of three-address code statements. Conceptually, this pipeline
+corresponds to an intermediate representation, we call the \textit{Pipelined
+Virtual Switch Machine} that places no restrictions on the number of stages in
+the pipeline, the width of each stage, and the complexity of each
+codelet---much like intermediate representations such as LLVM place no
+restriction on the number of virtual registers. Later, during code generation,
+we map these codelets to atoms available in the abstract machine.
 
-To partition code into codelets, we carry out the following steps:
+We use the following algorithm to create code for the pipelined virtual switch
+machine.
 \begin{CompactEnumerate}
   \item Create a node for each statement (Figure~\ref{fig:three_address}) in
-    the packet transaction after expression flattening.
-  \item Create a bidirectional edge between nodes N1 and N2, where N1 is a read from a
-    state scalar / state array and N2 is a write into the same variable.
-    This step captures the constraint that state is internal to an
-    atom in \absmachine.
+    the normalized packet transaction.
+  \item Create a pair of edges between nodes N1 and N2, where N1 is a read from
+    a state scalar / state array and N2 is a write into the same variable.
+    This step captures the constraint that state should be internal to a
+    codelet.
   \item Create an edge (N1, N2) for every pair of nodes N1, N2 where N2 reads a
     variable written by N1. We only check read-after-write dependencies because
-    control dependencies turn into data dependencies after if conversion, and
-    write-after-read and write-after-write dependencies don't exist in SSA.
+    we transform control dependencies into data dependencies by rewriting
+    branches, and write-after-read and write-after-write dependencies don't
+    exist in SSA.
   \item Generate strongly connected components (SCCs) of the resulting graph
     (Figure~\ref{fig:partitioning_before}) and condense the SCCs to create a
     directed acyclic graph (DAG) (Figure~\ref{fig:partitioning_after}). This
-    step captures the constraint that all operations on a state variable
-    must reside within the same atom because state is internal to an atom.
-    %as state is distributed across them.
+    step captures the constraint that all operations on a state variable must
+    be confined to one codelet.
   \item Schedule the resulting DAG using critical path
     scheduling~\cite{crit_path_sched} by creating a new pipeline stage every time
     one operation needs to follow another according to the precedence relationship
     established by the DAG (Figure~\ref{fig:partitioning_after}).
 \end{CompactEnumerate}
-The resulting codelet pipeline\footnote{We refer to this both as a codelet and
-an atom pipeline because codelets map one-to-one atoms (\S\ref{ss:code_gen}).}
-shown in Figure~\ref{fig:flowlet_pipeline} implements the flowlet packet
-transaction.  Further, the codelets have a stylized form.  Codelets that don't
-manipulate state contain exactly one three-address code statement after
-expression flattening. Codelets that manipulate state contain at least two
-statements: a read from a state variable and a write to a state variable, with
-optionally one or more updates to the state variable through packet temporaries
-in between.
+
+%%\footnote{We refer to this both as a codelet and
+%%an atom pipeline because codelets map one-to-one atoms (\S\ref{ss:code_gen}).}
+%%shown in Figure~\ref{fig:flowlet_pipeline}
+
+The resulting codelet pipeline implements the flowlet packet transaction.
+Further, the codelets have a stylized form.  Codelets that don't manipulate
+state contain exactly one three-address code statement after expression
+flattening. Codelets that manipulate state contain at least two statements: a
+read from a state variable and a write to a state variable, with optionally one
+or more updates to the state variable through packet temporaries in between.
 
 \begin{figure*}[!t]
 \begin{minipage}{0.5\textwidth}
@@ -275,12 +282,12 @@ in between.
 \end{minipage}
 \end{figure*}
 
-\subsection{Mapping codelets to atoms}
+\subsection{Code generation}
 \label{ss:code_gen}
 Next, we determine how codelets map one-to-one to atoms provided by the
 \absmachine machine. We consider codelets that do and don't manipulate state
 separately.
-
+ %TODO: Resume here.
 \paragraph{Stateless codelets}
 As mentioned, stateless codelets have only one
 statement in three-address code form (e.g., any of the unshaded boxes in
