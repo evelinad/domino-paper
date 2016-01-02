@@ -70,10 +70,10 @@ packet processing happens in the context of a packet transaction (the function
 declares the fields in a packet (lines 5--12)\footnote{We use fields to refer
 to both packet headers such as source port ({\tt sport}) and destination port
 ({\tt dport}) and packet metadata ({\tt id}).} that can be referenced by the
-function body (lines 18--32).  In addition, the function body can reference
-state variables that represent persistent state stored on the switch. These are
-declared as global variables (e.g. \texttt{last\_time} and \texttt{saved\_hop}
-declared on lines 14 and 15, respectively).
+function body (lines 18--32).  The function body can also reference
+persistent state stored on the switch using global variables (e.g.
+\texttt{last\_time} and \texttt{saved\_hop} on lines 14 and 15,
+respectively).
 
 Conceptually, the switch invokes the packet transaction function on each
 incoming packet sequentially. The function modifies the passed-in packet
