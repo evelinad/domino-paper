@@ -80,12 +80,10 @@ incoming packet sequentially. The function modifies the passed-in packet
 argument until the end of the function body, before processing the next packet.
 \pktlanguage forbids return statements, and hence execution will always end at
 the end of the function body. The function may invoke \textit{intrinsics} such
-as \texttt{hash2} on lines 23 and \texttt{hash3} on line 18.
+as \texttt{hash2} on line 23 to use hardware accelerators such as hash generators.
 The \pktlanguage compiler uses an intrinsic's
 signature to infer dependencies and supplies a canned run-time implementation,
-but otherwise does not interpret or analyze intrinsics. Intrinsics are hardware
-primitives provided by the abstract machine that are not interpreted by
-\pktlanguage. 
+but otherwise does not interpret or analyze an intrinsics's internal behavior.
 
 The overall language is
 a constrained subset of C (Table~\ref{tab:restrict}).
