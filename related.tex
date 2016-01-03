@@ -42,6 +42,11 @@ programmable switch chips~\cite{xpliant}. In addition, FPGAs are hard to
 program. Relative to FPGAs, \pktlanguage seeks to provide both the line-rate
 performance of switching ASICs and a familiar programming model.
 
+Recent work~\cite{lavanya_compiler} focuses on compiling P4 programs to
+hardware targets such as the RMT and FlexPipe architectures. However, their
+work focuses on compiling stateless data-plane tasks such as forwarding and
+routing, while \pktlanguage focuses on stateful data-plane algorithms.
+
 \textbf{Packet-processing languages}
 Many programming languages target the network control plane. Examples include
 Frenetic~\cite{frenetic}, Pyretic~\cite{pyretic}, and

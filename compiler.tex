@@ -392,46 +392,41 @@ taking 10 secs at most.
   \label{tab:prior_compiler}
 \end{table}
 
-%TODO: Fuse the three textbf sections below into one Discussion section
-% relating the compiler techniques to prior compiler work.
-\textbf{Compiler Techniques}
-\pktlanguage's compiler uses three-address codes~\cite{tac}, static-single
-assignment form~\cite{ssa}, and if conversion~\cite{if_conversion} from the
-compiler literature. However, \pktlanguage's constrained design allows us to
-simplify these techniques relative to their mainstream uses.  The use of
-strongly connected components is based on similar uses in software
-pipelining~\cite{software_pipelining} for VLIW architectures. However,
-dependence analysis for loop-carried dependencies in software pipelining
-(equivalent to state in \pktlanguage) is more involved than the simple
-syntactic checks used by \pktlanguage. The use of synthesis to map codelets to
-atoms is based on Chlorophyll's~\cite{chlorophyll} use of program synthesis for
-compilation to unconventional targets.
+\subsection{Comparison with existing compiler techniques}
 
-\textbf{Hardware compilation}
-Prior work~\cite{nurvadathi, cash, bluespec} has focused on deriving digital
-circuits from imperative programs. These approaches simplify hardware
-development, but the performance of each program depends on its complexity.
-\pktlanguage has an all-or-nothing guarantee: all code that compiles can run at
-line rate or is rejected by the compiler.  Mapping from codelets to atoms is
-similar to technology mapping~\cite{micheli, flowmap, spectransform}, where a
-target hardware circuit (represented as a graph) is implemented by tiling the
-circuit graph with primitive circuits from a technology library. \pktlanguage's
-problem is simpler. We only need to verify if a codelet maps to an atom---not
-implement a codelet using multiple atoms.  Recent work~\cite{lavanya_compiler}
-focuses on compiling P4 programs to hardware targets such as the RMT and
-FlexPipe architectures. However, their work focuses on compiling stateless
-data-plane tasks such as forwarding and routing, while \pktlanguage focuses on
-stateful data-plane algorithms.
-
-\subsection{Discussion}
-The \pktlanguage compiler borrows many techniques from the compiler literature.
-
-This procedure is known as
-if-conversion~\cite{if_conversion}. Unlike traditional languages, performing
-if-conversion in \pktlanguage is easy as there is no unstructured control
-flow.  
-%%State variables are already in SSA: after their flanks
-%%have been added, every state variable is written exactly once in the write
-%%flank.  While general algorithms for computing the SSA are fairly
-%%involved~\cite{ssa}, \pktlanguage's SSA computation is simpler because it runs
-%%after if conversion and hence operates on straight-line code. 
+The \pktlanguage compiler employs many techniques from the compiler literature,
+but simplifies and adapts them in new ways to suit the domain of line-rate
+switches (Table~\ref{tab:prior_compiler}).
+\begin{CompactEnumerate}
+  \item Domino's removal of branches resembles
+    if-conversion~\cite{if_conversion}, a technique used in vectorizing
+    compilers to turn control dependencies into data dependencies. This
+    procedure is easier in Domino because there are no backward control
+    transfer statements (goto, break, continue).
+  \item SSA was first introduced by Cytron et. al~\cite{ssa}. Domino's SSA
+    computation is significantly simpler because it operates on straight-line
+    code and doesn't have to deal with branches, which need special treatment
+    in standard applications of SSA.
+  \item The use of SCCs is similar to software
+    pipelining~\cite{software_pipelining} for VLIW architectures. The size of
+    the largest SCC affects the throughput of the pipelined loop in software
+    pipelining, while, for Domino, it affects the complexity of the atom
+    required to run a particular program at line rate. Put differently, Domino
+    trades off an increase in space for line-rate performance.
+  \item The use of program synthesis for code generation is similar to
+    Chlorophyll~\cite{Chlorophyll} and shares similar goals as technology
+    mapping~\cite{micheli, flowmap, spectransform} and instruction selection.
+    However, in all prior work, the goal is to map a code sequence to multiple
+    instructions with the goal of minimizing instruction count. This problem is
+    NP-hard, and all prior techniques employ sub-optimal heuristics.  Domino's
+    problem is simpler: we map each codelet to a single instruction / atom
+    using SKETCH. The simpler problem affords an optimal solution: if there is
+    any way to map the codelet to an atom, SKETCH will find it, so long as it
+    is within the search space.
+    %TODO: Alvin, can you check this wording?
+  \item High-level synthesis~\cite{nurvadathi, cash, bluespec, vivado} derives
+    digital circuits from imperative programs. This simplifies hardware
+    development, but the performance of each program depends on its complexity.
+    \pktlanguage has an all-or-nothing guarantee: all code that compiles can
+    run at switch's line rate or is rejected by the compiler.
+\end{CompactEnumerate}
