@@ -72,19 +72,6 @@ for many header-manipulation tasks such as switching, ACLs, routing, and
 tunnelling~\cite{dc_p4}, it is ill-suited to programming data-plane algorithms that
 rely on intricate state manipulation.
 
-\textbf{Compiler Techniques}
-\pktlanguage's compiler uses three-address codes~\cite{tac}, static-single
-assignment form~\cite{ssa}, and if conversion~\cite{if_conversion} from the
-compiler literature. However, \pktlanguage's constrained design allows us to
-simplify these techniques relative to their mainstream uses.  The use of
-strongly connected components is based on similar uses in software
-pipelining~\cite{software_pipelining} for VLIW architectures. However,
-dependence analysis for loop-carried dependencies in software pipelining
-(equivalent to state in \pktlanguage) is more involved than the simple
-syntactic checks used by \pktlanguage. The use of synthesis to map codelets to
-atoms is based on Chlorophyll's~\cite{chlorophyll} use of program synthesis for
-compilation to unconventional targets.
-
 \textbf{Hardware compilation}
 Prior work~\cite{nurvadathi, cash, bluespec} has focused on deriving digital
 circuits from imperative programs. These approaches simplify hardware

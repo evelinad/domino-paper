@@ -379,18 +379,36 @@ taking 10 secs at most.
 
 \begin{table}[!t]
   \begin{scriptsize}
-    \begin{tabular}{|p{0.1\textwidth}|p{0.1\textwidth}|p{0.3\textwidth}}
+    \begin{tabular}{|p{0.1\textwidth}|p{0.1\textwidth}|p{0.2\textwidth}|}
   \hline
   Technique & Prior Work & Differences \\
+  \hline
   Conversion to straigh-line code & If Conversion~\cite{if_conversion} & No backward control flow (gotos, break, continue) \\
+  \hline
   SSA & Cytron et. al~\cite{ssa} & SSA runs on straight-line code without any control flow \\
-  Strongly Connected Components & Lam~\cite{lam} & Scheduling in space vs. time \\
-  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll} & Optimal mapping vs. non-optimal mapping \\
+  \hline
+  Strongly Connected Components & Lam~\cite{lam} & Scheduling in space vs. time \\ % Mention Rau, software pipelining.
+  \hline
+  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll} & Optimal mapping \\
+  \hline
   \end{tabular}
   \end{scriptsize}
   \caption{Domino's compiler techniques in relation to prior work}
   \label{tab:prior_compiler}
 \end{table}
+
+\textbf{Compiler Techniques}
+\pktlanguage's compiler uses three-address codes~\cite{tac}, static-single
+assignment form~\cite{ssa}, and if conversion~\cite{if_conversion} from the
+compiler literature. However, \pktlanguage's constrained design allows us to
+simplify these techniques relative to their mainstream uses.  The use of
+strongly connected components is based on similar uses in software
+pipelining~\cite{software_pipelining} for VLIW architectures. However,
+dependence analysis for loop-carried dependencies in software pipelining
+(equivalent to state in \pktlanguage) is more involved than the simple
+syntactic checks used by \pktlanguage. The use of synthesis to map codelets to
+atoms is based on Chlorophyll's~\cite{chlorophyll} use of program synthesis for
+compilation to unconventional targets.
 
 \subsection{Discussion}
 The \pktlanguage compiler borrows many techniques from the compiler literature.
