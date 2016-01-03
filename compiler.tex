@@ -382,9 +382,9 @@ taking 10 secs at most.
   \hline
   SSA & Cytron et. al~\cite{ssa} & SSA runs on straight-line code without any control flow \\
   \hline
-  Strongly Connected Components & Lam~\cite{lam} & Scheduling in space vs. time \\ % Mention Rau, software pipelining.
+  Strongly Connected Components & Lam~\cite{software_pipelining} & Scheduling in space vs. time \\ % Mention Rau, software pipelining.
   \hline
-  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{technology_mapping}, instruction selection~\cite{instruction_selection} & Optimal vs. best-effort mapping; One-to-one mapping vs. tiling \\
+  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli, flowmap, spectransform}, instruction selection~\cite{instruction_selection} & Optimal vs. best-effort mapping; One-to-one mapping vs. tiling \\
   \hline
   \end{tabular}
   \end{scriptsize}
@@ -414,7 +414,7 @@ switches (Table~\ref{tab:prior_compiler}).
     required to run a particular program at line rate. Put differently, Domino
     trades off an increase in space for line-rate performance.
   \item The use of program synthesis for code generation is similar to
-    Chlorophyll~\cite{Chlorophyll} and shares similar goals as technology
+    Chlorophyll~\cite{chlorophyll} and shares similar goals as technology
     mapping~\cite{micheli, flowmap, spectransform} and instruction selection.
     However, in all prior work, the goal is to map a code sequence to multiple
     instructions with the goal of minimizing instruction count. This problem is
