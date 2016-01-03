@@ -395,6 +395,8 @@ taking 10 secs at most.
   \label{tab:prior_compiler}
 \end{table}
 
+%TODO: Fuse the three textbf sections below into one Discussion section
+% relating the compiler techniques to prior compiler work.
 \textbf{Compiler Techniques}
 \pktlanguage's compiler uses three-address codes~\cite{tac}, static-single
 assignment form~\cite{ssa}, and if conversion~\cite{if_conversion} from the
@@ -407,6 +409,22 @@ dependence analysis for loop-carried dependencies in software pipelining
 syntactic checks used by \pktlanguage. The use of synthesis to map codelets to
 atoms is based on Chlorophyll's~\cite{chlorophyll} use of program synthesis for
 compilation to unconventional targets.
+
+\textbf{Hardware compilation}
+Prior work~\cite{nurvadathi, cash, bluespec} has focused on deriving digital
+circuits from imperative programs. These approaches simplify hardware
+development, but the performance of each program depends on its complexity.
+\pktlanguage has an all-or-nothing guarantee: all code that compiles can run at
+line rate or is rejected by the compiler.  Mapping from codelets to atoms is
+similar to technology mapping~\cite{micheli, flowmap, spectransform}, where a
+target hardware circuit (represented as a graph) is implemented by tiling the
+circuit graph with primitive circuits from a technology library. \pktlanguage's
+problem is simpler. We only need to verify if a codelet maps to an atom---not
+implement a codelet using multiple atoms.  Recent work~\cite{lavanya_compiler}
+focuses on compiling P4 programs to hardware targets such as the RMT and
+FlexPipe architectures. However, their work focuses on compiling stateless
+data-plane tasks such as forwarding and routing, while \pktlanguage focuses on
+stateful data-plane algorithms.
 
 \subsection{Discussion}
 The \pktlanguage compiler borrows many techniques from the compiler literature.

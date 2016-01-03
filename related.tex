@@ -72,22 +72,6 @@ for many header-manipulation tasks such as switching, ACLs, routing, and
 tunnelling~\cite{dc_p4}, it is ill-suited to programming data-plane algorithms that
 rely on intricate state manipulation.
 
-\textbf{Hardware compilation}
-Prior work~\cite{nurvadathi, cash, bluespec} has focused on deriving digital
-circuits from imperative programs. These approaches simplify hardware
-development, but the performance of each program depends on its complexity.
-\pktlanguage has an all-or-nothing guarantee: all code that compiles can run at
-line rate or is rejected by the compiler.  Mapping from codelets to atoms is
-similar to technology mapping~\cite{micheli, flowmap, spectransform}, where a
-target hardware circuit (represented as a graph) is implemented by tiling the
-circuit graph with primitive circuits from a technology library. \pktlanguage's
-problem is simpler. We only need to verify if a codelet maps to an atom---not
-implement a codelet using multiple atoms.  Recent work~\cite{lavanya_compiler}
-focuses on compiling P4 programs to hardware targets such as the RMT and
-FlexPipe architectures. However, their work focuses on compiling stateless
-data-plane tasks such as forwarding and routing, while \pktlanguage focuses on
-stateful data-plane algorithms.
-
 % TODO: Compare and contrast against NetASM.
 % TODO: Streamline related work discussion considerably.
 % TODO: Compare against SNAP from Princeton.
