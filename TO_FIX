@@ -4,8 +4,6 @@
 3. More articulate characterization of the related work.
 4. Fix issues with SKETCH and bounded integer width.
 5. Point out the many areas of future work.
-6. Simplify description of the routine parts of the compiler.
-7. Verilog circuits now that we have access to CAD libraries.
 8. Proof of correctness of domino.
 9. Work from Parveen Patel's Masters thesis
 10. Add summary of high-level synthesis (synopsis C compiler, Vivado HLS, etc.)
