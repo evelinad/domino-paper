@@ -292,14 +292,11 @@ the width of each pipeline stage, and computational limits on atoms within a
 stage.
 
 \paragraph{Resource limits}
-The problem of handling resource limits can be formulated as
-resource-constrained scheduling~\cite{resource_cons}, where operations are
-scheduled subject to precedence and resource constraints. The problem is
-NP-hard; so we develop a simple heuristic.  We scan each pipeline stage in the
-codelet pipeline starting from the first to check for stage-width limit
-violations.  If so, we insert as many new stages as required and spread
-codelets evenly across these stages.  We continue until either all stage-width
-limits are satisfied or we hit the limit on the number of stages.
+To handle resource limits, we scan each pipeline stage in the codelet pipeline
+starting from the first to check for stage-width limit violations.  If so, we
+insert as many new stages as required and spread codelets evenly across these
+stages.  We continue until all stage-width limits are satisfied or we
+hit the limit on the number of stages.
 
 \paragraph{Computational limits}
 Next, we determine if codelets in the pipeline map one-to-one to atoms provided
