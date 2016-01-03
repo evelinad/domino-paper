@@ -284,36 +284,33 @@ or more updates to the state variable through packet temporaries in between.
 
 \subsection{Code generation}
 \label{ss:code_gen}
-Next, we determine how codelets map one-to-one to atoms provided by the
-\absmachine machine. We consider codelets that do and don't manipulate state
-separately.
- %TODO: Resume here.
-\paragraph{Stateless codelets}
-As mentioned, stateless codelets have only one
-statement in three-address code form (e.g., any of the unshaded boxes in
-Figure~\ref{fig:flowlet_pipeline}). We assume that all
-\absmachine machines support stateless atoms that correspond to a single
-statement in three-address code. P4's primitives~\cite{p4spec} and RMT's VLIW
-action set~\cite{rmt} both resemble this form. Under this assumption,
-each such codelet is mapped to an atom provided by the
-\absmachine machine. If the \absmachine machine supports stateless atoms beyond
-a single three-address code statement, this is still correct, although
-suboptimal. For instance, if the \absmachine machine supports a
-multiply-and-accumulate atom~\cite{mac}, our approach generates two atoms (one
-each for the multiply and accumulate), although one suffices.
-% Anirudh->Alvin: It doesn't for a rather sloppy reason.
-% We basically assume only stateless atoms are supported.
-%\ac{say something
-%about it doesn't affect much for the examples we use in the experiment}
+The final pass of the compiler determines if the code for the Pipelined Virtual
+Switch Machine in the previous pass can be compiled to a hardware target (in
+our case, a \absmachine machine). To do so, we consider three limits present in
+any \absmachine machine: resource limits on the number of pipeline stages and
+the width of each pipeline stage, and computational limits on atoms within a
+stage.
 
-\paragraph{Stateful codelets}
-Stateful codelets have multi-line bodies that need to execute atomically. For
-instance, updating the state variable \texttt{saved\_hop} in
-Figure~\ref{fig:flowlet_pipeline} requires a read followed by a conditional
-write.  It is not apparent whether such codelets can be mapped to an available
-atom. We develop a new technique to determine the implementability of such
-stateful codelets, on a \absmachine machine that provides a specific stateful
-atom template.
+\paragraph{Resource limits}
+The problem of handling resource limits is an instance of resource-constrained
+scheduling, where a dependence graph is scheduled subject to precedence and
+resource constraints. This problem is NP-hard, and so we develop a simple
+heuristic.  We scan each pipeline stage in the codelet pipeline starting from
+the first to check if it violates the stage-width limit. If so, we move an
+arbitrarily chosen codelet from that stage into the next one, creating a new
+stage if required.  We continue until all stage-width limits are satisfied. We
+now count the number of stages to check if it exceeds the limit on the number
+of stages, and reject the code if so.
+
+\paragraph{Computational limits}
+Next, we determine if codelets in the pipeline map one-to-one to atoms provided
+by the \absmachine machine. In general, codelets have multi-line bodies that
+need to execute atomically. For instance, updating the state variable
+\texttt{saved\_hop} in Figure~\ref{fig:flowlet_pipeline} requires a read
+followed by a conditional write.  It is not apparent whether such codelets can
+be mapped to an available atom. We develop a new technique to determine the
+implementability of codelets, on a \absmachine machine that provide an atom
+template.
 
 First, each atom template is parameterized, where the parameters determine the
 actual functionality provided by the atom.  For instance,
@@ -345,13 +342,13 @@ inputs and parameter values need to be specified in the template (e.g., all 8
 bit integers), and our experiments show that the search finishes quickly,
 taking 10 secs at most.
 
-\begin{figure}[!b]
-  \begin{center}
-  \includegraphics[width=0.4\columnwidth]{sketch.pdf}
-  \caption{Overview of SKETCH and its application to atom configuration}
-  \label{fig:sketch}
-  \end{center}
-\end{figure}
+%%\begin{figure}[!b]
+%%  \begin{center}
+%%  \includegraphics[width=0.4\columnwidth]{sketch.pdf}
+%%  \caption{Overview of SKETCH and its application to atom configuration}
+%%  \label{fig:sketch}
+%%  \end{center}
+%%\end{figure}
 
 \begin{figure}[h]
   \begin{minipage}{0.4\columnwidth}
