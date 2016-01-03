@@ -374,17 +374,26 @@ taking 10 secs at most.
   \end{minipage}
 \end{figure}
 
-% TODO: Paragraph discussing relationship to prior compiler work.
 % TODO: Paragraph discussing why optimality is not a goal.
-% TODO: Table showing all the techniques, what each does, and how they tie together.
 % Also, per George, stress clearly what is new relative to standard compiler techniques.
+
+\begin{table}[!t]
+  \begin{scriptsize}
+    \begin{tabular}{|p{0.1\textwidth}|p{0.1\textwidth}|p{0.3\textwidth}}
+  \hline
+  Technique & Prior Work & Differences \\
+  Conversion to straigh-line code & If Conversion~\cite{if_conversion} & No backward control flow (gotos, break, continue) \\
+  SSA & Cytron et. al~\cite{ssa} & SSA runs on straight-line code without any control flow \\
+  Strongly Connected Components & Lam~\cite{lam} & Scheduling in space vs. time \\
+  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll} & Optimal mapping vs. non-optimal mapping \\
+  \end{tabular}
+  \end{scriptsize}
+  \caption{Domino's compiler techniques in relation to prior work}
+  \label{tab:prior_compiler}
+\end{table}
+
 \subsection{Discussion}
 The \pktlanguage compiler borrows many techniques from the compiler literature.
-The \absmachine architecture, however, poses unique challenges for compilation
-requiring a synthesis of techniques that, to the best of our knowledge, is
-novel. Further, as we illustrate throughout this section, constraining
-\pktlanguage for deterministic performance simplifies the \pktlanguage
-compiler relative to mainstream compilers for imperative languages.
 
 This procedure is known as
 if-conversion~\cite{if_conversion}. Unlike traditional languages, performing
