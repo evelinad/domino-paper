@@ -87,14 +87,18 @@ CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or no
 \label{tab:algos}
 \end{table*}
 
-To evaluate \pktlanguage, we expressed several data-plane algorithms
-(Table~\ref{tab:algos}) in \pktlanguage to determine if they can be implemented
-on different \absmachine machines that provide different types of stateful
-atoms (Table~\ref{tab:templates}). Expressing most of these algorithms in
-\pktlanguage involved little effort beyond simply translating their imperative
-code/pseudocode to \pktlanguage---a sign that \pktlanguage's abstractions are
-convenient to use.
-%TODO: Maybe we should do a user study in 6.829 or another class sometime :)?
+We evaluate \pktlanguage's expressiveness by expressing several data-plane
+algorithms (Table~\ref{tab:algos}) (\S\ref{ss:expressiveness}). We then design
+a set of \absmachine machines that serve as compiler targets for \pktlanguage.
+We show that these machines are readily feasible in today's transistor
+technology and their atoms incur modest area overhead relative to a baseline
+switching chip. Next, we use the \pktlanguage compiler to compile the programs
+in Table~\ref{tab:algos} to the targets in Table~\ref{tab:templates}.  We
+conclude by quantitatively demonstrating a tradeoff between a target's
+programmability (the space of data-plane algorithms that it can run at line
+rate) and the target's performance (the absolute line rate it can support).
+
+\subsection{Expressiveness}
 
 %Anirudh: Chang felt this was incidental.
 %%We did, however, modify CoDel. CoDel is a head-drop active queue
@@ -104,7 +108,7 @@ convenient to use.
 %%switch can dequeue only once per packet. Dropping these dequeued packets,
 %%instead of marking them, leads to an idle line and wasted capacity.
 
-\subsection{Experimental procedure}
+\subsection{Compiler targets}
 As mentioned in \S\ref{ss:code_gen}, we focus only on stateful atoms and assume
 all stateless codelets are supported by a \absmachine machine because they are
 single three-address code statements. For simplicity, the stateful atoms we consider
@@ -123,6 +127,7 @@ in Table~\ref{tab:templates}, and hence the \absmachine machines providing
 them, to form a containment hierarchy: each atom can express all data-plane
 algorithms that its predecessor can.
 
+\subsection{Compiling \pktlanguage programs to \absmachine machines}
 We now consider every atom/\absmachine machine from Table~\ref{tab:templates},
 and every data-plane algorithm from Table~\ref{tab:algos} to determine if the
 algorithm is \textit{implementable} on a particular \absmachine machine. We say
@@ -133,7 +138,19 @@ atoms are arranged in a containment hierarchy, we list the \textit{least
 expressive} atom that can be used to implement a data-plane algorithm in
 Table~\ref{tab:algos}.
 
-\subsection{Interpreting the results}
+The data-plane algorithms we consider are all under 100 lines of code.  Time
+spent in the front-end is negligible; instead, compilation time is dominated by
+SKETCH. To speed up the search, we limit SKETCH to search for constants (e.g.,
+for addition) of size up to 5 bits, given that the constants we observe within
+stateful codelets in our algorithms are small.
+
+Quantitatively, our longest compilation time is
+10 seconds when CoDel doesn't map to a \absmachine machine with the Pairs atom.
+This time will increase if we increase the bit width of constants that SKETCH
+has to search; however, because data-plane algorithms are small,
+we don't expect compilation times to be a concern.
+
+\textbf{Interpreting the results}
 Table~\ref{tab:algos} tells a network programmer the ``minimal atom'' required
 to run a data-plane algorithm at line rate. For an ASIC engineer, the same
 table describes the algorithms that are implementable on a \absmachine machine
@@ -175,6 +192,7 @@ component/codelet, requiring a three-way state update.
 %%We leave the problem of
 %%approximating CoDel/trTCM to fit within a particular atom or conversely,
 %%designing more complex atoms to support them to future work.
+
 \subsection{Performance vs. programmability}
 \label{ss:perfprog}
 
@@ -199,18 +217,3 @@ permit larger propagation delays, more expressive atoms, and more data-plane
 algorithms. The end result is a programmability-performance curve where the
 number of implementable algorithms (programmability) increases as the line rate
 decreases (performance).
-
-\subsection{Compilation times}
-The data-plane algorithms we consider are all under 100 lines of code.  Time
-spent in the front-end is negligible; instead, compilation time is dominated by
-SKETCH. To speed up the search, we limit SKETCH to search for constants (e.g.,
-for addition) of size up to 5 bits, given that the constants we observe within
-stateful codelets in our algorithms are small.
-
-Quantitatively, our longest compilation time is
-10 seconds when CoDel doesn't map to a \absmachine machine with the Pairs atom.
-This time will increase if we increase the bit width of constants that SKETCH
-has to search; however, because data-plane algorithms are small,
-we don't expect compilation times to be a concern.
-
-%TODO: CAD synthesis results for various atoms.
