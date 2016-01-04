@@ -6,27 +6,28 @@
 
 \begin{table}[!t]
   \begin{scriptsize}
-  \begin{tabular}{|p{0.1\textwidth}|p{0.33\textwidth}|}
+  \begin{tabular}{|p{0.1\textwidth}|p{0.23\textwidth}|p{0.1\textwidth}|}
     \hline
-    Atom & Description \\
+    Atom & Description & Area in square microns \\
     \hline
-    Write & Write packet field/constant into single state variable. \\
+    Read/Write & Read/Write packet field/constant into single state variable. & 249 \\
     \hline
-    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. \\
+    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. & 430 \\
     \hline
-    Predicated ReadAddWrite (RAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. \\
+    Predicated ReadAddWrite (RAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. & 790 \\
     \hline
-    IfElse ReadAddWrite (IfElseRAW) & Execute two separate RAWs: one each for when a predicate is true or false.\\
+    IfElse ReadAddWrite (IfElseRAW) & Execute two separate RAWs: one each for when a predicate is true or false. & 985 \\
     \hline
-    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. \\
+    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. & 1301 \\
     \hline
-    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. \\
+    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. & 3091 \\
     \hline
-    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. \\
+    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. & 4440 \\
     \hline
   \end{tabular}
   \end{scriptsize}
-  \caption{Atoms used in evaluation. Appendix A provides the SKETCH code and
+  \caption{Stateful atoms, along with their area overhead in a 32 nm standard-cell library.
+    All atoms meet timing at 1GHz. Appendix A provides the SKETCH code and
   circuit diagrams for these atoms.}
   \label{tab:templates}
 \end{table}
@@ -146,46 +147,83 @@ in more concise and correct code relative to P4 for stateful data-plane algorith
 %%switch can dequeue only once per packet. Dropping these dequeued packets,
 %%instead of marking them, leads to an idle line and wasted capacity.
 
-%TODO: Continue from here.
-%\subsection{Compiler targets}
-% Stress that we use a real transistor technology node here.
-%Need to decide on two different aspects
-%1. Computational limits: atom definitions.
-% --> Disclaim how it's not easy to break the chicken-or-egg problem but we
-%  have to start somewhere.
-% --> Distinguish stateful from stateless atoms (refer Section 2).
-% --> Stateless is easier to design, basically every 3-operand code instruction (meets timing at 1 GHz).
-% --> Stateful depends on what algorithms you want to run and you need to break the cycle between the algorithm
-%     and the instructions somewhere. We do this by inspecting the codelet pipelines and extracting generic circuits
-%     from them that map a subset of algorithms (this isn't very clear).
-% --> These all meet timing at 1 GHz and have area overheads of ...
-%2. Resource limits: number of atoms per stage and number of stages.
-% --> How do we size these?
-% --> Use RMT paper as a rough guideline.
-% --> Start with a 200 mm^2 chip.
-% --> Dedicate about 7% to stateless atoms, verify we get a number similar to RMT.
-% --> How many stateful atoms? Besides area, memory partitioning is a much bigger issue
-%     and ends up being the bottleneck.
-%     (private conversations indicate O(10) per stage is all that's doable).
-%============================================ OLD text below ==============================
 \subsection{Compiler targets}
-As mentioned in \S\ref{ss:code_gen}, we focus only on stateful atoms and assume
-all stateless codelets are supported by a \absmachine machine because they are
-single three-address code statements. For simplicity, the stateful atoms we
-consider only permit state updates and forbid packet field updates intermixed
-with state updates.  Assuming the ability to read a state variable\footnote{The
-inability to read a state variable renders it powerless!}, such field updates
-can be treated as stateless operations in subsequent pipeline stages.
 
-We also assume every \absmachine machine provides only one stateful atom
-template, though we don't restrict the number of instances of this template.
-This is because ASIC engineers prefer to design, implement, verify, and
-physically layout one circuit, thereby amortizing design and layout effort over
-multiple instances of the same circuit.  Table~\ref{tab:templates} gradually
-increases the capability of this single atom template.  We designed the atoms
-in Table~\ref{tab:templates}, and hence the \absmachine machines providing
-them, to form a containment hierarchy: each atom can express all data-plane
-algorithms that its predecessor can.
+We design a concrete set of compiler targets for \pktlanguage based on the
+\absmachine machine model. First, we specify computational limits on atoms in
+each compiler target using atom templates. By expressing these atoms as digital
+circuits, we quantify the area of each atom in a 32 nm standard-cell library
+when running at 1GHz using the Synopsys Design Compiler~\cite{synopsys_dc}.
+Second, using an individual atom's area and a switching chip's
+area~\cite{gibb_parsing}, we determine resource limits on the number of atoms
+in each stage and the number of stages in a pipeline.
+
+\paragraph{Computational limits}
+%TODO: Ensure Sec 2 shows that stateless ops can be spread out across stages
+An atom's computational limits dictate what algorithms can or can't be run on
+the \absmachine machine at line rate. Stateless atoms are easier to design
+because any stateless operation can be spread out across multiple stages of the
+pipeline without violating correctness. We design a stateless atom
+(Table~\ref{tab:stateless_atom}) that can support arithmetic, logical,
+relational, or conditional operations on a set of packet fields, where any
+packet field can also be substituted with a constant operand. The resulting
+circuit meets timing at 1GHz and occupies an area of 1383 square microns.
+
+Designing stateful atoms is more involved because they depend on which
+algorithms the switch needs to support at line rate. A more complex stateful
+atom can support more data-plane algorithms (we quantify this in the next
+section), but, at the same time, incurs greater area per atom. To illustrate
+this, we design a containment hierarchy of stateful atoms, where each atom can
+express all stateful operations that could be expressed by its predecessor
+(Table~\ref{tab:templates}). Again, the resulting circuits meet timing at 1 GHz
+and occupy varying amounts of area depending on their complexity (last column
+in Table~\ref{tab:templates}).
+
+%TODO==========resume here ============
+\paragraph{Resource limits}
+Now that we have a single stateless atom and multiple stateful atoms, we can
+design compiler targets using these atoms.  We design one compiler target for
+each combination of a stateful atom in Table~\ref{tab:templates} along with the
+single stateless atom in Table~\ref{tab:stateless_atom}. We determine resource
+limits for stateful and stateless atoms separately.
+
+For the stateless atom, assuming a switching chip's area is 200
+$mm^2$~\cite{gibb_parsing}, and an acceptable overhead of 7\%\footnote{We use
+area overheads given in~\cite{rmt}} in die area for supporting these
+atoms~\cite{rmt}, we can support ~10000 stateless atoms, given the area
+overhead of 1383 square microns per instance.  This number is comparable in
+size to the 7000 VLIW ALUs supported by RMT~\cite{rmt}, which are similar in
+complexity to our stateless atom. If these 10000 atoms were to be spread across
+the same number of stages as RMT (30), we could support up to 300 stateless atoms
+per stage.
+
+A similar analysis for stateful atoms would imply around 100 stateless atoms
+per stage for the most complex stateful atom with an area of 4000 square
+microns (about thrice that of the stateless atom). However, stateful atoms need
+to access memory banks that store state in each stage and the overhead of
+providing ~100 independent memory banks in each stage with the ability to read
+and write once per clock is prohitibively
+expensive~\cite{private_conversations_with_mike}.  In practice, the overhead of
+providing independent memory banks limits the number of stateful atoms to
+around 10 per stage, which greatly diminishes the area overhead for these
+atoms.
+
+To summarize, we can now place resource limits on different atoms for our
+compiler targets. We assume 30 stages in total, 300 stateless atoms per stage
+and 10 stateful atoms per stage for all experiments. We make no claim that this
+is the only design. We only claim that this is readily feasible with today's
+technology and can be used to implement a wide class of data-plane algorithms
+---far beyond anything a line-rate switch can do today. As with designing any
+other architectural substrate (CPU, GPU, or DSP), one must start somewhere and
+refine the architecture in response to the algorithms using it. In a similar
+vein, designs for \absmachine machines will evolve as data-plane algorithms
+demand more of the hardware.
+
+%We also assume every \absmachine machine provides only one stateful atom
+%template, though we don't restrict the number of instances of this template.
+%This is because ASIC engineers prefer to design, implement, verify, and
+%physically layout one circuit, thereby amortizing design and layout effort over
+%multiple instances of the same circuit.
 
 \subsection{Compiling \pktlanguage programs to \absmachine machines}
 We now consider every target from Table~\ref{tab:templates}, and every
