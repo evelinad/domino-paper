@@ -1,6 +1,8 @@
 \section{Evaluation}
 
-% TODO: Compare against some P4 programs, for instance, flowlet switching and HULA.
+%TODO: Compare against some P4 programs, for instance, flowlet switching and HULA.
+%TODO: Be consistent about machine vs. target.
+%TODO: Say that atoms and targets are interchangeable.
 
 \label{s:eval}
 
@@ -226,41 +228,30 @@ demand more of the hardware.
 %multiple instances of the same circuit.
 
 \subsection{Compiling \pktlanguage programs to \absmachine machines}
+
 We now consider every target from Table~\ref{tab:templates}, and every
 data-plane algorithm from Table~\ref{tab:algos} to determine if the algorithm
 is \textit{implementable} on a particular \absmachine machine. We say an
-algorithm is implementable on a \absmachine machine, if every stateful codelet
-within the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to the
-single stateful atom provided by the \absmachine machine. Because atoms are
-arranged in a containment hierarchy, we list the \textit{least expressive} atom
-that can be used to implement a data-plane algorithm in Table~\ref{tab:algos}.
+algorithm is implementable on a \absmachine machine, if every codelet within
+the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to either the
+stateful or stateless atom provided by the \absmachine machine. Because
+stateful atoms are arranged in a containment hierarchy, we list the
+\textit{least expressive} atom that can be used to implement a data-plane
+algorithm in Table~\ref{tab:algos}.
 
-The data-plane algorithms we consider are all under 100 lines of code.  Time
-spent in the front-end is negligible; instead, compilation time is dominated by
-SKETCH. To speed up the search, we limit SKETCH to search for constants (e.g.,
-for addition) of size up to 5 bits, given that the constants we observe within
-stateful codelets in our algorithms are small.
-
-Quantitatively, our longest compilation time is
-10 seconds when CoDel doesn't map to a \absmachine machine with the Pairs atom.
-This time will increase if we increase the bit width of constants that SKETCH
-has to search; however, because data-plane algorithms are small,
-we don't expect compilation times to be a concern.
-
-\textbf{Interpreting the results}
 Table~\ref{tab:algos} tells a network programmer the ``minimal atom'' required
 to run a data-plane algorithm at line rate. For an ASIC engineer, the same
 table describes the algorithms that are implementable on a \absmachine machine
 with a specific stateful atom. For instance, a \absmachine machine with the
-Pairs atom can implement the first eight algorithms, while a machine with a
+Pair atom can implement the first eight algorithms, while a machine with a
 simpler RAW atom can implement only the first two.
 
-We also discuss broader lessons for designing programmable switching chips.
-First, atoms supporting stateful operations on a single state variable are
-sufficient for several data-plane algorithms (Bloom Filters through Adaptive
-Virtual Queue in Table~\ref{tab:algos}). However, there are algorithms that
-need the ability to update a pair of state variables atomically. One example is
-CONGA, whose code we reproduce below:
+We note broader lessons for designing programmable switching chips.  First,
+atoms supporting stateful operations on a single state variable are sufficient
+for several data-plane algorithms (Bloom Filters through Adaptive Virtual Queue
+in Table~\ref{tab:algos}). However, there are algorithms that need the ability
+to update a pair of state variables atomically. One example is CONGA, whose
+code we reproduce below:
 \begin{verbatim}
   if (p.util < best_path_util[p.src]) {
     best_path_util[p.src] = p.util;
@@ -271,24 +262,33 @@ CONGA, whose code we reproduce below:
 \end{verbatim}
 Here, \texttt{best\_path} (the path id of the best path for a particular
 destination) is updated conditioned on \texttt{best\_path\_util} (the
-utilization of the best path to that destination)\footnote{{\tt p.src} is the address
-  of the host originating this message, and hence the destination for the host
-receiving it and executing CONGA.} and vice versa. There is no way to separate
-the two state variables into separate stages and still guarantee correctness.
+utilization of the best path to that destination)\footnote{{\tt p.src} is the
+  address of the host originating this message, and hence the destination for
+the host receiving it and executing CONGA.} and vice versa. There is no way to
+separate the two state variables into separate stages and still guarantee
+correctness. The Pair atom, where the update to a state variable is conditioned
+on a predicate of a pair of state variables, allows us to implement CONGA at
+line rate.  
 %TODO: Mihai: Add figure of CONGA's SCC here maybe?
+%TODO: Try and get an atom for CoDel and trTCM.
 
-The Pairs atom, where the update to a state variable is conditioned on a
-predicate of a pair of state variables, allows us to implement CONGA at line
-rate.  However, it is \textit{still} insufficient for algorithms such as
+However, it is \textit{still} insufficient for algorithms such as
 CoDel~\cite{codel} and the two-rate three-color meter (trTCM)~\cite{trTCM}.  On
 a positive note, however, we observed that the codelets in both trTCM and CoDel
 are still restricted to a pair of state variables.  We haven't yet encountered
 a triplet of state variables all falling in the same strongly connected
 component/codelet, requiring a three-way state update.
 
-%%We leave the problem of
-%%approximating CoDel/trTCM to fit within a particular atom or conversely,
-%%designing more complex atoms to support them to future work.
+\paragraph{Compilation time}
+The data-plane algorithms we consider are all under 100 lines of code.  Time
+spent in the front-end is negligible; compilation time is dominated by SKETCH.
+To speed up the search, we limit SKETCH to search for constants (e.g., for
+addition) of size up to 5 bits, given that the constants we observe within
+stateful codelets in our algorithms are small. Our longest compilation time is
+10 seconds when CoDel doesn't map to a \absmachine machine with the Pair atom.
+This time will increase if we increase the bit width of constants that SKETCH
+has to search; however, because data-plane algorithms are small, we don't
+expect compilation times to be a concern.
 
 \subsection{Performance vs. programmability}
 \label{ss:perfprog}
