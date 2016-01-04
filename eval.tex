@@ -146,14 +146,36 @@ in more concise and correct code relative to P4 for stateful data-plane algorith
 %%switch can dequeue only once per packet. Dropping these dequeued packets,
 %%instead of marking them, leads to an idle line and wasted capacity.
 
+%TODO: Continue from here.
+%\subsection{Compiler targets}
+% Stress that we use a real transistor technology node here.
+%Need to decide on two different aspects
+%1. Computational limits: atom definitions.
+% --> Disclaim how it's not easy to break the chicken-or-egg problem but we
+%  have to start somewhere.
+% --> Distinguish stateful from stateless atoms (refer Section 2).
+% --> Stateless is easier to design, basically every 3-operand code instruction (meets timing at 1 GHz).
+% --> Stateful depends on what algorithms you want to run and you need to break the cycle between the algorithm
+%     and the instructions somewhere. We do this by inspecting the codelet pipelines and extracting generic circuits
+%     from them that map a subset of algorithms (this isn't very clear).
+% --> These all meet timing at 1 GHz and have area overheads of ...
+%2. Resource limits: number of atoms per stage and number of stages.
+% --> How do we size these?
+% --> Use RMT paper as a rough guideline.
+% --> Start with a 200 mm^2 chip.
+% --> Dedicate about 7% to stateless atoms, verify we get a number similar to RMT.
+% --> How many stateful atoms? Besides area, memory partitioning is a much bigger issue
+%     and ends up being the bottleneck.
+%     (private conversations indicate O(10) per stage is all that's doable).
+%============================================ OLD text below ==============================
 \subsection{Compiler targets}
 As mentioned in \S\ref{ss:code_gen}, we focus only on stateful atoms and assume
 all stateless codelets are supported by a \absmachine machine because they are
-single three-address code statements. For simplicity, the stateful atoms we consider
-only permit state updates and forbid packet field updates intermixed with state
-updates.  Assuming the ability to read a state variable\footnote{The inability
-to read a state variable renders it powerless!}, such field updates can be
-treated as stateless operations in subsequent pipeline stages.
+single three-address code statements. For simplicity, the stateful atoms we
+consider only permit state updates and forbid packet field updates intermixed
+with state updates.  Assuming the ability to read a state variable\footnote{The
+inability to read a state variable renders it powerless!}, such field updates
+can be treated as stateless operations in subsequent pipeline stages.
 
 We also assume every \absmachine machine provides only one stateful atom
 template, though we don't restrict the number of instances of this template.
@@ -166,15 +188,14 @@ them, to form a containment hierarchy: each atom can express all data-plane
 algorithms that its predecessor can.
 
 \subsection{Compiling \pktlanguage programs to \absmachine machines}
-We now consider every atom/\absmachine machine from Table~\ref{tab:templates},
-and every data-plane algorithm from Table~\ref{tab:algos} to determine if the
-algorithm is \textit{implementable} on a particular \absmachine machine. We say
-an algorithm is implementable on a \absmachine machine, if every stateful
-codelet within the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to
-the single stateful atom provided by the \absmachine machine. Because
-atoms are arranged in a containment hierarchy, we list the \textit{least
-expressive} atom that can be used to implement a data-plane algorithm in
-Table~\ref{tab:algos}.
+We now consider every target from Table~\ref{tab:templates}, and every
+data-plane algorithm from Table~\ref{tab:algos} to determine if the algorithm
+is \textit{implementable} on a particular \absmachine machine. We say an
+algorithm is implementable on a \absmachine machine, if every stateful codelet
+within the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to the
+single stateful atom provided by the \absmachine machine. Because atoms are
+arranged in a containment hierarchy, we list the \textit{least expressive} atom
+that can be used to implement a data-plane algorithm in Table~\ref{tab:algos}.
 
 The data-plane algorithms we consider are all under 100 lines of code.  Time
 spent in the front-end is negligible; instead, compilation time is dominated by
