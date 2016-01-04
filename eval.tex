@@ -1,11 +1,6 @@
 \section{Evaluation}
 
-% Write a summary section at the beginning talking about how all these together form the eval.
-% Sec 1. Expressiveness of programs, comparison with P4's flowlet switching.
 % TODO: Compare against some P4 programs, for instance, flowlet switching and HULA.
-% Sec 2. Compiler targets.
-% Sec 3. Compiling domino programs and compilation times.
-% Sec 4. Performance-programmability tradeoffs
 
 \label{s:eval}
 
@@ -87,18 +82,61 @@ CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or no
 \label{tab:algos}
 \end{table*}
 
-We evaluate \pktlanguage's expressiveness by expressing several data-plane
-algorithms (Table~\ref{tab:algos}) (\S\ref{ss:expressiveness}). We then design
-a set of \absmachine machines that serve as compiler targets for \pktlanguage.
-We show that these machines are readily feasible in today's transistor
+We evaluate \pktlanguage's expressiveness by using it to express several
+data-plane algorithms (Table~\ref{tab:algos}). We then design a set of
+\absmachine machines (Table~\ref{tab:templates}) that serve as compiler targets
+for \pktlanguage.  These machines are readily feasible in today's transistor
 technology and their atoms incur modest area overhead relative to a baseline
 switching chip. Next, we use the \pktlanguage compiler to compile the programs
 in Table~\ref{tab:algos} to the targets in Table~\ref{tab:templates}.  We
 conclude by quantitatively demonstrating a tradeoff between a target's
 programmability (the space of data-plane algorithms that it can run at line
-rate) and the target's performance (the absolute line rate it can support).
+rate) and the target's performance (the maximum line rate it can support).
 
 \subsection{Expressiveness}
+\label{ss:Expressiveness}
+
+To evaluate \pktlanguage's expressiveness, we express several data-plane
+algorithms (Table~\ref{tab:algos}) in \pktlanguage. These algorithms encompass
+a variety of data-plane functionality: data-plane load balancing, in-network
+congestion control, active queue management, and measurement. In addition,
+\pktlanguage has been used for programmable scheduling~\cite{prog_sched_arxiv}.
+In all these cases, the algorithms are naturally expressed as blocks of
+imperative code. Expressing an algorithm in \pktlanguage involved a
+straightforward translation of the algorithm's reference code/pseudo code to
+\pktlanguage.
+%TODO: Maybe add a few examples from Chimera/Bohatei on security.
+
+By contrast, expressing one of these algorithms in a language like P4---as one
+would today---requires manually teasing out portions of the algorithm that can
+reside in independent match-action tables and then chaining these tables
+together to implement the algorithm---in essence, manually carrying out the
+transformations in \pktlanguage's compiler.
+
+\paragraph{Quantitative comparison against P4}
+Of the algorithms in Table~\ref{tab:algos}, only flowlet switching has a
+hand-written P4 implementation today~\cite{p4_flowlet}. This implementation
+requires 292 lines of uncommented P4, in comparison to the 32 lines of
+\pktlanguage in Figure~\ref{fig:flowlet_code}. Further, the same implementation
+only runs on a software switch because it requires synchronized access to the
+saved\_hop variable from two adjacent pipeline stages---something that is very
+challenging on shared-nothing line-rate switches. This illustrates the
+additional cognitive overhead when programming with P4: reasoning about how
+state variables are distributed across a pipeline is challenging and is best
+left to a compiler where all algorithms can benefit from it.
+
+% Keep this?
+Ideally, we would be able to repeat the same comparison with P4 for all other
+algorithms. But, in part due to the difficulty of manually writing stateful
+algorithms in P4, these algorithms don't have P4 counterparts. To counter this,
+we wrote a backend for \pktlanguage that generated P4 from \pktlanguage by
+turning every codelet into a default action~\cite{p4spec} in P4.  We report the
+number of lines of code in the resulting P4 programs in
+Table~\ref{p4_counterparts} and compare them with programs written in
+\pktlanguage. While the LOC count will be lesser for manually written P4
+programs, we hope the overall message is clear: coding in \pktlanguage results
+in more concise and correct code relative to P4 for stateful data-plane algorithms.
+%TODO: Get this table.
 
 %Anirudh: Chang felt this was incidental.
 %%We did, however, modify CoDel. CoDel is a head-drop active queue
