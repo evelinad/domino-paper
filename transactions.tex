@@ -1,3 +1,7 @@
+%TODO: Talk about how transactions can be composed.
+% We 'll need to do this for the PIFO work as well.
+%TODO: Do we mention limitations of transactions right here?
+
 \section{Programming using packet transactions}
 \label{s:transactions}
 
@@ -135,6 +139,14 @@ on in the router. The all-or-nothing model provides predictable performance for
 free---in contrast to software router platforms that need to be explicitly architected
 for predictability~\cite{dobrescu2012, wenfei15}.
 
-%TODO: Talk about how transactions can be composed.
-% We 'll need to do this for the PIFO work as well.
-%TODO: Do we mention limitations of transactions right here?
+\subsection{Limitations of packet transactions}
+
+Packet transactions are a good fit for data-plane algorithms that do a small
+amount of work per packet (i.e. where the amount of work can be bounded at
+compile time) and manipulate only packet headers. There are many data-plane
+algorithms like deep packet inspection and wan optimization that access packet
+payloads. These algorithms require a switch to parse not just packet headers,
+but the packet payload as well---effectively parsing a much larger header
+consisting of each byte in the packet payload. Parsing such deep parse graphs
+is challenging at line rate. Put differently, this limitation of packet
+transactions reflects a limitation of the underlying \absmachine machine.
