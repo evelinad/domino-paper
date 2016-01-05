@@ -98,30 +98,36 @@ would today---requires manually teasing out portions of the algorithm that can
 reside in independent match-action tables and then chaining these tables
 together to implement the algorithm. In essence, this requires the programmer
 to manually carry out the transformations in \pktlanguage's compiler, which is
-both tedious and error prone.
+both tedious (as measured by line of code counts) and error prone (in terms of
+maintaining correctness).
 
 \paragraph{Quantitative comparison against P4} Of the algorithms in
 Table~\ref{tab:algos}, only flowlet switching has a hand-written P4
 implementation today~\cite{p4_flowlet}. This implementation requires 292 lines
-of uncommented P4, in comparison to the 32 lines of \pktlanguage in
-Figure~\ref{fig:flowlet_code}. Further, the same implementation only runs on a
-software switch because it requires synchronized access to the saved\_hop
-variable from two adjacent pipeline stages---something that is very challenging
-on shared-nothing line-rate switches. This illustrates the additional
-programmer burden when programming with P4: reasoning about how state variables
-are distributed across a pipeline is challenging and tedious and is best moved
-into a compiler where all algorithms can benefit from it.
+of uncommented P4, in comparison to the 37 lines of \pktlanguage in
+Figure~\ref{fig:flowlet_code} and requires the programmer to manually specify
+tables, how they are chained, what headers are required, and how to parse these
+headers.
+
+Further, the same implementation is only guaranteed to be correct on a software
+switch because it requires synchronized access to the saved\_hop variable from
+two adjacent pipeline stages---something that is very challenging on
+shared-nothing line-rate switches. This illustrates the additional programmer
+burden when programming with P4: reasoning about how state variables are
+distributed across a pipeline is challenging and tedious and is best moved into
+a compiler where all algorithms can benefit from it.
 
 % Keep this?
 Ideally, we would repeat the same comparison with P4 for all other algorithms.
 But, in part due to the difficulty of manually writing stateful algorithms in
-P4, these algorithms don't have P4 counterparts today. To counter this, we
+P4, these algorithms don't have P4 counterparts today. To address this, we
 wrote a backend for \pktlanguage that generated P4 from \pktlanguage.  We
 report the number of lines of code in the resulting P4 programs in
 Table~\ref{p4_counterparts} and compare them with programs written in
 \pktlanguage. While the LOC count could be lesser for manually written P4
-programs, the overall message is simple: coding in \pktlanguage results in more
-concise and correct code relative to P4 for stateful data-plane algorithms.
+programs, the overall message is simple: for stateful data-plane algorithms,
+coding in \pktlanguage is easier relative to P4 and results in more concise
+(between 3 and 8\times) and correct code.
 
 %Anirudh: Chang felt this was incidental.
 %%We did, however, modify CoDel. CoDel is a head-drop active queue
@@ -336,6 +342,3 @@ rate it can support in packets / sec) decreases.}
          for a multiplexer, RELOP stands for a relational operation between two operands.}
   \label{tab:circuits}
 \end{table}
-
-
-
