@@ -41,23 +41,55 @@
 
 \begin{table}[!t]
   \begin{scriptsize}
-    \begin{tabular}{|p{0.08\textwidth}|p{0.29\textwidth}|p{0.04\textwidth}|}
+  \begin{tabular}{|p{0.08\textwidth}|p{0.12\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|}
   \hline
-  Atom & Circuit & Element depth \\
+  Atom & Min. delay (picoseconds) & Programmability (\# of algorithms implemented by atom) & Performance (Max. line rate (GHz)) \\
   \hline
-  Write & \includegraphics[width=0.2\textwidth]{rw.pdf} & 1 \\
+  Write & 176 & 1  & 5.68 \\
   \hline
-  ReadAddWrite (RAW) & \includegraphics[width=0.2\textwidth]{raw.pdf} & 2\\
+  ReadAddWrite (RAW) & 316 & 2 & 3.16\\
   \hline
   \pbox{0.1\textwidth}
   {Predicated\\
-  ReadAddWrite (PRAW)} & \includegraphics[width=0.3\textwidth]{pred_raw.pdf}  & 3\\
+  ReadAddWrite (PRAW)} & 393 & 4 & 2.54 \\
+  \hline
+  IfElse ReadAddWrite (IfElseRAW) & 392 & 5 & 2.55 \\
+  \hline
+  Subtract (Sub) & 400 & 6 & 2.50 \\
+  \hline
+  Nested Ifs (Nested) & 574 & 7 & 1.74 \\
+  \hline
+  Paired updates (Pairs) & 586 & 8 & 1.70 \\
   \hline
   \end{tabular}
 \end{scriptsize}
-\caption{Element depth and propagation delay increases with complexity of atoms.}
-  \label{fig:element_depth}
+\caption{Programmability (the number of algorithms an atom implements)
+  increases with more complex atoms, but performance (the maximum line
+rate it can support in packets / sec) decreases.}
+  \label{tab:perfprog}
 \end{table}
+
+\begin{table}[!t]
+  \begin{scriptsize}
+    \begin{tabular}{|p{0.08\textwidth}|p{0.28\textwidth}|p{0.1\textwidth}|}
+  \hline
+  Atom & Circuit & Min. delay in picoseconds \\
+  \hline
+  Write & \includegraphics[width=0.2\textwidth]{rw.pdf} & 176 \\
+  \hline
+  ReadAddWrite (RAW) & \includegraphics[width=0.2\textwidth]{raw.pdf} & 316\\
+  \hline
+  \pbox{0.1\textwidth}
+  {Predicated\\
+  ReadAddWrite (PRAW)} & \includegraphics[width=0.2\textwidth]{pred_raw.pdf}  & 393 \\
+  \hline
+  \end{tabular}
+\end{scriptsize}
+\caption{Minimum delay of an atom increases with the depth of its circuit. MUX stands
+         for a multiplexer, RELOP stands for a relational operation between two operands.}
+  \label{tab:circuits}
+\end{table}
+
 
 \begin{table*}[!t]
   \begin{tabular}{|p{0.16\textwidth}|p{0.47\textwidth}|p{0.09\textwidth}|p{0.06\textwidth}|p{0.07\textwidth}|}
@@ -133,16 +165,16 @@ state variables are distributed across a pipeline is challenging and is best
 left to a compiler where all algorithms can benefit from it.
 
 % Keep this?
-Ideally, we would be able to repeat the same comparison with P4 for all other
-algorithms. But, in part due to the difficulty of manually writing stateful
-algorithms in P4, these algorithms don't have P4 counterparts. To counter this,
-we wrote a backend for \pktlanguage that generated P4 from \pktlanguage by
-turning every codelet into a default action~\cite{p4spec} in P4.  We report the
-number of lines of code in the resulting P4 programs in
-Table~\ref{p4_counterparts} and compare them with programs written in
-\pktlanguage. While the LOC count will be lesser for manually written P4
-programs, we hope the overall message is clear: coding in \pktlanguage results
-in more concise and correct code relative to P4 for stateful data-plane algorithms.
+Ideally, we would repeat the same comparison with P4 for all other algorithms.
+But, in part due to the difficulty of manually writing stateful algorithms in
+P4, these algorithms don't have P4 counterparts today. To counter this, we
+wrote a backend for \pktlanguage that generated P4 from \pktlanguage by turning
+every codelet into a default action~\cite{p4spec} in P4.  We report the number
+of lines of code in the resulting P4 programs in Table~\ref{p4_counterparts}
+and compare them with programs written in \pktlanguage. While the LOC count
+will be lesser for manually written P4 programs, we hope the overall message is
+clear: coding in \pktlanguage results in more concise and correct code relative
+to P4 for stateful data-plane algorithms.
 
 %Anirudh: Chang felt this was incidental.
 %%We did, however, modify CoDel. CoDel is a head-drop active queue
@@ -244,7 +276,7 @@ Table~\ref{tab:algos} tells a network programmer the ``minimal atom'' required
 to run a data-plane algorithm at line rate. For an ASIC engineer, the same
 table describes the algorithms that are implementable on a \absmachine machine
 with a specific stateful atom. For instance, a \absmachine machine with the
-Pair atom can implement the first eight algorithms, while a machine with a
+Pairs atom can implement the first eight algorithms, while a machine with a
 simpler RAW atom can implement only the first two.
 
 We note broader lessons for designing programmable switching chips.  First,
@@ -267,7 +299,7 @@ utilization of the best path to that destination)\footnote{{\tt p.src} is the
   address of the host originating this message, and hence the destination for
 the host receiving it and executing CONGA.} and vice versa. There is no way to
 separate the two state variables into separate stages and still guarantee
-correctness. The Pair atom, where the update to a state variable is conditioned
+correctness. The Pairs atom, where the update to a state variable is conditioned
 on a predicate of a pair of state variables, allows us to implement CONGA at
 line rate.
 
@@ -284,7 +316,7 @@ Compilation time is dominated by SKETCH's search procedure.  To speed up the
 search, we limit SKETCH to search for constants (e.g., for addition) of size up
 to 5 bits, given that the constants we observe within stateful codelets in our
 algorithms are small. Our longest compilation time is 10 seconds when CoDel
-doesn't map to a \absmachine machine with the Pair atom.  This time will
+doesn't map to a \absmachine machine with the Pairs atom.  This time will
 increase if we increase the bit width of constants that SKETCH has to search;
 however, because the data-plane algorithms themselves are small, we don't
 expect compilation times to be a concern.
@@ -294,22 +326,15 @@ expect compilation times to be a concern.
 
 While powerful atoms like Pairs can implement more data-plane algorithms, they
 come at a cost.  A more expressive atom needs more gates in hardware and incurs
-longer propagation delays.  As an illustration, consider the circuits
-(Table~\ref{fig:element_depth}) for the first three atoms from Table
-~\ref{tab:templates}. We use the number of elements (muxes, adders,
-subtractors, and relational operators) on the longest path between input and
-output, the element depth, as a crude proxy for propagation delay, and observe
-that it increases with atom complexity. At some point, the propagation delay
-may prevent the circuit from meeting a particular line rate.  We plan to
-synthesize these atoms to circuits in a standard cell library to study this
-more rigorously.
-
-The larger takeaway is that we can begin to quantify the
-programmability-performance tradeoff that switch designers intuitively
-understand. From a corpus of data-plane algorithms, we can rigorously---modulo
-compiler inefficiencies---determine which of them can run at a given line rate,
-given the stateful atom supported at that line rate. A lower line rate would
-permit larger propagation delays, more expressive atoms, and more data-plane
-algorithms. The end result is a programmability-performance curve where the
-number of implementable algorithms (programmability) increases as the line rate
-decreases (performance).
+longer propagation delays at the circuit level. A longer propagation delay
+implies a lower clock frequency (the inverse of propagation delay) and hence a
+lower line rate. To quantify this intuition, we consider each stateful atom
+from Table~\ref{tab:templates} and synthesize a circuit with the lowest
+possible delay using the Synopsys Design Compiler \footnote{The compiler only
+  takes clock frequency as a constraint, not an objective to maximize. So, we
+gradually increase the clock frequency constraint until the compiler fails to
+meet timing.}. As we increase the complexity of the atom, the number of
+algorithms it can map increases (programmability), while at the same time, its
+achievable line rate (performance) decreases (Table~\ref{tab:perfprog}). This
+decrease in line rate can be explained by looking at the simplified circuit
+diagrams for the first three atoms (Table~\ref{tab:circuits}).
