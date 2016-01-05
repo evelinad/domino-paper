@@ -1,12 +1,10 @@
 \section{Evaluation}
 
-%TODO: Compare against some P4 programs, for instance, flowlet switching and HULA.
 %TODO: Be consistent about machine vs. target.
 %TODO: Say that atoms and targets are interchangeable.
 %TODO: Maybe add a few examples from Chimera/Bohatei on security.
 %TODO: Mihai: Add figure of CONGA's SCC here maybe?
 %TODO: Try and get an atom for CoDel and trTCM.
-%TODO: Get a table comparing code counts of P4 against Domino.
 %TODO: Ensure Sec 2 shows that stateless ops can be spread out across stages
 
 \label{s:eval}
@@ -40,26 +38,26 @@
 \end{table}
 
 \begin{table*}[!t]
-  \begin{tabular}{|p{0.16\textwidth}|p{0.47\textwidth}|p{0.09\textwidth}|p{0.06\textwidth}|p{0.07\textwidth}|}
+  \begin{tabular}{|p{0.16\textwidth}|p{0.44\textwidth}|p{0.08\textwidth}|p{0.06\textwidth}|p{0.07\textwidth}|p{0.04\textwidth}|p{0.04\textwidth}|}
 \hline
-Algorithm & Stateful computation & Least expressive atom & Pipeline depth, width & Ingress or Egress Pipeline?\\
+Algorithm & Description & Least expressive atom & Pipeline depth, width & Ingress or Egress Pipeline? & Domino LOC & P4 LOC \\
 \hline
-\pbox{0.16\textwidth}{Bloom filter~\cite{bloom}\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either \\
+\pbox{0.16\textwidth}{Bloom filter~\cite{bloom}\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29 & 104 \\
 \hline
-\pbox{0.16\textwidth}{Heavy Hitters~\cite{opensketch}\\(3 hash functions)} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10, 9 & Either \\
+\pbox{0.16\textwidth}{Heavy Hitters~\cite{opensketch}\\(3 hash functions)} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10, 9 & Either & 35 & 192  \\
 \hline
-Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6, 2 & Ingress \\
+Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6, 2 & Ingress & 37 & 292 \\
 \hline
-RCP~\cite{rcp} & \pbox{0.47\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress \\
+RCP~\cite{rcp} & \pbox{0.44\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress & 23 & 75\\
 \hline
-\pbox{0.16\textwidth}{Sampled\\NetFlow~\cite{sampled_nflow}} & \pbox{0.47\textwidth}{Sample a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either\\
+\pbox{0.16\textwidth}{Sampled\\NetFlow~\cite{sampled_nflow}} & \pbox{0.47\textwidth}{Sample a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either  & 18 & 70\\
 \hline
-HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress \\
+HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress & 26 & 95 \\
 \hline
-\pbox{0.16\textwidth}{Adaptive\\Virtual Queue~\cite{avq}} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress \\
+\pbox{0.16\textwidth}{Adaptive\\Virtual Queue~\cite{avq}} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress & 36 & 147 \\
 \hline
 CONGA~\cite{conga} & \pbox{0.54\textwidth}{Update best path's utilization/id if we see a better path.\\
-                                           Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress\\
+                                           Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress & 32 & 89 \\
 \hline
 %trTCM~\cite{trTCM} & Update token counts for each token bucket & Doesn't map & 7, 3 & Either \\
 %\hline
@@ -70,16 +68,17 @@ CONGA~\cite{conga} & \pbox{0.54\textwidth}{Update best path's utilization/id if 
 \label{tab:algos}
 \end{table*}
 
-We evaluate \pktlanguage's expressiveness by using it to express several
-data-plane algorithms (Table~\ref{tab:algos}). We then design a set of
-\absmachine machines (Table~\ref{tab:templates}) that serve as compiler targets
-for \pktlanguage.  These machines are readily feasible in today's transistor
-technology and their atoms incur modest area overhead relative to a baseline
-switching chip. Next, we use the \pktlanguage compiler to compile the programs
-in Table~\ref{tab:algos} to the targets in Table~\ref{tab:templates}.  We
-conclude by quantitatively demonstrating a tradeoff between a target's
-programmability (the space of data-plane algorithms that it can run at line
-rate) and the target's performance (the maximum line rate it can support).
+We evaluate \pktlanguage's expressiveness by using it to write several
+data-plane algorithms and comparing it to how they would have been written in
+P4 (Table~\ref{tab:algos}). We then design a set of \absmachine machines
+(Table~\ref{tab:templates}) that serve as compiler targets for \pktlanguage.
+These machines are readily feasible in today's transistor technology and their
+atoms incur modest area overhead relative to a baseline switching chip. Next,
+we use the \pktlanguage compiler to compile the programs in
+Table~\ref{tab:algos} to the targets in Table~\ref{tab:templates}.  We conclude
+by quantitatively demonstrating a tradeoff between a target's programmability
+(the space of data-plane algorithms that it can run at line rate) and the
+target's performance (the maximum line rate it can support).
 
 \subsection{Expressiveness}
 \label{ss:Expressiveness}
@@ -97,32 +96,32 @@ straightforward translation of the algorithm's reference code/pseudo code to
 By contrast, expressing one of these algorithms in a language like P4---as one
 would today---requires manually teasing out portions of the algorithm that can
 reside in independent match-action tables and then chaining these tables
-together to implement the algorithm---in essence, manually carrying out the
-transformations in \pktlanguage's compiler.
+together to implement the algorithm. In essence, this requires the programmer
+to manually carry out the transformations in \pktlanguage's compiler, which is
+both tedious and error prone.
 
-\paragraph{Quantitative comparison against P4}
-Of the algorithms in Table~\ref{tab:algos}, only flowlet switching has a
-hand-written P4 implementation today~\cite{p4_flowlet}. This implementation
-requires 292 lines of uncommented P4, in comparison to the 32 lines of
-\pktlanguage in Figure~\ref{fig:flowlet_code}. Further, the same implementation
-only runs on a software switch because it requires synchronized access to the
-saved\_hop variable from two adjacent pipeline stages---something that is very
-challenging on shared-nothing line-rate switches. This illustrates the
-additional cognitive overhead when programming with P4: reasoning about how
-state variables are distributed across a pipeline is challenging and is best
-left to a compiler where all algorithms can benefit from it.
+\paragraph{Quantitative comparison against P4} Of the algorithms in
+Table~\ref{tab:algos}, only flowlet switching has a hand-written P4
+implementation today~\cite{p4_flowlet}. This implementation requires 292 lines
+of uncommented P4, in comparison to the 32 lines of \pktlanguage in
+Figure~\ref{fig:flowlet_code}. Further, the same implementation only runs on a
+software switch because it requires synchronized access to the saved\_hop
+variable from two adjacent pipeline stages---something that is very challenging
+on shared-nothing line-rate switches. This illustrates the additional
+programmer burden when programming with P4: reasoning about how state variables
+are distributed across a pipeline is challenging and tedious and is best moved
+into a compiler where all algorithms can benefit from it.
 
 % Keep this?
 Ideally, we would repeat the same comparison with P4 for all other algorithms.
 But, in part due to the difficulty of manually writing stateful algorithms in
 P4, these algorithms don't have P4 counterparts today. To counter this, we
-wrote a backend for \pktlanguage that generated P4 from \pktlanguage by turning
-every codelet into a default action~\cite{p4spec} in P4.  We report the number
-of lines of code in the resulting P4 programs in Table~\ref{p4_counterparts}
-and compare them with programs written in \pktlanguage. While the LOC count
-will be lesser for manually written P4 programs, we hope the overall message is
-clear: coding in \pktlanguage results in more concise and correct code relative
-to P4 for stateful data-plane algorithms.
+wrote a backend for \pktlanguage that generated P4 from \pktlanguage.  We
+report the number of lines of code in the resulting P4 programs in
+Table~\ref{p4_counterparts} and compare them with programs written in
+\pktlanguage. While the LOC count could be lesser for manually written P4
+programs, the overall message is simple: coding in \pktlanguage results in more
+concise and correct code relative to P4 for stateful data-plane algorithms.
 
 %Anirudh: Chang felt this was incidental.
 %%We did, however, modify CoDel. CoDel is a head-drop active queue
