@@ -3,6 +3,11 @@
 %TODO: Compare against some P4 programs, for instance, flowlet switching and HULA.
 %TODO: Be consistent about machine vs. target.
 %TODO: Say that atoms and targets are interchangeable.
+%TODO: Maybe add a few examples from Chimera/Bohatei on security.
+%TODO: Mihai: Add figure of CONGA's SCC here maybe?
+%TODO: Try and get an atom for CoDel and trTCM.
+%TODO: Get a table comparing code counts of P4 against Domino.
+%TODO: Ensure Sec 2 shows that stateless ops can be spread out across stages
 
 \label{s:eval}
 
@@ -76,10 +81,10 @@ HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress \\
 CONGA~\cite{conga} & \pbox{0.54\textwidth}{Update best path's utilization/id if we see a better path.\\
                                            Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress\\
 \hline
-trTCM~\cite{trTCM} & Update token counts for each token bucket & Doesn't map & 7, 3 & Either \\
-\hline
-CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queuing delay will exceed target.}& Doesn't map & 15, 3 & Egress \\
-\hline
+%trTCM~\cite{trTCM} & Update token counts for each token bucket & Doesn't map & 7, 3 & Either \\
+%\hline
+%CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queuing delay will exceed target.}& Doesn't map & 15, 3 & Egress \\
+%\hline
 \end{tabular}
 \caption{Data-plane algorithms}
 \label{tab:algos}
@@ -108,7 +113,6 @@ In all these cases, the algorithms are naturally expressed as blocks of
 imperative code. Expressing an algorithm in \pktlanguage involved a
 straightforward translation of the algorithm's reference code/pseudo code to
 \pktlanguage.
-%TODO: Maybe add a few examples from Chimera/Bohatei on security.
 
 By contrast, expressing one of these algorithms in a language like P4---as one
 would today---requires manually teasing out portions of the algorithm that can
@@ -139,7 +143,6 @@ Table~\ref{p4_counterparts} and compare them with programs written in
 \pktlanguage. While the LOC count will be lesser for manually written P4
 programs, we hope the overall message is clear: coding in \pktlanguage results
 in more concise and correct code relative to P4 for stateful data-plane algorithms.
-%TODO: Get this table.
 
 %Anirudh: Chang felt this was incidental.
 %%We did, however, modify CoDel. CoDel is a head-drop active queue
@@ -161,7 +164,6 @@ area~\cite{gibb_parsing}, we determine resource limits on the number of atoms
 in each stage and the number of stages in a pipeline.
 
 \paragraph{Computational limits}
-%TODO: Ensure Sec 2 shows that stateless ops can be spread out across stages
 An atom's computational limits dictate what algorithms can or can't be run on
 the \absmachine machine at line rate. Stateless atoms are easier to design
 because any stateless operation can be spread out across multiple stages of the
@@ -181,7 +183,6 @@ express all stateful operations that could be expressed by its predecessor
 and occupy varying amounts of area depending on their complexity (last column
 in Table~\ref{tab:templates}).
 
-%TODO==========resume here ============
 \paragraph{Resource limits}
 Now that we have a single stateless atom and multiple stateful atoms, we can
 design compiler targets using these atoms.  We design one compiler target for
@@ -268,26 +269,24 @@ the host receiving it and executing CONGA.} and vice versa. There is no way to
 separate the two state variables into separate stages and still guarantee
 correctness. The Pair atom, where the update to a state variable is conditioned
 on a predicate of a pair of state variables, allows us to implement CONGA at
-line rate.  
-%TODO: Mihai: Add figure of CONGA's SCC here maybe?
-%TODO: Try and get an atom for CoDel and trTCM.
+line rate.
 
-However, it is \textit{still} insufficient for algorithms such as
-CoDel~\cite{codel} and the two-rate three-color meter (trTCM)~\cite{trTCM}.  On
-a positive note, however, we observed that the codelets in both trTCM and CoDel
-are still restricted to a pair of state variables.  We haven't yet encountered
-a triplet of state variables all falling in the same strongly connected
-component/codelet, requiring a three-way state update.
-
+%%
+%%However, it is \textit{still} insufficient for algorithms such as
+%%CoDel~\cite{codel} and the two-rate three-color meter (trTCM)~\cite{trTCM}.  On
+%%a positive note, however, we observed that the codelets in both trTCM and CoDel
+%%are still restricted to a pair of state variables.  We haven't yet encountered
+%%a triplet of state variables all falling in the same strongly connected
+%%component/codelet, requiring a three-way state update.
+%%
 \paragraph{Compilation time}
-The data-plane algorithms we consider are all under 100 lines of code.  Time
-spent in the front-end is negligible; compilation time is dominated by SKETCH.
-To speed up the search, we limit SKETCH to search for constants (e.g., for
-addition) of size up to 5 bits, given that the constants we observe within
-stateful codelets in our algorithms are small. Our longest compilation time is
-10 seconds when CoDel doesn't map to a \absmachine machine with the Pair atom.
-This time will increase if we increase the bit width of constants that SKETCH
-has to search; however, because data-plane algorithms are small, we don't
+Compilation time is dominated by SKETCH's search procedure.  To speed up the
+search, we limit SKETCH to search for constants (e.g., for addition) of size up
+to 5 bits, given that the constants we observe within stateful codelets in our
+algorithms are small. Our longest compilation time is 10 seconds when CoDel
+doesn't map to a \absmachine machine with the Pair atom.  This time will
+increase if we increase the bit width of constants that SKETCH has to search;
+however, because the data-plane algorithms themselves are small, we don't
 expect compilation times to be a concern.
 
 \subsection{Performance vs. programmability}
