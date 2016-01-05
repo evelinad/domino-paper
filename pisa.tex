@@ -9,18 +9,22 @@
 \end{figure*}
 
 %TODO: Don't call this an abstract machine. I think that's part of the problem.
+% Altenate name: architecture, machine model, and ...?
 % People think of this as an IR / portable abstract machine, as opposed to an actual model of the hardware.
 % I think that's what triggers the comparisons to NetASM.
 %TODO: Add Mohammad/Mihai's comments that give more real-world context for PISA
-%TODO: Break it up into resource limits and computational limits.
-This section describes \absmachine (Protocol-Independent Switch
-Architecture~\cite{nick_p4}), a family of abstract machines for programmable
-switches that differ in the computational capabilities they provide.
-\absmachine machines serve as compiler targets for \pktlanguage programs.
-\absmachine's design is inspired by recent line-rate programmable switch
-architectures, such as RMT~\cite{rmt}, Intel's FlexPipe~\cite{flexpipe}, and
-Cavium's XPliant Packet Architecture~\cite{xpliant}, which we outline briefly
-first.
+%TODO: Mention the differences between stateful and stateless atoms.
+%TODO: Mention line rate vs. bit rate?
+This section describes \absmachine (Protocol-Independent Switch Architecture) a
+family of abstract machines for programmable switches that differ in the
+computational capabilities they provide.  \footnote{The term PISA was briefly
+  introduced in a workshop talk~\cite{nick_p4}.  Here, we develop PISA more
+completely as a \textit{fully executable} computational model for programmable
+switches.} \absmachine machines serve as compiler targets for \pktlanguage
+programs.  \absmachine's design abstracts and generalizes line-rate
+programmable switch architectures, such as RMT~\cite{rmt}, Intel's
+FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
+Architecture~\cite{xpliant}, which we outline briefly first.
 
 \subsection{Programmable switch architectures}
 Programmable switches follow the switch model shown at the top of
@@ -30,6 +34,24 @@ are first processed by an ingress pipeline consisting of match-action tables
 arranged in stages.  Following the ingress pipeline, the packet is queued. Once
 the packet is dequeued by the switch scheduler, it is processed by a similar
 egress pipeline before being transmitted from the switch.
+
+To reduce chip area, the ingress and egress pipelines are shared across the
+switch's ports. This results in demanding requirements on either pipeline.
+Each pipeline needs to handle aggregate traffic belonging to all ports on the
+switch, regardless of packet size. For instance, for a 64-port switch with each
+port running at 10 Gigabits / second and a minimum packet size of 64 bytes
+would result in a aggregate packet processing requirement of 1.25 Billion
+Packets per second. Equivalently, each pipeline stage needs to process a packet
+once every 800 ps.
+
+This budget of 800 ps per packet in each stage greatly curtails the kinds of
+operations that can be performed on each packet in a given stage. In contrast
+to a software router, NPU, or FPGA, a programmable switch provides a very
+limited repertoire of primitives or processing units that can manipulate
+packets in each pipeline stage. A switch's primitives determine the set of
+algorithms that can be run on it. The challenge then is whether a compiler can
+automatically determine the primitives that need to be used to implement a
+data-plane algorithm.
 
 \subsection{The \absmachine abstract machine}
 
@@ -42,20 +64,18 @@ where the time step is a physical quantity determined by the hardware. The
 inverse of this time step is the line rate supported by the pipeline. For
 instance, the RMT architecture has a line rate of 960 Million pkts /
 sec~\cite{rmt}.
-%TODO: Mention line rate vs. bit rate?
 
-As an abstract machine, \absmachine only models components pertinent to
-data-plane algorithms. In particular, it models the computation within a
-match-action table in a stage (i.e., the action half of the match-action
-table), but not the match semantics (e.g., direct, ternary, or longest prefix).
-\absmachine also does not model packet parsing and assumes that packets
+\absmachine only models components pertinent to data-plane algorithms. It
+models the computation within a match-action table in a stage (i.e., the action
+half of the match-action table), but not the match semantics (e.g., direct,
+ternary, or longest prefix). It is easy to embed these actions within a
+match-action framework by making them default actions~\cite{p4spec} for each
+table. \absmachine also does not model packet parsing and assumes that packets
 arriving to it are already parsed.
 
-%TODO: Mention the two limits: computational limits on atoms and resource
-%limits on the number of atoms.
-%TODO: Mention the differences between stateful and stateless atoms.
 \subsection{Atoms: \absmachine's processing units}
 
+% TODO: Example of why we need this entire language to express atoms.
 In \absmachine, each pipeline stage contains a vector of \textit{atoms}. All
 atoms in this vector execute in parallel on every time step.  Informally, an
 atom is an atomic unit of packet processing, which the \absmachine machine
@@ -87,7 +107,7 @@ state such as meters, counters, and P4's register abstraction~\cite{p4spec} in
 a unified manner. We assume all state is initialized by the switch control
 plane, which we don't explicitly model in \absmachine.
 
-\subsection{Constraining atoms}
+\subsection{Computational limits}
 \label{s:atomConstraints}
 
 Atoms in \absmachine execute on every time step, reading all packet fields at
@@ -117,3 +137,6 @@ instruction set. As programmable switches evolve, the capabilities of atoms
 will evolve as well. However, atoms cannot be arbitrarily complex: the line
 rate is inversely proportional to an atom's execution
 latency~(\S\ref{ss:perfprog}).
+
+\subsection{Resource limits}
+
