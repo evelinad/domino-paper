@@ -12,10 +12,8 @@
 % Altenate name: architecture, machine model, and ...?
 % People think of this as an IR / portable abstract machine, as opposed to an actual model of the hardware.
 % I think that's what triggers the comparisons to NetASM.
-%TODO: Add Mohammad/Mihai's comments that give more real-world context for PISA
 %TODO: Mention the differences between stateful and stateless atoms.
-%TODO: Mention line rate vs. bit rate?
-This section describes \absmachine (Protocol-Independent Switch Architecture) a
+This section describes \absmachine (Protocol-Independent Switch Architecture), a
 family of abstract machines for programmable switches that differ in the
 computational capabilities they provide.  \footnote{The term PISA was briefly
   introduced in a workshop talk~\cite{nick_p4}.  Here, we develop PISA more
@@ -49,9 +47,10 @@ operations that can be performed on each packet in a given stage. In contrast
 to a software router, NPU, or FPGA, a programmable switch provides a very
 limited repertoire of primitives or processing units that can manipulate
 packets in each pipeline stage. A switch's primitives determine the set of
-algorithms that can be run on it. The challenge then is whether a compiler can
-automatically determine the primitives that need to be used to implement a
-data-plane algorithm.
+algorithms that can be run on it. The technical challenge here is to build a
+compiler that can automatically determine the primitives that need to be used
+to implement a data-plane algorithm from a high-level description of the
+algorithm.
 
 \subsection{The \absmachine abstract machine}
 
@@ -59,17 +58,15 @@ data-plane algorithm.
 pipeline such as the ingress or egress pipeline. A pipeline in \absmachine
 consists of a number of pipeline stages that execute synchronously on every
 time step. An incoming packet is processed by each stage and handed off to the
-next, until it exits the pipeline. Each stage has one time step of latency,
-where the time step is a physical quantity determined by the hardware. The
-inverse of this time step is the line rate supported by the pipeline. For
-instance, the RMT architecture has a line rate of 960 Million pkts /
-sec~\cite{rmt}.
+next, until it exits the pipeline. Each stage has one time step of latency. For
+the example above with 64 ports each running at 10 Gigabits / second, this time
+step is 800 ps.
 
 \absmachine only models components pertinent to data-plane algorithms. It
 models the computation within a match-action table in a stage (i.e., the action
 half of the match-action table), but not the match semantics (e.g., direct,
 ternary, or longest prefix). It is easy to embed these actions within a
-match-action framework by making them default actions~\cite{p4spec} for each
+match-action pipeline by making them default actions~\cite{p4spec} for each
 table. \absmachine also does not model packet parsing and assumes that packets
 arriving to it are already parsed.
 
@@ -78,15 +75,44 @@ arriving to it are already parsed.
 % TODO: Example of why we need this entire language to express atoms.
 In \absmachine, each pipeline stage contains a vector of \textit{atoms}. All
 atoms in this vector execute in parallel on every time step.  Informally, an
-atom is an atomic unit of packet processing, which the \absmachine machine
-supports natively in hardware. We represent an atom as a body of sequential
-code. An atom completes execution of this body of code and modifies a packet
-before processing the next packet.  An atom may also contain internal state
-that persists across packets and influences the atom's behavior from one packet
-to the next.  For instance, a switch counter that wraps around at 100 can be
-written as the atom below.\footnote{We use {\tt p.x} to represent field {\tt x}
-  within a packet {\tt p} and {\tt x} to represent a state variable {\tt x}
-that persists across packets.}
+atom is an atomic unit of packet processing that can optionally modify
+persistent state stored on the switch, and which the \absmachine machine
+supports natively in hardware. Atoms constitute the machine's instruction set.
+In contrast to instruction sets for CPUs, GPUs, DSPs, and NPUs, the atoms for a
+\absmachine need to be substantially richer. To motivate this, consider a
+switch that provides the ability to atomically increment a state variable
+stored on the switch to count the number of packets matching a criterion.
+
+Naively, this could be achieved by providing hardware support for three simple
+operations: \textit{reading} a piece of memory from one pipeline stage,
+\textit{adding} one in the next, and \textit{writing} it back to memory in the
+third. However, this doesn't work as we illustrate below.
+(Figure~\ref{fig:atomic_increment}).  First, it doesn't provide an atomic
+increment: let's say packet 1 increments the counter from 0 to 1 by passing
+through the read, add, and write stages in time steps 1, 2, and 3 respectively.
+Then, if packet 2 arrives at the read stage at time step 2, it will increment
+the counter again from 0 to 1, and write back the value 1 into the write stage.
+In effect, this makes it look like there was a single increment when there were
+two.
+
+One could imagine providing locks to implement the atomic increment. However,
+locking causes contention and in the example above, it would cause packet 2 to
+stall, while packet 1's atomic increment completes. This prevents the switch
+from processing packets at line rate---something that switches are expected to
+attain regardless of the input workload. Finally, practically speaking, share
+memory requires building multi-ported memories and routing long wires on the
+chip, both of which are hard to do.
+
+% TODO: Continue here.
+
+We represent atoms using a body of sequential code. An atom completes execution
+of this body of code and modifies a packet before processing the next packet.
+An atom may also contain internal state that persists across packets and
+influences the atom's behavior from one packet to the next.  For instance, a
+switch counter that wraps around at 100 can be written as the atom
+below.\footnote{We use {\tt p.x} to represent field {\tt x} within a packet
+{\tt p} and {\tt x} to represent a state variable {\tt x} that persists across
+packets.}
   \begin{lstlisting}[style=customc, numbers=none, frame=none]
   if (counter < 99)
     counter++;
@@ -99,14 +125,14 @@ modify\_field} primitive~\cite{p4spec}) can be written as the atom below:
   p.field = value;
 \end{lstlisting}
 
-\absmachine generalizes several aspects of existing programmable switch
-architectures. The vector of atoms in each stage generalizes RMT's very-large
-instruction-word (VLIW)~\cite{rmt} that executes primitive actions on packet
-fields in parallel. Internal state within an atom models persistent switch
-state such as meters, counters, and P4's register abstraction~\cite{p4spec} in
-a unified manner. We assume all state is initialized by the switch control
-plane, which we don't explicitly model in \absmachine.
-
+%%\absmachine generalizes several aspects of existing programmable switch
+%%architectures. The vector of atoms in each stage generalizes RMT's very-large
+%%instruction-word (VLIW)~\cite{rmt} that executes primitive actions on packet
+%%fields in parallel. Internal state within an atom models persistent switch
+%%state such as meters, counters, and P4's register abstraction~\cite{p4spec} in
+%%a unified manner. We assume all state is initialized by the switch control
+%%plane, which we don't explicitly model in \absmachine.
+%%
 \subsection{Computational limits}
 \label{s:atomConstraints}
 
