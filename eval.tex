@@ -39,58 +39,6 @@
   \label{tab:templates}
 \end{table}
 
-\begin{table}[!t]
-  \begin{scriptsize}
-  \begin{tabular}{|p{0.08\textwidth}|p{0.12\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|}
-  \hline
-  Atom & Min. delay (picoseconds) & Programmability (\# of algorithms implemented by atom) & Performance (Max. line rate (GHz)) \\
-  \hline
-  Write & 176 & 1  & 5.68 \\
-  \hline
-  ReadAddWrite (RAW) & 316 & 2 & 3.16\\
-  \hline
-  \pbox{0.1\textwidth}
-  {Predicated\\
-  ReadAddWrite (PRAW)} & 393 & 4 & 2.54 \\
-  \hline
-  IfElse ReadAddWrite (IfElseRAW) & 392 & 5 & 2.55 \\
-  \hline
-  Subtract (Sub) & 400 & 6 & 2.50 \\
-  \hline
-  Nested Ifs (Nested) & 574 & 7 & 1.74 \\
-  \hline
-  Paired updates (Pairs) & 586 & 8 & 1.70 \\
-  \hline
-  \end{tabular}
-\end{scriptsize}
-\caption{Programmability (the number of algorithms an atom implements)
-  increases with more complex atoms, but performance (the maximum line
-rate it can support in packets / sec) decreases.}
-  \label{tab:perfprog}
-\end{table}
-
-\begin{table}[!t]
-  \begin{scriptsize}
-    \begin{tabular}{|p{0.08\textwidth}|p{0.28\textwidth}|p{0.1\textwidth}|}
-  \hline
-  Atom & Circuit & Min. delay in picoseconds \\
-  \hline
-  Write & \includegraphics[width=0.2\textwidth]{rw.pdf} & 176 \\
-  \hline
-  ReadAddWrite (RAW) & \includegraphics[width=0.2\textwidth]{raw.pdf} & 316\\
-  \hline
-  \pbox{0.1\textwidth}
-  {Predicated\\
-  ReadAddWrite (PRAW)} & \includegraphics[width=0.2\textwidth]{pred_raw.pdf}  & 393 \\
-  \hline
-  \end{tabular}
-\end{scriptsize}
-\caption{Minimum delay of an atom increases with the depth of its circuit. MUX stands
-         for a multiplexer, RELOP stands for a relational operation between two operands.}
-  \label{tab:circuits}
-\end{table}
-
-
 \begin{table*}[!t]
   \begin{tabular}{|p{0.16\textwidth}|p{0.47\textwidth}|p{0.09\textwidth}|p{0.06\textwidth}|p{0.07\textwidth}|}
 \hline
@@ -338,3 +286,57 @@ algorithms it can map increases (programmability), while at the same time, its
 achievable line rate (performance) decreases (Table~\ref{tab:perfprog}). This
 decrease in line rate can be explained by looking at the simplified circuit
 diagrams for the first three atoms (Table~\ref{tab:circuits}).
+
+\begin{table}[!t]
+  \begin{scriptsize}
+  \begin{tabular}{|p{0.08\textwidth}|p{0.12\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|}
+  \hline
+  Atom & Min. delay (picoseconds) & Programmability (\# of algorithms implemented by atom) & Performance (Max. line rate (GHz)) \\
+  \hline
+  Write & 176 & 1  & 5.68 \\
+  \hline
+  ReadAddWrite (RAW) & 316 & 2 & 3.16\\
+  \hline
+  \pbox{0.1\textwidth}
+  {Predicated\\
+  ReadAddWrite (PRAW)} & 393 & 4 & 2.54 \\
+  \hline
+  IfElse ReadAddWrite (IfElseRAW) & 392 & 5 & 2.55 \\
+  \hline
+  Subtract (Sub) & 400 & 6 & 2.50 \\
+  \hline
+  Nested Ifs (Nested) & 574 & 7 & 1.74 \\
+  \hline
+  Paired updates (Pairs) & 586 & 8 & 1.70 \\
+  \hline
+  \end{tabular}
+\end{scriptsize}
+\caption{Programmability (the number of algorithms an atom implements)
+  increases with more complex atoms, but performance (the maximum line
+rate it can support in packets / sec) decreases.}
+  \label{tab:perfprog}
+\end{table}
+
+\begin{table}[!t]
+  \begin{scriptsize}
+    \begin{tabular}{|p{0.08\textwidth}|p{0.28\textwidth}|p{0.05\textwidth}|}
+  \hline
+  Atom & Circuit & Min. delay in picoseconds \\
+  \hline
+  Write & \includegraphics[width=0.2\textwidth]{rw.pdf} & 176 \\
+  \hline
+  ReadAddWrite (RAW) & \includegraphics[width=0.2\textwidth]{raw.pdf} & 316\\
+  \hline
+  \pbox{0.1\textwidth}
+  {Predicated\\
+  ReadAddWrite (PRAW)} & \includegraphics[width=0.3\textwidth]{pred_raw.pdf}  & 393 \\
+  \hline
+  \end{tabular}
+\end{scriptsize}
+\caption{Minimum delay of an atom increases with the depth of its circuit. MUX stands
+         for a multiplexer, RELOP stands for a relational operation between two operands.}
+  \label{tab:circuits}
+\end{table}
+
+
+
