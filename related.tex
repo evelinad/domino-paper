@@ -86,14 +86,14 @@ SNAP~\cite{snap} is a recent language for programming stateful data-plane
 algorithms using a network transaction: a block of code that executes
 atomically and treats the entire network as one big switch~\cite{onebigswitch}.
 SNAP doesn't impose constraints on what each switch can do at line rate, and
-hence doesn't handle code generation\S\ref{ss:code_gen}. Further, while network
+doesn't handle code generation\S\ref{ss:code_gen}. Further, while network
 transactions are a higher level of abstraction than packet transactions, they
 are limited to data-plane algorithms that can be expressed in a centralized
 fashion. In particular, most resource-management algorithms in
 Table~\ref{tab:algos}, e.g. flowlets, RCP, CONGA, HULL, and AVQ, involve
-time-varying quantities (such as queue sizes and inter-packet gaps), and are
-naturally expressed as distributed algorithms running on each switch
-independently; we don't know of centralized analogues for these algorithms.
+time-varying quantities (queue sizes, packet arrivals), and are only available
+as distributed algorithms running on each switch independently; we don't know
+of centralized analogues for these algorithms.
 
 %
 %P4~\cite{p4} is an emerging packet-processing language that explicitly targets
@@ -104,7 +104,3 @@ independently; we don't know of centralized analogues for these algorithms.
 %
 %PX~\cite{PX}
 %is a language that targets packet processing on FPGA platforms.
-
-% TODO: Compare against SNAP from Princeton.
-% -- We provide the stateful API that enables SNAP.
-% -- For some algorithms, a network-wide approach is untenable.
