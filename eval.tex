@@ -153,11 +153,12 @@ in each stage and the number of stages in a pipeline.
 An atom's computational limits dictate what algorithms can or can't be run on
 the \absmachine machine at line rate. Stateless atoms are easier to design
 because any stateless operation can be spread out across multiple stages of the
-pipeline without violating correctness. We design a stateless atom
-(Table~\ref{tab:stateless_atom}) that can support arithmetic, logical,
-relational, or conditional operations on a set of packet fields, where any
-packet field can also be substituted with a constant operand. The resulting
-circuit meets timing at 1GHz and occupies an area of 1383 square microns.
+pipeline without violating correctness. We design a stateless atom that can
+support arithmetic (add, subtract, left shift, right shift), logical (and, or,
+xor), relational (>=, <=, ==, !=), or conditional operations ( C's ``?''
+operator) on a set of packet fields. Any packet field can also be substituted
+with a constant operand. The resulting circuit meets timing at 1GHz and
+occupies an area of 1383 square microns.
 
 Designing stateful atoms is more involved because they depend on which
 algorithms the switch needs to support at line rate. A more complex stateful
@@ -173,8 +174,8 @@ in Table~\ref{tab:templates}).
 Now that we have a single stateless atom and multiple stateful atoms, we can
 design compiler targets using these atoms.  We design one compiler target for
 each combination of a stateful atom in Table~\ref{tab:templates} along with the
-single stateless atom in Table~\ref{tab:stateless_atom}. We determine resource
-limits for stateful and stateless atoms separately.
+single stateless atom above. We determine resource limits for stateful and
+stateless atoms separately.
 
 For the stateless atom, assuming a switching chip's area is 200
 $mm^2$~\cite{gibb_parsing}, and an acceptable overhead of 7\%\footnote{We use
