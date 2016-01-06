@@ -43,12 +43,13 @@
   \begin{small}
   \begin{lstlisting}[style=customc, numbers=none, frame=none]
   @\textcolor{blue}{pkt.tmp = pkt.arrival - last\_time[pkt.id]  > THRESHOLD}@;
-  saved_hop[pkt.id] = @\textcolor{magenta}{// Rewritten}@
-    @\textcolor{blue}{pkt.tmp}@ ? pkt.new_hop : saved_hop[pkt.id];
+  saved_hop[pkt.id] = @\textcolor{blue}{pkt.tmp}@
+                      ? pkt.new_hop
+                      : saved_hop[pkt.id]; @\textcolor{magenta}{// Rewritten}@
   \end{lstlisting}
   \end{small}
   \end{minipage}
-\vspace{-.2in}
+%\vspace{-.2in}
 \caption{Conversion to straight-line code}
 \label{fig:if_convert}
 \end{figure*}
