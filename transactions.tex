@@ -1,8 +1,7 @@
 %TODO: Talk about how transactions can be composed.
 % We 'll need to do this for the PIFO work as well.
-%TODO: Do we mention limitations of transactions right here?
 
-\section{Programming using packet transactions}
+\section{Packet transactions}
 \label{s:transactions}
 
 \begin{figure*}[!t]
@@ -114,8 +113,8 @@ where supporting distinct read and write addresses every clock cycle is challeng
     No goto, break, or continue.\\
     No pointers.\\
     No dynamic memory allocation / heap.\\
-    Array index must be constant for every execution of the transaction.\\
-    No access to packet data i.e. unparsed portion of the packet.\\
+    Array index is constant for each transaction execution.\\
+    No access to data i.e. unparsed portion of the packet.\\
     No arrays in packet fields.\\
   \end{tabular}
   \caption{Restrictions in \pktlanguage}
