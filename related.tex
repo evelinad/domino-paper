@@ -12,14 +12,19 @@
 
 \textbf{Abstract machines for line-rate switches}
 Relative to P4's abstract switch model~\cite{p4}, \absmachine contributes the
-notions of atoms, sequential execution within atoms, and state encapsulated by
-atoms. Closest to \absmachine is NetASM~\cite{netasm}, an intermediate
-representation and abstract machine for programmable data planes.  \absmachine
-differs from NetASM by explicitly targeting line-rate switches in two ways.
-First, all state in \absmachine is internal to an atom (and hence a stage),
-while NetASM's ATM construct allows access to shared state from multiple
-pipeline stages. Second, \absmachine uses atom templates to limit the amount of
-useful work that can be performed in an atom.
+notions of atoms and atom templates. NetASM~\cite{netasm} is an intermediate
+representation (IR) for programmable data planes. \absmachine and NetASM have
+different goals. \absmachine is a model of line-rate switch hardware, while
+NetASM is an IR that seeks to be portable across network devices---FPGAs,
+Virtual Switches, and line-rate switches.
+
+Unlike \absmachine, to span different devices, NetASM doesn't constrain its
+instruction set. For instance, NetASM's ATM construct allows atomic access to
+shared state from multiple pipeline stages; we show in \S\ref{s:pisa} that this
+leads to incorrect behavior on line-rate hardware that doesn't support locking.
+Further, NetASM's dataflow framework concerns itself only with
+platform-independent optimizations such as dead-code elimination, and doesn't
+implement any platform-specific code generation like the \pktlanguage compiler.
 
 \textbf{Programmable Data Planes}
 Software-based data planes such as Click~\cite{click},
@@ -27,9 +32,13 @@ RouteBricks~\cite{routebricks}, and Fastpass~\cite{fastpass} are flexible but
 lack the performance required for deployments. Network
 Processors~\cite{ixp2800, ixp4xx} (NPUs) were an attempt to bridge the gap.
 While NPUs are faster than software routers, they remain an order of magnitude
-slower than merchant silicon chips~\cite{rmt}.
-%and have not found success in the
-%market~\cite{npfail}.
+slower than merchant silicon chips~\cite{rmt}. Eden~\cite{eden} is a recent
+system that provides a programmable data plane using commodity switches by
+programming end hosts alone. \pktlanguage targets programmable switches that
+increase the scope of programmable data planes relative to an end-host-only
+solution. For instance, they permit us to express in-network congestion
+control, AQM, and congestion-aware load balancing---which are beyond Eden's
+capabilities.
 
 An alternative is to use FPGAs to improve performance relative to software
 routers and NPUs; examples include NetFPGA~\cite{netfpga},
@@ -38,49 +47,64 @@ These designs are slower than switching ASICs, and are rarely used in
 production network equipment. The Arista 7124 FX~\cite{7124fx} is a commercial
 switch with an on-board FPGA, but its capacity is limited to 160 Gbits/sec when
 using the on-board FPGA---~10x less than the multi-terabit capacities of
-programmable switch chips~\cite{xpliant}. In addition, FPGAs are hard to
-program. Relative to FPGAs, \pktlanguage seeks to provide both the line-rate
-performance of switching ASICs and a familiar programming model.
+programmable switch chips~\cite{xpliant}.
 
 Recent work~\cite{lavanya_compiler} focuses on compiling P4 programs to
 hardware targets such as the RMT and FlexPipe architectures. However, their
 work focuses on compiling stateless data-plane tasks such as forwarding and
 routing, while \pktlanguage focuses on stateful data-plane algorithms.
 
+%%In addition, FPGAs are hard to
+%%program. Relative to FPGAs, \pktlanguage seeks to provide both the line-rate
+%%performance of switching ASICs and a familiar programming model.
+%and have not found success in the
+%market~\cite{npfail}.
 \textbf{Packet-processing languages}
 Many programming languages target the network control plane. Examples include
 Frenetic~\cite{frenetic}, Pyretic~\cite{pyretic}, and
 Maple~\cite{maple}.~\cite{language_survey} is a survey of such approaches.  In
-contrast, \pktlanguage focuses on the data plane. Several DSLs explicitly
-target data-plane packet processing. Click~\cite{click} uses C++ for packet
+contrast, \pktlanguage focuses on the data plane. Several DSLs target data-plane
+packet processing. Click~\cite{click} uses C++ for packet
 processing on software routers. Imperative languages such as NOVA~\cite{nova},
 packetC~\cite{packetc}, Intel's auto-partitioning C
 compiler~\cite{intel_uiuc_pldi}, PacLang~\cite{paclang_lang,
 paclang_partitioner}, and Microengine C~\cite{microenginec, intel_ixa} target
 network processors~\cite{ixp2800, ixp4xx}.
+
+\pktlanguage's C-like syntax and sequential semantics are inspired by these
+DSLs. However \pktlanguage is constrained relative to its predecessors: for
+instance, it forbids loops and includes no synchronization constructs because
+there is no shared state in \absmachine machines. These constraints were chosen
+to target line-rate switching chips with shared-nothing memory architectures.
+Furthermore, \pktlanguage's compiler presents a different programming model:
+all \pktlanguage programs that compile run at line-rate, while those that can't
+run at line rate are rejected outright. Unlike an NPU or software router, there
+is no slippery slope of degrading performance with increasing program
+complexity.
+
+SNAP~\cite{snap} is a recent language for programming stateful data-plane
+algorithms using a network transaction: a block of code that executes
+atomically and treats the entire network as one big switch~\cite{onebigswitch}.
+SNAP doesn't impose constraints on what each switch can do at line rate, and
+hence doesn't handle code generation\S\ref{ss:code_gen}. Further, while network
+transactions are a higher level of abstraction than packet transactions, they
+are limited to data-plane algorithms that can be expressed in a centralized
+fashion. In particular, most resource-management algorithms in
+Table~\ref{tab:algos}, e.g. flowlets, RCP, CONGA, HULL, and AVQ, involve
+time-varying quantities (such as queue sizes and inter-packet gaps), and are
+naturally expressed as distributed algorithms running on each switch
+independently; we don't know of centralized analogues for these algorithms.
+
+%
+%P4~\cite{p4} is an emerging packet-processing language that explicitly targets
+%line-rate programmable switching chips. While P4 is a natural model for many
+%header-manipulation tasks such as switching, ACLs, routing, and
+%tunnelling~\cite{dc_p4}, it is ill-suited to programming data-plane algorithms
+%that rely on intricate state manipulation.
+%
 %PX~\cite{PX}
 %is a language that targets packet processing on FPGA platforms.
 
-\pktlanguage's C-like syntax and sequential semantics are inspired by these
-languages. However \pktlanguage is constrained relative to its predecessors:
-for instance, it forbids loops and includes no synchronization constructs
-because all state is internal to an atom. These constraints were chosen to
-target line-rate switching chips with shared-nothing memory architectures. As a
-result, \pktlanguage's compiler presents a different programming model: all
-\pktlanguage programs that compile run at line-rate, while those that can't run
-at line rate are rejected outright. Unlike an NPU or software router, there is
-no slippery slope of degrading performance with increasing program complexity.
-
-P4~\cite{p4} is an emerging packet-processing language that explicitly targets
-line-rate programmable switching chips. However, while P4 is a natural model
-for many header-manipulation tasks such as switching, ACLs, routing, and
-tunnelling~\cite{dc_p4}, it is ill-suited to programming data-plane algorithms that
-rely on intricate state manipulation.
-
-% TODO: Compare and contrast against NetASM.
-% TODO: Streamline related work discussion considerably.
 % TODO: Compare against SNAP from Princeton.
 % -- We provide the stateful API that enables SNAP.
 % -- For some algorithms, a network-wide approach is untenable.
-% TODO: Compare against Hitesh Ballani's Eden work from MSR
-% -- Provides programmability through end-hosts, not within the network
