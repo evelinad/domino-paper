@@ -1,12 +1,11 @@
 \section{Introduction}
 \label{s:intro}
 
+%to support an evolving set of network protocols.
 Network switches and routers in modern datacenters, enterprises, and
-service-provider networks perform a variety of tasks in addition to standard
-packet forwarding. The set of requirements for routers has only increased with
-time as network operators have sought to exercise greater control over
-performance and security, and to support an evolving set of network protocols.
-
+service-provider networks perform many tasks in addition to standard packet
+forwarding. The set of requirements for routers has only increased with time as
+network operators seek greater control over performance and security.
 Performance and security may be improved using both data-plane and
 control-plane mechanisms. This paper focuses on data-plane algorithms. These
 algorithms process every data packet, transforming the packet and often also
@@ -33,9 +32,10 @@ starting from efforts on active networks~\cite{active-nets} to network
 processors~\cite{npu_survey} to software routers~\cite{click,routebricks,
 fastpass, flexplane}. All these efforts have compromised on speed to provide
 programmability, typically running an order of magnitude (or worse) slower than
-hardware line rates.  Unfortunately, this reduction in performance has meant
+hardware line rates. Unfortunately, this reduction in performance has meant
 that these systems are rarely deployed in production networks, if at all.
 
+%TODO: Add something here stressing how this is becoming very common place now.
 Programmable switching chips~\cite{flexpipe, xpliant, rmt}, which are
 competitive with state-of-the-art fixed-function chipsets~\cite{trident,
 tomahawk, mellanox}, are a recent alternative.  These chips implement a few
@@ -44,23 +44,22 @@ processing pipeline~\cite{xpliant_sdk,xpliant_sdk2,intel_sdk}. This approach is
 attractive because it does not compromise on data rates and the area overhead
 of programmability is small~\cite{rmt}.
 
-P4~\cite{p4, p4spec} is an emerging packet-processing language for
-such chips. P4 allows the programmer to specify packet parsing and
-processing without restricting the set of protocol formats or the set
-of actions that can be executed when matching packet headers in a
-match-action table. Data-plane tasks that require header rewriting can
-be expressed naturally in P4~\cite{dc_p4}.
+P4~\cite{p4, p4spec} is an emerging packet-processing language for such chips.
+P4 allows the programmer to specify packet parsing and processing without
+restricting the set of protocol formats or the set of actions that can be
+executed when matching packet headers in a match-action table. Data-plane tasks
+that require large amounts of header rewriting can be expressed naturally in
+P4~\cite{dc_p4}.
 
-By contrast, many data-plane algorithms don't rewrite headers, but instead
-manipulate internal switch state in a manner unique to each algorithm. We
-believe that network programmers would prefer the convenience of an imperative
-language such as C that directly captures the algorithm's intent without
-shoehorning algorithms into hardware constructs such as a sequence of
-match-action tables like P4 requires them to.  Furthermore, this is
-predominantly how such algorithms are expressed in pseudocode~\cite{red, csfq,
-codel_code, avq, blue}, and implemented in sofware routers~\cite{click, dpdk,
-routebricks}, network processors~\cite{packetc, nova}, and at network
-endpoints~\cite{qdisc}.
+By contrast, many data-plane algorithms minimally manipulate headers, but
+instead spend most of their time manipulating internal switch state in a manner
+unique to each algorithm. We believe that network programmers would prefer the
+convenience of an imperative language such as C that directly captures the
+algorithm's intent without shoehorning algorithms into hardware constructs such
+as a sequence of match-action tables like P4 does.  Furthermore, this is how
+such algorithms are expressed in pseudocode~\cite{red, csfq, codel_code, avq,
+blue}, and implemented in sofware routers~\cite{click, dpdk, routebricks},
+network processors~\cite{packetc, nova}, and at network endpoints~\cite{qdisc}.
 
 This paper presents \pktlanguage, a new domain-specific language (DSL) for
 data-plane algorithms.  \pktlanguage is an imperative language with C-like
@@ -70,7 +69,8 @@ from other such code blocks. Packet transactions provide a convenient
 programming model, because they allow the programmer to focus on the operations
 needed for each packet without worrying about other packets that are
 concurrently being processed. To the best of our knowledge, \pktlanguage is the
-first high-level language for programming the data plane of line-rate switches.
+first high-level imperative language for programming the data plane of
+line-rate switches.
 
 %%
 %%Atoms provide hardware support for packet transactions
@@ -82,36 +82,36 @@ In designing and implementing \pktlanguage, we make three contributions.
 First, we design a family of abstract machines called
 \absmachine~(\S\ref{s:absmachine}) (for Protocol-Independent Switch
 Architecture). \absmachine generalizes and abstracts essential features of
-line-rate programmable switches~\cite{rmt, xpliant, flexpipe}. \absmachine
+line-rate programmable switches~\cite{rmt, xpliant, flexpipe}. \absmachine also
 models practical constraints that limit stateful operations on line-rate
 switches.  Informed by these constraints, we introduce the concept of {\em
 atoms} to represent a programmable switch's instruction set.  Second, we
-provide a programming model based on packet transactions\S\ref{s:transactions}.
-This model introduces the notion of all-or-nothing compilation, where all
-packet transactions accepted by the compiler will run at line rate, or be
-rejected outright. There is no ``slippery slope'' of degrading performance with
-increasing code complexity.  Third, we implement a compiler\S\ref{s:compiler})
-to compiles packet transactions to \absmachine machines. Our compiler adapts
-existing compiler techniques to the new domain of line-rate switches,
-simplifying many of them in the process (Table~\ref{tab:prior_compiler}).
+provide a programming model based on packet
+transactions~(\S\ref{s:transactions}).  This model introduces the notion of
+all-or-nothing compilation, where all packet transactions accepted by the
+compiler will run at line rate, or be rejected outright. There is no ``slippery
+slope'' of degrading performance with increasing code complexity.  Third, we
+implement a compiler~(\S\ref{s:compiler}) to compiles packet transactions to
+\absmachine machines. Our compiler adapts existing compiler techniques to the
+new domain of line-rate switches, simplifying many of them in the process
+(Table~\ref{tab:prior_compiler}).
 
-We evaluate \pktlanguage in several ways(\S\ref{s:eval}). First, we evaluate
-its expressive power by writing algorithms such as RCP~\cite{rcp},
+We evaluate \pktlanguage in three ways(\S\ref{s:eval}). First, we evaluate its
+expressive power by writing algorithms such as RCP~\cite{rcp},
 CoDel~\cite{codel}, heavy-hitter detection~\cite{opensketch}, and
 CONGA~\cite{conga}, in \pktlanguage~(\S\ref{s:eval}). We compare this to
 writing code for these algorithms in P4. Quantitatively, we find that code in
 \pktlanguage is between 3 and 8$\times$ more concise than P4 (as measured by
-lines of code).  Qualitatively, we find that \pktlanguage leads to a much
-simpler and less error-prone model for stateful data-plane algorithms relative
-to manually setting up a sequence of match-action tables in P4.  Second, we
-design a set of compiler targets (\S\ref{ss:targets}) based on \absmachine and
-show that these are feasible in hardware today with modest chip area overhead
-(< 10\%) in a 32 nm standard-cell library. Third, we compile several data-plane
-algorithms to these targets to show how the choice of atoms in a target affects
-whether or not it can run an algorithm at line rate.
+lines of code).  Qualitatively, we find that \pktlanguage provides a simpler
+and less error-prone model for programming stateful data-plane algorithms
+relative to P4.  Second, we design a set of compiler targets
+(\S\ref{ss:targets}) based on \absmachine and show that these are feasible in
+hardware today with modest chip area overhead (< 10\%) in a 32 nm standard-cell
+library. Third, we compile several data-plane algorithms to these targets to
+show how the choice of atoms in a target affects whether or not it can run an
+algorithm at line rate.
 
-Overall, we stress two main takeaways from our paper. One, it is possible to
-design line-rate hardware that supports atoms that can express a wide variety
-of data-plane algorithms with modest chip area overhead. Second, it is possible
-to program the same hardware using a high-level DSL without giving up any
-performance.
+Overall, we stress two main takeaways. One, it is possible to design
+programmable line-rate switches that can express a wide variety of data-plane
+algorithms with modest overheads. Second, these switches can be programmed
+using a high-level DSL without giving up any performance.
