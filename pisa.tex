@@ -91,8 +91,8 @@ increment the counter again from 0 to 1, when it should be incremented to 2.
 Locking is a potential solution. However, locking would cause packet 2 to wait
 for packet 1's atomic increment to complete. The switch no longer sustains line
 rate, which it is expected to regardless of the input
-workload.\footnote{Wait-free objects are an alternative to locking with bounded
-  wait times, but they are typically too complicated to implement in hardware.}
+workload.\footnote{Wait-free objects~\cite{herlihy_wait} are an alternative to locking,
+but are typically too complicated to implement in hardware.}
 
 In such an architecture, the only way to support an atomic increment is to
 provide hardware support for it by reading a state variable from memory,
@@ -112,8 +112,8 @@ if (counter < 99)
 else
   counter = 0;
 \end{lstlisting}
-Similarly, a stateless operation that sets a packet field (such as P4's {\tt
-modify\_field} primitive~\cite{p4spec}) can be written as the atom below:
+Similarly, a stateless operation like setting a packet field (e.g. P4's {\tt
+modify\_field} primitive~\cite{p4spec}) can be written as the atom:
 \begin{lstlisting}[style=customc, numbers=none, frame=none]
   p.field = value;
 \end{lstlisting}
