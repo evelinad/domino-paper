@@ -15,16 +15,16 @@ Relative to P4's abstract switch model~\cite{p4}, \absmachine contributes the
 notions of atoms and atom templates. NetASM~\cite{netasm} is an intermediate
 representation (IR) for programmable data planes. \absmachine and NetASM have
 different goals. \absmachine is a model of line-rate switch hardware, while
-NetASM is an IR that seeks to be portable across network devices---FPGAs,
-Virtual Switches, and line-rate switches.
+NetASM is an IR that is portable across network devices---FPGAs, Virtual
+Switches, and line-rate switches.
 
 Unlike \absmachine, to span different devices, NetASM doesn't constrain its
 instruction set. For instance, NetASM's ATM construct allows atomic access to
-shared state from multiple pipeline stages; we show in \S\ref{s:pisa} that this
-leads to incorrect behavior on line-rate hardware that doesn't support locking.
-Further, NetASM's dataflow framework concerns itself only with
-platform-independent optimizations such as dead-code elimination, and doesn't
-implement any platform-specific code generation like the \pktlanguage compiler.
+shared state from multiple pipeline stages; we show in \S\ref{ss:atoms} that
+this leads to incorrect behavior on line-rate hardware that doesn't support
+locking.  Further, NetASM's dataflow framework concerns itself only with
+platform-independent optimizations such as dead-code elimination, it doesn't
+implement any target-specific code generation like the \pktlanguage compiler.
 
 \textbf{Programmable Data Planes}
 Software-based data planes such as Click~\cite{click},
@@ -54,18 +54,12 @@ hardware targets such as the RMT and FlexPipe architectures. However, their
 work focuses on compiling stateless data-plane tasks such as forwarding and
 routing, while \pktlanguage focuses on stateful data-plane algorithms.
 
-%%In addition, FPGAs are hard to
-%%program. Relative to FPGAs, \pktlanguage seeks to provide both the line-rate
-%%performance of switching ASICs and a familiar programming model.
-%and have not found success in the
-%market~\cite{npfail}.
 \textbf{Packet-processing languages}
 Many programming languages target the network control plane. Examples include
-Frenetic~\cite{frenetic}, Pyretic~\cite{pyretic}, and
-Maple~\cite{maple}.~\cite{language_survey} is a survey of such approaches.  In
-contrast, \pktlanguage focuses on the data plane. Several DSLs target data-plane
-packet processing. Click~\cite{click} uses C++ for packet
-processing on software routers. Imperative languages such as NOVA~\cite{nova},
+Frenetic~\cite{frenetic}, Pyretic~\cite{pyretic}, and Maple~\cite{maple}. In
+contrast, \pktlanguage focuses on the data plane. Several DSLs target
+data-plane packet processing. Click~\cite{click} uses C++ for packet processing
+on software routers. Imperative languages such as NOVA~\cite{nova},
 packetC~\cite{packetc}, Intel's auto-partitioning C
 compiler~\cite{intel_uiuc_pldi}, PacLang~\cite{paclang_lang,
 paclang_partitioner}, and Microengine C~\cite{microenginec, intel_ixa} target
@@ -83,10 +77,8 @@ is no slippery slope of degrading performance with increasing program
 complexity.
 
 SNAP~\cite{snap} is a recent language for programming stateful data-plane
-algorithms using a network transaction: a block of code that executes
-atomically and treats the entire network as one big switch~\cite{onebigswitch}.
-SNAP doesn't impose constraints on what each switch can do at line rate, and
-doesn't handle code generation\S\ref{ss:code_gen}. Further, while network
+algorithms using a network transaction: an atomic block of code that treats the
+entire network as one big switch~\cite{onebigswitch}. While network
 transactions are a higher level of abstraction than packet transactions, they
 are limited to data-plane algorithms that can be expressed in a centralized
 fashion. In particular, most resource-management algorithms in
@@ -94,6 +86,10 @@ Table~\ref{tab:algos}, e.g. flowlets, RCP, CONGA, HULL, and AVQ, involve
 time-varying quantities (queue sizes, packet arrivals), and are only available
 as distributed algorithms running on each switch independently; we don't know
 of centralized analogues for these algorithms.
+
+%%TODO, should we add this? They seem to be fixing this now ... SNAP doesn't impose
+%%constraints on what each switch can do at line rate, and doesn't handle code
+%%generation\S\ref{ss:code_gen}. 
 
 %
 %P4~\cite{p4} is an emerging packet-processing language that explicitly targets
