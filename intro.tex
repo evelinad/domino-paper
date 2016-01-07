@@ -44,7 +44,8 @@ pipeline~\cite{xpliant_sdk,xpliant_sdk2,intel_sdk}.  This approach is
 attractive because it does not compromise on data rates and adds modest area
 overhead for programmability~\cite{rmt}. From an operational standpoint, these
 chips permit field reconfigurability, a feature that several other
-computational substrates like CPUs, GPUs, DSPs already benefit from.
+computational substrates like CPUs, GPUs, DSPs have benefited from for many
+years now.
 
 P4~\cite{p4, p4spec} is an emerging packet-processing language for such chips.
 P4 allows the programmer to specify packet parsing and processing without
@@ -89,31 +90,29 @@ models practical constraints that limit stateful operations on line-rate
 switches.  Informed by these constraints, we introduce the concept of {\em
 atoms} to represent a programmable switch's instruction set.  Second, we
 provide a programming model based on packet
-transactions~(\S\ref{s:transactions}).  This model introduces the notion of
-all-or-nothing compilation, where all packet transactions accepted by the
-compiler will run at line rate, or be rejected outright. There is no ``slippery
-slope'' of degrading performance with increasing code complexity.  Third, we
-implement a compiler~(\S\ref{s:compiler}) to compiles packet transactions to
-\absmachine machines. Our compiler adapts existing compiler techniques to the
-new domain of line-rate switches, simplifying many of them in the process
-(Table~\ref{tab:prior_compiler}).
+transactions~(\S\ref{s:transactions}).  This model introduces
+\textit{all-or-nothing compilation}, where all packet transactions accepted by
+the compiler will run at line rate, or be rejected outright. There is no
+``slippery slope'' of degrading performance with increasing code complexity.
+Third, we implement a compiler~(\S\ref{s:compiler}) to compile packet
+transactions to \absmachine machines. Our compiler adapts compiler techniques
+to the new domain of line-rate switches, simplifying many of them in the
+process (Table~\ref{tab:prior_compiler}).
 
-We evaluate \pktlanguage in three ways(\S\ref{s:eval}). First, we evaluate its
-expressive power by writing algorithms such as RCP~\cite{rcp},
+We evaluate \pktlanguage in three ways~(\S\ref{s:eval}). First, we evaluate its
+expressiveness by writing algorithms such as RCP~\cite{rcp},
 CoDel~\cite{codel}, heavy-hitter detection~\cite{opensketch}, and
-CONGA~\cite{conga}, in \pktlanguage~(\S\ref{s:eval}). We compare this to
-writing code for these algorithms in P4. Quantitatively, we find that code in
-\pktlanguage is between 3 and 8$\times$ more concise than P4 (as measured by
-lines of code).  Qualitatively, we find that \pktlanguage provides a simpler
-and less error-prone model for programming stateful data-plane algorithms
-relative to P4.  Second, we design a set of compiler targets
-(\S\ref{ss:targets}) based on \absmachine and show that these are feasible in
-hardware today with modest chip area overhead (< 10\%) in a 32 nm standard-cell
-library. Third, we compile several data-plane algorithms to these targets to
-show how the choice of atoms in a target affects whether or not it can run an
-algorithm at line rate.
+CONGA~\cite{conga}, in \pktlanguage~(\S\ref{s:eval}), and comparing it to
+writing these algorithms in P4. Quantitatively, code in \pktlanguage is between
+3 and 8$\times$ more concise. Qualitatively, \pktlanguage provides an easier
+and less error-prone model for programming stateful data-plane algorithms.
+Second, we design a set of compiler targets (\S\ref{ss:targets}) based on
+\absmachine and show that these are feasible in a 32 nm standard-cell library
+with modest chip area overhead (< 10\%). Third, we compile several data-plane
+algorithms to these targets to show how the choice of atoms in a target
+determines which algorithms it can support.
 
 Overall, we stress two main takeaways. One, it is possible to design
 programmable line-rate switches that can express a wide variety of data-plane
-algorithms with modest overheads. Second, these switches can be programmed
-using a high-level DSL without giving up any performance.
+algorithms with modest overhead. Second, these switches can be programmed using
+a high-level DSL without giving up any performance.
