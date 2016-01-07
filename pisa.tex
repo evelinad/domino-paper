@@ -13,21 +13,20 @@
 % People think of this as an IR / portable abstract machine, as opposed to an actual model of the hardware.
 % I think that's what triggers the comparisons to NetASM.
 This section describes \absmachine (Protocol-Independent Switch Architecture),
-a family of abstract machines for programmable switches differing in the
-computational capabilities they provide.  \footnote{The term PISA was briefly
-  introduced in a workshop talk~\cite{nick_p4}.  Here, we develop PISA into a
-\textit{fully executable} computational model for programmable switches.}
-\absmachine abstracts and generalizes line-rate programmable switch
-architectures, such as RMT~\cite{rmt}, Intel's FlexPipe~\cite{flexpipe}, and
-Cavium's XPliant Packet Architecture~\cite{xpliant} and \absmachine machines
-serve as compiler targets for \pktlanguage programs.
+a family of abstract machines for programmable switches.  \footnote{The term
+  PISA was briefly introduced in a workshop talk~\cite{nick_p4}.  Here, we
+  develop PISA into a \textit{fully executable} computational model for
+programmable switches.} \absmachine abstracts and generalizes line-rate
+programmable switch architectures, such as RMT~\cite{rmt}, Intel's
+FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
+Architecture~\cite{xpliant} and \absmachine machines serve as compiler targets
+for \pktlanguage programs.
 
 We chose this approach relative to targeting actual hardware for two reasons.
-First, programmable switches are rapidly evolving, so targeting
-one in particular risks obsolescence. Second, the software ecosystem to
-program these chips is heavily in flux. We do, however, address the
-practicality of these \absmachine machines by quantifying their area overhead
-in\S\ref{ss:atoms}.
+First, programmable switches are rapidly evolving, so targeting one in
+particular risks obsolescence. Second, the software ecosystem to program these
+chips is heavily in flux. We do, however, address the practicality of these
+\absmachine machines by quantifying their chip area overhead in\S\ref{ss:atoms}.
 
 \subsection{Programmable switch architectures}
 Packets arriving to a programmable switch~(Figure~\ref{fig:switch}) are parsed
@@ -43,17 +42,15 @@ on the switch, at all packet sizes. For instance, a 64-port switch with port
 speeds of 10 Gigabits/second and a minimum packet size of 64 bytes needs to
 process around a billion packets per second~\cite{rmt}.  Equivalently, each
 pipeline stage needs to process a packet every 1 ns and run at a clock
-frequency of 1 GHz. We use this 1 GHz requirement as a concrete target
-throughout the paper.
+frequency of 1 GHz. We use this 1 GHz requirement throughout the paper.
 
-The 1 ns budget in each stage greatly curtails the operations that can be
-performed on each packet. In contrast to a software router, NPU, or FPGA, a
-programmable switch provides a limited set of processing units or primitives
-that can manipulate packets in each pipeline stage. These processing units
-determine what algorithms can run on the switch. The technical challenge here
-is to build a compiler that can automatically determine the primitives needed
-to implement a data-plane algorithm from a user-friendly description of the
-algorithm.
+The 1 ns time budget in each stage greatly curtails the operations that can be
+performed on each packet. In contrast to a software router, a programmable
+switch provides a small set of processing units or primitives that can
+manipulate packets in each stage. These processing units determine what
+algorithms can run on the switch. The technical challenge here is to build a
+compiler that can determine the primitives needed to implement a data-plane
+algorithm from a user-friendly description of the algorithm.
 
 \subsection{The \absmachine abstract machine}
 
@@ -62,15 +59,13 @@ pipeline such as the ingress or egress pipeline. A pipeline in \absmachine
 consists of a number of stages executing synchronously on every time step. An
 incoming packet is processed by each stage and handed off to the next, until it
 exits the pipeline. Each stage has one time step of latency, which in our case
-is 1 ns.
-
-\absmachine only models components pertinent to data-plane algorithms. It
-models the computation within a match-action table in a stage (i.e., the action
-half of the match-action table), but not the match semantics (e.g., direct, or
-ternary). It is easy to embed these actions within a match-action pipeline by
-making them default actions~\cite{p4spec} for each table. \absmachine does not
-model packet parsing and assumes that packets arriving to it are already
-parsed.
+is 1 ns. \absmachine only models components pertinent to data-plane algorithms.
+It models the computation within a match-action table in a stage (i.e., the
+action half of the match-action table), but not the match semantics (e.g.,
+direct, or ternary). One could embed these actions in a standard match-action
+pipeline by making them default actions~\cite{p4spec} for each table.
+\absmachine does not model packet parsing and assumes that packets arriving to
+it are already parsed.
 
 \subsection{Atoms: \absmachine's processing units}
 \label{ss:atoms}
@@ -78,38 +73,36 @@ parsed.
 In \absmachine, each pipeline stage contains a vector of \textit{atoms}. All
 atoms in this vector execute in parallel on every time step.  Informally, an
 atom is an atomic unit of packet processing supported natively by a \absmachine
-machine. Atoms can optionally modify persistent state stored on the switch
-and constitute the machine's instruction set.  In contrast to instruction sets for
+machine. Atoms can optionally modify persistent state stored on the switch and
+constitute the machine's instruction set.  In contrast to instruction sets for
 CPUs, GPUs, DSPs, and NPUs, the atoms for a \absmachine machine need to be
 substantially richer. We explain this through an example below.
 
 Let us assume we need to atomically increment a state variable stored on the
-switch to count packets. Naively, one may think this could be done with
-hardware support for three simple operations: \textit{reading} some memory from
-one pipeline stage, \textit{adding} one in the next, and \textit{writing} it
-back to memory in the third. However, this doesn't provide atomicity. Assume
-packet 1 increments the counter from 0 to 1 by passing through the read, add,
-and write stages in time steps 1, 2, and 3 respectively.  If packet 2 arrives
-at the read stage at time step 2, it will increment the counter again from 0 to
-1, when it should be incremented to 2. Locks are a potential solution. However,
-locking would cause packet 2 to wait while packet 1's increment completes. The
-switch no longer sustains line rate, which it is expected to regardless of the
-input workload.\footnote{Wait-free objects~\cite{herlihy_wait} are an
-alternative to locking, but are typically too complicated to implement in
-hardware.}
+switch to count packets. Naively, this can be done with hardware support for
+three simple operations: \textit{reading} some memory from one pipeline stage,
+\textit{adding} one in the next, and \textit{writing} it to memory in the
+third. However, this doesn't provide atomicity. Assume packet 1 increments the
+counter from 0 to 1 by transiting the read, add, and write stages at times 1,
+2, and 3 respectively.  If packet 2 arrives at the read stage at time 2, it
+will increment the counter again from 0 to 1, when it should be 2. Locks are a
+potential solution. However, locking causes packet 2 to wait during packet 1's
+increment. The switch no longer sustains line rate, which it is expected to
+regardless of the input workload.\footnote{Wait-free
+objects~\cite{herlihy_wait} are an alternative to locking, but are typically
+too complicated for hardware.}
 
-In such an architecture, the only way to support an atomic increment is to
-support it in hardware by reading a state variable from memory, incrementing it
-and writing it back all in a single stage within a ns. The same observation
-applies to any atomic operation that needs to happen at line rate---not just an
-increment.  This motivate our representation of atoms as a body of sequential
-code. An atom completes execution of the entire body of code and modifies a
-packet before processing the next packet.  An atom may also contain internal
-state that is local to that atom alone and persists across packets.  Using this
-representation, a switch counter that wraps around at 100 can be written as the
-atom below.\footnote{We use {\tt p.x} to represent field {\tt x} within a
-  packet {\tt p} and {\tt x} to represent a state variable {\tt x} that
-  persists across packets.}
+In this architecture, the only way to provide an atomic increment is to
+expressly support it in hardware by reading memory, incrementing it and writing
+it back in a single stage within a ns. The same observation applies to any
+line-rate atomic operation---not just an increment.  This motivate our
+representation of atoms as a body of sequential code. An atom completes
+execution of the entire body of code and modifies a packet before processing
+the next packet.  An atom may also contain internal state that is local to that
+atom alone and persists across packets.  Using this representation, a switch
+counter that wraps around at 100 can be written as the atom below.\footnote{We
+  use {\tt p.x} to represent field {\tt x} within a packet {\tt p} and {\tt x}
+to represent a state variable {\tt x} that persists across packets.}
 \begin{lstlisting}[style=customc, numbers=none, frame=none]
 if (counter < 99)
   counter++;
@@ -121,14 +114,14 @@ modify\_field} primitive~\cite{p4spec}) can be written as the atom:
 \begin{lstlisting}[style=customc, numbers=none, frame=none]
   p.field = value;
 \end{lstlisting}
+Table~\ref{tab:templates} provides more examples of atoms.
 
-We note here that, unlike stateful atomic operations such as increment,
-stateless operations can be supported by simply providing a set of basic
-stateless operations such as arithmetic on packet fields. Consider, for
-instance, the operation pkt.f1 = pkt.f2 + pkt.f3 - pkt.f4. Because this
-operation doesn't modify state that needs to be visible to the next packet, it
-can be done by carrying out the addition in one stage, and the subtraction in
-the next, unlike the counter above.
+We note that---unlike stateful atomic operations such as increment--- stateless
+operations can be supported by providing a set of basic stateless operations
+such as packet field arithmetic. Consider, for instance, the operation pkt.f1 =
+pkt.f2 + pkt.f3 - pkt.f4. Because this operation doesn't modify state that is
+visible to the next packet, it can be implemented by adding in one stage, and
+the subtracting in the next, unlike the increment.
 
 %%\absmachine generalizes several aspects of existing programmable switch
 %%architectures. The vector of atoms in each stage generalizes RMT's very-large
@@ -149,24 +142,23 @@ the next, unlike the counter above.
 %%distinguish \absmachine from software routers~\cite{click} and network
 %processors~\cite{ixp4xx} that sacrifice determinism for programmability.
 
-To provide line-rate performance, atom bodies must be suitably constrained so
-that, when implemented in digital logic, the atom body can finish execution
-within 1 ns. We constrain atom bodies by defining {\it atom templates}
+To provide line-rate performance, atom bodies must be suitably constrained.
+When implemented in digital logic, the atom body must finish execution within 1
+ns. We constrain atom bodies by defining {\it atom templates}
 (\S\ref{ss:code_gen}).  An atom template is a program that always terminates
 and specifies exactly how the atom is executed. One example is an ALU with a
 restricted set of primitive operations to choose from
 (Figure~\ref{fig:alu_diag}). Atom templates allow us to create \absmachine
-machines with different atoms.  In practice, atom templates will designed by an
-ASIC engineer and exposed as a machine's instruction set (\S\ref{ss:targets}).
-As programmable switches evolve, atoms will evolve as well.  However, atoms
-cannot be arbitrarily complex: the line rate is inversely proportional to an
-atom's execution latency~(\S\ref{ss:perfprog}).
+machines with different atoms.  In practice, atom templates will be designed by
+an ASIC engineer and exposed as a machine's instruction
+set~(\S\ref{ss:targets}).  As programmable switches evolve, atoms will evolve
+as well.  However, atoms cannot be arbitrarily complex: the line rate is
+inversely proportional to an atom's execution latency~(\S\ref{ss:perfprog}).
 
 \subsection{Resource limits}
 \label{s:resource}
 
-Finally, for any real architecture, we need to limit the number of atoms in
-each stage and the number of stages in the pipeline. This is similar to the
-limits on the number of stages, number of tables per stage, and amount of
-memory per stage in programmable switch architectures such as RMT and FlexPipe
-~\cite{lavanya_compiler}.
+For any real architecture, we need to limit the number of atoms in each stage
+and the number of stages in the pipeline. This is similar to the limits on the
+number of stages, number of tables per stage, and amount of memory per stage in
+programmable switch architectures such as RMT and FlexPipe~\cite{lavanya_compiler}.
