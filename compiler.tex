@@ -360,53 +360,51 @@ search finishes quickly, taking 10 secs at most.
   \hline
   Conversion to straigh-line code & If Conversion~\cite{if_conversion} & No backward control flow (gotos, break, continue) \\
   \hline
-  SSA & Cytron et. al~\cite{ssa} & SSA runs on straight-line code without any control flow \\
+  SSA & Cytron et. al~\cite{ssa} & SSA runs on straight-line code with no branches \\
   \hline
   Strongly Connected Components & Lam~\cite{software_pipelining} & Scheduling in space vs. time \\ % Mention Rau, software pipelining.
   \hline
-  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli, flowmap, spectransform}, instruction selection~\cite{instruction_selection} & Optimal vs. best-effort mapping; One-to-one mapping vs. tiling \\
+  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli, flowmap, spectransform}, instruction selection~\cite{muchnik} & Optimal vs. best-effort mapping; One-to-one mapping vs. tiling \\
   \hline
   \end{tabular}
   \end{scriptsize}
-  \caption{Domino's compiler techniques in relation to prior work}
+  \caption{Domino's compiler in relation to prior work}
   \label{tab:prior_compiler}
 \end{table}
 
 \subsection{Comparison with existing compiler techniques}
 
+% TODO: Don't intermix "conversion to straight-line code with branch removal". Use one or the other.
+% TODO: Mention Rau's work as well.
 The \pktlanguage compiler employs many techniques from the compiler literature,
 but simplifies and adapts them in new ways to suit the domain of line-rate
-switches (Table~\ref{tab:prior_compiler}).
+switches (Table~\ref{tab:prior_compiler}). We discuss these briefly.
 \begin{CompactEnumerate}
-  \item Domino's removal of branches resembles
-    if-conversion~\cite{if_conversion}, a technique used in vectorizing
-    compilers to turn control dependencies into data dependencies. This
-    procedure is easier in Domino because there are no backward control
-    transfer statements (goto, break, continue).
-  \item SSA was first introduced by Cytron et. al~\cite{ssa}. Domino's SSA
-    computation is significantly simpler because it operates on straight-line
-    code and doesn't have to deal with branches, which need special treatment
-    in standard applications of SSA.
-  \item The use of SCCs is similar to software
+  \item Domino's branch removal resembles if-conversion~\cite{if_conversion}, a
+    technique used in vectorizing compilers. This procedure is easier in Domino
+    because there are no backward control transfer statements (goto, break,
+    continue).
+  \item Domino's SSA computation is simpler because it operates on
+    straight-line code and doesn't deal with branches, which considerably
+    complicate standard SSA algorithms~\cite{ssa}.
+  \item The use of SCCs is inspired by software
     pipelining~\cite{software_pipelining} for VLIW architectures. The size of
-    the largest SCC affects the throughput of the pipelined loop in software
-    pipelining, while, for Domino, it affects the complexity of the atom
-    required to run a particular program at line rate. Put differently, Domino
-    trades off an increase in space for line-rate performance.
-  \item The use of program synthesis for code generation is similar to
-    Chlorophyll~\cite{chlorophyll} and shares similar goals as technology
-    mapping~\cite{micheli, flowmap, spectransform} and instruction selection.
-    However, in all prior work, the goal is to map a code sequence to multiple
-    instructions with the goal of minimizing instruction count. This problem is
-    NP-hard, and all prior techniques employ sub-optimal heuristics.  Domino's
-    problem is simpler: we map each codelet to a single instruction / atom
-    using SKETCH. The simpler problem affords an optimal solution: if there is
-    any way to map the codelet to an atom, SKETCH will find it, so long as it
-    is within the search space.
+    the largest SCC affects the maximum throughput of the pipelined loop in
+    software pipelining, while, for \pktlanguage, it affects the complexity of
+    the atom required to run a program at line rate. Put differently, \pktlanguage
+    trades off increased space for guaranteed line-rate performance.
+  \item Program synthesis was used for code generation in
+    Chlorophyll~\cite{chlorophyll}.  Code generation for \pktlanguage shares
+    similar goals as technology mapping~\cite{micheli, flowmap, spectransform}
+    and instruction selection~\cite{muchnik}.  However, prior work maps a code
+    sequence to \textit{multiple} instructions/tiles, using heuristics to
+    minimize instruction count. Domino's problem is simpler: we map each
+    codelet to a single atom using SKETCH.  The simpler problem results in an
+    optimal solution: if there exists a way to map the codelet to an atom,
+    SKETCH will find it.
     %TODO: Alvin, can you check this wording?
   \item High-level synthesis~\cite{nurvadathi, cash, bluespec, vivado} derives
     digital circuits from imperative programs. This simplifies hardware
-    development, but the performance of each program depends on its complexity.
-    \pktlanguage has an all-or-nothing guarantee: all code that compiles can
-    run at switch's line rate or is rejected by the compiler.
+    development. But, the performance of each program depends on its complexity
+    unlike \pktlanguage that only accepts line-rate programs.
 \end{CompactEnumerate}
