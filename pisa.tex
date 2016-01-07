@@ -12,16 +12,22 @@
 % Altenate name: architecture, machine model, and ...?
 % People think of this as an IR / portable abstract machine, as opposed to an actual model of the hardware.
 % I think that's what triggers the comparisons to NetASM.
-%TODO: Explain why we are doing this relative to actually programming a real chip?
 This section describes \absmachine (Protocol-Independent Switch Architecture),
 a family of abstract machines for programmable switches differing in the
 computational capabilities they provide.  \footnote{The term PISA was briefly
   introduced in a workshop talk~\cite{nick_p4}.  Here, we develop PISA into a
 \textit{fully executable} computational model for programmable switches.}
-\absmachine machines serve as compiler targets for \pktlanguage programs.
 \absmachine abstracts and generalizes line-rate programmable switch
 architectures, such as RMT~\cite{rmt}, Intel's FlexPipe~\cite{flexpipe}, and
-Cavium's XPliant Packet Architecture~\cite{xpliant}.
+Cavium's XPliant Packet Architecture~\cite{xpliant} and \absmachine machines
+serve as compiler targets for \pktlanguage programs.
+
+We chose this approach relative to targeting actual hardware for two reasons.
+First, programmable switches are rapidly evolving, so targeting
+one in particular risks obsolescence. Second, the software ecosystem to
+program these chips is heavily in flux. We do, however, address the
+practicality of these \absmachine machines by quantifying their area overhead
+in\S\ref{ss:atoms}.
 
 \subsection{Programmable switch architectures}
 Packets arriving to a programmable switch~(Figure~\ref{fig:switch}) are parsed
