@@ -1,21 +1,7 @@
 \section{The \pktlanguage compiler}
-
-% TODO: The compiler's biggest contribution is separating out the stateful
-% portions of the architecture from the stateless ones.
-
-% And this is important, because the stateless ones can ALWAYS be implemented,
-% while the stateful ones are more constrained.
-
-% Like Hari said, the critical path scheduling doesn't affect feasibility.
-% It only affects optimality.
-
+\label{s:compiler}
 % The hardest thing about the compiler is the stateful vs. stateless separation.
 % And mapping the stateful operations to the hardware constraints.
-
-% But at the same time, not having the pipeline/crit. path scheduling makes it
-% a tool, not a compiler anymore.
-
-\label{s:compiler}
 
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{compiler.pdf}
@@ -152,20 +138,17 @@ moved into the read flank.}
 \end{figure*}
 
 The \pktlanguage compiler consists of three passes (Figure~\ref{fig:passes}).
-First, \textit{normalization} simplifies the code while still retaining the
-sequential nature of the code inherent to packet transactions. Second,
+First, \textit{normalization} simplifies the packet transaction while still
+retaining the sequential semantics provided by packet transactions. Second,
 \textit{pipelining} transforms the normalized code into code for a
-\textit{pipelined virtual switch machine (PVSM)}. PVSM is an intermediate representation that
-models a switch pipeline without any restrictions on the number of stages,
-the number of parallel processing units within a stage, and the computations
-permitted within each unit. Third, \textit{code generation} transforms this
+\textit{pipelined virtual switch machine (PVSM)}. PVSM is an intermediate
+representation that models a switch pipeline with no computational or resource
+limits~(\S\ref{s:absmachine}). Third, \textit{code generation} transforms this
 intermediate representation into the configuration for a \absmachine machine,
-respecting constraints on the number of stages, the stage width, and the atoms
-provided by that machine. Throughout this section, we use flowlet switching from
-Figure~\ref{fig:flowlet_code} as a running example to demonstrate compiler
-passes.  While we have simplified the code for readability, the code output by
-the \pktlanguage compiler after each pass isn't materially different from the
-version presented here.
+which imposes bother computational and resource constraints. Throughout this
+section, we use flowlet switching as a running example to demonstrate compiler
+passes.  While we have simplified the code for readability, the output after
+each pass isn't materially different from the version here.
 
 \subsection{Normalization}
 
@@ -179,25 +162,24 @@ statements using the conditional operator, starting from the innermost
 the transaction body into straight-line code, where control passes sequentially
 without branching. Straight-line code simplifies the rest of the compiler, by
 simplifying dependency analysis and conversion to static single-assignment
-form(\S\ref{ss:ssa}).
+form.
 
-\textbf{Rewriting state variable operations: }We next identify state variables
-used in a packet transaction, such as \texttt{last\_time} and
-\texttt{saved\_hop} in Figure~\ref{fig:flowlet_code}.  For each state variable,
-we create a \textit{read flank} to read the state variable into a temporary
-packet field. For an array, we also move the index expression into the read
-flank because only one array index is accessed by each packet in valid
-\pktlanguage programs.  Throughout the packet transaction, we replace the state
-variable with the packet temporary, and create a \textit{write flank} to write
-the packet temporary back into the state variable
-(Figure~\ref{fig:stateful_flanks}). After this pass, the only operations on
-state variables are reads and writes; all arithmetic happens on packet
-variables. Restricting operations on state variables simplifies handling of
-state variables during pipelining.
+\textbf{Rewriting state variable operations: }We now identify state variables
+in a packet transaction, such as \texttt{last\_time} and \texttt{saved\_hop} in
+Figure~\ref{fig:flowlet_code}.  For each state variable, we create a
+\textit{read flank} to read the state variable into a temporary packet field.
+For an array, we also move the index expression into the read flank exploiting
+the fact that only one array index is accessed by each packet.  Throughout the
+packet transaction, we replace the state variable with the packet temporary,
+and create a \textit{write flank} to write the packet temporary back into the
+state variable~(Figure~\ref{fig:stateful_flanks}). After this pass, the only
+operations on state variables are reads and writes; all arithmetic happens on
+packet variables. Restricting stateful operations simplifies handling of state
+variables during pipelining.
 
 \textbf{Converting to single-assignment form: }We next convert the code to
 static single-assignment form (SSA)~\cite{ssa}, as shown in
-Figure~\ref{fig:ssa}). In SSA, every variable is assigned exactly once. To
+Figure~\ref{fig:ssa}. In SSA, every variable is assigned exactly once. To
 compute the SSA, we replace every assignment to a packet variable with a new
 packet variable and propagate this until the next assignment to the same
 variable.  Because every variable is assigned exactly once, SSA removes
@@ -208,48 +190,46 @@ pipelining(\S\ref{ss:partitioning}).
 %%We execute copy propagation~\cite{copy_prop} after
 %%SSA to reduce the number of temporary packet variables.
 \textbf{Flattening to three-address code: } Three-address code~\cite{tac} is a
-representation where all instructions are either reads / writes into state
+representation where all instructions are either reads/writes into state
 variables or operations on packet variables of the form \texttt{pkt.f1 = pkt.f2
 op pkt.f3;} where \texttt{op} can be a
 conditional,\footnote{Ternary/Conditional operators take in 4 addresses instead
 of 3.} arithmetic, logical, or relational operator.  We also allow either one
 of {\tt pkt.f2} or {\tt pkt.f3} to be an intrinsic function call.  To convert
 to three-adress code, we flatten expressions that are not in three-address code
-by introducing temporaries (Figure~\ref{fig:three_address}).  Flattening could
-result in redundant temporaries computing the same subexpression; we remove
-these using common subexpression elimination~\cite{cse}.
+using temporaries~(Figure~\ref{fig:three_address}).  Flattening could result in
+redundant temporaries computing the same expression; we remove these using
+common subexpression elimination~\cite{cse}.
 
 \subsection{Pipelining}
 \label{ss:partitioning}
 At this point, the code is still sequential. Code partitioning turns sequential
-code into a pipeline of \textit{codelets}, where each codelet is a small
-sequential block of three-address code statements. Conceptually, this pipeline
-corresponds to an intermediate representation, we call the \textit{Pipelined
-Virtual Switch Machine} that places no restrictions on the number of stages in
-the pipeline, the width of each stage, and the complexity of each
-codelet---much like intermediate representations such as LLVM place no
-restriction on the number of virtual registers. Later, during code generation,
-we map these codelets to atoms available in the abstract machine.
+code into a pipeline of \textit{codelets}, where each codelet is a sequential
+block of three-address code statements. This codelet pipeline corresponds to an
+intermediate representation, we call the \textit{Pipelined Virtual Switch
+Machine} that places no computational or resource constraints on the pipeline
+---much like intermediate representations such as LLVM place no restriction on
+the number of virtual registers. Later, during code generation, we map these
+codelets to atoms available in the \absmachine machine, while respecting its
+constraints.
 
-We use the following algorithm to create code for the pipelined virtual switch
-machine.
+We use the following algorithm to create the codelet pipeline for the pipelined
+virtual switch machine.
 \begin{CompactEnumerate}
-  \item Create a node for each statement (Figure~\ref{fig:three_address}) in
-    the normalized packet transaction.
+  \item Create a node for each statement in the normalized packet transaction.
   \item Create a pair of edges between nodes N1 and N2, where N1 is a read from
-    a state scalar / state array and N2 is a write into the same variable.
-    This step captures the constraint that state should be internal to a
-    codelet.
+    a state scalar/array and N2 is a write into the same variable.  This step
+    captures the notion that state should be internal to a codelet/atom.
   \item Create an edge (N1, N2) for every pair of nodes N1, N2 where N2 reads a
     variable written by N1. We only check read-after-write dependencies because
-    we transform control dependencies into data dependencies by rewriting
-    branches, and write-after-read and write-after-write dependencies don't
+    we transform control dependencies into data dependencies during normalization,
+    and write-after-read and write-after-write dependencies don't
     exist in SSA.
   \item Generate strongly connected components (SCCs) of the resulting graph
     (Figure~\ref{fig:partitioning_before}) and condense the SCCs to create a
     directed acyclic graph (DAG) (Figure~\ref{fig:partitioning_after}). This
-    step captures the constraint that all operations on a state variable must
-    be confined to one codelet.
+    step captures the notion that all operations on a state variable must be
+    confined to one codelet/atom because state cannot be shared between atoms.
   \item Schedule the resulting DAG using critical path
     scheduling~\cite{crit_path_sched} by creating a new pipeline stage every time
     one operation needs to follow another according to the precedence relationship
@@ -285,12 +265,13 @@ or more updates to the state variable through packet temporaries in between.
 
 \subsection{Code generation}
 \label{ss:code_gen}
-The final pass of the compiler determines if the code for the Pipelined Virtual
-Switch Machine in the previous pass can be compiled to a hardware target (in
-our case, a \absmachine machine). To do so, we consider three limits present in
-any \absmachine machine: resource limits on the number of pipeline stages and
-the width of each pipeline stage, and computational limits on atoms within a
-stage.
+The final pass of the compiler determines if the codelet pipeline can be
+compiled to a \absmachine machine.  This requires us to consider two limits
+present in any \absmachine machine: resource limits on the number of pipeline
+stages and the width of each pipeline stage, and computational limits on atoms
+within a stage.
+%TODO: Ensure that either one of width of a pipeline stage and number of atoms
+%per stage is used; not both.
 
 \paragraph{Resource limits}
 To handle resource limits, we scan each pipeline stage in the codelet pipeline
@@ -306,38 +287,36 @@ need to execute atomically. For instance, updating the state variable
 \texttt{saved\_hop} in Figure~\ref{fig:flowlet_pipeline} requires a read
 followed by a conditional write.  It is not apparent whether such codelets can
 be mapped to an available atom. We develop a new technique to determine the
-implementability of codelets, on a \absmachine machine that provide an atom
-template.
+implementability of codelets, given an atom template.
 
-First, each atom template is parameterized, where the parameters determine the
-actual functionality provided by the atom.  For instance,
-Figure~\ref{fig:alu_diag} shows a hardware circuit that is capable of
-performing stateful addition or subtraction, depending on the value of the
-constant and which output is selected from the multiplexer.  Its atom template
- is shown in Figure~\ref{fig:alu_in_sketch}, where {\tt choice}
-and {\tt constant} represent the tunable parameters.  Each codelet can be
-viewed as a functional specification of the atom.  With that in mind, the
-mapping problem is equivalent to searching for the value of the parameters to
-configure the atom such that it implements the provided specification.
+Each atom template has a set of configuration parameters, where the parameters
+determine the atom's functionality.  For instance, Figure~\ref{fig:alu_diag}
+shows a hardware circuit that is capable of performing stateful addition or
+subtraction, depending on the value of the constant and which output is
+selected from the multiplexer.  Its atom template is shown in
+Figure~\ref{fig:alu_in_sketch}, where {\tt choice} and {\tt constant} represent
+the tunable parameters.  Each codelet can be viewed as a functional
+specification of the atom.  With that in mind, the mapping problem is
+equivalent to searching for the value of the parameters to configure the atom
+such that it implements the provided specification.
 
 While many algorithms can be used to perform the search, in the \pktlanguage
 compiler we use the SKETCH program synthesizer~\cite{sketch_asplos} for this
 purpose, as the atom templates can be easily expressed using SKETCH, while
 SKETCH also provides efficient search algorithms and has been used for similar
-purposes across different domains~\cite{bitstreaming, lifejoin, qbs, chlorophyll}.
+purposes in other domains~\cite{bitstreaming, lifejoin, qbs, chlorophyll}.
 
 As an illustration, assume we want to map the codelet {\tt x=x+1} to the atom
 template shown in Figure~\ref{fig:alu_in_sketch}. The \pktlanguage compiler
-feeds in the codelet and the atom template into SKETCH
-(Figure~\ref{fig:sketch}), and SKETCH will search for possible values of the
-parameters such that the resulting atom performs the same functionality as the
-codelet, for all possible input values of {\tt x}.  In this case this is done
-by setting {\tt choice=0} and {\tt constant=1}.  In contrast, if the codelet
-{\tt x=x*x} was supplied as the specification, SKETCH will return an error as
-no such parameter value exists. To minimize search time, the range of possible
-inputs and parameter values need to be specified in the template (e.g., all 8
-bit integers), and our experiments show that the search finishes quickly,
-taking 10 secs at most.
+feeds in the codelet and the atom template into SKETCH and SKETCH will search
+for possible values of the parameters such that the resulting atom performs the
+same functionality as the codelet, for all possible input values of {\tt x}.
+In this case this is done by setting {\tt choice=0} and {\tt constant=1}.  In
+contrast, if the codelet {\tt x=x*x} was supplied as the specification, SKETCH
+will return an error as no such parameter value exists. To minimize search
+time, the range of possible inputs and parameter values need to be specified in
+the template (e.g., all 8 bit integers), and our experiments show that the
+search finishes quickly, taking 10 secs at most.
 
 %%\begin{figure}[!b]
 %%  \begin{center}
