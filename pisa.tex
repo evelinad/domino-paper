@@ -115,8 +115,14 @@ modify\_field} primitive~\cite{p4spec}) can be written as the atom:
   p.field = value;
 \end{lstlisting}
 
-%TODO: Stateful vs. stateless
-%% Resume here
+We note here that, unlike stateful atomic operations such as increment,
+stateless operations can be supported by simply providing a set of basic
+stateless operations such as arithmetic on packet fields. Consider, for
+instance, the operation pkt.f1 = pkt.f2 + pkt.f3 - pkt.f4. Because this
+operation doesn't modify state that needs to be visible to the next packet, it
+can be done by carrying out the addition in one stage, and the subtraction in
+the next, unlike the counter above.
+
 %%\absmachine generalizes several aspects of existing programmable switch
 %%architectures. The vector of atoms in each stage generalizes RMT's very-large
 %%instruction-word (VLIW)~\cite{rmt} that executes primitive actions on packet
@@ -137,24 +143,23 @@ modify\_field} primitive~\cite{p4spec}) can be written as the atom:
 %processors~\cite{ixp4xx} that sacrifice determinism for programmability.
 
 To provide line-rate performance, atom bodies must be suitably constrained so
-that the logic within the atom body can finish execution within 1 ns, when
-implemented as a combinational circuit. We constrain atom bodies by defining
-{\it atom templates} (\S\ref{ss:code_gen}).  An atom template is a program that
-always terminates and specifies how the atom is executed. One example is an ALU
-with a restricted set of primitive operations to choose from
-(Figure~\ref{fig:alu_diag}). Atom templates allow us to create different
-\absmachine machines that support different atoms natively.  In practice, we
-expect such atom templates to be designed by an ASIC engineer and exposed as
-part of a \absmachine machine's instruction set (\S\ref{ss:targets}). As
-programmable switches evolve, the capabilities of atoms will evolve as well.
-However, atoms cannot be arbitrarily complex: the line rate is inversely
-proportional to an atom's execution latency~(\S\ref{ss:perfprog}).
+that, when implemented in digital logic, the atom body can finish execution
+within 1 ns. We constrain atom bodies by defining {\it atom templates}
+(\S\ref{ss:code_gen}).  An atom template is a program that always terminates
+and specifies exactly how the atom is executed. One example is an ALU with a
+restricted set of primitive operations to choose from
+(Figure~\ref{fig:alu_diag}). Atom templates allow us to create \absmachine
+machines with different atoms.  In practice, atom templates will designed by an
+ASIC engineer and exposed as a machine's instruction set (\S\ref{ss:targets}).
+As programmable switches evolve, atoms will evolve as well.  However, atoms
+cannot be arbitrarily complex: the line rate is inversely proportional to an
+atom's execution latency~(\S\ref{ss:perfprog}).
 
 \subsection{Resource limits}
 \label{s:resource}
 
-Finally, for any real architecture, we will need to limit the number of atoms
-in each stage and the number of stages in the pipeline. This is similar to the
+Finally, for any real architecture, we need to limit the number of atoms in
+each stage and the number of stages in the pipeline. This is similar to the
 limits on the number of stages, number of tables per stage, and amount of
 memory per stage in programmable switch architectures such as RMT and FlexPipe
 ~\cite{lavanya_compiler}.
