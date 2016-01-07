@@ -12,19 +12,22 @@
 
 \textbf{Abstract machines for line-rate switches}
 Relative to P4's abstract switch model~\cite{p4}, \absmachine contributes the
-notions of atoms and atom templates. NetASM~\cite{netasm} is an intermediate
-representation (IR) for programmable data planes. \absmachine and NetASM have
-different goals. \absmachine is a model of line-rate switch hardware, while
-NetASM is an IR that is portable across network devices---FPGAs, Virtual
-Switches, and line-rate switches.
+notions of atoms. NetASM~\cite{netasm} is an intermediate representation (IR)
+for programmable data planes. \absmachine and NetASM have different goals.
+\absmachine is a model of line-rate switch hardware, while NetASM is an IR
+portable across network devices---FPGAs, Virtual Switches, and line-rate
+switches, similar to how PVSM is \pktlanguage's IR.
 
 Unlike \absmachine, to span different devices, NetASM doesn't constrain its
 instruction set. For instance, NetASM's ATM construct allows atomic access to
 shared state from multiple pipeline stages; we show in \S\ref{ss:atoms} that
 this leads to incorrect behavior on line-rate hardware that doesn't support
-locking.  Further, NetASM's dataflow framework concerns itself only with
-platform-independent optimizations such as dead-code elimination, it doesn't
-implement any target-specific code generation like the \pktlanguage compiler.
+locking.  Further, because it as an IR, NetASM's dataflow framework concerns
+itself only with platform-independent ``middle-end'' optimizations such as
+dead-code elimination. Unlike the \pktlanguage compiler, it neither implements
+the front-end to compile from a high-level language to an IR
+(\S\ref{ss:normalization}), nor the back-end to compile from the IR to specific
+targets (\S\ref{ss:code_gen}).
 
 \textbf{Programmable Data Planes}
 Software-based data planes such as Click~\cite{click},
