@@ -11,40 +11,37 @@
 %%these algorithms more rapidly.
 
 \textbf{Abstract machines for line-rate switches}
-Relative to P4's abstract switch model~\cite{p4}, \absmachine contributes the
-notions of atoms. NetASM~\cite{netasm} is an intermediate representation (IR)
-for programmable data planes. \absmachine and NetASM have different goals.
-\absmachine is a model of line-rate switch hardware, while NetASM is an IR
-portable across network devices---FPGAs, Virtual Switches, and line-rate
-switches, similar to how PVSM is \pktlanguage's IR.
-
-Unlike \absmachine, to span different devices, NetASM doesn't constrain its
-instruction set. For instance, NetASM's ATM construct allows atomic access to
-shared state from multiple pipeline stages; we show in \S\ref{ss:atoms} that
-this leads to incorrect behavior on line-rate hardware that doesn't support
-locking.  Further, because it as an IR, NetASM's dataflow framework concerns
-itself only with platform-independent ``middle-end'' optimizations such as
-dead-code elimination. Unlike the \pktlanguage compiler, it neither implements
-the front-end to compile from a high-level language to an IR
-(\S\ref{ss:normalization}), nor the back-end to compile from the IR to specific
-targets (\S\ref{ss:code_gen}).
+%%Relative to P4's abstract switch model~\cite{p4}, \absmachine contributes the
+%%notion of atoms.
+%%
+NetASM~\cite{netasm} is an abstract machine model and intermediate
+representation (IR) for programmable data planes that seeks to be portable
+across network devices---FPGAs, virtual switches, and line-rate switches.
+NetASM's dataflow framework only implements target-independent ``middle-end''
+optimizations such as dead-code elimination in its IR. Unlike \pktlanguage,
+NetASM neither designs a high-level language, nor implements  a front-end to
+compile to NetASM from it (\S\ref{ss:normalization}), nor the back-end to
+compile from NetASM to a target (\S\ref{ss:code_gen}). Further, NetASM doesn't
+model computational limits in its instruction set and its ATM construct allows
+atomic access to shared state from multiple pipeline stages.  Computational
+limits are fundamental to providing guaranteed performance at line rate and
+sharing state between stages leads to incorrect behavior on line-rate hardware
+that doesn't support locks (\S\ref{ss:atoms}).
 
 \textbf{Programmable Data Planes}
-Software-based data planes such as Click~\cite{click},
+Software data planes such as Click~\cite{click},
 RouteBricks~\cite{routebricks}, and Fastpass~\cite{fastpass} are flexible but
-lack the performance required for deployments. Network
+lack the performance required for large-scale deployments. Network
 Processors~\cite{ixp2800, ixp4xx} (NPUs) were an attempt to bridge the gap.
 While NPUs are faster than software routers, they remain an order of magnitude
-slower than merchant silicon chips~\cite{rmt}. Eden~\cite{eden} is a recent
-system that provides a programmable data plane using commodity switches by
-programming end hosts alone. \pktlanguage targets programmable switches that
-increase the scope of programmable data planes relative to an end-host-only
-solution. For instance, they permit us to express in-network congestion
-control, AQM, and congestion-aware load balancing---which are beyond Eden's
-capabilities.
+slower than merchant silicon chips~\cite{rmt}. Eden~\cite{eden} provides a
+programmable data plane using commodity switches by programming end hosts
+alone. \pktlanguage targets programmable switches that increase the scope of
+programmable data planes relative to an end-host-only solution. For instance,
+they permit us to express in-network congestion control, AQM, and
+congestion-aware load balancing (CONGA), which are beyond Eden's capabilities.
 
-An alternative is to use FPGAs to improve performance relative to software
-routers and NPUs; examples include NetFPGA~\cite{netfpga},
+An alternative is to use FPGAs; examples include NetFPGA~\cite{netfpga},
 Switchblade~\cite{switchblade}, Chimpp~\cite{chimpp}, and~\cite{silver_bullet}.
 These designs are slower than switching ASICs, and are rarely used in
 production network equipment. The Arista 7124 FX~\cite{7124fx} is a commercial
@@ -53,42 +50,42 @@ using the on-board FPGA---~10x less than the multi-terabit capacities of
 programmable switch chips~\cite{xpliant}.
 
 Recent work~\cite{lavanya_compiler} focuses on compiling P4 programs to
-hardware targets such as the RMT and FlexPipe architectures. However, their
-work focuses on compiling stateless data-plane tasks such as forwarding and
-routing, while \pktlanguage focuses on stateful data-plane algorithms.
+programmable data planes such as the RMT and FlexPipe architectures. However,
+their work focuses on compiling stateless data-plane tasks such as forwarding
+and routing, while \pktlanguage focuses on stateful data-plane algorithms.
 
 \textbf{Packet-processing languages}
 Many programming languages target the network control plane. Examples include
-Frenetic~\cite{frenetic}, Pyretic~\cite{pyretic}, and Maple~\cite{maple}. In
-contrast, \pktlanguage focuses on the data plane. Several DSLs target
-data-plane packet processing. Click~\cite{click} uses C++ for packet processing
-on software routers. Imperative languages such as NOVA~\cite{nova},
-packetC~\cite{packetc}, Intel's auto-partitioning C
-compiler~\cite{intel_uiuc_pldi}, PacLang~\cite{paclang_lang,
-paclang_partitioner}, and Microengine C~\cite{microenginec, intel_ixa} target
-network processors~\cite{ixp2800, ixp4xx}.
+Frenetic~\cite{frenetic}, Pyretic~\cite{pyretic}, and Maple~\cite{maple}.
+\pktlanguage focuses on the data plane. Several DSLs target data-plane packet
+processing. Click~\cite{click} uses C++ for packet processing on software
+routers. Imperative languages such as NOVA~\cite{nova}, packetC~\cite{packetc},
+Intel's auto-partitioning C compiler~\cite{intel_uiuc_pldi},
+PacLang~\cite{paclang_lang, paclang_partitioner}, and Microengine
+C~\cite{microenginec, intel_ixa} target network processors~\cite{ixp2800,
+ixp4xx}.
 
 \pktlanguage's C-like syntax and sequential semantics are inspired by these
-DSLs. However \pktlanguage is constrained relative to its predecessors: for
-instance, it forbids loops and includes no synchronization constructs because
-there is no shared state in \absmachine machines. These constraints were chosen
-to target line-rate switching chips with shared-nothing memory architectures.
+DSLs. However \pktlanguage is constrained relative to them: for instance, it
+forbids loops and includes no synchronization constructs because there is no
+shared state in \absmachine machines. These constraints were chosen to target
+line-rate switching chips with shared-nothing memory architectures.
 Furthermore, \pktlanguage's compiler presents a different programming model:
-all \pktlanguage programs that compile run at line-rate, while those that can't
-run at line rate are rejected outright. Unlike an NPU or software router, there
-is no slippery slope of degrading performance with increasing program
-complexity.
+all \pktlanguage programs that compile run at line-rate. Unlike an NPU or
+software router, there is no slippery slope of degrading performance with
+increasing program complexity.
 
 SNAP~\cite{snap} is a recent language for programming stateful data-plane
 algorithms using a network transaction: an atomic block of code that treats the
 entire network as one big switch~\cite{onebigswitch}. While network
 transactions are a higher level of abstraction than packet transactions, they
 are limited to data-plane algorithms that can be expressed in a centralized
-fashion. In particular, most resource-management algorithms in
-Table~\ref{tab:algos}, e.g. flowlets, RCP, CONGA, HULL, and AVQ, involve
-time-varying quantities (queue sizes, packet arrivals), and are only available
-as distributed algorithms running on each switch independently; we don't know
-of centralized analogues for these algorithms.
+fashion such as measurement and DDoS prevention. In particular, most
+resource-management algorithms in Table~\ref{tab:algos}, e.g. flowlets, RCP,
+CONGA, HULL, and AVQ, involve time-varying quantities (queue sizes, packet
+arrivals), and are only available as distributed algorithms running on each
+switch independently; we don't know of centralized versions for these
+algorithms.
 
 %%TODO, should we add this? They seem to be fixing this now ... SNAP doesn't impose
 %%constraints on what each switch can do at line rate, and doesn't handle code
