@@ -1,0 +1,46 @@
+Abstract is weak:
+
+Just say that we present Domino, a system that allows us to build programmable
+switches that run at line rate. Domino includes a language for expressing
+data-plane algorithms, a compiler to produce a hardware representation that can
+be embedded in ASICs. Make domino the entire system, not the language alone.
+
+Don't claim novelty for the abstract machine. Facilitating the
+hardware-software interface is done through the abstract machine. No footnote
+that says: "we introduced PISA in the previous talk."
+
+Don't portray us as solving an inconvenience.
+Don't mention P4 in so much depth.
+
+Wow people with packet transactions and why its important.
+One program for the whole pipeline as opposed to a program for each pipeline
+stage.
+
+Looked at all these algorithms and all previous work. Two important things that
+we need.
+1. A way to take the expression of a pipeline out of the programmer's hands.
+Even though the hardware is pipelined, we don't program pipeline stage by pipeline
+stage.
+2. We need a way to run algorithms that involve shared state to run at line
+rate.
+
+Mention the main problems with programmable line-rate switches up front.
+Shared-nothing programmable pipeline with strange hardware.
+
+Difference between us and RMT:
+----------------------------------
+Stateful instructions.
+Key things about hardware:
+1. feed-forward shared-nothing pipeline.
+2. you can't do arbitrary things with state.
+
+Clean the dark blue color in the diagram.
+
+============================================================
+Abstract machine model has all these restrictions that the compiler will have
+to know about to meaningfully compile.
+
+Mohammad:
+=============================
+It's ok to say that no chip today is actually doing this.
+Little more of nobody does this and that.
