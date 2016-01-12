@@ -91,17 +91,20 @@ internal behavior.
 %%routers like Click~\cite{click} with greater flexibility and variable
 %%performance.
 
-The overall language is a constrained subset of C (Table~\ref{tab:restrict}).
-These constraints are required for deterministic performance.  Memory
-allocation, unbounded iteration counts, and unstructured control flow all cause
-variable performance, which may prevent an algorithm from achieving line rate.
-Arrays can be used as state variables, but not as packet fields.  Furthermore,
-all accesses to a given array within one execution of a transaction, i.e. one
-packet, must use the same array index. For example, all read and write accesses
-to the array \texttt{last\_time} use the index \texttt{pkt.id}, which is
-constant for each packet, but can change between packets. This restriction
-mirrors restrictions on memories, where supporting distinct read and write
-addresses every clock cycle is challenging.
+The overall language is a constrained subset of C
+(Table~\ref{tab:restrict}).  These constraints are required for
+deterministic performance.  Memory allocation, unbounded iteration
+counts, and unstructured control flow all cause variable performance,
+which may prevent an algorithm from achieving line rate.  Arrays can
+be used as state variables, but not as packet fields.\MA{why?}
+Furthermore, all accesses to a given array within one execution of a
+transaction, i.e. one packet, must use the same array index. For
+example, all read and write accesses to the array \texttt{last\_time}
+use the index \texttt{pkt.id}, which is constant for each packet, but
+can change between packets. This restriction mirrors restrictions on
+memories, where supporting distinct read and write addresses every
+clock cycle is challenging.\MA{Do we model this restriction in PISA?
+  It would be better to add it to Sec 2.}
 
 \begin{table}
   \begin{tabular}{p{0.9\columnwidth}}
@@ -119,28 +122,39 @@ addresses every clock cycle is challenging.
 
 \subsection{All-or-nothing compilation}
 
-When compiled to a \absmachine machine (\S\ref{s:absmachine}), the \pktlanguage
-compiler (\S\ref{s:compiler}) converts the code in
+When compiled to a \absmachine machine (\S\ref{s:absmachine}), the
+\pktlanguage compiler (\S\ref{s:compiler}) converts the code in
 Figure~\ref{fig:flowlet_code} into the atom pipeline in
-Figure~\ref{fig:flowlet_pipeline}. The compiler guarantees that compiled
-programs will run at line rate or rejects them outright; there is no smooth
-tradeoff between a program's performance and its complexity.  The
-all-or-nothing compilation model is unusual for someone programming other
-computational substrates such as a CPU, GPU, or DSP. But, it reflects how
-routers and switches are used today. Routers are rated for a particular line
-rate, regardless of the feature set that an operator enables. This
-all-or-nothing model provides predictable performance for free---in contrast to
-software-routers that need explicit support for it~\cite{dobrescu2012,
-wenfei15}.
+Figure~\ref{fig:flowlet_pipeline}. If it succeeds, the compiler
+guarantees that the program will run at line rate on the target.
+Otherwise, the compiler rejects the program outright; there is no
+smooth tradeoff between a program's performance and its complexity.
+This {\em all-or-nothing} compilation model is unusual for someone
+programming other computational substrates such as a CPU, GPU, or
+DSP. But, it reflects how routers and switches are used today. Routers
+are rated for a particular line rate, regardless of the feature set
+that an operator enables. 
+
+% This all-or-nothing model provides
+% predictable performance for free---in contrast to software-routers
+% that need explicit support for it~\cite{dobrescu2012, wenfei15}.
+% MA: I would just get rid of this last sentence. It's not really
+% "free", you lose some capability.
 
 \subsection{Limitations of packet transactions}
 
-Packet transactions are a good fit for data-plane algorithms that do a small
-amount of work per packet (i.e. where the amount of work can be bounded at
-compile time) and manipulate only packet headers. Data-plane algorithms like
-deep packet inspection and wan optimization access packet payloads. These
-algorithms require a switch to parse the packet payload as well---effectively
-parsing a huge header consisting of each byte in the packet payload. Parsing
-deep parse graphs is challenging at line rates of 1 GHz. Consequently, the
-limitations of packet transactions merely reflect fundamental limitations of
-the underlying hardware.
+Packet transactions are a good fit for data-plane algorithms that do a
+small amount of work per packet (i.e. where the amount of work can be
+bounded at compile time) and manipulate only packet
+headers. Data-plane algorithms like deep packet inspection and wan
+optimization access packet payloads. These algorithms require a switch
+to parse the packet payload as well---effectively parsing a huge
+header consisting of each byte in the packet payload. Parsing deep
+parse graphs is challenging at line rates of 1 GHz.\MA{So this is more
+  a limitation of the parser than the transactional model. A better
+  example might be an algorithm that manipulates a large amount of
+  state, but does not need to run on every packet. For example,
+  periodically scanning a list of numbers to find their average might
+  be possible in hardware.}  Consequently, the limitations of packet
+transactions merely reflect fundamental limitations of the underlying
+hardware.
