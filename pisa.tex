@@ -211,24 +211,27 @@ stage, and the subtracting in the next, unlike the increment.
 %%distinguish \absmachine from software routers~\cite{click} and network
 %processors~\cite{ixp4xx} that sacrifice determinism for programmability.
 
-To provide line-rate performance, atom bodies must be suitably constrained.
-When implemented in digital logic, the atom body must finish execution within 1
-ns. We constrain atom bodies by defining {\it atom templates}
-(\S\ref{ss:code_gen}).  An atom template is a program that always terminates
-and specifies exactly how the atom is executed. One example is an ALU with a
-restricted set of primitive operations to choose from
-(Figure~\ref{fig:alu_diag}). Atom templates allow us to create \absmachine
-machines with different atoms.  In practice, atom templates will be designed by
-an ASIC engineer and exposed as a machine's instruction
-set~(\S\ref{ss:targets}).  As programmable switches evolve, atoms will evolve
-as well.  However, atoms cannot be arbitrarily complex: the line rate is
-inversely proportional to an atom's execution latency~(\S\ref{ss:perfprog}).
+To provide line-rate performance, atom bodies must be suitably
+constrained.  When implemented in digital logic, the atom body must
+finish execution within one clock cycle (1 ns for a 1 GHz clock
+frequency). We constrain atom bodies by defining {\it atom templates}
+(\S\ref{ss:code_gen}).  An atom template is a program that always
+terminates and specifies exactly how the atom is executed. One example
+is an ALU with a restricted set of primitive operations to choose from
+(Figure~\ref{fig:alu_diag}). Atom templates allow us to create
+\absmachine machines with different atoms.  In practice, atom
+templates will be designed by an ASIC engineer and exposed as a
+machine's instruction set~(\S\ref{ss:targets}).  As programmable
+switches evolve, atoms will evolve as well.  However, atoms cannot be
+arbitrarily complex: the line rate is inversely proportional to an
+atom's execution latency~(\S\ref{ss:perfprog}).
 
 \subsection{Resource limits}
 \label{s:resource}
 
-For any real architecture, we need to limit the number of atoms in each stage
-(the pipeline width) and the number of stages in the pipeline (the pipeline
-depth). This is similar to the limits on the number of stages, number of tables
-per stage, and amount of memory per stage in programmable switch architectures
-such as RMT and FlexPipe~\cite{lavanya_compiler}.
+For any real architecture, we also need to limit the number of atoms
+in each stage (the pipeline width) and the number of stages in the
+pipeline (the pipeline depth). This is similar to the limits on the
+number of stages, number of tables per stage, and amount of memory per
+stage in programmable switch architectures such as RMT and
+FlexPipe~\cite{lavanya_compiler}.
