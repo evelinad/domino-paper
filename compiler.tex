@@ -5,7 +5,9 @@
 
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{compiler.pdf}
-  \caption{Passes in the \pktlanguage compiler}
+  \caption{Passes in the \pktlanguage compiler \MA{The colors need to
+      be fixed; this won't print well. Also, I don't think the figure
+      needs to span two columns.}}
   \label{fig:passes}
 \end{figure*}
 
@@ -137,16 +139,18 @@ moved into the read flank.}
 \vspace{-0.5cm}
 \end{figure*}
 
-The \pktlanguage compiler consists of three passes (Figure~\ref{fig:passes}).
-First, \textit{normalization} simplifies the packet transaction while still
-retaining the sequential semantics of packet transactions. Second,
-\textit{pipelining} transforms the normalized code into code for a
-\textit{pipelined virtual switch machine (PVSM)}. PVSM is an intermediate
-representation that models a switch pipeline with no computational or resource
-limits. Third, \textit{code generation} transforms this intermediate
-representation into configuration for a \absmachine machine, which imposes both
-computational and resource constraints. Throughout this section, we use flowlet
-switching as a running example to demonstrate compiler passes.
+The \pktlanguage compiler consists of three passes
+(Figure~\ref{fig:passes}).  First, \textit{normalization} simplifies
+the packet transaction while retaining the sequential semantics of
+packet transactions. Second, \textit{pipelining} transforms the
+normalized code into code for a \textit{pipelined virtual switch
+  machine (PVSM)}. PVSM is an intermediate representation that models
+a switch pipeline with no computational or resource limits. Third,
+\textit{code generation} transforms this intermediate representation
+into configuration for a \absmachine machine, which imposes both
+computational and resource constraints. Throughout this section, we
+use flowlet switching as a running example to demonstrate compiler
+passes.
 
 %%While we have
 %%simplified the code for readability, the output after each pass isn't
@@ -154,16 +158,18 @@ switching as a running example to demonstrate compiler passes.
 \subsection{Normalization}
 \label{ss:normalization}
 
-\textbf{Branch removal: }A packet transaction's body can contain (potentially
-nested) branches (e.g., Lines~\ref{line:ifStart} to \ref{line:ifEnd} in
-Figure~\ref{fig:flowlet_code}, or CoDel~\cite{codel_code}).  Branches alter
-control flow and complicate dependence analysis i.e.  whether a statement
-should precede another.  We transform branches into the conditional operator,
-starting from the innermost \texttt{if} and recursing outwards
-(Figure~\ref{fig:if_convert}).  This turns the transaction body into
-straight-line code, where control passes sequentially without branching.
-Straight-line code simplifies the rest of the compiler, by simplifying
-dependency analysis and conversion to static single-assignment form.
+
+\textbf{Branch removal: }A packet transaction's body can contain
+(potentially nested) branches (e.g., Lines~\ref{line:ifStart} to
+\ref{line:ifEnd} in Figure~\ref{fig:flowlet_code}).  Branches alter
+control flow and complicate dependence analysis i.e.  whether a
+statement should precede another.  We transform branches into the
+conditional operator, starting from the innermost \texttt{if} and
+recursing outwards (Figure~\ref{fig:if_convert}).  This turns the
+transaction body into straight-line code, where control passes
+sequentially without branching.  Straight-line code simplifies the
+rest of the compiler, by simplifying dependency analysis and
+conversion to static single-assignment form.
 
 \textbf{Rewriting state variable operations: }We now identify state variables
 in a packet transaction, such as \texttt{last\_time} and \texttt{saved\_hop} in
@@ -178,15 +184,15 @@ operations on state variables are reads and writes; all arithmetic happens on
 packet variables. Restricting stateful operations simplifies handling of state
 during pipelining.
 
-\textbf{Converting to single-assignment form: }We next convert the code to
-static single-assignment form (SSA)~\cite{ssa}, as shown in
-Figure~\ref{fig:ssa}. In SSA, every variable is assigned exactly once. To
-compute the SSA, we replace every assignment to a packet variable with a new
-packet variable and propagate this until the next assignment to the same
-variable.  Because every variable is assigned exactly once, SSA removes
-Write-After-Read and Write-After-Write dependencies.  Only Read-After-Write
-dependencies remain, simplifying dependency analysis during
-pipelining(\S\ref{ss:partitioning}).
+\textbf{Converting to single-assignment form: }We next convert the
+code to static single-assignment form (SSA)~\cite{ssa}, as shown in
+Figure~\ref{fig:ssa}. In SSA, every variable is assigned exactly
+once. To compute the SSA, we replace every assignment to a packet
+variable with a new packet variable and propagate this until the next
+assignment to the same variable.  Because every variable is assigned
+exactly once, SSA removes Write-After-Read and Write-After-Write
+dependencies.  Only Read-After-Write dependencies remain, simplifying
+dependency analysis during pipelining (\S\ref{ss:partitioning}).
 
 %%We execute copy propagation~\cite{copy_prop} after
 %%SSA to reduce the number of temporary packet variables.
@@ -201,6 +207,11 @@ to three-adress code, we flatten expressions that are not in three-address code
 using temporaries~(Figure~\ref{fig:three_address}).  Flattening may result in
 temporaries that compute the same expression; we remove these using common
 subexpression elimination~\cite{cse}.
+
+\MA{Do we need a figure for every step? They're taking a lot of space,
+  and I feel weaving through them disrupts the flow of the paper. One
+  option is to only show the final result of the normalization stage
+  (Figure 8) and move all the intermediate figures to an Appendix}
 
 \subsection{Pipelining}
 \label{ss:partitioning}
@@ -230,17 +241,26 @@ We use the following algorithm to create the codelet pipeline for PVSM.
     operations on a state variable must be confined to one codelet/atom because
     state cannot be shared between atoms.
   \item Schedule the resulting DAG using critical path
-    scheduling~\cite{crit_path_sched} by creating a new pipeline stage if one
-    operation needs to follow another because of precedence relationships
-    established by the DAG (Figure~\ref{fig:partitioning_after}).
+    scheduling~\cite{crit_path_sched} by creating a new pipeline stage
+    if one operation needs to follow another because of precedence
+    relationships established by the DAG
+    (Figure~\ref{fig:partitioning_after}).\MA{I'm not sure I
+      understand this. Where are the stages in Fig. 10?}
 \end{CompactEnumerate}
 
 %%\footnote{We refer to this both as a codelet and
 %%an atom pipeline because codelets map one-to-one atoms (\S\ref{ss:code_gen}).}
 %%shown in Figure~\ref{fig:flowlet_pipeline}
 
-The resulting codelet pipeline implements the packet transaction on a switch
-with no computational or resource constraints. We handle these next.
+The resulting codelet pipeline implements the packet transaction on a
+switch with no computational or resource constraints. We handle these
+next.
+
+\MA{The figures are a little messy. You never refer to Fig. 9.  It's
+  not clear what is the eventual result of the pipelining stage; is it
+  Fig. 10 or Fig. 2? Similar to 4.1, perhaps showing only the output
+  of the pipelining stage in the main body of the paper would improve
+  readability.}
 
 %%Further,
 %%codelets have a stylized form.  Codelets that don't manipulate state contain
@@ -260,7 +280,9 @@ with no computational or resource constraints. We handle these next.
 %
 \begin{minipage}{0.5\textwidth}
 \includegraphics[width=\columnwidth]{scc.pdf}
-\caption{Dependency graph after condensing SCCs}
+\caption{Dependency graph after condensing SCCs \MA{Can we add a
+    caption that explains that an edge represents a read-after-write
+    dependency. (subfig might work better than minipage)}}
 \label{fig:partitioning_after}
 \end{minipage}
 \end{figure*}
@@ -269,9 +291,9 @@ with no computational or resource constraints. We handle these next.
 \label{ss:code_gen}
 
 The final pass determines if the codelet pipeline can be compiled to a
-\absmachine machine.  This requires us to consider two constraints in any
-\absmachine machine: resource limits i.e. the pipeline width and depth, and
-computational limits on atoms within a pipeline stage.
+\absmachine machine.  This requires us to consider two constraints in
+any \absmachine machine: resource limits, i.e. the pipeline width and
+depth, and computational limits on atoms within a pipeline stage.
 
 \paragraph{Resource limits}
 To handle resource limits, we scan each pipeline stage in the codelet pipeline
@@ -282,13 +304,15 @@ in all stages is under the pipeline width or we hit the pipeline depth, in
 which case we reject the program.
 
 \paragraph{Computational limits}
-Next, we determine if codelets in the pipeline map one-to-one to atoms provided
-by the \absmachine machine. In general, codelets have multi-line bodies that
-are executed atomically. For instance, updating the state variable
-\texttt{saved\_hop} in Figure~\ref{fig:flowlet_pipeline} requires a read
-followed by a conditional write.  It is not apparent whether such codelets can
-be mapped to an available atom. We develop a new technique to determine the
-implementability of codelets, given an atom template.
+Next, we determine if codelets in the pipeline map one-to-one to atoms
+provided by the \absmachine machine. In general, codelets have
+multi-line bodies that are executed atomically. For instance, updating
+the state variable \texttt{saved\_hop} in
+Figure~\ref{fig:flowlet_pipeline} \MA{Should this be Figure 10?}
+requires a read followed by a conditional write.  It is not apparent
+whether such codelets can be mapped to an available atom. We develop a
+new technique to determine the implementability of codelets, given an
+atom template.
 
 Each atom template has a set of configuration parameters, where the parameters
 determine the atom's functionality.  For instance, Figure~\ref{fig:alu_diag}
@@ -383,7 +407,7 @@ switches (Table~\ref{tab:prior_compiler}).
     technique used in vectorizing compilers. This procedure is easier in Domino
     because there are no backward control transfer statements (goto, break,
     continue).
-  \item Domino's SSA computation is simpler because it operates on
+  \item Domino's SSA computation is simple because it operates on
     straight-line code and doesn't deal with branches, which considerably
     complicate standard SSA algorithms~\cite{ssa}.
   \item The use of SCCs is inspired by software pipelining for VLIW
@@ -408,3 +432,8 @@ switches (Table~\ref{tab:prior_compiler}).
     imperative programs. But, the performance of each program depends on its
     complexity unlike \pktlanguage that only accepts line-rate programs.
 \end{CompactEnumerate}
+
+\MA{This reads like something in a related work section. I think it
+  would be better to move this to related work. We can add a sentence
+  about how we adapt existing Domino techniques to the beginning of
+  the section. See what Hari thinks.}
