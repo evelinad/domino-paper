@@ -68,64 +68,87 @@ CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or no
 \label{tab:algos}
 \end{table*}
 
-First, we evaluate \pktlanguage's expressiveness by using it to write
-data-plane algorithms and comparing it to how they would be written in P4
-(Table~\ref{tab:algos}). We then design a set of \absmachine machines
-(Table~\ref{tab:templates}) that serve as compiler targets for \pktlanguage.
-These machines are readily feasible in today's transistor technology and their
-atoms incur modest chip area overhead relative to a baseline switch chip. Next,
-we use the \pktlanguage compiler to compile the programs in
-Table~\ref{tab:algos} to the targets in Table~\ref{tab:templates}.  We conclude
-by quantifying the tradeoff between a target's programmability (the space of
+First, we evaluate \pktlanguage's expressiveness and ease of
+programming by using it to write several data-plane algorithms
+(Table~\ref{tab:algos}), and comparing it to how these algorithms
+would be written in P4.  To validate that these algorithms can be
+implemented at line-rate, we design a concrete set of \absmachine
+machines (Table~\ref{tab:templates}) that we use as compiler targets
+for \pktlanguage.  We verify that these machines can readily be
+implemented in hardware today and that their atoms incur modest chip
+area overhead.\footnote{We develop our own atoms since no existing
+  programmable switching chip supports a sufficiently rich set of
+  operations needed for data-plane algorithms.} Next, we use the
+\pktlanguage compiler to compile the algorithms in
+Table~\ref{tab:algos} to these targets.  We conclude by quantifying
+the tradeoff between a target's programmability (the space of
 data-plane algorithms that it can run at line rate) and the target's
 performance (the maximum line rate it can support).
 
 \subsection{Expressiveness}
 \label{ss:Expressiveness}
 
-To evaluate \pktlanguage's expressiveness, we express several data-plane
-algorithms (Table~\ref{tab:algos}) in \pktlanguage. These algorithms encompass
-a variety of data-plane functionality including data-plane load balancing,
-in-network congestion control, active queue management, and measurement. In
-addition, \pktlanguage has been used for programmable
-scheduling~\cite{prog_sched_arxiv}.  In all these cases, the algorithms are
+To evaluate \pktlanguage's expressiveness, we express several
+data-plane algorithms (Table~\ref{tab:algos}) in \pktlanguage. These
+algorithms encompass a variety of data-plane functionality including
+data-plane load balancing, in-network congestion control, active queue
+management, and measurement. In addition, \pktlanguage has been used
+for programmable scheduling~\cite{prog_sched_arxiv}.\MA{Need to add an
+  example in Table 4.} In all these cases, the algorithms are
 naturally available as blocks of imperative code; translating them to
 \pktlanguage syntax was straightforward.
 %TODO: Need to make an arXiv document for programmable scheduling.
 
-By contrast, expressing one of these algorithms in P4 requires manually teasing
-out portions of the algorithm that can reside in independent match-action
-tables and then chaining these tables together. In essence, the programmer
-carries out the transformations in \pktlanguage's compiler, which is both
-tedious and error prone, as we show below.
+By contrast, expressing one of these algorithms in P4 requires
+manually teasing out portions of the algorithm that can reside in
+independent match-action tables and then chaining these tables
+together. In essence, the programmer carries out the transformations
+in \pktlanguage's compiler, which is both tedious and error prone, as
+we show below.
 
 \paragraph{Quantitative comparison against P4} Of the algorithms in
-Table~\ref{tab:algos}, only flowlet switching has a publicly available P4
-implementation~\cite{p4_flowlet}. This implementation requires 292 lines of
-uncommented P4, in comparison to the 37 lines of \pktlanguage in
-Figure~\ref{fig:flowlet_code}. It also requires the programmer to manually
-specify tables, how they are chained, what headers are required, and how they
-are parsed.
+Table~\ref{tab:algos}, only flowlet switching has a publicly available
+P4 implementation~\cite{p4_flowlet}. This implementation requires 292
+lines of uncommented P4, in comparison to the 37 lines of \pktlanguage
+in Figure~\ref{fig:flowlet_code}. It also requires the programmer to
+manually specify tables, how they are chained, what headers are
+required, and how they are parsed.\MA{Are we cheating here by saying
+  that P4 needs the programmer to specify something like parsing while
+  we don't? Aren't we just ignoring parsing, but we would need it for
+  a full solution?}
 
-Further, the same implementation is only guaranteed to be correct on a software
-switch because it requires synchronized access to the saved\_hop variable from
-two adjacent pipeline stages, which requires locking that is challenging at
-line rate. This illustrates the additional programmer burden when programming
-with P4. Reasoning about how state variables should be distributed across a
-pipeline is error prone and is best moved into a compiler where all algorithms
-can benefit from it.
+Further, the same implementation is only guaranteed to be correct on a
+software switch because it requires synchronized access to the
+saved\_hop variable from two adjacent pipeline stages, which requires
+locking that is challenging at line rate. This illustrates the
+additional programmer burden when programming with P4. Reasoning about
+how state variables should be distributed across a pipeline is error
+prone and is best moved into a compiler where all algorithms can
+benefit from it.\MA{This is a weird thing to say without actually
+  showing the P4 code and explaining the bug. I don't think anyone
+  reading this will know what you're talking about.}
 
 % Keep this?
-Ideally, we could repeat the same comparison with P4 for all other algorithms.
-Perhaps in part due to the difficulty of manually writing stateful algorithms
-in P4, these algorithms don't have P4 counterparts. To address this, we wrote a
-backend for \pktlanguage that generated P4 from \pktlanguage by turning every
-codelet into a default action~\cite{p4spec}.  We report the number of lines of
-code in the autogenerated P4 programs in Table~\ref{tab:algos} and compare them
-with programs written in \pktlanguage. While the LOC count could be lesser for
-manually written P4 programs, our overall message is simple: for stateful
-data-plane algorithms, coding in \pktlanguage is easier relative to P4 and
+Ideally, we could repeat the same comparison with P4 for all other
+algorithms.  \MA{``Perhaps in part due to the difficulty of manually
+  writing stateful algorithms in P4, these algorithms don't have P4
+  counterparts.'' Avoid speculative statements like this.}
+Unfortunately, publicly available P4 implementations are not available
+for the rest of the algorithms.  To address this, we wrote a backend
+for \pktlanguage that generated P4 from \pktlanguage by turning every
+codelet into a default action~\cite{p4spec}.  We report the number of
+lines of code in the autogenerated P4 programs in
+Table~\ref{tab:algos} and compare them with programs written in
+\pktlanguage. While the LOC count could be lesser for manually written
+P4 programs, our overall message is simple: for stateful data-plane
+algorithms, coding in \pktlanguage is easier relative to P4 and
 results in more concise (between 3 and 8$\times$) and correct code.
+\MA{The proper way to have done this would have been to implement each
+  algortihm in P4 to the best of our abilities. Using autogenerated P4
+  code to make a LOC comparison seems lazy. Frankly, it might be more
+  convincing to show some snippets of P4 code relative to Domino, so
+  people can qualitatively see how awkward it is to write a data-plane
+  algorithm in P4.}
 
 %Anirudh: Chang felt this was incidental.
 %%We did, however, modify CoDel. CoDel is a head-drop active queue
