@@ -124,6 +124,14 @@ actions~\cite{p4spec} for each table.  \MA{I don't quite understand
   part of the transaction?}  \absmachine does not model packet parsing
 and assumes that packets arriving to it are already parsed.
 
+% Mohammad's suggestion: talk about slicing the operation by specifying
+% a predicate to run transactions on a subset of packet. Separate out
+% what the algorithm is (transaction) from which packets it runs on.
+% Very standard by saying this is how match-action tables work.
+% If you do want something to run on every action, make it a default action.
+% For simplicity, we don't discuss this here. It's a standard slicing operation.
+% Future work, next step is how you would compose them and so on.
+
 \subsection{Atoms: \absmachine's processing units}
 \label{ss:atoms}
 
@@ -228,6 +236,13 @@ switches evolve, atoms will evolve as well.  However, atoms cannot be
 arbitrarily complex: the line rate is inversely proportional to an
 atom's execution latency~(\S\ref{ss:perfprog}).
 
+%TODO: Rename abstract machine to machine model consistently.
+%TODO: Atoms not only tell you the computational capabilities i.e. circuit
+%, but also the pairs of state you can manipulate together.
+% Limits on number of packet field inputs, number of immediate operands, and
+% number of state variable inputs.
+% Maybe what we have is fine. But explain why it's particularly hard to handle
+% arrays.
 \subsection{Resource limits}
 \label{s:resource}
 

@@ -95,8 +95,7 @@ The overall language is a constrained subset of C
 (Table~\ref{tab:restrict}).  These constraints are required for
 deterministic performance.  Memory allocation, unbounded iteration
 counts, and unstructured control flow all cause variable performance,
-which may prevent an algorithm from achieving line rate.  Arrays can
-be used as state variables, but not as packet fields.\MA{why?}
+which may prevent an algorithm from achieving line rate.
 Furthermore, all accesses to a given array within one execution of a
 transaction, i.e. one packet, must use the same array index. For
 example, all read and write accesses to the array \texttt{last\_time}
@@ -158,3 +157,22 @@ parse graphs is challenging at line rates of 1 GHz.\MA{So this is more
   be possible in hardware.}  Consequently, the limitations of packet
 transactions merely reflect fundamental limitations of the underlying
 hardware.
+%% TODO: Move the parsing limitation into section 2 as a limitation of the machine itself,
+%% not the packet transaction model itself.
+
+%% TODO: Think of things in the middle between packet transactions and
+%% the control plane. Trigger packets once in a while to do some clean
+%% up operations, every so often. Explain that as a limitation of the
+%% packet transaction model.
+
+%% Move both of these things to section 2.
+%% Instead of having 2.5, merge resource limits into 2.4 and create a new
+%% subsection called limitations of line-rate switches.
+
+%% Call 2.4 "limitations on the PISA model".
+%% The focus is on algorithms that run at line rate and process a packet every clock cycle.
+%% This poses restrictions.
+
+%% Merge 2.4 and 2.5
+%% Make a section that says: "What can PISA not do?" at the end of pisa.tex and add the two
+%% limitations from line-rate: parsing and middle-plane computations.
