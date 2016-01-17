@@ -1,0 +1,6 @@
+1. Be more concrete about the points we are trying to make, don't be vague.
+2. Don't call it latency or time budget. Throughput requirement of a pipeline
+stage is 1 ns.
+
+Everywhere explained that it is one packet per clock cycle.  specifically, for
+stateful operations.
