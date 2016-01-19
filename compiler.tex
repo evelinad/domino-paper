@@ -3,8 +3,8 @@
 % The hardest thing about the compiler is the stateful vs. stateless separation.
 % And mapping the stateful operations to the hardware constraints.
 
-%TODO: Stress novelty in the compiler. If it's not novel but important, say that.
-%Add a preamble here in the compiler.
+% TODO: Stress novelty in the compiler. If it's not novel but important, say that.
+% Add a preamble here in the compiler.
 
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{compiler.pdf}
@@ -155,25 +155,25 @@ The all-or-nothing model trades off a decrease in programmability for
 guaranteed line-rate performance. This is in contrast to software-routers that
 provide greater flexibility at the cost of unpredictable run-time
 performance~\cite{dobrescu2012, wenfei15}.
-%TODO: Throw a pointer to related work in compilers.
-%TODO: Try and link it how all-or-nothing compilation influences a new set of
-% tradeoffs for us relative to prior work.
 
-The \pktlanguage compiler consists of three passes (Figure~\ref{fig:passes}).
-First, \textit{normalization} simplifies the packet transaction while retaining
-the sequential semantics of packet transactions. Second, \textit{pipelining}
-transforms the normalized code into code for a \textit{pipelined virtual switch
-machine (PVSM)}. PVSM is an intermediate representation that models a switch
-pipeline with no computational or resource limits. Third, \textit{code
-generation} transforms this intermediate representation into configuration for
-a \absmachine machine, which imposes both computational and resource
-constraints---rejecting the code if it can't run at line rate. Throughout this
+The design of \pktlanguage's compiler is guided by this goal of all-or-nothing
+compilation and consists of three passes (Figure~\ref{fig:passes}).  First,
+\textit{normalization} simplifies the packet transaction into the very
+restricted three-operand code form while retaining the sequential semantics of
+packet transactions. Second, \textit{pipelining} transforms the normalized code
+into code for a \textit{pipelined virtual switch machine (PVSM)}. PVSM is an
+intermediate representation that models a switch pipeline with no computational
+or resource limits. Third, \textit{code generation} transforms this
+intermediate representation into configuration for a \absmachine machine, which
+imposes both computational and resource constraints---rejecting the code if it
+can't run at line rate on a specific \absmachine machine. Throughout this
 section, we use flowlet switching as a running example to demonstrate compiler
-passes.
+passes. While the \pktlanguage compiler uses many existing compiler techniques,
+it adapts and simplifies them in important ways to suit the domain of line-rate
+switches; we comment on these differences in \S\ref{ss:related_compiler}.
 
 \subsection{Normalization}
 \label{ss:normalization}
-
 
 \textbf{Branch removal: }A packet transaction's body can contain
 (potentially nested) branches (e.g., Lines~\ref{line:ifStart} to
@@ -381,6 +381,7 @@ finishes quickly, taking 10 secs at most.
 \end{table}
 
 \subsection{Comparison with existing compiler techniques}
+\label{ss:related_compiler}
 
 % TODO: Mention Rau's work as well.
 The \pktlanguage compiler employs many techniques from the compiler literature,
