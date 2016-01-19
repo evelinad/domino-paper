@@ -1,4 +1,3 @@
-%TODO: Talk about how transactions can be composed.
 \section{Packet transactions}
 \label{s:transactions}
 
@@ -82,7 +81,10 @@ packet.  The function may invoke \textit{intrinsics} such as \texttt{hash2} on
 line 23 to use hardware accelerators such as hash generators.  The \pktlanguage
 compiler uses an intrinsic's signature to infer dependencies and supplies a
 canned run-time implementation, but otherwise does not analyze an intrinsics's
-internal behavior.
+internal behavior. When compiled to a \absmachine machine
+(\S\ref{s:absmachine}), the \pktlanguage compiler (\S\ref{s:compiler}) converts
+the code in Figure~\ref{fig:flowlet_code} into the atom pipeline in
+Figure~\ref{fig:flowlet_pipeline}.
 
 \subsection{Constraints on the language}
 The overall language is a constrained subset of C
@@ -118,17 +120,17 @@ clock cycle is challenging.
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
 
-%TODO: This is very rough as it stands now.
-So far, we have discussed how we would express a single packet transaction,
-which corresponds to a single data-plane algorithm. In practice, multiple such
-data-plane algorithms would run simultaneously on a switch, each on its own
-subset of packets. To accommodate multiple transactions, we envision providing
-a \textit{guard} for each of these transactions: a packet predicate that
-specifies which subset of packets each transaction runs on. This guard could be
-placed in the match portion of a match-action pipeline, while the actions
-themselves are produced by the result of compiling packet transactions. This
-also provides a straightforward mechanism to embed packet transactions into a
-standard match-action pipeline. Combining multiple transactions that run on
-overlapping subsets of packets requires further work, which we leave for future
-work. For the rest of this paper, we focus only on compiling a \textit{single}
-packet transaction to a programmable switch.
+%TODO: Need someone to look at this.
+So far, we have discussed programming a single packet transaction, which
+corresponds to a single data-plane algorithm. In practice, multiple data-plane
+algorithms would run simultaneously on a switch, each processing its own subset
+of packets. To accommodate multiple transactions, we envision providing a
+\textit{guard} for each transaction: a predicate that specifies the subset of
+packets each transaction runs on. This guard would reside in the match portion
+of a match-action pipeline, with the actions themselves being produced as a
+result of compiling packet transactions. This also provides a straightforward
+mechanism to embed packet transactions into a standard match-action pipeline.
+Combining multiple transactions that run on overlapping subsets of packets
+requires further work, which we leave for future work. For the rest of this
+paper, we focus only on compiling a \textit{single} packet transaction to a
+programmable switch.

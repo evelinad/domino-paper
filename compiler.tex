@@ -142,44 +142,35 @@ moved into the read flank.}
 \vspace{-0.5cm}
 \end{figure*}
 
+The \pktlanguage compiler compiles from \pktlanguage programs to \absmachine
+targets. The compiler provides an {\em all-or-nothing model}: if compilation
+succeeds, the compiler guarantees that the program will run at line rate on the
+target. If the program can't be run at line rate, the compiler rejects the
+program outright; there is no smooth tradeoff between a program's performance
+and its complexity.  This all-or-nothing compilation model is unusual for
+someone programming other computational substrates such as a CPU, GPU, or DSP.
+But, it reflects how routers and switches are used today. Routers are rated for
+a particular line rate, regardless of the feature set that an operator enables.
+The all-or-nothing model trades off a decrease in programmability for
+guaranteed line-rate performance. This is in contrast to software-routers that
+provide greater flexibility at the cost of unpredictable run-time
+performance~\cite{dobrescu2012, wenfei15}.
+%TODO: Throw a pointer to related work in compilers.
+%TODO: Try and link it how all-or-nothing compilation influences a new set of
+% tradeoffs for us relative to prior work.
 
-%TODO: Should this be here or in the transactions.tex section? It could be
-%here or in the previous section.
-When compiled to a \absmachine machine (\S\ref{s:absmachine}), the
-\pktlanguage compiler (\S\ref{s:compiler}) converts the code in
-Figure~\ref{fig:flowlet_code} into the atom pipeline in
-Figure~\ref{fig:flowlet_pipeline}. If it succeeds, the compiler
-guarantees that the program will run at line rate on the target.
-Otherwise, the compiler rejects the program outright; there is no
-smooth tradeoff between a program's performance and its complexity.
-This {\em all-or-nothing} compilation model is unusual for someone
-programming other computational substrates such as a CPU, GPU, or
-DSP. But, it reflects how routers and switches are used today. Routers
-are rated for a particular line rate, regardless of the feature set
-that an operator enables.
-
-% This all-or-nothing model provides
-% predictable performance for free---in contrast to software-routers
-% that need explicit support for it~\cite{dobrescu2012, wenfei15}.
-% MA: I would just get rid of this last sentence. It's not really
-% "free", you lose some capability.
-
-The \pktlanguage compiler consists of three passes
-(Figure~\ref{fig:passes}).  First, \textit{normalization} simplifies
-the packet transaction while retaining the sequential semantics of
-packet transactions. Second, \textit{pipelining} transforms the
-normalized code into code for a \textit{pipelined virtual switch
-  machine (PVSM)}. PVSM is an intermediate representation that models
-a switch pipeline with no computational or resource limits. Third,
-\textit{code generation} transforms this intermediate representation
-into configuration for a \absmachine machine, which imposes both
-computational and resource constraints. Throughout this section, we
-use flowlet switching as a running example to demonstrate compiler
+The \pktlanguage compiler consists of three passes (Figure~\ref{fig:passes}).
+First, \textit{normalization} simplifies the packet transaction while retaining
+the sequential semantics of packet transactions. Second, \textit{pipelining}
+transforms the normalized code into code for a \textit{pipelined virtual switch
+machine (PVSM)}. PVSM is an intermediate representation that models a switch
+pipeline with no computational or resource limits. Third, \textit{code
+generation} transforms this intermediate representation into configuration for
+a \absmachine machine, which imposes both computational and resource
+constraints---rejecting the code if it can't run at line rate. Throughout this
+section, we use flowlet switching as a running example to demonstrate compiler
 passes.
 
-%%While we have
-%%simplified the code for readability, the output after each pass isn't
-%%materially different from the version here.
 \subsection{Normalization}
 \label{ss:normalization}
 
@@ -286,13 +277,6 @@ next.
   Fig. 10 or Fig. 2? Similar to 4.1, perhaps showing only the output
   of the pipelining stage in the main body of the paper would improve
   readability.}
-
-%%Further,
-%%codelets have a stylized form.  Codelets that don't manipulate state contain
-%%exactly one three-address code statement after expression flattening. Codelets
-%%that manipulate state contain at least two statements: a read from a state
-%%variable and a write to a state variable, with optionally one or more updates
-%%to the state variable through packet temporaries in between.
 
 \begin{figure*}[!t]
 \begin{minipage}{0.5\textwidth}
@@ -414,8 +398,8 @@ switches (Table~\ref{tab:prior_compiler}).
     architectures~\cite{software_pipelining}. The size of the largest SCC
     affects the maximum throughput of the pipelined loop in software
     pipelining. For \pktlanguage, it affects the complexity and area overhead
-    of the atom required to run a program at line rate. Put differently,
-    \pktlanguage trades off an increase in space for the line-rate performance
+    of the atom required to run a program at line rate. \pktlanguage trades off
+    an increase in space for the line-rate performance
     guarantee.
   \item Program synthesis was used for code generation in
     Chlorophyll~\cite{chlorophyll}.  Code generation for \pktlanguage shares
