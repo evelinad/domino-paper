@@ -4,8 +4,10 @@ encompass many schemes for congestion control, network measurement,
 active-queue management, and load balancing. Because these algorithms are
 implemented in hardware today, they cannot be changed after being built. To
 address this problem, recent work has proposed designs for programmable
-line-rate switches.  However, the languages to program them closely resemble
-the underlying hardware, rendering them inconvenient for this purpose.
+line-rate switches.  However, these chips have only been used to program
+stateless data-plane tasks, such as packet forwarding and access control. By
+contrast, many data-plane algorithms create and modify algorithmic state on a
+packet-by-packet basis as part of their packet processing.
 
 This paper presents \pktlanguage, a C-like imperative language to express
 data-plane algorithms. \pktlanguage introduces the notion of a {\em packet
