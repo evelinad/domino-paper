@@ -88,29 +88,32 @@ line-rate switches.
 
 In designing and implementing \pktlanguage, we make three contributions.
 \begin{CompactEnumerate}
-  \item A family of machine models called \absmachine~(\S\ref{s:absmachine}).
+\item A family of machine models called \absmachine~(\S\ref{s:absmachine}).
     \absmachine generalizes and abstracts essential features of
 line-rate programmable switches~\cite{rmt, xpliant, flexpipe}. \absmachine also
 models practical constraints that limit stateful operations on line-rate
 switches.  Informed by these constraints, we introduce the concept of {\em
 atoms} to represent a programmable switch's instruction set.
- \item A compiler to compile from packet transactions written in \pktlanguage
+
+\item A compiler to compile from packet transactions written in \pktlanguage
 to a \absmachine target~(\S\ref{s:compiler}). The \pktlanguage compiler introduces
 \textit{all-or-nothing compilation}, where all packet transactions accepted by
 the compiler will run at line rate, or be rejected outright. There is no
 ``slippery slope'' of degrading performance with increasing code complexity.
- \item An evaluation of \pktlanguage. We evaluate \pktlanguage's expressiveness
-by writing algorithms such as RCP~\cite{rcp}, CoDel~\cite{codel}, heavy-hitter
-detection~\cite{opensketch}, and CONGA~\cite{conga}, in
-\pktlanguage~(\S\ref{s:eval}), and comparing it to P4.  Quantitatively, code in
-\pktlanguage is more concise. Qualitatively,
-\pktlanguage provides an easier and less error-prone model for programming
-stateful data-plane algorithms.  Next, we design a set of compiler targets
-(\S\ref{ss:targets}) based on \absmachine and show that these are feasible in a
-32 nm standard-cell library with modest chip area overhead (< 10\%). Finally,
-we compile data-plane algorithms written in \pktlanguage to these targets to
-show how the choice of atoms in a target determines which algorithms it can
-support.
+
+\item An evaluation of \pktlanguage. We evaluate \pktlanguage's expressiveness
+  by writing algorithms such as RCP~\cite{rcp}, CoDel~\cite{codel},
+  heavy-hitter detection~\cite{opensketch}, and CONGA~\cite{conga}, in
+  \pktlanguage~(\S\ref{s:eval}), and comparing it to P4.  Quantitatively, code
+  in \pktlanguage is more concise. Qualitatively, \pktlanguage provides an
+  easier and less error-prone model for programming stateful data-plane
+  algorithms.  Next, because the infrastructure to program programmable
+  switches is still heavily in development, we design a set of compiler targets
+  (\S\ref{ss:targets}) based on \absmachine and show that these are feasible in
+  a 32 nm standard-cell library with modest chip area overhead (< 10\%).
+  Finally, we compile data-plane algorithms written in \pktlanguage to these
+  targets to show how the choice of atoms in a target determines which
+  algorithms it can support.
 \end{CompactEnumerate}
 
 Overall, we stress two main takeaways. One, it is possible to design
