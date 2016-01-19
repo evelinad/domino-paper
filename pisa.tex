@@ -73,22 +73,8 @@ only models components pertinent to data-plane algorithms.  It models
 the computation within a match-action table in a stage (i.e., the
 action half of the match-action table), but not the match semantics
 (e.g., direct, or ternary) (we discuss embedding these actions in a standard
-match-action pipeline in \S\ref{s:transactions}). \absmachine does not model
+match-action pipeline in \S\ref{ss:multiple}). \absmachine does not model
 packet parsing and assumes that packets arriving to it are already parsed.
-
-%%TODO, move these to the programming model. One could embed these actions in a
-%%standard match-action pipeline by making them default
-%%actions~\cite{p4spec} for each table.  \MA{I don't quite understand
-%%  this. Say the computation involves looking up some state (e.g., the
-%%  last virtual finish\_time in fair queuing). Wouldn't the lookup be
-%%  part of the transaction?}
-% Mohammad's suggestion: talk about slicing the operation by specifying
-% a predicate to run transactions on a subset of packet. Separate out
-% what the algorithm is (transaction) from which packets it runs on.
-% Very standard by saying this is how match-action tables work.
-% If you do want something to run on every action, make it a default action.
-% For simplicity, we don't discuss this here. It's a standard slicing operation.
-% Future work, next step is how you would compose them and so on.
 
 \subsection{Atoms: \absmachine's processing units}
 \label{ss:atoms}

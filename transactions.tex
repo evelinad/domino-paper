@@ -1,6 +1,4 @@
 %TODO: Talk about how transactions can be composed.
-% We 'll need to do this for the PIFO work as well.
-
 \section{Packet transactions}
 \label{s:transactions}
 
@@ -87,10 +85,6 @@ canned run-time implementation, but otherwise does not analyze an intrinsics's
 internal behavior.
 
 \subsection{Constraints on the language}
-%%\pktlanguage relative to software
-%%routers like Click~\cite{click} with greater flexibility and variable
-%%performance.
-
 The overall language is a constrained subset of C
 (Table~\ref{tab:restrict}).  These constraints are required for
 deterministic performance.  Memory allocation, unbounded iteration
@@ -102,8 +96,10 @@ example, all read and write accesses to the array \texttt{last\_time}
 use the index \texttt{pkt.id}, which is constant for each packet, but
 can change between packets. This restriction mirrors restrictions on
 memories, where supporting distinct read and write addresses every
-clock cycle is challenging.\MA{Do we model this restriction in PISA?
-  It would be better to add it to Sec 2.}
+clock cycle is challenging.
+%TODO: Try and address this.
+%\MA{Do we model this restriction in PISA?
+%  It would be better to add it to Sec 2.}
 
 \begin{table}
   \begin{tabular}{p{0.9\columnwidth}}
@@ -119,23 +115,19 @@ clock cycle is challenging.\MA{Do we model this restriction in PISA?
   \label{tab:restrict}
 \end{table}
 
-\subsection{All-or-nothing compilation}
+\subsection{Handling multiple transactions}
+\label{ss:multiple}
 
-When compiled to a \absmachine machine (\S\ref{s:absmachine}), the
-\pktlanguage compiler (\S\ref{s:compiler}) converts the code in
-Figure~\ref{fig:flowlet_code} into the atom pipeline in
-Figure~\ref{fig:flowlet_pipeline}. If it succeeds, the compiler
-guarantees that the program will run at line rate on the target.
-Otherwise, the compiler rejects the program outright; there is no
-smooth tradeoff between a program's performance and its complexity.
-This {\em all-or-nothing} compilation model is unusual for someone
-programming other computational substrates such as a CPU, GPU, or
-DSP. But, it reflects how routers and switches are used today. Routers
-are rated for a particular line rate, regardless of the feature set
-that an operator enables. 
-
-% This all-or-nothing model provides
-% predictable performance for free---in contrast to software-routers
-% that need explicit support for it~\cite{dobrescu2012, wenfei15}.
-% MA: I would just get rid of this last sentence. It's not really
-% "free", you lose some capability.
+%%TODO, move these to the programming model. One could embed these actions in a
+%%standard match-action pipeline by making them default
+%%actions~\cite{p4spec} for each table.  \MA{I don't quite understand
+%%  this. Say the computation involves looking up some state (e.g., the
+%%  last virtual finish\_time in fair queuing). Wouldn't the lookup be
+%%  part of the transaction?}
+% Mohammad's suggestion: talk about slicing the operation by specifying
+% a predicate to run transactions on a subset of packet. Separate out
+% what the algorithm is (transaction) from which packets it runs on.
+% Very standard by saying this is how match-action tables work.
+% If you do want something to run on every action, make it a default action.
+% For simplicity, we don't discuss this here. It's a standard slicing operation.
+% Future work, next step is how you would compose them and so on.

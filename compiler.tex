@@ -142,6 +142,28 @@ moved into the read flank.}
 \vspace{-0.5cm}
 \end{figure*}
 
+
+%TODO: Should this be here or in the transactions.tex section? It could be
+%here or in the previous section.
+When compiled to a \absmachine machine (\S\ref{s:absmachine}), the
+\pktlanguage compiler (\S\ref{s:compiler}) converts the code in
+Figure~\ref{fig:flowlet_code} into the atom pipeline in
+Figure~\ref{fig:flowlet_pipeline}. If it succeeds, the compiler
+guarantees that the program will run at line rate on the target.
+Otherwise, the compiler rejects the program outright; there is no
+smooth tradeoff between a program's performance and its complexity.
+This {\em all-or-nothing} compilation model is unusual for someone
+programming other computational substrates such as a CPU, GPU, or
+DSP. But, it reflects how routers and switches are used today. Routers
+are rated for a particular line rate, regardless of the feature set
+that an operator enables.
+
+% This all-or-nothing model provides
+% predictable performance for free---in contrast to software-routers
+% that need explicit support for it~\cite{dobrescu2012, wenfei15}.
+% MA: I would just get rid of this last sentence. It's not really
+% "free", you lose some capability.
+
 The \pktlanguage compiler consists of three passes
 (Figure~\ref{fig:passes}).  First, \textit{normalization} simplifies
 the packet transaction while retaining the sequential semantics of
