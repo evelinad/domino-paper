@@ -87,23 +87,23 @@ high-level imperative language for programming the data plane of
 line-rate switches.
 
 In designing and implementing \pktlanguage, we make three contributions.
-First, we design a family of abstract machines called
-\absmachine~(\S\ref{s:absmachine}). \absmachine generalizes and abstracts essential features of
+\begin{CompactEnumerate}
+  \item A family of machine models called \absmachine~(\S\ref{s:absmachine}).
+    \absmachine generalizes and abstracts essential features of
 line-rate programmable switches~\cite{rmt, xpliant, flexpipe}. \absmachine also
 models practical constraints that limit stateful operations on line-rate
 switches.  Informed by these constraints, we introduce the concept of {\em
-atoms} to represent a programmable switch's instruction set.  Second, we
-provide a compiler to compile from packet transactions written in \pktlanguage
+atoms} to represent a programmable switch's instruction set.
+ \item A compiler to compile from packet transactions written in \pktlanguage
 to a \absmachine target~(\S\ref{s:compiler}). The \pktlanguage compiler introduces
 \textit{all-or-nothing compilation}, where all packet transactions accepted by
 the compiler will run at line rate, or be rejected outright. There is no
 ``slippery slope'' of degrading performance with increasing code complexity.
-
-Third, we evaluate \pktlanguage in several ways. We evaluate its expressiveness
+ \item An evaluation of \pktlanguage. We evaluate \pktlanguage's expressiveness
 by writing algorithms such as RCP~\cite{rcp}, CoDel~\cite{codel}, heavy-hitter
 detection~\cite{opensketch}, and CONGA~\cite{conga}, in
 \pktlanguage~(\S\ref{s:eval}), and comparing it to P4.  Quantitatively, code in
-\pktlanguage is between 3 and 8$\times$ more concise. Qualitatively,
+\pktlanguage is more concise. Qualitatively,
 \pktlanguage provides an easier and less error-prone model for programming
 stateful data-plane algorithms.  Next, we design a set of compiler targets
 (\S\ref{ss:targets}) based on \absmachine and show that these are feasible in a
@@ -111,6 +111,7 @@ stateful data-plane algorithms.  Next, we design a set of compiler targets
 we compile data-plane algorithms written in \pktlanguage to these targets to
 show how the choice of atoms in a target determines which algorithms it can
 support.
+\end{CompactEnumerate}
 
 Overall, we stress two main takeaways. One, it is possible to design
 programmable line-rate switches that can express a wide variety of data-plane
