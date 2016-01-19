@@ -153,10 +153,10 @@ arithmetic. Consider, for instance, the operation pkt.f1 = pkt.f2 +
 pkt.f3 - pkt.f4. Because this operation doesn't modify state that is
 visible to the next packet, it can be implemented by adding in one
 pipeline stage / clock cycle, and then subtracting in the next, unlike the increment.
-
-\subsection{Computational limits}
+\subsection{Constraining atoms}
 \label{s:atomConstraints}
 
+\paragraph{Computational limits}
 To provide line-rate performance, atom bodies must be suitably
 constrained.  When implemented in digital logic, the atom body must
 finish execution within one clock cycle (1 ns for a 1 GHz clock
@@ -197,8 +197,7 @@ atom's execution latency~(\S\ref{ss:perfprog}).
   \end{minipage}
 \end{figure}
 
-\subsection{Resource limits}
-\label{s:resource}
+\paragraph{Resource limits}
 
 For any real machine, we also need to limit the number of atoms
 in each stage (\textit{pipeline width}) and the number of stages in the
@@ -206,3 +205,25 @@ pipeline (\textit{pipeline depth}). This is similar to the limits on the
 number of stages, number of tables per stage, and amount of memory per
 stage in programmable switch architectures such as RMT and
 FlexPipe~\cite{lavanya_compiler}.
+
+\subsection{What can \absmachine not do?}
+\label{ss:limitations}
+
+\paragraph{Algorithms that manipulate packet payloads}
+\absmachine is a good fit for data-plane algorithms that do a small amount of
+work per packet and manipulate only packet headers. Data-plane algorithms like
+deep packet inspection and WAN optimization access packet payloads. These
+algorithms require a switch to parse the packet payload as well---effectively
+parsing a huge header consisting of each byte in the packet payload. Parsing
+deep parse graphs is challenging at line rates of 1 GHz.
+
+\paragraph{Algorithms that manipulate large amounts of state infrequently}
+\absmachine is ideally suited to algorithms that carry out small
+transformations on a small amount of state frequently, e.g., setting a bit or
+incrementing a counter. Some algorithms run infrequently (every few
+microseconds, as opposed to on every packet (nanosecond)), but either access
+large quantities of state or carry out involved computations. An example would
+be periodically scanning a list of numbers to find their average or
+periodically dividing the total number of transmitted bytes by a time interval
+to compute the link rate, as RCP does.
+%TODO: periodic scan for CONGA, give example.
