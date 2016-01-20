@@ -15,18 +15,16 @@
 %%notion of atoms.
 %%
 NetASM~\cite{netasm} is an abstract machine model and intermediate
-representation (IR) for programmable data planes that seeks to be portable
-across network devices---FPGAs, virtual switches, and line-rate switches.
-NetASM's dataflow framework only implements target-independent ``middle-end''
-optimizations such as dead-code elimination in its IR. Unlike \pktlanguage,
-NetASM neither designs a high-level language, nor implements  a front-end to
-compile to NetASM from it (\S\ref{ss:normalization}), nor the back-end to
-compile from NetASM to a target (\S\ref{ss:code_gen}). Further, NetASM doesn't
-model computational limits in its instruction set and its ATM construct allows
-atomic access to shared state from multiple pipeline stages.  Computational
-limits are fundamental to providing guaranteed performance at line rate and
-sharing state between stages leads to incorrect behavior on line-rate hardware
-that doesn't support locks (\S\ref{ss:atoms}).
+representation (IR) for programmable data planes that is portable across
+network devices---FPGAs, virtual switches, and line-rate switches.  \absmachine
+is a machine model for line-rate switches alone, and hence models several
+practical constraints that NetASM doesn't. For instance, \absmachine machines
+don't permit state sharing between atoms and use atom templates to limit the
+amount of packet processing that can happen at line rate. Further, unlike
+NetASM's dataflow framework that only implements target-independent
+``middle-end'' optimizations such as dead-code elimination in its IR, the
+\pktlanguage compiler shows how to implement a back-end for line-rate switches
+(\S\ref{ss:code_gen}).
 
 \textbf{Programmable Data Planes}
 Software data planes such as Click~\cite{click},
@@ -42,12 +40,12 @@ they permit us to express in-network congestion control, AQM, and
 congestion-aware load balancing (CONGA), which are beyond Eden's capabilities.
 
 An alternative is to use FPGAs; examples include NetFPGA~\cite{netfpga},
-Switchblade~\cite{switchblade}, Chimpp~\cite{chimpp}, and~\cite{silver_bullet}.
-These designs are slower than switching ASICs, and are rarely used in
-production network equipment. The Arista 7124 FX~\cite{7124fx} is a commercial
-switch with an on-board FPGA, but its capacity is limited to 160 Gbits/sec when
-using the on-board FPGA---~10x less than the multi-terabit capacities of
-programmable switch chips~\cite{xpliant}.
+Switchblade~\cite{switchblade}, and Chimpp~\cite{chimpp}.  These designs are
+slower than switching ASICs, and are rarely used in production network
+equipment. The Arista 7124 FX~\cite{7124fx} is a commercial switch with an
+on-board FPGA, but its capacity is limited to 160 Gbits/sec when using the
+on-board FPGA---~10x less than the multi-terabit capacities of programmable
+switch chips~\cite{xpliant}.
 
 Recent work~\cite{lavanya_compiler} focuses on compiling P4 programs to
 programmable data planes such as the RMT and FlexPipe architectures. However,
@@ -69,23 +67,21 @@ ixp4xx}.
 DSLs. However \pktlanguage is constrained relative to them: for instance, it
 forbids loops and includes no synchronization constructs because there is no
 shared state in \absmachine machines. These constraints were chosen to target
-line-rate switching chips with shared-nothing memory architectures.
-Furthermore, \pktlanguage's compiler presents a different programming model:
-all \pktlanguage programs that compile run at line-rate. Unlike an NPU or
-software router, there is no slippery slope of degrading performance with
-increasing program complexity.
+line-rate switching chips with shared-nothing architectures.  Furthermore,
+\pktlanguage's compiler presents a different programming model: all
+\pktlanguage programs that compile run at line-rate. Unlike an NPU or software
+router, there is no slippery slope of degrading performance with increasing
+program complexity.
 
 SNAP~\cite{snap} is a recent language for programming stateful data-plane
 algorithms using a network transaction: an atomic block of code that treats the
-entire network as one big switch~\cite{onebigswitch}. While network
-transactions are a higher level of abstraction than packet transactions, they
-are limited to data-plane algorithms that can be expressed in a centralized
-fashion such as measurement and DDoS prevention. In particular, most
-resource-management algorithms in Table~\ref{tab:algos}, e.g. flowlets, RCP,
-CONGA, HULL, and AVQ, involve time-varying quantities (queue sizes, packet
-arrivals), and are only available as distributed algorithms running on each
-switch independently; we don't know of centralized versions for these
-algorithms.
+entire network as one big switch~\cite{onebigswitch}. The SNAP compiler then
+translates these network transactions into rules running on each switch. SNAP
+doesn't determine whether these switch-local rules can be mapped into a
+programmable switch pipeline. \pktlanguage can potentially be used to compile
+these switch-local rules to an atom pipeline and is an enabler for SNAP and
+other network-wide abstractions.
+
 %% Keep this description short.
 %%SNAP doesn't really get into how stateful computations get implemented on the
 %%hardware pipeline of a switch.
