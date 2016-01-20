@@ -37,34 +37,34 @@
 \end{table}
 
 \begin{table*}[!t]
-  \begin{tabular}{|p{0.16\textwidth}|p{0.43\textwidth}|p{0.08\textwidth}|p{0.06\textwidth}|p{0.07\textwidth}|p{0.06\textwidth}|}
+  \begin{tabular}{|p{0.16\textwidth}|p{0.43\textwidth}|p{0.08\textwidth}|p{0.06\textwidth}|p{0.07\textwidth}|p{0.03\textwidth}|p{0.03\textwidth}|}
 \hline
-Algorithm & Description & Least expressive atom & Pipeline depth, width & Ingress or Egress Pipeline? & Domino LOC\\
+Algorithm & Description & Least expressive atom & Pipeline depth, width & Ingress or Egress Pipeline? & Domino LOC & P4 LOC\\
 \hline
-\pbox{0.16\textwidth}{Bloom filter~\cite{bloom}\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29\\
+\pbox{0.16\textwidth}{Bloom filter~\cite{bloom}\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29 & 104 \\
 \hline
-\pbox{0.16\textwidth}{Heavy Hitters~\cite{opensketch}\\(3 hash functions)} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10, 9 & Either & 35\\
+\pbox{0.16\textwidth}{Heavy Hitters~\cite{opensketch}\\(3 hash functions)} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10, 9 & Either & 35 & 192 \\
 \hline
-Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6, 2 & Ingress & 37\\
+Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6, 2 & Ingress & 37 & 107 \\
 \hline
-RCP~\cite{rcp} & \pbox{0.44\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress & 23\\
+RCP~\cite{rcp} & \pbox{0.44\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress & 23 & 75 \\
 \hline
-\pbox{0.16\textwidth}{Sampled\\NetFlow~\cite{sampled_nflow}} & \pbox{0.47\textwidth}{Sample a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either  & 18\\
+\pbox{0.16\textwidth}{Sampled\\NetFlow~\cite{sampled_nflow}} & \pbox{0.47\textwidth}{Sample a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either  & 18 & 70 \\
 \hline
-HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress & 26\\
+HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress & 26 & 95 \\
 \hline
-\pbox{0.16\textwidth}{Adaptive\\Virtual Queue~\cite{avq}} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress & 36\\
+\pbox{0.16\textwidth}{Adaptive\\Virtual Queue~\cite{avq}} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress & 36 & 147 \\
 \hline
-\pbox{0.16\textwidth}{Priority computation for start-time fair queueing~\cite{pifo_hotnets}} & Compute packet's virtual start time using finish time of last packet in that flow. & Nested & 4, 2 & Ingress & 29 \\
+\pbox{0.16\textwidth}{Priority computation for weighted fair queueing~\cite{pifo_hotnets}} & Compute packet's virtual start time using finish time of last packet in that flow. & Nested & 4, 2 & Ingress & 29 & 87 \\
 \hline
-\pbox{0.16\textwidth}{DNS TTL change tracking~\cite{dns_change}} & Track number of changes in announced TTL for each domain & Nested & 6,3 & Ingress & 27 \\
+\pbox{0.16\textwidth}{DNS TTL change tracking~\cite{dns_change}} & Track number of changes in announced TTL for each domain & Nested & 6,3 & Ingress & 27 & 119 \\
 \hline
 CONGA~\cite{conga} & \pbox{0.54\textwidth}{Update best path's utilization/id if we see a better path.\\
-                                           Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress & 32\\
+                                           Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress & 32 & 89\\
 \hline
 %trTCM~\cite{trTCM} & Update token counts for each token bucket & Doesn't map & 7, 3 & Either \\
 %\hline
-CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queuing delay will exceed target.}& Doesn't map & 15, 3 & Egress & 57 \\
+CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queuing delay will exceed target.}& Doesn't map & 15, 3 & Egress & 57 & 271\\
 \hline
 \end{tabular}
 \caption{Data-plane algorithms}
@@ -98,7 +98,6 @@ computation for programming scheduling using the push-in first-out queue
 abstraction~\cite{pifo_hotnets}. In all these cases, the algorithms are
 naturally available as blocks of imperative code; translating them to
 \pktlanguage syntax was straightforward.
-%TODO: Need to make an arXiv document for programmable scheduling.
 
 By contrast, expressing one of these algorithms in P4 requires manually teasing
 out portions of the algorithm that can reside in independent match-action
@@ -114,6 +113,7 @@ data-plane algorithm. This process can be automated; we have developed a
 backend for \pktlanguage that generates P4 code (code counts for these
 autogenerated P4 programs are listed in Table ~\ref{tab:algos}).
 
+%%TODO: Decide whether we want to keep this.
 %%%Further, the same implementation~\cite{p4_flowlet} is only guaranteed to be
 %%%correct on a software switch because it requires synchronized access to the
 %%%saved\_hop variable from two adjacent pipeline stages, which requires locking
@@ -128,8 +128,8 @@ autogenerated P4 programs are listed in Table ~\ref{tab:algos}).
 We design a concrete set of compiler targets for \pktlanguage based on the
 \absmachine machine model. First, we specify computational limits on atoms in
 each compiler target using atom templates. Using the Synopsys Design
-Compiler,~\cite{synopsys_dc} we quantify the area of each atom's digital
-circuit in a 32 nm standard-cell library when running at 1GHz.  Second, using
+Compiler~\cite{synopsys_dc}, we quantify the area of each atom's digital
+circuit in a 32 nm standard-cell library when running at 1 GHz.  Second, using
 an individual atom's area and a switching chip's area~\cite{gibb_parsing}, we
 determine the machine's resource limits i.e. the pipeline width for each atom
 and the pipeline depth.
@@ -141,53 +141,55 @@ atomicity~(\S\ref{ss:atoms}). We design a stateless atom that can support
 simple arithmetic (add, subtract, left shift, right shift), logical (and, or,
 xor), relational (>=, <=, ==, !=), or conditional operations ( C's ``?''
 operator) on a set of packet fields. Any packet field can also be substituted
-with a constant operand. The resulting circuit meets timing at 1GHz and
-occupies an area of 1383 square microns.
+with a constant operand.
 
 Designing stateful atoms is more involved because it determines which
 algorithms the switch can support. A more complex stateful atom can support
 more data-plane algorithms (we show this in the next section), but occupies
 greater chip area. To illustrate this, we design a containment hierarchy of
 stateful atoms, where each atom can express all stateful operations that its
-predecessor can (Table~\ref{tab:templates}). Again, the resulting circuits meet
-timing at 1 GHz and their area increases with increasing atom complexity.
+predecessor can (Table~\ref{tab:templates}).
+
+When synthesized to a 32 nm standard-cell library, all atoms meet timing at 1
+GHz and their area increases with the atom's
+complexity~(Table~\ref{tab:templates}).
 
 \paragraph{Resource limits}
-Now that we have a single stateless atom and multiple stateful atoms, we can
-design compiler targets using these atoms.  We design one compiler target for
-each combination of a stateful atom in Table~\ref{tab:templates} along with the
+Now that we have a single stateless atom and multiple stateful atoms, we design
+compiler targets using these atoms.  We design one compiler target for each
+combination of a stateful atom in Table~\ref{tab:templates} along with the
 single stateless atom. We determine resource limits for stateful and stateless
 atoms separately.
 
 For the stateless atom, assuming a switch chip's area is 200 $mm^2$ (the
 smallest chip area given by Gibb et. al~\cite{gibb_parsing}), and an acceptable
 overhead of 7\% (the area overheads for actions in RMT~\cite{rmt}), we can
-support ~10000 stateless atoms, given the area of 1383 square microns per atom.
-This number is comparable to the 7000 VLIW ALUs supported by RMT~\cite{rmt},
-which are similar in complexity to our stateless atom. If these 10000 atoms
-were to be spread across the same number of stages as RMT (30), we could
-support up to 300 stateless atoms per stage.
+support ~10000 stateless atoms, given the area of 1384 $\mu m^2$.  This number
+is comparable to the 7000 VLIW ALUs supported by RMT~\cite{rmt}, which are
+similar in complexity to our stateless atom. If these 10000 atoms were to be
+spread across the same number of stages as RMT (30), we could support up to 300
+stateless atoms per stage.
 
-A similar analysis for stateful atoms implies 100 stateful atoms per stage for
-the most complex stateful atom with an area of 4000 square microns.  However,
-stateful atoms access memory banks storing state in each stage. The overhead of
-providing 100 independent memory banks in each stage supporting one read and
-write per clock is prohitibive~\cite{private_conversations_with_mike}.
-Further, given an overall memory limit per stage, slicing it into many smaller
-banks reduces the amount of memory accessible to each atom. This is problematic
-for hash-based algorithms that need to hash into a large memory space. Taken
-together, these constraints limit the number of stateful atoms to around 10 per
-stage, which greatly reduces their area overhead.
+A similar analysis for stateful atoms implies around 70 stateful atoms per
+stage for the most complex stateful atom with an area of 5997 $\mu m^2$.
+However, stateful atoms access memory banks storing state in each stage. The
+overhead of providing 70 independent memory banks in each stage supporting one
+read and write per clock is prohitibive~\cite{private_conv}. Further, given an
+overall stage memory budget, slicing it into many small banks reduces the
+amount of memory accessible to each atom. This is problematic for hash-based
+algorithms that need to hash into a large memory space. Taken together, these
+constraints limit the number of stateful atoms to around 10 per stage, which
+greatly reduces their area overhead as well.
 
 In summary, we assume 30 stages in total, 300 stateless atoms per stage and 10
 stateful atoms per stage for all compiler targets. By no means is this the only
 design. We only claim that this is readily feasible with today's technology and
 show that it can be used to implement a wide class of data-plane
-algorithms---far beyond anything a fixed function switch can do today. As with
-designing any other computational substrate, we must start somewhere and refine
-the architecture in response to the algorithms using it.  In a similar vein,
-designs for \absmachine machines will evolve as data-plane algorithms demand
-more of the hardware.
+algorithms---far beyond a fixed function switch today. As with any
+computational substrate, we must start somewhere and refine the instruction set
+in response to the algorithms using it.  In a similar vein, designs for
+\absmachine machines will evolve as data-plane algorithms demand more of the
+hardware.
 
 %We also assume every \absmachine machine provides only one stateful atom
 %template, though we don't restrict the number of instances of this template.
@@ -205,11 +207,11 @@ the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to either the
 stateful or stateless atom provided by the \absmachine machine. Because
 stateful atoms are arranged in a containment hierarchy, we list the
 \textit{least expressive} stateful atom/target that can be used to implement a
-data-plane algorithm in Table~\ref{tab:algos}. The same table can also be
-interpreted as showing the algorithms that are implementable on a \absmachine
-machine with a specific stateful atom. For instance, a \absmachine machine with
-the Pairs atom can implement the first eight algorithms, while a machine with a
-simpler RAW atom can implement only the first two.
+data-plane algorithm in Table~\ref{tab:algos}. The same table also shows the
+algorithms that are implementable on a \absmachine machine with a specific
+stateful atom. For instance, a \absmachine machine with the Pairs atom can
+implement the first eight algorithms, while a machine with a simpler RAW atom
+can implement only the first two.
 
 We note two broader lessons for designing programmable switch chips.  First,
 atoms supporting stateful operations on a single state variable are sufficient
@@ -229,16 +231,16 @@ Here, \texttt{best\_path} (the path id of the best path for a particular
 destination) is updated conditioned on \texttt{best\_path\_util} (the
 utilization of the best path to that destination)\footnote{{\tt p.src} is the
   address of the host originating this message, and hence the destination for
-the host receiving it and executing CONGA.} and vice versa. There is no way to
-separate the two state variables into separate stages and still guarantee
-correctness. The Pairs atom, where the update to a state variable is conditioned
-on a predicate of a pair of state variables, allows us to implement CONGA at
-line rate.
+the host receiving it and executing CONGA.} and vice versa. These two state
+variables cannot be separated into different stages and still guarantee
+correctness. The Pairs atom, where the update to a state variable is
+conditioned on a predicate of a pair of state variables, allows us to implement
+CONGA at line rate.
 
 While the targets in Tab~\ref{tab:templates} are sufficient for several
-data-plane algorithms, there are algorithms that don't map to them. An example
-is CoDel, which cannot be implemented because it requires a square root
-operation that isn't provided by any of our targets. One possibility is a
+data-plane algorithms, there are algorithms that they can't run at line rate.
+An example is CoDel, which cannot be implemented because it requires a square
+root operation that isn't provided by any of our targets. One possibility is a
 generic look-up table abstraction that allows us to approximate such
 mathematical functions. We leave this exploration to future work.
 %%
@@ -254,7 +256,8 @@ Compilation time is dominated by SKETCH's search procedure.  To speed up the
 search, we limit SKETCH to search for constants (e.g., for addition) of size up
 to 5 bits, given that the constants we observe within stateful codelets in our
 algorithms are small. Our longest compilation time is 10 seconds when CoDel
-doesn't map to a \absmachine machine with the Pairs atom.  This time will
+doesn't map to a \absmachine machine with the Pairs atom because SKETCH has to
+search and rule out every configuration in its search space.  This time will
 increase if we increase the bit width of constants that SKETCH has to search;
 however, because the data-plane algorithms themselves are small, we don't
 expect compilation times to be a concern.
@@ -272,7 +275,7 @@ clock frequency (the inverse of propagation delay) and hence a lower line rate.
 To quantify this intuition, we consider each stateful atom from
 Table~\ref{tab:templates} and synthesize a circuit with the lowest possible
 delay using the Synopsys Design Compiler. As we increase the complexity of the
-atom, the number of algorithms from Table~\ref{tab:algos} that it can map
+atom, the number of algorithms from Table~\ref{tab:algos} that it can implement
 increases (programmability), while at the same time, its achievable line rate
 (performance) decreases (Table~\ref{tab:perfprog}).\footnote{The slightly
 non-monotonic behavior between PRAW and IfElseRAW is because the logic
@@ -297,11 +300,11 @@ circuit depth with atom complexity.
   \hline
   IfElse ReadAddWrite (IfElseRAW) & 392 & 5 & 2.55 \\
   \hline
-  Subtract (Sub) & 400 & 6 & 2.50 \\
+  Subtract (Sub) & 409 & 6 & 2.44 \\
   \hline
-  Nested Ifs (Nested) & 574 & 7 & 1.74 \\
+  Nested Ifs (Nested) & 580 & 9 & 1.72 \\
   \hline
-  Paired updates (Pairs) & 586 & 8 & 1.70 \\
+  Paired updates (Pairs) & 609 & 10 & 1.64 \\
   \hline
   \end{tabular}
 \end{scriptsize}
@@ -327,7 +330,7 @@ can support in packets / sec) decreases.}
   \hline
   \end{tabular}
 \end{scriptsize}
-\caption{Minimum delay of an atom increases with the depth of its circuit. MUX
+\caption{Minimum delay of an atom increases with circuit depth. MUX
 stands for a multiplexer, RELOP stands for a relational operation between two
 operands.}
 \label{tab:circuits}
