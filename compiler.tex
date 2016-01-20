@@ -247,9 +247,9 @@ We use the following algorithm to create the codelet pipeline for PVSM.
   \item Schedule the resulting DAG using critical path
     scheduling~\cite{crit_path_sched} by creating a new pipeline stage when one
     operation needs to follow another. This results in the codelet pipeline
-    shown in (Figure~\ref{fig:flowlet_pipeline})\footnote{We refer to this both
+    shown in (Figure~\ref{fig:flowlet_pipeline}).\footnote{We refer to this both
       as a codelet and an atom pipeline because codelets map one-to-one atoms
-    (\S\ref{ss:code_gen}).}.
+    (\S\ref{ss:code_gen}).}
 \end{CompactEnumerate}
 
 The resulting codelet pipeline implements the packet transaction on a switch
