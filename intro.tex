@@ -108,12 +108,13 @@ the compiler will run at line rate, or be rejected outright. There is no
   in \pktlanguage is more concise. Qualitatively, \pktlanguage provides an
   easier and less error-prone model for programming stateful data-plane
   algorithms.  Next, because the infrastructure to program programmable
-  switches is still heavily in development, we design a set of compiler targets
-  (\S\ref{ss:targets}) based on \absmachine and show that these are feasible in
-  a 32 nm standard-cell library with modest chip area overhead (< 10\%).
-  Finally, we compile data-plane algorithms written in \pktlanguage to these
-  targets to show how the choice of atoms in a target determines which
-  algorithms it can support.
+  switches is still heavily in development and no existing programmable switch
+  supports the rich set of atoms required for our data-plane algorithms, we
+  design a set of compiler targets (\S\ref{ss:targets}) based on \absmachine
+  and show that these are feasible in a 32 nm standard-cell library with modest
+  chip area overhead (< 10\%).  Finally, we compile data-plane algorithms
+  written in \pktlanguage to these targets to show how the choice of atoms in a
+  target determines which algorithms it can support.
 \end{CompactEnumerate}
 
 Overall, we stress two main takeaways. One, it is possible to design

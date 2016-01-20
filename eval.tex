@@ -1,176 +1,127 @@
 \section{Evaluation}
+\label{s:eval}
 
-%TODO: Be consistent about machine vs. target.
-%TODO: Say that atoms and targets are interchangeable.
-%TODO: Maybe add a few examples from Chimera/Bohatei on security.
-%TODO: Mihai: Add figure of CONGA's SCC here maybe?
-%TODO: Try and get an atom for CoDel and trTCM.
+% TODO: Be consistent about machine vs. target.
 % Maybe move comparison against P4 to the end of the evaluation.
 % Say LOC comparison and qualitatively mention difficulty of implementation.
 % Maybe put it at the last.
 
-% We chose this approach relative to targeting actual hardware for two reasons.
-% First, programmable switches are rapidly evolving, so targeting one in
-% particular risks obsolescence. Second, the software ecosystem to program these
-% chips is heavily in flux. We do, however, address the practicality of these
-% \absmachine machines by quantifying their chip area overhead
-% in\S\ref{ss:atoms}.
-
-% MA: Lets get rid of the above paragraph; we can explain these points
-% in the intro and evaluation.
-
-\label{s:eval}
-
 \begin{table}[!t]
   \begin{scriptsize}
-  \begin{tabular}{|p{0.08\textwidth}|p{0.31\textwidth}|p{0.03\textwidth}|}
+  \begin{tabular}{|p{0.13\textwidth}|p{0.22\textwidth}|p{0.04\textwidth}|}
     \hline
-    Atom & Description & Area (sq. microns)\\
-    Stateless & Arithmetic, logic, relational, and conditional operations on packet/constant operands & 1383 \\
+    Atom & Description & Area ($\mu m^2$)\\
     \hline
-    Read/Write & Read/Write packet field/constant into single state variable. & 249 \\
+    Stateless & Arithmetic, logic, relational, and conditional operations on packet/constant operands & 1384 \\
     \hline
-    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. & 430 \\
+    Read/Write & Read/Write packet field/constant into single state variable. & 250 \\
     \hline
-    Predicated ReadAddWrite (RAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. & 790 \\
+    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. & 431 \\
     \hline
-    IfElse ReadAddWrite (IfElseRAW) & Execute two separate RAWs: one each for when a predicate is true or false. & 985 \\
+    Predicated ReadAddWrite (RAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. & 791 \\
     \hline
-    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. & 1301 \\
+    IfElse ReadAddWrite (IfElseRAW) & Two separate RAWs: one each for when a predicate is true or false. & 985 \\
     \hline
-    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. & 3091 \\
+    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. & 1522 \\
     \hline
-    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. & 4440 \\
+    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. & 3597 \\
+    \hline
+    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. & 5997 \\
     \hline
   \end{tabular}
   \end{scriptsize}
-  \caption{Atoms with their area overhead in a 32 nm standard-cell library.
-  All atoms meet timing at 1GHz. Each of the seven compiler targets contains
-  one of the seven stateful atoms above and the single stateless atom.}
+  \caption{Atom areas in a 32 nm standard-cell library.  All atoms
+  meet timing at 1GHz. Each of the seven compiler targets contains one of the
+  seven stateful atoms and the single stateless atom.}
   \label{tab:templates}
 \end{table}
 
 \begin{table*}[!t]
-  \begin{tabular}{|p{0.14\textwidth}|p{0.43\textwidth}|p{0.08\textwidth}|p{0.06\textwidth}|p{0.07\textwidth}|p{0.06\textwidth}|p{0.03\textwidth}|}
+  \begin{tabular}{|p{0.16\textwidth}|p{0.43\textwidth}|p{0.08\textwidth}|p{0.06\textwidth}|p{0.07\textwidth}|p{0.06\textwidth}|}
 \hline
-Algorithm & Description & Least expressive atom & Pipeline depth, width & Ingress or Egress Pipeline? & Domino LOC & P4 LOC \\
+Algorithm & Description & Least expressive atom & Pipeline depth, width & Ingress or Egress Pipeline? & Domino LOC\\
 \hline
-\pbox{0.16\textwidth}{Bloom filter~\cite{bloom}\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29 & 104 \\
+\pbox{0.16\textwidth}{Bloom filter~\cite{bloom}\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29\\
 \hline
-\pbox{0.16\textwidth}{Heavy Hitters~\cite{opensketch}\\(3 hash functions)} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10, 9 & Either & 35 & 192  \\
+\pbox{0.16\textwidth}{Heavy Hitters~\cite{opensketch}\\(3 hash functions)} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10, 9 & Either & 35\\
 \hline
-Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6, 2 & Ingress & 37 & 292 \\
+Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6, 2 & Ingress & 37\\
 \hline
-RCP~\cite{rcp} & \pbox{0.44\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress & 23 & 75\\
+RCP~\cite{rcp} & \pbox{0.44\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress & 23\\
 \hline
-\pbox{0.16\textwidth}{Sampled\\NetFlow~\cite{sampled_nflow}} & \pbox{0.47\textwidth}{Sample a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either  & 18 & 70\\
+\pbox{0.16\textwidth}{Sampled\\NetFlow~\cite{sampled_nflow}} & \pbox{0.47\textwidth}{Sample a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either  & 18\\
 \hline
-HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress & 26 & 95 \\
+HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress & 26\\
 \hline
-\pbox{0.16\textwidth}{Adaptive\\Virtual Queue~\cite{avq}} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress & 36 & 147 \\
+\pbox{0.16\textwidth}{Adaptive\\Virtual Queue~\cite{avq}} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress & 36\\
+\hline
+\pbox{0.16\textwidth}{Priority computation for start-time fair queueing~\cite{pifo_hotnets}} & Compute packet's virtual start time using finish time of last packet in that flow. & Nested & 4, 2 & Ingress & 29 \\
+\hline
+\pbox{0.16\textwidth}{DNS TTL change tracking~\cite{dns_change}} & Track number of changes in announced TTL for each domain & Nested & 6,3 & Ingress & 27 \\
 \hline
 CONGA~\cite{conga} & \pbox{0.54\textwidth}{Update best path's utilization/id if we see a better path.\\
-                                           Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress & 32 & 89 \\
+                                           Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress & 32\\
 \hline
 %trTCM~\cite{trTCM} & Update token counts for each token bucket & Doesn't map & 7, 3 & Either \\
 %\hline
-CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queuing delay will exceed target.}& Doesn't map & 15, 3 & Egress & 57 & 271 \\
+CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queuing delay will exceed target.}& Doesn't map & 15, 3 & Egress & 57 \\
 \hline
 \end{tabular}
 \caption{Data-plane algorithms}
 \label{tab:algos}
 \end{table*}
 
-First, we evaluate \pktlanguage's expressiveness and ease of
-programming by using it to write several data-plane algorithms
-(Table~\ref{tab:algos}), and comparing it to how these algorithms
-would be written in P4.  To validate that these algorithms can be
-implemented at line-rate, we design a concrete set of \absmachine
-machines (Table~\ref{tab:templates}) that we use as compiler targets
-for \pktlanguage.  We verify that these machines can readily be
-implemented in hardware today and that their atoms incur modest chip
-area overhead.\footnote{We develop our own atoms since no existing
-  programmable switching chip supports a sufficiently rich set of
-  operations needed for data-plane algorithms.} Next, we use the
-\pktlanguage compiler to compile the algorithms in
-Table~\ref{tab:algos} to these targets.  We conclude by quantifying
-the tradeoff between a target's programmability (the space of
-data-plane algorithms that it can run at line rate) and the target's
-performance (the maximum line rate it can support).
+First, we evaluate \pktlanguage's expressiveness by using it to write several
+data-plane algorithms (Table~\ref{tab:algos}), and comparing it to developing
+them in P4~(\S\ref{ss:expressive}).  To validate that these algorithms can be
+implemented at line-rate, we design a concrete set of \absmachine machines
+(Table~\ref{tab:templates}) that we use as compiler targets for
+\pktlanguage~(\S\ref{ss:targets}).  We verify that these machines can readily
+be implemented in hardware today and that their atoms incur modest chip area
+overhead.\footnote{We develop our own atoms since no existing programmable
+switching chip supports a sufficiently rich set of operations needed for
+data-plane algorithms.} Next, we use the \pktlanguage compiler to compile the
+algorithms in Table~\ref{tab:algos} to these targets~(\S\ref{ss:compiler}).  We
+conclude by quantifying the tradeoff between a target's programmability (the
+space of data-plane algorithms that it can run at line rate) and the target's
+performance (the maximum line rate it can support)~(\S\ref{ss:perfprog}).
 
 \subsection{Expressiveness}
-\label{ss:Expressiveness}
+\label{ss:expressiveness}
 
-To evaluate \pktlanguage's expressiveness, we express several
-data-plane algorithms (Table~\ref{tab:algos}) in \pktlanguage. These
-algorithms encompass a variety of data-plane functionality including
-data-plane load balancing, in-network congestion control, active queue
-management, and measurement. In addition, \pktlanguage has been used
-for programmable scheduling~\cite{prog_sched_arxiv}.\MA{Need to add an
-  example in Table 4.} In all these cases, the algorithms are
+To evaluate \pktlanguage's expressiveness, we program several data-plane
+algorithms (Table~\ref{tab:algos}) in \pktlanguage. These algorithms encompass
+a variety of data-plane functionality including data-plane load balancing,
+in-network congestion control, active queue management, security, and
+measurement. In addition, \pktlanguage can be used to program the priority
+computation for programming scheduling using the push-in first-out queue
+abstraction~\cite{pifo_hotnets}. In all these cases, the algorithms are
 naturally available as blocks of imperative code; translating them to
 \pktlanguage syntax was straightforward.
 %TODO: Need to make an arXiv document for programmable scheduling.
 
-By contrast, expressing one of these algorithms in P4 requires
-manually teasing out portions of the algorithm that can reside in
-independent match-action tables and then chaining these tables
-together. In essence, the programmer carries out the transformations
-in \pktlanguage's compiler, which is both tedious and error prone, as
-we show below.
+By contrast, expressing one of these algorithms in P4 requires manually teasing
+out portions of the algorithm that can reside in independent match-action
+tables and then chaining these tables together. In essence, the programmer
+carries out the transformations in \pktlanguage's compiler. Of the algorithms
+in Table~\ref{tab:algos}, only flowlet switching has a publicly available P4
+implementation~\cite{p4_flowlet} that we can compare against. This
+implementation requires 231 lines of uncommented P4, in comparison to the 37
+lines of \pktlanguage in Figure~\ref{fig:flowlet_code}. It also requires the
+programmer to manually specify tables, the actions within the tables, how
+tables are chained, and what headers are required---all to implement a single
+data-plane algorithm. This process can be automated; we have developed a
+backend for \pktlanguage that generates P4 code (code counts for these
+autogenerated P4 programs are listed in Table ~\ref{tab:algos}).
 
-\paragraph{Quantitative comparison against P4} Of the algorithms in
-Table~\ref{tab:algos}, only flowlet switching has a publicly available
-P4 implementation~\cite{p4_flowlet}. This implementation requires 292
-lines of uncommented P4, in comparison to the 37 lines of \pktlanguage
-in Figure~\ref{fig:flowlet_code}. It also requires the programmer to
-manually specify tables, how they are chained, what headers are
-required, and how they are parsed.\MA{Are we cheating here by saying
-  that P4 needs the programmer to specify something like parsing while
-  we don't? Aren't we just ignoring parsing, but we would need it for
-  a full solution?}
-
-Further, the same implementation is only guaranteed to be correct on a
-software switch because it requires synchronized access to the
-saved\_hop variable from two adjacent pipeline stages, which requires
-locking that is challenging at line rate. This illustrates the
-additional programmer burden when programming with P4. Reasoning about
-how state variables should be distributed across a pipeline is error
-prone and is best moved into a compiler where all algorithms can
-benefit from it.\MA{This is a weird thing to say without actually
-  showing the P4 code and explaining the bug. I don't think anyone
-  reading this will know what you're talking about.}
-
-% Keep this?
-Ideally, we could repeat the same comparison with P4 for all other
-algorithms.  \MA{``Perhaps in part due to the difficulty of manually
-  writing stateful algorithms in P4, these algorithms don't have P4
-  counterparts.'' Avoid speculative statements like this.}
-Unfortunately, publicly available P4 implementations are not available
-for the rest of the algorithms.  To address this, we wrote a backend
-for \pktlanguage that generated P4 from \pktlanguage by turning every
-codelet into a default action~\cite{p4spec}.  We report the number of
-lines of code in the autogenerated P4 programs in
-Table~\ref{tab:algos} and compare them with programs written in
-\pktlanguage. While the LOC count could be lesser for manually written
-P4 programs, our overall message is simple: for stateful data-plane
-algorithms, coding in \pktlanguage is easier relative to P4 and
-results in more concise (between 3 and 8$\times$) and correct code.
-\MA{The proper way to have done this would have been to implement each
-  algortihm in P4 to the best of our abilities. Using autogenerated P4
-  code to make a LOC comparison seems lazy. Frankly, it might be more
-  convincing to show some snippets of P4 code relative to Domino, so
-  people can qualitatively see how awkward it is to write a data-plane
-  algorithm in P4.}
-
-%Anirudh: Chang felt this was incidental.
-%%We did, however, modify CoDel. CoDel is a head-drop active queue
-%%management scheme, which uses a loop~\cite{codel_code} to repeatedly dequeue
-%%packets until it can send one out.  We replaced the while loop with an if
-%%statement and mark dequeued packets instead of dropping them. A line-rate
-%%switch can dequeue only once per packet. Dropping these dequeued packets,
-%%instead of marking them, leads to an idle line and wasted capacity.
-
+%%%Further, the same implementation~\cite{p4_flowlet} is only guaranteed to be
+%%%correct on a software switch because it requires synchronized access to the
+%%%saved\_hop variable from two adjacent pipeline stages, which requires locking
+%%%that is challenging at line rate. This illustrates the additional programmer
+%%%burden when programming with P4. Reasoning about how state variables should be
+%%%distributed across a pipeline is error prone and is best moved into a compiler
+%%%where all algorithms can benefit from it.
+%%%
 \subsection{Compiler targets}
 \label{ss:targets}
 

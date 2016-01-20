@@ -2,3 +2,4 @@
 2. Rename abstract machine to machine model.
 3. Compiler figures.
 4. Ask Mohammad about CONGA's middle plane operations.
+5. Use packet field instead of packet variable consistently.
