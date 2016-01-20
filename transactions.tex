@@ -117,8 +117,15 @@ clock cycle is challenging.
   \label{tab:restrict}
 \end{table}
 
+\subsection{Guards on packet transactions}
+\label{ss:guard}
+To complete this, a programmer would give you a transaction and a predicate.
+The way that would be realized is to use the match for filter and the actions
+are a result of the Domino compiler.
+
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
+Disjoint subsets of packets. Disjoint states.
 
 %TODO: Need someone to look at this.
 So far, we have discussed programming a single packet transaction, which
@@ -134,3 +141,9 @@ Combining multiple transactions that run on overlapping subsets of packets
 requires further work, which we leave for future work. For the rest of this
 paper, we focus only on compiling a \textit{single} packet transaction to a
 programmable switch.
+% TODO: Mention disjoint predicates and composed transactions (by concatenating action bodies).
+
+% TODO: Talk about how each transaction runs on a disjoint set of packets, and
+% say that's very easy to realize. For the more general case with multiple
+% transactions can act on the same packet, we can coalesce them into a larger
+% transaction.
