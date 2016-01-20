@@ -192,7 +192,6 @@ FlexPipe~\cite{lavanya_compiler}.
 \subsection{What can \absmachine not do?}
 \label{ss:limitations}
 
-\paragraph{Algorithms that manipulate packet payloads}
 \absmachine is a good fit for data-plane algorithms that do a small amount of
 work per packet and manipulate only packet headers. Data-plane algorithms like
 deep packet inspection and WAN optimization access packet payloads. These
@@ -200,13 +199,11 @@ algorithms require a switch to parse the packet payload as well---effectively
 parsing a huge header consisting of each byte in the packet payload. Parsing
 deep parse graphs is challenging at line rates of 1 GHz.
 
-\paragraph{Algorithms that manipulate large amounts of state infrequently}
-\absmachine is ideally suited to algorithms that carry out small
-transformations on a small amount of state frequently, e.g., setting a bit or
+\absmachine is ideally suited to algorithms that carry out small computations
+on a small amount of state frequently, e.g., setting a bit or conditionally
 incrementing a counter. Some algorithms run infrequently (every few
-microseconds, as opposed to on every packet (nanosecond)), but either access
-large quantities of state or carry out involved computations. An example would
-be periodically scanning a list of numbers to find their average or
+microseconds, as opposed to line rate (nanosecond)), but either access large
+quantities of state or require complex computations. An example would be
 periodically dividing the total number of transmitted bytes by a time interval
 to compute the link rate, as RCP does.
 %TODO: periodic scan for CONGA, give example.
