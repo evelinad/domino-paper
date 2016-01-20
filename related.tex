@@ -86,7 +86,15 @@ CONGA, HULL, and AVQ, involve time-varying quantities (queue sizes, packet
 arrivals), and are only available as distributed algorithms running on each
 switch independently; we don't know of centralized versions for these
 algorithms.
+%% Keep this description short.
+%%SNAP doesn't really get into how stateful computations get implemented on the
+%%hardware pipeline of a switch.
+%%
+%%Say that SNAP can be compiled down to Domino. It doesn't really deal with how
+%%individual switch components would get implemented on a hardware pipeline.
+%%Domino is an enabler for these kinds of things.
 
+Don't worry about SNAP too much.
 %%TODO, should we add this? They seem to be fixing this now ... SNAP doesn't impose
 %%constraints on what each switch can do at line rate, and doesn't handle code
 %%generation\S\ref{ss:code_gen}. 
