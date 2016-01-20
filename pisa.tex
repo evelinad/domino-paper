@@ -139,7 +139,7 @@ pipeline stage / clock cycle, and then subtracting in the next, unlike the incre
 \subsection{Constraining atoms}
 \label{s:atomConstraints}
 
-\paragraph{Computational limits}
+\textbf{Computational limits:}
 To provide line-rate performance, atom bodies must be suitably
 constrained.  When implemented in digital logic, the atom body must
 finish execution within one clock cycle (1 ns for a 1 GHz clock
@@ -180,12 +180,10 @@ atom's execution latency~(\S\ref{ss:perfprog}).
   \end{minipage}
 \end{figure}
 
-\paragraph{Resource limits}
-
-For any real machine, we also need to limit the number of atoms
-in each stage (\textit{pipeline width}) and the number of stages in the
-pipeline (\textit{pipeline depth}). This is similar to the limits on the
-number of stages, number of tables per stage, and amount of memory per
+\textbf{Resource limits:} For any real machine, we also need to limit the
+number of atoms in each stage (\textit{pipeline width}) and the number of
+stages in the pipeline (\textit{pipeline depth}). This is similar to the limits
+on the number of stages, number of tables per stage, and amount of memory per
 stage in programmable switch architectures such as RMT and
 FlexPipe~\cite{lavanya_compiler}.
 

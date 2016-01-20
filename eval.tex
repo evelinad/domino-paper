@@ -134,7 +134,7 @@ an individual atom's area and a switching chip's area~\cite{gibb_parsing}, we
 determine the machine's resource limits i.e. the pipeline width for each atom
 and the pipeline depth.
 
-\paragraph{Computational limits}
+\textbf{Computational limits:}
 Stateless atoms are easier to design because arbitrary stateless operations can
 be spread out across multiple stages of the pipeline without violating
 atomicity~(\S\ref{ss:atoms}). We design a stateless atom that can support
@@ -154,7 +154,7 @@ When synthesized to a 32 nm standard-cell library, all atoms meet timing at 1
 GHz and their area increases with the atom's
 complexity~(Table~\ref{tab:templates}).
 
-\paragraph{Resource limits}
+\textbf{Resource limits:}
 Now that we have a single stateless atom and multiple stateful atoms, we design
 compiler targets using these atoms.  We design one compiler target for each
 combination of a stateful atom in Table~\ref{tab:templates} along with the
@@ -251,7 +251,7 @@ mathematical functions. We leave this exploration to future work.
 %%a triplet of state variables all falling in the same strongly connected
 %%component/codelet, requiring a three-way state update.
 %%
-\textbf{Compilation time}
+\textbf{Compilation time:}
 Compilation time is dominated by SKETCH's search procedure.  To speed up the
 search, we limit SKETCH to search for constants (e.g., for addition) of size up
 to 5 bits, given that the constants we observe within stateful codelets in our

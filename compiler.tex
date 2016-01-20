@@ -286,16 +286,14 @@ The final pass determines if the codelet pipeline can be compiled to a
 any \absmachine machine: resource limits, i.e. the pipeline width and
 depth, and computational limits on atoms within a pipeline stage.
 
-\paragraph{Resource limits}
-To handle resource limits, we scan each pipeline stage in the codelet pipeline
+\textbf{Resource limits:} To handle resource limits, we scan each pipeline stage in the codelet pipeline
 starting from the first to check for pipeline width violations.  If we violate
 the pipeline width, we insert as many new stages as required and spread
 codelets evenly across these stages.  We continue until the number of codelets
 in all stages is under the pipeline width or we reach the pipeline depth, in
 which case we reject the program.
 
-\paragraph{Computational limits}
-Next, we determine if codelets in the pipeline map one-to-one to atoms provided
+\textbf{Computational limits:} Next, we determine if codelets in the pipeline map one-to-one to atoms provided
 by the \absmachine machine. In general, codelets have multiple three-address
 code statements that are executed atomically. For instance, updating the state
 variable \texttt{saved\_hop} in Figure~\ref{fig:flowlet_pipeline} requires a
