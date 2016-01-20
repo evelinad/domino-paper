@@ -8,17 +8,15 @@
   \label{fig:switch}
 \end{figure*}
 
-This section describes \absmachine, a machine model for programmable line-rate switches
-that serves as the compiler target for \pktlanguage
-programs. \absmachine is inspired by recent programmable
-switch architectures such as RMT~\cite{rmt}, Intel's
-FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
-Architecture~\cite{xpliant}. \absmachine abstracts these architectures
-and extends them with stateful processing units which are used to
-implement data-plane algorithms. These processing units, called {\em
-  atoms}, precisely model the set of operations that a hardware target
-can execute at line-rate, and act as the low-level instruction set for
-the \pktlanguage compiler.
+This section describes \absmachine, a machine model for programmable line-rate
+switches that serves as the compiler target for \pktlanguage programs.
+\absmachine is inspired by recent programmable switch architectures such as
+RMT~\cite{rmt}, Intel's FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
+Architecture~\cite{xpliant}. \absmachine abstracts these architectures and
+extends them with stateful processing units which are used to implement
+data-plane algorithms. These processing units, called {\em atoms}, precisely
+model the set of operations that a hardware target can execute at line-rate,
+and act as the low-level instruction set for the \pktlanguage compiler.
 
 \subsection{Programmable switch architectures}
 Packets arriving to a programmable switch~(Figure~\ref{fig:switch})
@@ -63,18 +61,17 @@ compiler for mapping a user-friendly description of an algorithm to
 these low-level primitives.
 \subsection{The \absmachine machine model}
 
-\absmachine (the bottom half of Figure~\ref{fig:switch}) models a
-switch pipeline such as the ingress or egress pipeline. A pipeline in
-\absmachine consists of a number of stages executing synchronously on
-every clock cycle. An incoming packet is processed by each stage and
-handed off to the next, until it exits the pipeline. Each stage processes
-a packet every clock cycle, which in our case is 1 ns. \absmachine
-only models components pertinent to data-plane algorithms.  It models
-the computation within a match-action table in a stage (i.e., the
-action half of the match-action table), but not the match semantics
+\absmachine (the bottom half of Figure~\ref{fig:switch}) models a switch
+pipeline such as the ingress or egress pipeline. A pipeline in \absmachine
+consists of a number of stages executing synchronously on every clock cycle. An
+incoming packet is processed by each stage and handed off to the next, until it
+exits the pipeline. Each stage processes a packet every clock cycle, which in
+our case is 1 ns. \absmachine only models components pertinent to data-plane
+algorithms.  It models the computation within a match-action table in a stage
+(i.e., the action half of the match-action table), but not the match semantics
 (e.g., direct, or ternary) (we discuss embedding these actions in a standard
-match-action pipeline in \S\ref{ss:multiple}). \absmachine does not model
-packet parsing and assumes that packets arriving to it are already parsed.
+match-action pipeline in \S\ref{ss:guards}). \absmachine does not model packet
+parsing and assumes that packets arriving to it are already parsed.
 
 \subsection{Atoms: \absmachine's processing units}
 \label{ss:atoms}

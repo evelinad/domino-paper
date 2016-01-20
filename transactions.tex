@@ -55,6 +55,19 @@ shaded in blue.}
 \end{minipage}
 \end{figure*}
 
+To program a data-plane algorithm, a programmer would write code in
+\pktlanguage using packet transactions (Figure~\ref{flowlet_code}) and then use
+the \pktlanguage compiler to compile to an atom pipeline for a \absmachine
+machine (Figure~\ref{fig:flowlet_pipeline}). We first describe packet
+transactions in greater detail by walking through an example
+(\S\ref{ss:flowlet}). Next, we discuss constraints in \pktlanguage
+(\S\ref{ss:constraints}) informed by the domain of line-rate switches. We then
+discuss how packet transactions are triggered (\S\ref{ss:guards}) and how
+multiple transactions are handled (\S\ref{ss:multiple}).
+
+\subsection{\pktlanguage by example}
+\label{ss:flowlet}
+
 We now illustrate programming using packet transactions in \pktlanguage, using
 flowlet switching~\cite{flowlets} as an example. Flowlet switching is a
 load-balancing algorithm that sends bursts of packets (called flowlets) from a
@@ -87,6 +100,8 @@ the code in Figure~\ref{fig:flowlet_code} into the atom pipeline in
 Figure~\ref{fig:flowlet_pipeline}.
 
 \subsection{Constraints on the language}
+\label{ss:constraints}
+
 The overall language is a constrained subset of C
 (Table~\ref{tab:restrict}).  These constraints are required for
 deterministic performance.  Memory allocation, unbounded iteration
@@ -117,33 +132,28 @@ clock cycle is challenging.
   \label{tab:restrict}
 \end{table}
 
-\subsection{Guards on packet transactions}
-\label{ss:guard}
-To complete this, a programmer would give you a transaction and a predicate.
-The way that would be realized is to use the match for filter and the actions
-are a result of the Domino compiler.
+\subsection{Triggering packet transactions}
+\label{ss:guards}
+Packet transactions specify \textit{how} to process packet headers and/or
+state.  To specify {\em when} to run packet transactions, we provide a {\em
+guard}: a predicate on packet fields that triggers the transaction whenever a
+packet matches the guard. An example guard would execute heavy-hitter detection
+on all packets arriving on a specific port. The guard can be implemented using
+the match key in a match-action pipeline, with the actions being the atoms
+resulting from compiling packet transactions to a pipeline of atoms. Because
+guards can be easily integrated into a standard match-action pipeline, this
+paper only focuses on packet transactions.
 
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
-Disjoint subsets of packets. Disjoint states.
-
-%TODO: Need someone to look at this.
-So far, we have discussed programming a single packet transaction, which
-corresponds to a single data-plane algorithm. In practice, multiple data-plane
-algorithms would run simultaneously on a switch, each processing its own subset
-of packets. To accommodate multiple transactions, we envision providing a
-\textit{guard} for each transaction: a predicate that specifies the subset of
-packets each transaction runs on. This guard would reside in the match portion
-of a match-action pipeline, with the actions themselves being produced as a
-result of compiling packet transactions. This also provides a straightforward
-mechanism to embed packet transactions into a standard match-action pipeline.
-Combining multiple transactions that run on overlapping subsets of packets
-requires further work, which we leave for future work. For the rest of this
-paper, we focus only on compiling a \textit{single} packet transaction to a
-programmable switch.
-% TODO: Mention disjoint predicates and composed transactions (by concatenating action bodies).
-
-% TODO: Talk about how each transaction runs on a disjoint set of packets, and
-% say that's very easy to realize. For the more general case with multiple
-% transactions can act on the same packet, we can coalesce them into a larger
-% transaction.
+So far, we have discussed a single packet transaction. In practice, a switch
+would run multiple data-plane algorithms each processing its own subset of
+packets. To accommodate multiple transactions, we envision providing a policy
+language that specifies pairs of guards and transactions. Realizing a policy is
+straightforward when all guards are disjoint. When guards overlap, mutliple
+transactions may need to execute on the same subset of packets, requiring a
+mechanism to compose two transactions. One approach is to concatenate the two
+transaction bodies in an order specified by the user, providing the illusion of
+a larger transaction that combines two transactions. We leave a detailed
+exploration of these approaches to future work. For the rest of this paper, we
+focus only on compiling a single packet transaction.
