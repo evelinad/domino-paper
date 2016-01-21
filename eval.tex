@@ -73,7 +73,7 @@ CoDel~\cite{codel} & \pbox{0.54\textwidth}{Update:\\Whether we are marking or no
 
 First, we evaluate \pktlanguage's expressiveness by using it to write several
 data-plane algorithms (Table~\ref{tab:algos}), and comparing it to developing
-them in P4~(\S\ref{ss:expressive}).  To validate that these algorithms can be
+them in P4~(\S\ref{ss:expressiveness}).  To validate that these algorithms can be
 implemented at line-rate, we design a concrete set of \absmachine machines
 (Table~\ref{tab:templates}) that we use as compiler targets for
 \pktlanguage~(\S\ref{ss:targets}).  We verify that these machines can readily
@@ -198,7 +198,7 @@ hardware.
 %multiple instances of the same circuit.
 
 \subsection{Compiling \pktlanguage programs to \absmachine machines}
-
+\label{ss:compiler}
 We now consider every target from Table~\ref{tab:templates}, and every
 data-plane algorithm from Table~\ref{tab:algos} to determine if the algorithm
 is \textit{implementable} on a particular \absmachine machine. We say an
