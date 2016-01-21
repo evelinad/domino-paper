@@ -4,3 +4,5 @@
 4. Ask Mohammad about CONGA's middle plane operations.
 5. Use packet field instead of packet variable consistently.
 6. Comparison against P4: remove the error-prone part; it's too hard to explain.
+7. The term primitive should be removed?
+8. time step?
