@@ -195,13 +195,13 @@ access packet payloads. These algorithms require a switch to parse and process
 the packet payload as well---effectively parsing a huge header consisting of
 each byte in the packet payload. Parsing deep parse graphs is challenging at
 line rates of 1 GHz. Such processing is best left to general-purpose CPU
-platforms~\cite{e2, aplomb}.
+platforms~\cite{e2, aplomb, opennf}.
 
 \absmachine is ideally suited to algorithms that carry out small computations
 on a small amount of state frequently, e.g., setting a bit or conditionally
 incrementing a counter. Some algorithms run infrequently (every few $\mu s$, as
 opposed to every ns), but either access large quantities of state or require
 complex computations. An example would be periodically dividing the total
-number of transmitted bytes by a time interval to compute the link rate, as RCP
+number of transmitted bytes by a time interval to compute the link rate, as RCP~\cite{rcp}
 does.
 %TODO: periodic scan for CONGA, give example.
