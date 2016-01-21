@@ -2,18 +2,17 @@
 \label{s:intro}
 
 Network switches and routers in modern datacenters, enterprises, and
-service-provider networks perform many tasks in addition to standard
-packet forwarding. The set of requirements for routers has only
-increased with time as network operators seek greater control over
-performance and security.  Performance and security may be improved
-using both data-plane and control-plane mechanisms. This paper focuses
-on data-plane algorithms. These algorithms process and transform
-packets, creating and maintaining state in the switch. Examples
-include active queue management~\cite{red,blue,avq,codel,pie},
+service-provider networks perform many tasks in addition to standard packet
+forwarding. The set of requirements for routers has only increased with time as
+network operators seek greater control over performance and security.
+Performance and security may be improved using both data-plane and
+control-plane mechanisms. This paper focuses on data-plane algorithms. These
+algorithms process and transform packets, creating and maintaining state in the
+switch. Examples include active queue management~\cite{red,blue,avq,codel,pie},
 scheduling~\cite{pifo_hotnets}, congestion control with switch
-feedback~\cite{xcp, rcp, pdq, dctcp}, network
-measurement~\cite{opensketch, bitmap_george, elephant_george}, and
-load-balanced routing in the data plane~\cite{conga}.
+feedback~\cite{xcp, rcp, pdq, dctcp}, network measurement~\cite{opensketch,
+bitmap_george, elephant_george}, security~\cite{dns_change} and load-balanced
+routing in the data plane~\cite{conga}.
 
 An important practical requirement for data-plane algorithms is the
 ability to process packets at the switch's line rate.  As a result,
@@ -33,7 +32,7 @@ data-plane algorithms after a switch has been built, researchers and
 companies have attempted to build programmable routers for many years,
 starting from efforts on active networks~\cite{active-nets} to network
 processors~\cite{npu_survey} to software
-routers~\cite{click,routebricks}. All these efforts have sacrificed
+routers~\cite{click, dpdk, routebricks}. All these efforts have sacrificed
 performance for programmability, typically running an order of
 magnitude (or worse) slower than hardware line rates. Unfortunately,
 this reduction in performance has meant that these systems are rarely
@@ -51,7 +50,7 @@ operational standpoint, these chips permit field reconfigurability, a
 feature that other computational substrates like CPUs, GPUs,
 DSPs have benefited from for many years now.
 
-These chips allow engineers to to specify packet parsing and
+Programmable swithcing chips allow engineers to specify packet parsing and
 forwarding without restricting the set of protocol formats or the set
 of actions that can be executed when matching packet headers in a
 match-action table. Languages such as P4 are emerging as a way to
@@ -63,7 +62,7 @@ way~\cite{p4,p4spec,dc_p4}.
 %P4~\cite{dc_p4}.
 
 In contrast to packet header parsing and forwarding, which are stateless
-and don't programmatically manipulate any state in the data plane, many data-plane algorithms
+and don't modify state in the data plane, many data-plane algorithms
 create and modify algorithmic state in the switch as part of packet
 processing. For such algorithms, it is important for programmability to
 directly capture the algorithm's intent without requiring it to be
@@ -85,39 +84,40 @@ without worrying about other packets that are concurrently being
 processed. To the best of our knowledge, \pktlanguage is the first
 high-level imperative language for programming the data plane of
 line-rate switches.
+%TODO: Do we say high-level language? I think it's useful.
 
 In designing and implementing \pktlanguage, we make three contributions.
 \begin{CompactEnumerate}
-\item A family of machine models called \absmachine~(\S\ref{s:absmachine}).
-    \absmachine generalizes and abstracts essential features of
-line-rate programmable switches~\cite{rmt, xpliant, flexpipe}. \absmachine also
-models practical constraints that limit stateful operations on line-rate
-switches.  Informed by these constraints, we introduce the concept of {\em
-atoms} to represent a programmable switch's instruction set.
+\item \textbf{A family of machine models called
+  \absmachine~(\S\ref{s:absmachine})}.  \absmachine generalizes and abstracts
+  essential features of line-rate programmable switches~\cite{rmt, xpliant,
+  flexpipe}. \absmachine also models practical constraints limiting stateful
+  operations on line-rate switches.  Informed by these constraints, we
+  introduce the concept of {\em atoms} to represent a programmable switch's
+  instruction set.
 
-\item A compiler to compile from packet transactions written in \pktlanguage
-to a \absmachine target~(\S\ref{s:compiler}). The \pktlanguage compiler introduces
-\textit{all-or-nothing compilation}, where all packet transactions accepted by
-the compiler will run at line rate, or be rejected outright. There is no
-``slippery slope'' of degrading performance with increasing code complexity.
+\item \textbf{A compiler to compile from packet transactions written in \pktlanguage to
+  a \absmachine target~(\S\ref{s:compiler})}. The \pktlanguage compiler
+  introduces \textit{all-or-nothing compilation}, where all packet transactions
+  accepted by the compiler will run at line rate, or be rejected
+  outright---unlike software platforms that have smoother
+  performance-complexity tradeoffs.
 
-\item An evaluation of \pktlanguage. We evaluate \pktlanguage's expressiveness
-  by writing algorithms such as RCP~\cite{rcp}, CoDel~\cite{codel},
-  heavy-hitter detection~\cite{opensketch}, and CONGA~\cite{conga}, in
-  \pktlanguage~(\S\ref{s:eval}), and comparing it to P4.  Quantitatively, code
-  in \pktlanguage is more concise. Qualitatively, \pktlanguage provides an
-  easier and less error-prone model for programming stateful data-plane
-  algorithms.  Next, because the infrastructure to program programmable
-  switches is still heavily in development and no existing programmable switch
-  supports the rich set of atoms required for our data-plane algorithms, we
-  design a set of compiler targets (\S\ref{ss:targets}) based on \absmachine
-  and show that these are feasible in a 32 nm standard-cell library with modest
-  chip area overhead (< 10\%).  Finally, we compile data-plane algorithms
-  written in \pktlanguage to these targets to show how the choice of atoms in a
-  target determines which algorithms it can support.
+\item \textbf{An evaluation of \pktlanguage}. We evaluate \pktlanguage's
+  expressiveness by writing many data-plane algorithms (Table~\ref{tab:algos})
+  in \pktlanguage~(\S\ref{s:eval}), and comparing it with writing data-plane
+  algorithms in P4.  Relative to P4, we find that \pktlanguage provides a more
+  concise and easier programming model for stateful data-plane algorithms.
+  Next, because no existing programmable switch supports the rich set of atoms
+  required for our data-plane algorithms, we design a set of compiler targets
+  (\S\ref{ss:targets}) based on \absmachine and show that these are feasible in
+  a 32 nm standard-cell library with < 10\% chip area overhead.  Finally, we
+  compile data-plane algorithms written in \pktlanguage to these targets to
+  show how the choice of atoms in a target determines which algorithms it can
+  support.
 \end{CompactEnumerate}
 
 Overall, we stress two main takeaways. One, it is possible to design
 programmable line-rate switches that can express a wide variety of data-plane
-algorithms with modest overhead. Second, these switches can be programmed using
-a high-level DSL without giving up any performance.
+algorithms with modest chip area overhead. Second, these switches can be
+programmed using a high-level DSL without giving up any performance.
