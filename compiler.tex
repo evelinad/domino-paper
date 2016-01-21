@@ -131,8 +131,23 @@ to Figure~\ref{fig:flowlet_code} because {\tt pkt.id} is an array index expressi
 moved into the read flank.}
 \label{fig:three_address}
 \end{minipage}
-\vspace{-0.5cm}
+\vspace{-0.3cm}
 \end{figure*}
+
+\begin{figure*}[!t]
+\begin{minipage}{0.5\textwidth}
+  \includegraphics[width=0.8\columnwidth]{deps.pdf}
+  \caption{Dependency graph before condensing SCCs. Each edge represents
+  a read-after-write dependency.}
+  \label{fig:partitioning_before}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+\includegraphics[width=0.8\columnwidth]{scc.pdf}
+\caption{Dependency graph after condensing SCCs.}
+\label{fig:partitioning_after}
+\end{minipage}
+\end{figure*}
+
 
 The \pktlanguage compiler compiles from \pktlanguage programs to \absmachine
 targets. The compiler provides an {\em all-or-nothing model}: if compilation
@@ -260,23 +275,6 @@ with no computational or resource constraints. We handle these next.
 %%  Fig. 10 or Fig. 2? Similar to 4.1, perhaps showing only the output
 %%  of the pipelining stage in the main body of the paper would improve
 %%  readability.}
-
-\begin{figure*}[!t]
-\begin{minipage}{0.5\textwidth}
-  \includegraphics[width=\columnwidth]{deps.pdf}
-  \caption{Dependency graph before condensing SCCs. Each edge represents
-  a read-after-write dependency.}
-  \label{fig:partitioning_before}
-\end{minipage}
-%
-\vrule\quad
-%
-\begin{minipage}{0.5\textwidth}
-\includegraphics[width=\columnwidth]{scc.pdf}
-\caption{Dependency graph after condensing SCCs.}
-\label{fig:partitioning_after}
-\end{minipage}
-\end{figure*}
 
 \subsection{Code generation}
 \label{ss:code_gen}
