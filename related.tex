@@ -14,17 +14,17 @@
 %%Relative to P4's abstract switch model~\cite{p4}, \absmachine contributes the
 %%notion of atoms.
 %%
-NetASM~\cite{netasm} is an abstract machine model and intermediate
-representation (IR) for programmable data planes that is portable across
-network devices---FPGAs, virtual switches, and line-rate switches.  \absmachine
-is a machine model for line-rate switches alone, and hence models several
-practical constraints that NetASM doesn't. For instance, \absmachine machines
-don't permit state sharing between atoms and use atom templates to limit the
-amount of packet processing that can happen at line rate. Further, unlike
-NetASM's dataflow framework that only implements target-independent
-``middle-end'' optimizations such as dead-code elimination in its IR, the
-\pktlanguage compiler shows how to implement a back-end for line-rate switches
-(\S\ref{ss:code_gen}).
+NetASM~\cite{netasm} is an abstract machine and intermediate representation
+(IR) for programmable data planes that is portable across network
+devices---FPGAs, virtual switches, and line-rate switches.  \absmachine is a
+machine model for line-rate switches alone, and hence models practical
+constraints required for line-rate packet processing that NetASM doesn't. For
+instance, \absmachine machines don't permit sharing state between atoms and use
+atom templates to limit the amount of packet processing that can happen at line
+rate. Further, while NetASM's dataflow framework focuses only on
+target-independent middle-end optimizations such as dead-code elimination, the
+\pktlanguage compiler shows how to implement a compiler back-end for line-rate
+switches (\S\ref{ss:code_gen}).
 
 \textbf{Programmable Data Planes}
 Software data planes such as Click~\cite{click},
@@ -39,6 +39,7 @@ programmable data planes relative to an end-host-only solution. For instance,
 they permit us to express in-network congestion control, AQM, and
 congestion-aware load balancing (CONGA), which are beyond Eden's capabilities.
 
+%TODO: TPP?
 An alternative is to use FPGAs; examples include NetFPGA~\cite{netfpga},
 Switchblade~\cite{switchblade}, and Chimpp~\cite{chimpp}.  These designs are
 slower than switching ASICs, and are rarely used in production network
@@ -73,14 +74,14 @@ line-rate switching chips with shared-nothing architectures.  Furthermore,
 router, there is no slippery slope of degrading performance with increasing
 program complexity.
 
-SNAP~\cite{snap} is a recent language for programming stateful data-plane
-algorithms using a network transaction: an atomic block of code that treats the
-entire network as one big switch~\cite{onebigswitch}. The SNAP compiler then
+SNAP~\cite{snap} is a language for programming stateful data-plane algorithms
+using a network transaction: an atomic block of code that treats the entire
+network as one big switch~\cite{onebigswitch}. The SNAP compiler then
 translates these network transactions into rules running on each switch. SNAP
-doesn't determine whether these switch-local rules can be mapped into a
-programmable switch pipeline. \pktlanguage can potentially be used to compile
-these switch-local rules to an atom pipeline and is an enabler for SNAP and
-other network-wide abstractions.
+doesn't determine if these switch-local rules can be mapped into a programmable
+switch pipeline. \pktlanguage can potentially be used to compile SNAP's
+switch-local rules to an atom pipeline and is an enabler for SNAP and other
+network-wide abstractions.
 
 %% Keep this description short.
 %%SNAP doesn't really get into how stateful computations get implemented on the
