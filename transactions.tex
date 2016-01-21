@@ -55,14 +55,14 @@ switching.  Control flows from top to bottom. Stateful atoms are in grey.}
 \end{figure*}
 
 To program a data-plane algorithm, a programmer would write code in
-\pktlanguage using packet transactions (Figure~\ref{fig:flowlet_code}) and then use
-the \pktlanguage compiler to compile to an atom pipeline for a \absmachine
+\pktlanguage using packet transactions (Figure~\ref{fig:flowlet_code}) and then
+use the \pktlanguage compiler to compile to an atom pipeline for a \absmachine
 machine (Figure~\ref{fig:flowlet_pipeline}). We first describe packet
 transactions in greater detail by walking through an example
 (\S\ref{ss:flowlet}). Next, we discuss constraints in \pktlanguage
 (\S\ref{ss:constraints}) informed by the domain of line-rate switches. We then
-discuss how packet transactions are triggered (\S\ref{ss:guards}) and how
-multiple transactions are handled (\S\ref{ss:multiple}).
+discuss triggering packet transactions (\S\ref{ss:guards}) and handling
+multiple transactions (\S\ref{ss:multiple}).
 
 \subsection{\pktlanguage by example}
 \label{ss:flowlet}
@@ -86,33 +86,32 @@ function body (lines 18--32).  The function body can also modify persistent
 switch state using global variables (e.g.  \texttt{last\_time} and
 \texttt{saved\_hop} on lines 14 and 15, respectively).
 
-Conceptually, the switch invokes the packet transaction function on each
-incoming packet sequentially. To the programmer, the function modifies the
-passed-in packet argument and runs to completion before processing the next
-packet.  The function may invoke \textit{intrinsics} such as \texttt{hash2} on
-line 23 to use hardware accelerators such as hash generators.  The \pktlanguage
-compiler uses an intrinsic's signature to infer dependencies and supplies a
-canned run-time implementation, but otherwise does not analyze an intrinsics's
-internal behavior. When compiled to a \absmachine machine
-(\S\ref{s:absmachine}), the \pktlanguage compiler (\S\ref{s:compiler}) converts
-the code in Figure~\ref{fig:flowlet_code} into the atom pipeline in
+Conceptually, the switch invokes the packet transaction function one packet at
+at a time, with no concurrent packet processing. To the programmer, the
+function modifies the passed-in packet argument and runs to completion before
+processing the next packet.  The function may invoke \textit{intrinsics} such
+as \texttt{hash2} on line 23 to use hardware accelerators such as hash
+generators.  The \pktlanguage compiler uses an intrinsic's signature to infer
+dependencies and supplies a canned run-time implementation, but otherwise does
+not analyze an intrinsics's internal behavior. When compiled to a \absmachine
+machine (\S\ref{s:absmachine}), the \pktlanguage compiler (\S\ref{s:compiler})
+converts the code in Figure~\ref{fig:flowlet_code} into the atom pipeline in
 Figure~\ref{fig:flowlet_pipeline}.
 
 \subsection{Constraints on the language}
 \label{ss:constraints}
 
-The overall language is a constrained subset of C
-(Table~\ref{tab:restrict}).  These constraints are required for
-deterministic performance.  Memory allocation, unbounded iteration
-counts, and unstructured control flow all cause variable performance,
-which may prevent an algorithm from achieving line rate.
-Furthermore, all accesses to a given array within one execution of a
-transaction, i.e. one packet, must use the same array index. For
-example, all read and write accesses to the array \texttt{last\_time}
-use the index \texttt{pkt.id}, which is constant for each packet, but
-can change between packets. This restriction mirrors restrictions on
-memories, where supporting distinct read and write addresses every
-clock cycle is challenging.
+The overall language is a constrained subset of C (Table~\ref{tab:restrict}).
+These constraints are required for deterministic performance.  Memory
+allocation, unbounded iteration counts, and unstructured control flow all cause
+variable performance, which may prevent an algorithm from achieving line rate.
+Additionally, \pktlanguage constrains array modifications by requiring that all
+accesses to a given array within one execution of a transaction, i.e. one
+packet, must use the same array index. For example, all read and write accesses
+to the array \texttt{last\_time} use the index \texttt{pkt.id}, which is
+constant for each packet, but can change between packets. This restriction
+mirrors restrictions on memories, which don't typically support distinct read
+and write addresses every clock cycle.
 %TODO: Try and address this.
 %\MA{Do we model this restriction in PISA?
 %  It would be better to add it to Sec 2.}
@@ -125,7 +124,7 @@ clock cycle is challenging.
     No dynamic memory allocation / heap.\\
     Array index is constant for each transaction execution.\\
     No access to data i.e. unparsed portion of the packet.\\
-    No arrays in packet fields.\\
+%    No arrays in packet fields.\\
   \end{tabular}
   \caption{Restrictions in \pktlanguage}
   \label{tab:restrict}
@@ -139,20 +138,20 @@ guard}: a predicate on packet fields that triggers the transaction whenever a
 packet matches the guard. An example guard would execute heavy-hitter detection
 on all packets arriving on a specific port. The guard can be implemented using
 the match key in a match-action pipeline, with the actions being the atoms
-resulting from compiling packet transactions to a pipeline of atoms. Because
-guards can be easily integrated into a standard match-action pipeline, this
-paper only focuses on packet transactions.
+resulting from compiling packet transactions to an atom pipeline. Because
+guards can easily be compiled into a standard match-action pipeline, this paper
+only focuses on compiling packet transactions.
 
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
 So far, we have discussed a single packet transaction. In practice, a switch
-would run multiple data-plane algorithms each processing its own subset of
+would run multiple data-plane algorithms---each processing its own subset of
 packets. To accommodate multiple transactions, we envision providing a policy
 language that specifies pairs of guards and transactions. Realizing a policy is
 straightforward when all guards are disjoint. When guards overlap, mutliple
-transactions may need to execute on the same subset of packets, requiring a
-mechanism to compose two transactions. One approach is to concatenate the two
+transactions need to execute on the same subset of packets, requiring a
+mechanism to compose transactions. One approach is to concatenate the two
 transaction bodies in an order specified by the user, providing the illusion of
 a larger transaction that combines two transactions. We leave a detailed
-exploration of these approaches to future work. For the rest of this paper, we
-focus only on compiling a single packet transaction.
+exploration of this and alternative approaches to future work. For the rest of
+this paper, we focus only on compiling a single packet transaction.
