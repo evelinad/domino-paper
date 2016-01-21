@@ -8,15 +8,16 @@
   \label{fig:switch}
 \end{figure*}
 
-\absmachine is a machine model for programmable line-rate switches
-that serves as the compiler target for \pktlanguage programs.  \absmachine's
-design is inspired by recent programmable switch architectures such as
-RMT~\cite{rmt}, Intel's FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
+\absmachine is a machine model for programmable line-rate switches that serves
+as the compiler target for \pktlanguage programs.  \absmachine's design is
+inspired by recent programmable switch architectures such as RMT~\cite{rmt},
+Intel's FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
 Architecture~\cite{xpliant}. \absmachine abstracts these architectures and
 extends them with stateful processing units which are used to implement
 data-plane algorithms. These processing units, called {\em atoms}, precisely
 model the set of operations that a hardware target can execute at line-rate,
 and act as the low-level instruction set for the \pktlanguage compiler.
+%TODO: We use atoms for stateless stuff as well.
 
 \subsection{Programmable switch architectures}
 Packets arriving to a programmable switch~(Figure~\ref{fig:switch})
@@ -27,6 +28,7 @@ packet at a stage may modify its header fields as well as some
 persistent state at that stage. Each stage only has access to its
 own local state. To share state between stages, it must be carried in
 packet headers.
+%TODO: state is more than stage local. It's atom local.
 
 Following the ingress pipeline, the packet is queued. Once the packet
 is dequeued by the switch scheduler, it is processed by a similar
@@ -41,7 +43,7 @@ packets per second~\cite{rmt}.  Equivalently, with a clock frequency
 of 1 GHz, each pipeline stage needs to process one packet every clock
 cycle (1 ns).  The need to handle one packet per clock cycle is
 typical because switches are designed for the highest port density and
-speed supported by the switching chip. We assume one packet per clock
+speed for a given chip area. We assume one packet per clock
 cycle throughout the paper.\footnote{For concreteness, we assume a 1
   GHz clock frequency.}
 
@@ -53,9 +55,9 @@ to the next packet must finish execution in a single clock cycle (see
 contrast to software routers, programmable switching chips provide a
 small set of processing units or primitives for manipulating packets
 and state in a stage. These processing units determine what algorithms
-can run on the switch at line-rate. 
+can run on the switch at line-rate.
 
-The technical challenge here is to determine primitives that enable a
+The technical challenge here is to determine primitives that allow a
 broad range of data-plane algorithms to be implemented, and build a
 compiler for mapping a user-friendly description of an algorithm to
 these low-level primitives.
@@ -69,9 +71,10 @@ exits the pipeline. Each stage processes a packet every clock cycle, which in
 our case is 1 ns. \absmachine only models components pertinent to data-plane
 algorithms.  It models the computation within a match-action table in a stage
 (i.e., the action half of the match-action table), but not the match semantics
-(e.g., direct, or ternary) (we discuss embedding these actions in a standard
-match-action pipeline in \S\ref{ss:guards}). \absmachine does not model packet
-parsing and assumes that packets arriving to it are already parsed.
+(e.g., direct, or ternary) (we discuss how to embed these computations in a
+standard match-action pipeline in \S\ref{ss:guards}). \absmachine does not
+model packet parsing and assumes that packets arriving to it are already
+parsed.
 
 \subsection{Atoms: \absmachine's processing units}
 \label{ss:atoms}
@@ -86,31 +89,28 @@ GPUs, DSPs, and NPUs, the atoms for a \absmachine machine need to be
 substantially richer to enable useful operations at line-rate. We
 explain this through an example below.
 
-Let us assume we need to atomically increment a state variable stored
-on the switch to count packets. Naively, this can be done with
-hardware support for three simple single-cycle operations: \textit{reading} some
-memory in the first clock cycle, \textit{adding} one in the next, and
-\textit{writing} it to memory in the third. However, this doesn't
-provide atomicity. To see why, assume packet 1 increments the counter
-from 0 to 1 by transiting the read, add, and write stages at clock cycles 1,
-2, and 3 respectively.  If packet 2 issues the read at time
-2, it will increment the counter again from 0 to 1, when it should be
-2. Locks are a potential solution. However, locking causes
-packet 2 to wait during packet 1's increment, and the switch no longer
-sustains line rate on one packet every clock cycle, which it is expected to
-regardless of the input workload.\footnote{Wait-free objects~\cite{herlihy_wait} are an
-  alternative to locking, but are typically too complicated for
-  hardware.}
+Let us assume we need to atomically increment a state variable stored on the
+switch to count packets. Naively, this can be done with hardware support for
+three simple single-cycle operations: \textit{reading} some memory in the first
+clock cycle, \textit{adding} one in the next, and \textit{writing} it to memory
+in the third. However, this doesn't provide atomicity. To see why, assume
+packet 1 increments the counter from 0 to 1 by executing the read, add, and
+write operations at clock cycles 1, 2, and 3 respectively.  If packet 2 issues
+the read at time 2, it will increment the counter again from 0 to 1, when it
+should be 2. Locks are a potential solution. However, locking causes packet 2
+to wait during packet 1's increment, and the switch no longer sustains line
+rate on one packet every clock cycle, which it is expected to regardless of the
+input workload.\footnote{Wait-free objects~\cite{herlihy_wait} are an
+alternative to locking, but are typically too complicated for hardware.}
 
-In this architecture, the only way to provide an atomic increment is
-to expressly support it in hardware by reading memory, incrementing it
-and writing it back in a single stage within one clock cycle. The same
-observation applies to any line-rate atomic operation---not just an
-increment.  This motivate our representation of atoms as a body of
-sequential code. An atom completes execution of the entire body of
-code and modifies a packet before processing the next packet.  An atom
-may also contain internal state that is local to that atom alone and
-persists across packets.
+The only way to provide an atomic increment is to expressly support it in
+hardware by reading memory, incrementing it and writing it back in a single
+stage within one clock cycle. The same observation applies to any line-rate
+atomic operation---not just an increment.  This motivate our representation of
+atoms as a body of sequential code. An atom completes execution of the entire
+body of code and modifies a packet before processing the next packet.  An atom
+may also contain internal state that is local to that atom alone and persists
+across packets.
 
 Using this representation, a switch counter that wraps around at 100
 can be written as the atom below.\footnote{We use {\tt p.x} to
@@ -129,31 +129,29 @@ modify\_field} primitive~\cite{p4spec}) can be written as the atom:
 \end{lstlisting}
 Table~\ref{tab:templates} provides more examples of atoms.
 
-We note that---unlike stateful atomic operations such as increment
-that modify persistent state--- stateless operations can be supported
-by providing a set of basic stateless operations such as packet field
-arithmetic. Consider, for instance, the operation pkt.f1 = pkt.f2 +
-pkt.f3 - pkt.f4. Because this operation doesn't modify state that is
-visible to the next packet, it can be implemented by adding in one
-pipeline stage / clock cycle, and then subtracting in the next, unlike the increment.
+We note that---unlike stateful atomic operations such as increment that modify
+persistent state--- stateless operations can be supported by providing a set of
+basic stateless operations such as packet field arithmetic. Consider, for
+instance, the operation pkt.f1 = pkt.f2 + pkt.f3 - pkt.f4. Because this
+operation doesn't modify state that needs to be visible to the next packet, it
+can be implemented by adding in one pipeline stage / clock cycle, and then
+subtracting in the next, unlike the stateful atomic increment operation.
 \subsection{Constraining atoms}
 \label{s:atomConstraints}
 
 \textbf{Computational limits:}
-To provide line-rate performance, atom bodies must be suitably
-constrained.  When implemented in digital logic, the atom body must
-finish execution within one clock cycle (1 ns for a 1 GHz clock
-frequency). We constrain atom bodies by defining {\it atom templates}
-(\S\ref{ss:code_gen}).  An atom template is a program that always
-terminates and specifies exactly how the atom is executed. One example
-is an ALU with a restricted set of primitive operations to choose from
-(Figure~\ref{fig:alu_diag}). Atom templates allow us to create
-\absmachine machines with different atoms.  In practice, atom
-templates will be designed by an ASIC engineer and exposed as a
-machine's instruction set~(\S\ref{ss:targets}).  As programmable
-switches evolve, atoms will evolve as well.  However, atoms cannot be
-arbitrarily complex: the line rate is inversely proportional to an
-atom's execution latency~(\S\ref{ss:perfprog}).
+To provide line-rate performance, atom bodies must be suitably constrained.
+When implemented in digital logic, the atom body must finish execution within
+one clock cycle (1 ns). We constrain atom bodies by defining {\it atom
+templates} (\S\ref{ss:code_gen}).  An atom template is a program that always
+terminates and specifies exactly how the atom is executed. One example is an
+ALU with a restricted set of primitive operations to choose from
+(Figure~\ref{fig:alu_diag}). Atom templates allow us to create \absmachine
+machines with different atoms.  In practice, atom templates will be designed by
+an ASIC engineer and exposed as a machine's instruction
+set~(\S\ref{ss:targets}).  As programmable switches evolve, atoms will evolve
+as well.  However, atoms cannot be arbitrarily complex: the line rate is
+inversely proportional to an atom's execution latency~(\S\ref{ss:perfprog}).
 
 \begin{figure}[h]
   \begin{minipage}{0.4\columnwidth}
@@ -182,26 +180,28 @@ atom's execution latency~(\S\ref{ss:perfprog}).
 
 \textbf{Resource limits:} For any real machine, we also need to limit the
 number of atoms in each stage (\textit{pipeline width}) and the number of
-stages in the pipeline (\textit{pipeline depth}). This is similar to the limits
-on the number of stages, number of tables per stage, and amount of memory per
+stages in the pipeline (\textit{pipeline depth}). This is similar to limits on
+the number of stages, number of tables per stage, and amount of memory per
 stage in programmable switch architectures such as RMT and
 FlexPipe~\cite{lavanya_compiler}.
 
 \subsection{What can \absmachine not do?}
 \label{ss:limitations}
 
-\absmachine is a good fit for data-plane algorithms that do a small amount of
-work per packet and manipulate only packet headers. Data-plane algorithms like
-deep packet inspection and WAN optimization access packet payloads. These
-algorithms require a switch to parse the packet payload as well---effectively
-parsing a huge header consisting of each byte in the packet payload. Parsing
-deep parse graphs is challenging at line rates of 1 GHz.
+\absmachine (and programmable switches in general) is a good fit for data-plane
+algorithms that do a small amount of work per packet and manipulate only packet
+headers. Data-plane algorithms like deep packet inspection and WAN optimization
+access packet payloads. These algorithms require a switch to parse and process
+the packet payload as well---effectively parsing a huge header consisting of
+each byte in the packet payload. Parsing deep parse graphs is challenging at
+line rates of 1 GHz. Such processing is best left to general-purpose CPU
+platforms~\cite{e2, aplomb}.
 
 \absmachine is ideally suited to algorithms that carry out small computations
 on a small amount of state frequently, e.g., setting a bit or conditionally
-incrementing a counter. Some algorithms run infrequently (every few
-microseconds, as opposed to line rate (nanosecond)), but either access large
-quantities of state or require complex computations. An example would be
-periodically dividing the total number of transmitted bytes by a time interval
-to compute the link rate, as RCP does.
+incrementing a counter. Some algorithms run infrequently (every few $\mu s$, as
+opposed to every ns), but either access large quantities of state or require
+complex computations. An example would be periodically dividing the total
+number of transmitted bytes by a time interval to compute the link rate, as RCP
+does.
 %TODO: periodic scan for CONGA, give example.
