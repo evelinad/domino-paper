@@ -32,7 +32,7 @@ data-plane algorithms after a switch has been built, researchers and
 companies have attempted to build programmable routers for many years,
 starting from efforts on active networks~\cite{active-nets} to network
 processors~\cite{npu_survey} to software
-routers~\cite{click, dpdk, routebricks}. All these efforts have sacrificed
+routers~\cite{click, dpdk, routebricks}. All these efforts sacrificed
 performance for programmability, typically running an order of
 magnitude (or worse) slower than hardware line rates. Unfortunately,
 this reduction in performance has meant that these systems are rarely
@@ -48,9 +48,11 @@ attractive because it does not compromise on data rates and adds
 modest area overhead for programmability~\cite{rmt}. From an
 operational standpoint, these chips permit field reconfigurability, a
 feature that other computational substrates like CPUs, GPUs,
-DSPs have benefited from for many years now.
+DSPs \ac{are DSPs reconfigurable?} have benefited from for many years now.
 
-Programmable swithcing chips allow engineers to specify packet parsing and
+Programmable switching chips \ac{programmable switches}
+\ac{what is the connection to the previous paragraph?}
+allow engineers specify packet parsing and
 forwarding without restricting the set of protocol formats or the set
 of actions that can be executed when matching packet headers in a
 match-action table. Languages such as P4 are emerging as a way to
@@ -77,36 +79,40 @@ This paper presents \pktlanguage, a new domain-specific language (DSL)
 for data-plane algorithms.  \pktlanguage is an imperative language
 with C-like syntax. The key abstraction in \pktlanguage is a {\em
   packet transaction} (\S\ref{s:transactions}): a sequential code
-block that is atomic and isolated from other such code blocks. Packet
+block that is atomic and isolated \ac{what does isolated mean?}
+from other such code blocks. Packet
 transactions provide a convenient programming model, because they
 allow the programmer to focus on the operations needed for each packet
 without worrying about other packets that are concurrently being
 processed. To the best of our knowledge, \pktlanguage is the first
 high-level imperative language for programming the data plane of
-line-rate switches.
+line-rate switches. \ac{this might open arguments about what is high-level
+and what is not}
 %TODO: Do we say high-level language? I think it's useful.
 
-In designing and implementing \pktlanguage, we make three contributions.
+In designing and implementing \pktlanguage, we make three contributions:
 \begin{CompactEnumerate}
-\item \textbf{A machine model for line-rate programmable switches called
-  \absmachine~(\S\ref{s:absmachine})}.  \absmachine generalizes and abstracts
+\item \textbf{\absmachine, a machine model for line-rate programmable switches
+  (\S\ref{s:absmachine})}.  \absmachine generalizes and abstracts
   essential features of line-rate programmable switches~\cite{rmt, xpliant,
   flexpipe}. \absmachine also models practical constraints limiting stateful
   operations on line-rate switches.  Informed by these constraints, we
   introduce the concept of {\em atoms} to represent a programmable switch's
   instruction set.
 
-\item \textbf{A compiler to compile from packet transactions written in \pktlanguage to
+\item \textbf{A compiler from \pktlanguage packet transactions to
   a \absmachine target~(\S\ref{s:compiler})}. The \pktlanguage compiler
   introduces \textit{all-or-nothing compilation}, where all packet transactions
   accepted by the compiler will run at line rate, or be rejected
   outright---unlike software platforms that have smoother
-  performance-complexity tradeoffs.
+  performance-complexity tradeoffs.\ac{is `smoother performance complexity tradeoffs'
+  a good thing to have? If not then you should state why it is not (and hence we 
+  are better)}
 
 \item \textbf{An evaluation of \pktlanguage}. We evaluate \pktlanguage's
-  expressiveness by writing many data-plane algorithms (Table~\ref{tab:algos})
-  in \pktlanguage~(\S\ref{s:eval}), and comparing it with writing data-plane
-  algorithms in P4.  Relative to P4, we find that \pktlanguage provides a more
+  expressiveness by expressing a variety of data-plane algorithms (Table~\ref{tab:algos})
+  in \pktlanguage~(\S\ref{s:eval}), and comparing it with writing such  
+  algorithms using P4.  Relative to P4, we find that \pktlanguage provides a more
   concise and easier programming model for stateful data-plane algorithms.
   Next, because no existing programmable switch supports the rich set of atoms
   required for our data-plane algorithms, we design a set of compiler targets
@@ -120,4 +126,6 @@ In designing and implementing \pktlanguage, we make three contributions.
 Overall, we stress two main takeaways. One, it is possible to design
 programmable line-rate switches that can express a wide variety of data-plane
 algorithms with modest chip area overhead. Second, these switches can be
-programmed using a high-level DSL without giving up any performance.
+programmed using a high-level DSL \ac{that would be easy for network engineers to pick up?
+frenetic is also very high-level.}
+without giving up any performance.

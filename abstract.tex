@@ -12,9 +12,10 @@ as part of their packet processing.
 This paper presents \pktlanguage, a C-like imperative language to express
 data-plane algorithms. \pktlanguage introduces the notion of a {\em packet
 transaction}, defined as a sequential code block that is atomic and isolated
-from other such code blocks.  The \pktlanguage compiler compiles \pktlanguage
-code to \absmachine, a machine model based on emerging programmable switch
-chipsets. We evaluate \pktlanguage by first designing concrete \absmachine
-machines that support a variety of data-plane algorithms with modest die area
-overhead. We then show how \pktlanguage simplifies programming them, relative
-to current languages for programmable switches.
+from other such code blocks.  The \pktlanguage compiler translates \pktlanguage
+code to be executed on \absmachine, a machine model based on emerging programmable switch
+chipsets. We evaluate \pktlanguage by designing concrete \absmachine
+machines that support \ac{can be used to express?} 
+a variety of data-plane algorithms with modest die area
+overhead. We then show how \pktlanguage simplifies programming such algorithms by 
+comparing to expressing them using currently available languages for programmable switches.
