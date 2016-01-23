@@ -60,74 +60,87 @@ In terms of programmability, these chips today allow the network
 operator to specify packet parsing and forwarding without restricting
 the set of protocol formats or the set of actions that can be executed
 when matching packet headers in a match-action table. Languages such
-as P4 are emerging as a way to express such match-action processing in
-a hardware-independent way~\cite{p4,p4spec,dc_p4}.
+as P4 are emerging as a way to express such {\em match-action
+  processing} in a hardware-independent way~\cite{p4,p4spec,dc_p4}.
 
 There is a gap between this form of programmability and the needs of
 data-plane algorithms.
 %Data-plane tasks that require large
 %amounts of header rewriting can be expressed naturally in
 %P4~\cite{dc_p4}.
-In contrast to packet header parsing and forwarding, which are
-stateless and don't modify state in the data plane, many data-plane
-algorithms create and modify algorithmic state in the switch as part
-of packet processing. For such algorithms, it is important for
-programmability to directly capture the algorithm's intent without
-requiring it to be ``shoehorned'' into hardware constructs such as a
-sequence of match-action tables. Indeed, this is how such algorithms
-are expressed in pseudocode~\cite{red, csfq, codel_code, avq, blue},
-and implemented in sofware routers~\cite{click, dpdk, routebricks},
-network processors~\cite{packetc, nova}, and at network
-endpoints~\cite{qdisc}.
+By contrast to packet header parsing and forwarding, which don't
+modify state in the data plane, many data-plane algorithms create and
+modify algorithmic state in the switch as part of packet
+processing. For such algorithms, it is important for programmability
+to directly capture the algorithm's intent without requiring it to be
+``shoehorned'' into hardware constructs such as a sequence of
+match-action tables. Indeed, this is how such algorithms are expressed
+in pseudocode~\cite{red, csfq, codel_code, avq, blue}, and implemented
+in software routers~\cite{click, dpdk, routebricks}, network
+processors~\cite{packetc, nova}, and network endpoints~\cite{qdisc}.
 
-This paper presents \pktlanguage, a new domain-specific language (DSL)
-for data-plane algorithms.  \pktlanguage is an imperative language
-with C-like syntax. The key abstraction in \pktlanguage is a {\em
-  packet transaction} (\S\ref{s:transactions}): a sequential code
-block that is atomic and isolated \ac{what does isolated mean?}
-from other such code blocks. Packet
-transactions provide a convenient programming model, because they
-allow the programmer to focus on the operations needed for each packet
-without worrying about other packets that are concurrently being
-processed. To the best of our knowledge, \pktlanguage is the first
-high-level imperative language for programming the data plane of
-line-rate switches. \ac{this might open arguments about what is high-level
-and what is not}
+By studying the requirements of data-plane algorithms and the
+constraints of line-rate hardware, we introduce a new abstraction to
+express and implement data-plane algorithms: a {\em packet
+  transaction} (\S\ref{s:transactions}). A packet transaction is a
+sequential code block that is atomic and isolated from other such code
+blocks (i.e., any visible state is equivalent to a serial execution of
+packet transactions). Packet transactions allow the programmer to
+focus on the operations needed for each packet without worrying about
+other concurrent packets.
+
+We have developed {\em \pktlanguage{}}, a new domain-specific language
+(DSL) for data-plane algorithms, with packet transactions at its core.
+\pktlanguage is an imperative language with C-like syntax, perhaps the
+first to offer such a high level of programming abstraction for
+line-rate switches.
+
+%To the best of our knowledge, \pktlanguage is the first high-level
+%imperative language for programming the data plane of line-rate
+%switches.
+
 %TODO: Do we say high-level language? I think it's useful.
 
 In designing and implementing \pktlanguage, we make three contributions:
 \begin{CompactEnumerate}
-\item \textbf{\absmachine, a machine model for line-rate programmable switches
-  (\S\ref{s:absmachine})}.  \absmachine generalizes and abstracts
-  essential features of line-rate programmable switches~\cite{rmt, xpliant,
-  flexpipe}. \absmachine also models practical constraints limiting stateful
-  operations on line-rate switches.  Informed by these constraints, we
-  introduce the concept of {\em atoms} to represent a programmable switch's
-  instruction set.
+\item \textbf{\absmachine, a machine model for line-rate programmable
+    switches} (\S\ref{s:absmachine}).  \absmachine generalizes and
+  abstracts essential features of line-rate programmable
+  switches~\cite{rmt, xpliant, flexpipe}. \absmachine also models
+  practical constraints limiting stateful operations on line-rate
+  switches.  Informed by these constraints, we introduce the concept
+  of {\em atoms} to represent a programmable switch's instruction set.
 
-\item \textbf{A compiler from \pktlanguage packet transactions to
-  a \absmachine target~(\S\ref{s:compiler})}. The \pktlanguage compiler
-  introduces \textit{all-or-nothing compilation}, where all packet transactions
-  accepted by the compiler will run at line rate, or be rejected
-  outright---unlike software platforms that have smoother
-  performance-complexity tradeoffs.\ac{is `smoother performance complexity tradeoffs'
-  a good thing to have? If not then you should state why it is not (and hence we 
-  are better)}
+\item \textbf{A compiler from \pktlanguage packet transactions to a
+    \absmachine target}~(\S\ref{s:compiler}). The \pktlanguage
+  compiler introduces \textit{all-or-nothing compilation}, where all
+  packet transactions accepted by the compiler will run at line rate,
+  or be rejected outright. There is no ``slippery slope'' of running
+  network algorithms at lower speeds as with traditional network
+  processors or software routers: when compiled, a \pktlanguage
+  program runs at the hardware rate, or not at all. Performance is not
+  just predictable, but is guaranteed.
 
-\item \textbf{An evaluation of \pktlanguage}. We evaluate \pktlanguage's
-  expressiveness by expressing a variety of data-plane algorithms (Table~\ref{tab:algos})
-  in \pktlanguage~(\S\ref{s:eval}), and comparing it with writing such  
-  algorithms using P4.  Relative to P4, we find that \pktlanguage provides a more
-  concise and easier programming model for stateful data-plane algorithms.
-  Next, because no existing programmable switch supports the rich set of atoms
-  required for our data-plane algorithms, we design a set of compiler targets
-  (\S\ref{ss:targets}) based on \absmachine and show that these are feasible in
-  a 32 nm standard-cell library with < 10\% chip area overhead.  Finally, we
-  compile data-plane algorithms written in \pktlanguage to these targets to
-  show how the choice of atoms in a target determines which algorithms it can
-  support.
+%---unlike software platforms that have smoother
+%  performance-complexity tradeoffs.\ac{is `smoother performance complexity tradeoffs'
+%  a good thing to have? If not then you should state why it is not (and hence we 
+%  are better)}
+
+\item \textbf{An evaluation of \pktlanguage} (\S\ref{s:eval}). We evaluate
+  \pktlanguage's expressiveness by expressing a variety of data-plane
+  algorithms (Table~\ref{tab:algos}) in \pktlanguage and compare with
+  P4,. We find that \pktlanguage provides a more concise and easier
+  programming model for stateful data-plane algorithms.  Next, because
+  no existing programmable switch supports the set of atoms required
+  for our data-plane algorithms, we design a set of compiler targets
+  (\S\ref{ss:targets}) based on \absmachine and show that these are
+  feasible in a 32 nm standard-cell library with $< 10\%$ chip area
+  overhead.  Finally, we compile data-plane algorithms written in
+  \pktlanguage to these targets to show how the choice of atoms in a
+  target determines which algorithms it can support.
 \end{CompactEnumerate}
 
+\if 0 
 Overall, we stress two main takeaways. One, it is possible to design
 programmable line-rate switches that can express a wide variety of data-plane
 algorithms with modest chip area overhead. Second, these switches can be
@@ -136,3 +149,4 @@ low level but rather providing an abstraction that is easy for network engineers
 pick up and is one that they are already used to, and at the same time one that doesn't
 require giving up performance.}
 without giving up any performance.
+\fi
