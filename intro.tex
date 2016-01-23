@@ -2,77 +2,82 @@
 \label{s:intro}
 
 Network switches and routers in modern datacenters, enterprises, and
-service-provider networks perform many tasks in addition to standard packet
-forwarding. The set of requirements for routers has only increased with time as
-network operators seek greater control over performance and security.
-Performance and security may be improved using both data-plane and
-control-plane mechanisms. This paper focuses on data-plane algorithms. These
-algorithms process and transform packets, creating and maintaining state in the
-switch. Examples include active queue management~\cite{red,blue,avq,codel,pie},
+service-provider networks perform many tasks in addition to standard
+packet forwarding. The set of requirements for routers has only
+increased with time as network operators seek greater control over
+performance and security.  Performance and security may be improved
+using both data-plane and control-plane mechanisms. This paper focuses
+on data-plane algorithms. These algorithms process and transform
+packets, creating and maintaining state in the switch. Examples
+include active queue management~\cite{red,blue,avq,codel,pie},
 scheduling~\cite{pifo_hotnets}, congestion control with switch
-feedback~\cite{xcp, rcp, pdq, dctcp}, network measurement~\cite{opensketch,
-bitmap_george, elephant_george}, security~\cite{dns_change} and load-balanced
-routing in the data plane~\cite{conga}.
+feedback~\cite{xcp, rcp, pdq, dctcp}, network
+measurement~\cite{opensketch, bitmap_george, elephant_george},
+security~\cite{dns_change}, and traffic load balancing~\cite{conga}.
 
-An important practical requirement for data-plane algorithms is the
-ability to process packets at the switch's line rate.  As a result,
-these algorithms are typically implemented using dedicated
+An important requirement for data-plane algorithms is the ability to
+process packets at the switch's line rate.  As a result, these
+algorithms are typically implemented using dedicated
 hardware. Hardware designs are rigid, however, and not reconfigurable
-in the field. Thus, to implement and deploy a new algorithm today, the
-user must invest in new hardware---a time-consuming and expensive
-proposition.
+in the field. Thus, to implement and deploy a new algorithm today, or
+to even modify a deployed one, the user must invest in new
+hardware---a time-consuming and expensive proposition.
 
 This rigidity affects many stakeholders adversely:
 vendors~\cite{cisco_nexus, dell_force10, arista_7050} building network
 switches with merchant-silicon chips~\cite{trident, tomahawk,
   mellanox}, network operators deploying
 switches~\cite{google,facebook,vl2}, and researchers developing new
-switch algorithms~\cite{xcp, codel, d3, detail, pdq}.  To run
-data-plane algorithms after a switch has been built, researchers and
-companies have attempted to build programmable routers for many years,
-starting from efforts on active networks~\cite{active-nets} to network
-processors~\cite{npu_survey} to software
-routers~\cite{click, dpdk, routebricks}. All these efforts sacrificed
-performance for programmability, typically running an order of
-magnitude (or worse) slower than hardware line rates. Unfortunately,
-this reduction in performance has meant that these systems are rarely
-deployed in production networks, if at all.
+switch algorithms~\cite{xcp, codel, d3, detail, pdq}.  
+
+To run data-plane algorithms after a switch has been built,
+researchers and companies have attempted to build programmable routers
+for many years, starting from efforts on active
+networks~\cite{active-nets} to network processors~\cite{npu_survey} to
+software routers~\cite{click, dpdk, routebricks}. All these efforts
+sacrificed performance for programmability, typically running an order
+of magnitude (or worse) slower than hardware line
+rates. Unfortunately, this reduction in performance has meant that
+these systems are rarely deployed in production networks, if at all.
 
 Programmable switching chips~\cite{flexpipe, xpliant, rmt, corsa,
   uadp, algo_logic} competitive in performance with state-of-the-art
 fixed-function chipsets~\cite{trident, tomahawk, mellanox} are now
 becoming available. These chips implement a few low-level hardware
 primitives that can be configured by software into a processing
-pipeline~\cite{xpliant_sdk,xpliant_sdk2,intel_sdk}.  This approach is
-attractive because it does not compromise on data rates and adds
-modest area overhead for programmability~\cite{rmt}. From an
-operational standpoint, these chips permit field reconfigurability, a
-feature that other computational substrates like CPUs, GPUs,
-DSPs \ac{are DSPs reconfigurable?} have benefited from for many years now.
+pipeline, and are
+field-reconfigurable~\cite{xpliant_sdk,xpliant_sdk2,intel_sdk}. Building
+a switch with such a chip is attractive because it does not compromise
+on data rates~\cite{rmt}.
 
-Programmable switching chips \ac{programmable switches}
-\ac{what is the connection to the previous paragraph?}
-allow network operators to specify packet parsing and
-forwarding without restricting the set of protocol formats or the set
-of actions that can be executed when matching packet headers in a
-match-action table. Languages such as P4 are emerging as a way to
-express such match-action processing in a hardware-independent
-way~\cite{p4,p4spec,dc_p4}.
+% and adds modest area overhead for
+%programmability
 
+%Programmable switching chips \ac{programmable switches}
+%\ac{what is the connection to the previous paragraph?}
+
+In terms of programmability, these chips today allow the network
+operator to specify packet parsing and forwarding without restricting
+the set of protocol formats or the set of actions that can be executed
+when matching packet headers in a match-action table. Languages such
+as P4 are emerging as a way to express such match-action processing in
+a hardware-independent way~\cite{p4,p4spec,dc_p4}.
+
+There is a gap between this form of programmability and the needs of
+data-plane algorithms.
 %Data-plane tasks that require large
 %amounts of header rewriting can be expressed naturally in
 %P4~\cite{dc_p4}.
-
-In contrast to packet header parsing and forwarding, which are stateless
-and don't modify state in the data plane, many data-plane algorithms
-create and modify algorithmic state in the switch as part of packet
-processing. For such algorithms, it is important for programmability to
-directly capture the algorithm's intent without requiring it to be
-``shoehorned'' into hardware constructs such as a sequence of
-match-action tables. Indeed, this is how such algorithms are expressed
-in pseudocode~\cite{red, csfq, codel_code, avq, blue}, and implemented
-in sofware routers~\cite{click, dpdk, routebricks}, network
-processors~\cite{packetc, nova}, and at network
+In contrast to packet header parsing and forwarding, which are
+stateless and don't modify state in the data plane, many data-plane
+algorithms create and modify algorithmic state in the switch as part
+of packet processing. For such algorithms, it is important for
+programmability to directly capture the algorithm's intent without
+requiring it to be ``shoehorned'' into hardware constructs such as a
+sequence of match-action tables. Indeed, this is how such algorithms
+are expressed in pseudocode~\cite{red, csfq, codel_code, avq, blue},
+and implemented in sofware routers~\cite{click, dpdk, routebricks},
+network processors~\cite{packetc, nova}, and at network
 endpoints~\cite{qdisc}.
 
 This paper presents \pktlanguage, a new domain-specific language (DSL)
