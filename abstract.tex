@@ -1,21 +1,46 @@
-\subsection*{Abstract}
-Data-plane algorithms execute on every packet traversing a network switch; they
-encompass many schemes for congestion control, scheduling, network measurement,
-active-queue management, security, and load balancing. Because these algorithms
-are implemented in hardware today, they cannot be changed after being built. To
-address this problem, recent work has proposed designs for programmable
-line-rate switches.  However, these chips have only been used to program
-stateless data-plane tasks, such as packet forwarding and access control. By
-contrast, many data-plane algorithms create and modify algorithmic state on a
-as part of their packet processing.
+%\subsection*{Abstract}
+\begin{abstract}
+%Data-plane algorithms execute on every packet traversing a network switch; they
+%encompass 
 
-This paper presents \pktlanguage, a C-like imperative language to express
-data-plane algorithms. \pktlanguage introduces the notion of a {\em packet
-transaction}, defined as a sequential code block that is atomic and isolated
-from other such code blocks.  The \pktlanguage compiler translates \pktlanguage
-code to be executed on \absmachine, a machine model based on emerging programmable switch
-chipsets. We evaluate \pktlanguage by designing concrete \absmachine
-machines that support \ac{can be used to express?} 
-a variety of data-plane algorithms with modest die area
-overhead. We then show how \pktlanguage simplifies programming such algorithms by 
-comparing to expressing them using currently available languages for programmable switches.
+Many algorithms for congestion control, scheduling, network
+measurement, active-queue management, security, and balancing load
+require custom processing of packets as they traverse the data plane
+of a network switch. To run at line-rate these data-plane algorithms
+must be in hardware. With today's switch hardware, algorithms cannot
+be changed, nor new algorithms installed, after a switch has been
+built.
+
+%To address the problem, recent work has
+%proposed designs for programmable line-rate switches.
+
+%However, these chips have only been
+%used to program data-plane tasks that don't create internal state,
+%such as packet forwarding and access control. 
+%By contrast, many data-plane algorithms create and modify algorithmic
+%state on a as part of their packet processing.
+
+This paper shows how to program data-plane algorithms in a high-level
+language and convert those programs into line-rate hardware
+implementations that can run on emerging programmable switching
+chipsets. The key challenge is that these algorithms create and modify
+algorithmic state. We present \pktlanguage, a C-like imperative
+language to express data-plane algorithms. \pktlanguage introduces the
+notion of a {\em packet transaction}: a sequential code block that is
+atomic and isolated from other such code blocks.  The \pktlanguage
+compiler produces code executable on \absmachine, a machine model. We
+show that \pktlanguage programs are simpler to express than in P4, and
+line-rate hardware execution can be achieved with modest die area
+overhead.
+
+%algorithms by comparing to expressing them using currently available
+%languages for programmable switches.
+%
+
+% We evaluate \pktlanguage by designing \absmachine
+%machines that  a variety of
+%data-plane algorithms with modest die area overhead. We then show how
+%\pktlanguage simplifies programming such algorithms by comparing to
+%expressing them using currently available languages for programmable
+%switches.
+\end{abstract}
