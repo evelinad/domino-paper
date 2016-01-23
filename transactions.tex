@@ -100,6 +100,11 @@ Figure~\ref{fig:flowlet_pipeline}.
 
 \subsection{Constraints on the language}
 \label{ss:constraints}
+\ac{I think we should just state that Domino's syntax is similar to that of C, 
+rather than saying that we are a subset of C}
+\ac{I would rewrite this section using a grammar and explaining the special
+features (what functions can be invoked, no loops, 
+and restriction on array accesses).}
 
 The overall language is a constrained subset of C (Table~\ref{tab:restrict}).
 These constraints are required for deterministic performance.  Memory
@@ -126,7 +131,24 @@ and write addresses every clock cycle.
     No access to data i.e. unparsed portion of the packet.\\
 %    No arrays in packet fields.\\
   \end{tabular}
-  \caption{Restrictions in \pktlanguage}
+
+\newcommand{\sep}{~|~}
+\begin{eqnarray*}
+e \in expr &::=& e.f \sep c \sep var \sep e_1~op~e_2 \sep \neg~e \sep e[e] \sep f(\ldots) \\
+%
+s \in stmt &::=& e = e \sep if~(c)~s_1~else~s_2 \sep s~;~s \\
+%
+t \in pktTxn &::=& txnName(Packet) \{ s \} \\
+%
+d \in pktDecl &::=& Packet \{ v~;~v \} \\
+%
+sv \in stateVarDecl &::=& v = e \sep sv \\
+%
+p \in program &::=& \{ d ; sv ; t \}
+\end{eqnarray*}
+
+  \caption{Restrictions in \pktlanguage \ac{Is this the grammar? Why not just show 
+  that rather than stating ambiguous list of restrictions?}}
   \label{tab:restrict}
 \end{table}
 
@@ -136,11 +158,14 @@ Packet transactions specify \textit{how} to process packet headers and/or
 state.  To specify {\em when} to run packet transactions, we provide a {\em
 guard}: a predicate on packet fields that triggers the transaction whenever a
 packet matches the guard. An example guard would execute heavy-hitter detection
-on all packets arriving on a specific port. The guard can be implemented using
+on all packets arriving on a specific port. \ac{write out what the guard would
+look like? Can this be expressed using if stmts in transactions?} 
+The guard can be implemented using
 the match key in a match-action pipeline, with the actions being the atoms
 resulting from compiling packet transactions to an atom pipeline. Because
 guards can easily be compiled into a standard match-action pipeline, this paper
-only focuses on compiling packet transactions.
+only focuses on compiling packet transactions. \ac{so are these guards part of 
+the language or not? If so how are they expressed?}
 
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
@@ -152,6 +177,9 @@ straightforward when all guards are disjoint. When guards overlap, mutliple
 transactions need to execute on the same subset of packets, requiring a
 mechanism to compose transactions. One approach is to concatenate the two
 transaction bodies in an order specified by the user, providing the illusion of
-a larger transaction that combines two transactions. We leave a detailed
+a larger transaction that combines two transactions. \ac{is the user going to 
+provide how transactions will be concatenated?} We leave a detailed
 exploration of this and alternative approaches to future work. For the rest of
 this paper, we focus only on compiling a single packet transaction.
+\ac{would interleaving stmts from multiple transactions be a potential 
+optimization here (as in db transactions)?}
