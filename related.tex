@@ -77,31 +77,8 @@ program complexity.
 SNAP~\cite{snap} is a language for programming stateful data-plane algorithms
 using a network transaction: an atomic block of code that treats the entire
 network as one big switch~\cite{onebigswitch}. The SNAP compiler then
-translates these network transactions into rules running on each switch. SNAP
-doesn't determine if these switch-local rules can be mapped into a programmable
-switch pipeline. \pktlanguage can potentially be used to compile SNAP's
-switch-local rules to an atom pipeline and is an enabler for SNAP and other
-network-wide abstractions.
-
-%% Keep this description short.
-%%SNAP doesn't really get into how stateful computations get implemented on the
-%%hardware pipeline of a switch.
-%%
-%%Say that SNAP can be compiled down to Domino. It doesn't really deal with how
-%%individual switch components would get implemented on a hardware pipeline.
-%%Domino is an enabler for these kinds of things.
-
-%%Don't worry about SNAP too much.
-%%TODO, should we add this? They seem to be fixing this now ... SNAP doesn't impose
-%%constraints on what each switch can do at line rate, and doesn't handle code
-%%generation\S\ref{ss:code_gen}. 
-
-%
-%P4~\cite{p4} is an emerging packet-processing language that explicitly targets
-%line-rate programmable switching chips. While P4 is a natural model for many
-%header-manipulation tasks such as switching, ACLs, routing, and
-%tunnelling~\cite{dc_p4}, it is ill-suited to programming data-plane algorithms
-%that rely on intricate state manipulation.
-%
-%PX~\cite{PX}
-%is a language that targets packet processing on FPGA platforms.
+translates these network transactions into rules running on each
+switch/middlebox. SNAP doesn't determine if these switch-local rules can be
+mapped into the pipeline of a programmable line-rate switch. \pktlanguage can
+potentially be used to compile SNAP's switch-local rules to an atom pipeline
+and is an enabler for SNAP and other network-wide abstractions.
