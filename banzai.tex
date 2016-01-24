@@ -86,8 +86,10 @@ assumes that packets arriving to it are already parsed.
 In \absmachine, each pipeline stage contains a {\em vector of
   atoms}. Each atom in the vector execute in parallel on every clock
 cycle.  Informally, an atom is an atomic unit of packet processing
-supported natively by a \absmachine machine; the set of atoms forms an
-instruction set. Atoms may modify persistent state stored on the
+supported natively by a \absmachine machine.
+The different types of atoms that are provided by 
+a \absmachine machine forms its instruction set.
+Atoms may modify persistent state stored on the
 switch. In contrast to instruction sets for CPUs, GPUs, DSPs, and
 NPUs, the atoms for a \absmachine machine need to be substantially
 richer to enable real-world data-plane algorithms at line-rate. We
@@ -112,7 +114,8 @@ packet every clock cycle.\footnote{Wait-free
 %, which it is expected to regardless of the
 %input workload.
 
-The only way to provide an atomic increment is to expressly support it
+The only way to provide an atomic increment is to expressly \ac{explicitly?}
+support it
 in hardware with an {\em atom} to read memory, increment it, and write
 it back in a single stage within one clock cycle. The same observation
 applies to any other line-rate atomic operation.  
@@ -122,6 +125,10 @@ sequential code. An atom completes execution of the entire body of
 code and modifies a packet before processing the next packet.  An atom
 may also contain internal state that is local to that atom alone and
 persists across packets.
+\ac{does this mean we could have invented a new
+instruction to represent each atom, and the current representation as a
+body of (C-like?) sequential code is simply convenience for people to 
+implement different banzai machines?}
 
 Using this representation, a switch counter that wraps around at a
 value of 100 can be written as\footnote{We use {\tt p.x} to
@@ -144,11 +151,15 @@ Table~\ref{tab:templates} provides more examples of atoms.
 We note that---unlike stateful atomic operations such as increment
 that modify persistent state---stateless operations are easier to
 support with packet-field arithmetic. Consider, for instance, the
-operation pkt.f1 = pkt.f2 + pkt.f3 - pkt.f4. Because this operation
-does not modify state that needs to be visible to the next packet, it
+operation {\tt pkt.f1 = pkt.f2 + pkt.f3 - pkt.f4}. Because this operation
+does not modify state that needs to be visible to the next packet 
+\ac{as it involves distinct packet fields?}, it
 can be implemented by adding in one pipeline stage (clock cycle), and
 then subtracting in the next, unlike the stateful atomic increment
-operation.
+operation. \ac{but I thought you are still implement the whole thing 
+as one single atom right? What's the point here}
+
+
 \subsection{Constraining atoms}
 \label{s:atomConstraints}
 
