@@ -8,25 +8,27 @@
   \label{fig:switch}
 \end{figure*}
 
-\absmachine is a machine model for programmable line-rate switches that serves
-as the compiler target for \pktlanguage programs.  \absmachine's design is
-inspired by recent programmable switch architectures such as RMT~\cite{rmt},
-Intel's FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
-Architecture~\cite{xpliant}. \absmachine abstracts these architectures and
-extends them with stateful processing units which are used to implement
-data-plane algorithms. These processing units, called {\em atoms}, precisely
-model the set of operations that a hardware target can execute at line-rate,
-and act as the low-level instruction set for the \pktlanguage compiler.
+\absmachine is a machine model for programmable line-rate switches
+that serves as the compiler target for \pktlanguage programs.
+\absmachine's design is inspired by recent programmable switch
+architectures such as RMT~\cite{rmt}, Intel's
+FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
+Architecture~\cite{xpliant}. \absmachine abstracts these architectures
+and extends them with stateful processing units to implement
+data-plane algorithms. These processing units, called {\em atoms},
+precisely model the set of operations that a hardware target can
+execute at line-rate; they function as the target instruction set for
+the \pktlanguage compiler.
 %TODO: We use atoms for stateless stuff as well.
 
-\subsection{Programmable switch architectures}
-Packets arriving to a programmable switch~(Figure~\ref{fig:switch})
+\subsection{Background: Programmable switch chipsets}
+Packets arriving at a programmable switch~(Figure~\ref{fig:switch})
 are parsed by a programmable parser that turns packets into header
 fields. These header fields are first processed by an ingress pipeline
 consisting of match-action tables arranged in stages. Processing a
 packet at a stage may modify its header fields as well as some
-persistent state at that stage. Each stage only has access to its
-own local state. To share state between stages, it must be carried in
+persistent state at that stage. Each stage has access only to its own
+local state. To share state between stages, it must be carried in
 packet headers.
 %TODO: state is more than stage local. It's atom local.
 
@@ -48,60 +50,65 @@ cycle throughout the paper.\footnote{For concreteness, we assume a 1
   GHz clock frequency.}
 
 Having to process a packet every clock cycle in each stage greatly
-curtails the operations that can be performed on each packet. In
-particular, any packet operation that modifies state that is visible
-to the next packet must finish execution in a single clock cycle (see
-\S\ref{ss:atoms} for details). Because of this restriction, in
-contrast to software routers, programmable switching chips provide a
-small set of processing units or primitives for manipulating packets
-and state in a stage. These processing units determine what algorithms
-can run on the switch at line-rate.
+constrains the operations that can be performed on each packet. In
+particular, any packet operation that modifies state visible to the
+next packet {\em must} finish execution in a single clock cycle (see
+\S\ref{ss:atoms} for details). Because of this restriction,
+programmable switching chips provide a small set of processing units
+or primitives for manipulating packets and state in a stage, unlike in
+software routers. These processing units determine what algorithms can
+run on the switch at line-rate.
 
-The technical challenge here is to determine primitives that allow a
-broad range of data-plane algorithms to be implemented, and build a
-compiler for mapping a user-friendly description of an algorithm to
-these low-level primitives.
+The challenge here is to determine primitives that allow a broad range
+of data-plane algorithms to be implemented, and build a compiler to
+map a user-friendly description of an algorithm to the hardware
+processing units.
+
+%low-level primitives.
+
 \subsection{The \absmachine machine model}
 
-\absmachine (the bottom half of Figure~\ref{fig:switch}) models a switch
-pipeline such as the ingress or egress pipeline. A pipeline in \absmachine
-consists of a number of stages executing synchronously on every clock cycle. An
-incoming packet is processed by each stage and handed off to the next, until it
-exits the pipeline. Each stage processes a packet every clock cycle, which in
-our case is 1 ns. \absmachine only models components pertinent to data-plane
-algorithms.  It models the computation within a match-action table in a stage
-(i.e., the action half of the match-action table), but not the match semantics
-(e.g., direct, or ternary) (we discuss how to embed these computations in a
-standard match-action pipeline in \S\ref{ss:guards}). \absmachine does not
-model packet parsing and assumes that packets arriving to it are already
-parsed.
+\absmachine (the bottom half of Figure~\ref{fig:switch}) models the
+data-plane components of an ingress or egress switch pipeline,
+consisting of a number of stages executing synchronously on every
+clock cycle. An incoming packet is processed by each stage in one
+clock cycle (1 ns) and handed off to the next, until it exits the
+pipeline. \absmachine models the computation within a match-action
+table in a stage (i.e., the action half of the match-action table),
+but not the match semantics (e.g., direct, or ternary) (we discuss how
+to embed these computations in a standard match-action pipeline in
+\S\ref{ss:guards}). \absmachine does not model packet parsing and
+assumes that packets arriving to it are already parsed.
 
 \subsection{Atoms: \absmachine's processing units}
 \label{ss:atoms}
 
-In \absmachine, each pipeline stage contains a vector of
-\textit{atoms}. All atoms in this vector execute in parallel on every
-clock cycle.  Informally, an atom is an atomic unit of packet processing
-supported natively by a \absmachine machine. Atoms can optionally
-modify persistent state stored on the switch and constitute the
-machine's instruction set.  In contrast to instruction sets for CPUs,
-GPUs, DSPs, and NPUs, the atoms for a \absmachine machine need to be
-substantially richer to enable useful operations at line-rate. We
+In \absmachine, each pipeline stage contains a {\em vector of
+  atoms}. Each atom in the vector execute in parallel on every clock
+cycle.  Informally, an atom is an atomic unit of packet processing
+supported natively by a \absmachine machine; the set of atoms forms an
+instruction set. Atoms may modify persistent state stored on the
+switch. In contrast to instruction sets for CPUs, GPUs, DSPs, and
+NPUs, the atoms for a \absmachine machine need to be substantially
+richer to enable real-world data-plane algorithms at line-rate. We
 explain this through an example below.
 
-Let us assume we need to atomically increment a state variable stored on the
-switch to count packets. Naively, this can be done with hardware support for
-three simple single-cycle operations: \textit{reading} some memory in the first
-clock cycle, \textit{adding} one in the next, and \textit{writing} it to memory
-in the third. However, this doesn't provide atomicity. To see why, assume
-packet 1 increments the counter from 0 to 1 by executing the read, add, and
-write operations at clock cycles 1, 2, and 3 respectively.  If packet 2 issues
-the read at time 2, it will increment the counter again from 0 to 1, when it
-should be 2. Locks are a potential solution. However, locking causes packet 2
-to wait during packet 1's increment, and the switch no longer sustains line
-rate on one packet every clock cycle, which it is expected to regardless of the
-input workload.\footnote{Wait-free objects~\cite{herlihy_wait} are an
-alternative to locking, but are typically too complicated for hardware.}
+Let us assume we need to atomically increment a state variable stored
+on the switch to count packets. One approach would be to have hardware
+support for three simple single-cycle operations: \textit{read} some
+memory in the first clock cycle, \textit{add} one in the next, and
+\textit{write} it to memory in the third. This approach, however, does
+not provide atomic isolation. To see why, suppose packet $A$
+increments the counter from 0 to 1 by executing the read, add, and
+write operations at clock cycles 1, 2, and 3 respectively.  If packet
+$B$ issues the read at time 2, it will increment the counter again
+from 0 to 1, when it should be 2. Locks are a potential
+solution. However, locking causes packet 2 to wait during packet 1's
+increment, and the switch no longer sustains line rate on one packet
+every clock cycle, which it is expected to regardless of the input
+workload.\footnote{Wait-free objects~\cite{herlihy_wait} are an
+  alternative to locking, but are typically too complicated for
+  hardware.}
 
 The only way to provide an atomic increment is to expressly support it in
 hardware by reading memory, incrementing it and writing it back in a single

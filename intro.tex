@@ -89,11 +89,11 @@ packet transactions across packets). Packet transactions allow the programmer to
 focus on the operations needed for each packet without worrying about
 other concurrent packets.
 
-We have developed {\em \pktlanguage{}}, a new domain-specific language
-(DSL) for data-plane algorithms, with packet transactions at its core.
-\pktlanguage is an imperative language with C-like syntax, perhaps the
-first to offer such a high level programming abstraction for
-line-rate switches.
+We have designed and implemented {\em \pktlanguage{}}, a new
+domain-specific language (DSL) for data-plane algorithms, with packet
+transactions at its core.  \pktlanguage is an imperative language with
+C-like syntax, perhaps the first to offer such a high level
+programming abstraction for line-rate switches.
 
 %To the best of our knowledge, \pktlanguage is the first high-level
 %imperative language for programming the data plane of line-rate
@@ -101,44 +101,44 @@ line-rate switches.
 
 %TODO: Do we say high-level language? I think it's useful.
 
-In designing and implementing \pktlanguage, we make three contributions:
-\begin{CompactEnumerate}
-\item \textbf{\absmachine, a machine model for line-rate programmable
-    switches} (\S\ref{s:absmachine}).  \absmachine generalizes and
-  abstracts essential features of line-rate programmable
-  switches~\cite{rmt, xpliant, flexpipe}. \absmachine also models
-  practical constraints limiting stateful operations on line-rate
-  switches.  Informed by these constraints, we introduce the concept
-  of {\em atoms} to represent a programmable switch's instruction set.
+This paper makes three further contributions. First, {\em
+  \absmachine}, a machine model for line-rate programmable switches
+(\S\ref{s:absmachine}). \absmachine generalizes and abstracts
+essential features of line-rate programmable switches~\cite{rmt,
+  xpliant, flexpipe}. \absmachine also models practical constraints
+limiting stateful operations on line-rate switches.  Informed by these
+constraints, we introduce the concept of {\em atoms} to represent a
+programmable switch's instruction set.
 
-\item \textbf{A compiler from \pktlanguage packet transactions to a
-    \absmachine target}~(\S\ref{s:compiler}). The \pktlanguage
-  compiler introduces \textit{all-or-nothing compilation}, where all
-  packet transactions accepted by the compiler will run at line rate,
-  or be rejected outright. There is no ``slippery slope'' of running
-  network algorithms at lower speeds as with traditional network
-  processors or software routers: when compiled, a \pktlanguage
-  program runs at the hardware rate, or not at all. Performance is not
-  just predictable, but is guaranteed.
+Second, {\em a compiler from \pktlanguage packet transactions to a
+  \absmachine target}~(\S\ref{s:compiler}). The \pktlanguage compiler
+introduces \textit{all-or-nothing compilation}, where all packet
+transactions accepted by the compiler will run at line rate, or be
+rejected outright. There is no ``slippery slope'' of running network
+algorithms at lower speeds as with traditional network processors or
+software routers: when compiled, a \pktlanguage program runs at the
+hardware rate, or not at all. Performance is not just predictable, but
+is guaranteed.
 
 %---unlike software platforms that have smoother
 %  performance-complexity tradeoffs.\ac{is `smoother performance complexity tradeoffs'
 %  a good thing to have? If not then you should state why it is not (and hence we 
 %  are better)}
 
-\item \textbf{An evaluation of \pktlanguage} (\S\ref{s:eval}). We evaluate
-  \pktlanguage's expressiveness by expressing a variety of data-plane
-  algorithms (Table~\ref{tab:algos}) in \pktlanguage and compare with
-  P4,. We find that \pktlanguage provides a more concise and easier
-  programming model for stateful data-plane algorithms.  Next, because
-  no existing programmable switch supports the set of atoms required
-  for our data-plane algorithms, we design a set of compiler targets
-  (\S\ref{ss:targets}) based on \absmachine and show that these are
-  feasible in a 32 nm standard-cell library with $< 10\%$ chip area
-  overhead.  Finally, we compile data-plane algorithms written in
-  \pktlanguage to these targets to show how the choice of atoms in a
-  target determines which algorithms it can support.
-\end{CompactEnumerate}
+Third, an evaluation of \pktlanguage (\S\ref{s:eval}). We evaluate
+\pktlanguage's expressiveness by expressing a variety of data-plane
+algorithms (Table~\ref{tab:algos}) in \pktlanguage and compare with
+P4,. We find that \pktlanguage provides a more concise and easier
+programming model for stateful data-plane algorithms.  Next, because
+no existing programmable switch supports the set of atoms required for
+our data-plane algorithms, we design a set of compiler targets
+(\S\ref{ss:targets}) based on \absmachine and show that these are
+feasible in a 32 nm standard-cell library with $< 10\%$ chip area
+overhead.  Finally, we compile data-plane algorithms written in
+\pktlanguage to these targets to show how the choice of atoms in a
+target determines which algorithms it can support.
+
+%\end{CompactEnumerate}
 
 \if 0 
 Overall, we stress two main takeaways. One, it is possible to design
