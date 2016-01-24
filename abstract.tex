@@ -28,12 +28,14 @@ algorithmic state. The key idea to achieve line-rate programmability
 for stateful algorithms is the notion of a {\em packet transaction}: a
 sequential code block that is atomic and isolated from other such code
 blocks. We have developed this idea in \pktlanguage, a C-like
-imperative language to express switch algorithms. The \pktlanguage
-compiler produces code executable on \absmachine, a machine model for
-programmable switches. We show that data-plane algorithms are more
-naturally expressed in \pktlanguage than P4 (a recent language for
-such switches), and estimate that several algorithms written in Domino
-achieve line-rate performance with modest die area overhead.
+imperative language to express switch algorithms. 
+%The \pktlanguage
+%compiler produces code executable on \absmachine, a machine model for
+%programmable switches. 
+We show that data-plane algorithms are more naturally expressed in
+\pktlanguage than P4 (a recent language for such switches), and
+estimate that several algorithms written in Domino achieve line-rate
+performance with modest die area overhead.
 
 %algorithms by comparing to expressing them using currently available
 %languages for programmable switches.
