@@ -55,68 +55,76 @@ switching.  Control flows from top to bottom. Stateful atoms are in grey.}
 \end{figure*}
 
 To program a data-plane algorithm, a programmer would write code in
-\pktlanguage using packet transactions (Figure~\ref{fig:flowlet_code}) and then
-use the \pktlanguage compiler to compile to an atom pipeline for a \absmachine
-machine (Figure~\ref{fig:flowlet_pipeline}). We first describe packet
-transactions in greater detail by walking through an example
-(\S\ref{ss:flowlet}). Next, we discuss constraints in \pktlanguage
-(\S\ref{ss:constraints}) informed by the domain of line-rate switches. We then
-discuss triggering packet transactions (\S\ref{ss:guards}) and handling
-multiple transactions (\S\ref{ss:multiple}).
+\pktlanguage using packet transactions (Figure~\ref{fig:flowlet_code})
+and then use the \pktlanguage compiler to compile to an atom pipeline
+for a \absmachine machine (Figure~\ref{fig:flowlet_pipeline}). We
+first describe packet transactions in greater detail by walking
+through an example (\S\ref{ss:flowlet}). Next, we discuss constraints
+in \pktlanguage (\S\ref{ss:constraints}) informed by the domain of
+line-rate switches. We then discuss triggering packet transactions
+(\S\ref{ss:guards}) and handling multiple transactions
+(\S\ref{ss:multiple}).
 
 \subsection{\pktlanguage by example}
 \label{ss:flowlet}
 
-We now illustrate programming using packet transactions in \pktlanguage, using
-flowlet switching~\cite{flowlets} as an example. Flowlet switching is a
-load-balancing algorithm that sends bursts of packets (called flowlets) from a
-TCP flow on different paths, provided the bursts are separated by a large
-enough time interval to ensure packets do not arrive out of order at a TCP
-receiver. Figure~\ref{fig:flowlet_code} shows flowlet switching in
-\pktlanguage. For simplicity, we hash only the source and destination ports; it
-is easy to extend it to the full 5-tuple.
+%We now illustrate programming using packet transactions in
+%\pktlanguage, using
 
-This example demonstrates the core language constructs in \pktlanguage. All
-packet processing happens in the context of a packet transaction (the function
-\texttt{flowlet} starting at line 17). The function's argument {\tt pkt}
-declares the fields in a packet (lines 5--12)\footnote{We use fields to refer
-to both packet headers such as source port ({\tt sport}) and destination port
-({\tt dport}) and packet metadata ({\tt id}).} that can be referenced by the
-function body (lines 18--32).  The function body can also modify persistent
+We use flowlet switching~\cite{flowlets} as an example. Flowlet
+switching is a load-balancing algorithm that sends bursts of packets
+(called flowlets) from a TCP flow on different paths, provided the
+bursts are separated by a large enough time interval to ensure packets
+do not arrive out of order at a TCP
+receiver. Figure~\ref{fig:flowlet_code} shows flowlet switching in
+\pktlanguage. For simplicity, we hash only the source and destination
+ports; it is easy to extend it to the full 5-tuple.
+
+This example demonstrates the core language constructs in
+\pktlanguage. All packet processing happens in the context of a packet
+transaction (the function \texttt{flowlet} starting at line 17). The
+function's argument {\tt pkt} declares the fields in a packet (lines
+5--12)\footnote{We use fields to refer to both packet headers such as
+  source port ({\tt sport}) and destination port ({\tt dport}) and
+  packet metadata ({\tt id}).} that can be referenced by the function
+body (lines 18--32).  The function body can also modify persistent
 switch state using global variables (e.g.  \texttt{last\_time} and
 \texttt{saved\_hop} on lines 14 and 15, respectively).
 
-Conceptually, the switch invokes the packet transaction function one packet at
-at a time, with no concurrent packet processing. To the programmer, the
-function modifies the passed-in packet argument and runs to completion before
-processing the next packet.  The function may invoke \textit{intrinsics} such
-as \texttt{hash2} on line 23 to use hardware accelerators such as hash
-generators.  The \pktlanguage compiler uses an intrinsic's signature to infer
-dependencies and supplies a canned run-time implementation, but otherwise does
-not analyze an intrinsics's internal behavior. When compiled to a \absmachine
-machine (\S\ref{s:absmachine}), the \pktlanguage compiler (\S\ref{s:compiler})
-converts the code in Figure~\ref{fig:flowlet_code} into the atom pipeline in
+Conceptually, the switch invokes the packet transaction function one
+packet at a time, with no concurrent packet processing. To the
+programmer, the function modifies the passed-in packet argument and
+runs to completion before processing the next packet.  The function
+may invoke \textit{intrinsics} such as \texttt{hash2} on line 23 to
+use hardware accelerators such as hash generators.  The \pktlanguage
+compiler uses an intrinsic's signature to infer dependencies and
+supplies a canned run-time implementation, but otherwise does not
+analyze an intrinsics's internal behavior. When compiled to a
+\absmachine machine, the compiler converts the code in
+Figure~\ref{fig:flowlet_code} to the atom pipeline in
 Figure~\ref{fig:flowlet_pipeline}.
 
 \subsection{Constraints on the language}
 \label{ss:constraints}
-\ac{I think we should just state that Domino's syntax is similar to that of C, 
-rather than saying that we are a subset of C}
+%\ac{I think we should just state that Domino's syntax is similar to that of C, 
+%rather than saying that we are a subset of C}
+
 \ac{I would rewrite this section using a grammar and explaining the special
 features (what functions can be invoked, no loops, 
 and restriction on array accesses).}
 
-The overall language is a constrained subset of C (Table~\ref{tab:restrict}).
+The syntax of Domino is similar to C (Table~\ref{tab:restrict}).
 These constraints are required for deterministic performance.  Memory
-allocation, unbounded iteration counts, and unstructured control flow all cause
-variable performance, which may prevent an algorithm from achieving line rate.
-Additionally, \pktlanguage constrains array modifications by requiring that all
-accesses to a given array within one execution of a transaction, i.e. one
-packet, must use the same array index. For example, all read and write accesses
-to the array \texttt{last\_time} use the index \texttt{pkt.id}, which is
-constant for each packet, but can change between packets. This restriction
-mirrors restrictions on memories, which don't typically support distinct read
-and write addresses every clock cycle.
+allocation, unbounded iteration counts, and unstructured control flow
+all cause variable performance, which may prevent an algorithm from
+achieving line rate.  Additionally, \pktlanguage constrains array
+modifications by requiring that all accesses to a given array within
+one execution of a transaction, i.e. one packet, must use the same
+array index. For example, all read and write accesses to the array
+\texttt{last\_time} use the index \texttt{pkt.id}, which is constant
+for each packet, but can change between packets. This restriction
+mirrors restrictions on memories, which don't typically support
+distinct read and write addresses every clock cycle.
 %TODO: Try and address this.
 %\MA{Do we model this restriction in PISA?
 %  It would be better to add it to Sec 2.}
