@@ -85,14 +85,14 @@ express and implement data-plane algorithms: a {\em packet
   transaction} (\S\ref{s:transactions}). A packet transaction is a
 sequential code block that is atomic and isolated from other such code
 blocks (i.e., any visible state is equivalent to a serial execution of
-packet transactions). Packet transactions allow the programmer to
+packet transactions across packets). Packet transactions allow the programmer to
 focus on the operations needed for each packet without worrying about
 other concurrent packets.
 
 We have developed {\em \pktlanguage{}}, a new domain-specific language
 (DSL) for data-plane algorithms, with packet transactions at its core.
 \pktlanguage is an imperative language with C-like syntax, perhaps the
-first to offer such a high level of programming abstraction for
+first to offer such a high level programming abstraction for
 line-rate switches.
 
 %To the best of our knowledge, \pktlanguage is the first high-level
