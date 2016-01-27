@@ -98,7 +98,12 @@ when it should be 2. Locks over the shared counter object are a potential
 solution. However, locking causes packet $B$ to wait during packet $A$'s
 increment, and the switch no longer sustains line rate of one packet every
 clock cycle.\footnote{Wait-free objects~\cite{herlihy_wait} are an alternative
-  to locking, but are typically too complex for hardware.}
+  to locking, but are typically too complex for hardware.} CPUs employ microarchitectural
+  techniques such as operand forwarding to address this problem, but these techniques
+  still suffer from occasional pipeline stalls, which militates against line-rate
+  performance.
+%% TODO: Not mentioning that shared memory is costly. Because, while that's true.
+%% there are parts of the switch pipeline that use it (such as the scheduler).
 
 The only way to provide an atomic increment is to explicitly support it in
 hardware with an {\em atom} to read memory, increment it, and write it back in
