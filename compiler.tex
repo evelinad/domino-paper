@@ -1,6 +1,8 @@
 \section{The Domino compiler}
 \label{s:compiler}
 
+%TODO: Decide if we can add the figure before each point to make it more stylized.
+% like (Figure XXX Branch removal).
 The \pktlanguage compiler compiles from \pktlanguage programs to \absmachine
 targets. The compiler provides an {\em all-or-nothing model}: if compilation
 succeeds, the compiler guarantees that the program will run at line rate on the
@@ -14,21 +16,21 @@ programmability for guaranteed line-rate performance, in contrast to software
 routers that provide greater flexibility but unpredictable run-time
 performance~\cite{dobrescu2012, wenfei15}.
 
-The \pktlanguage's compiler consists of three passes (Figure~\ref{fig:passes}).
-First, \textit{normalization} simplifies the packet transaction into a
-restrictive three-operand code form while retaining the sequential semantics of
-packet transactions, i.e., conceptually processing one packet at a time without
+The \pktlanguage compiler has three passes (Figure~\ref{fig:passes}).  First,
+\textit{normalization} simplifies the packet transaction into a restrictive
+three-address code form while retaining the sequential semantics of packet
+transactions, i.e., conceptually processing one packet at a time without
 pipelining. Second, \textit{pipelining} transforms the normalized code into
 code for a \textit{pipelined virtual switch machine (PVSM)}. PVSM is an
 intermediate representation that models a switch pipeline with no computational
 or resource limits. Third, \textit{code generation} transforms this
-intermediate representation into configuration for a \absmachine machine, which
-imposes both computational and resource constraints---rejecting the code if it
-can't run at line rate on a specific \absmachine machine. Throughout this
-section, we use flowlet switching as a running example to demonstrate compiler
-passes. The \pktlanguage compiler uses many existing compiler techniques, but
-adapts and simplifies them in important ways to suit the domain of line-rate
-switches (\S\ref{ss:related_compiler}).
+intermediate representation into configuration for a \absmachine machine, given
+as inputs the machine's computational and resource constraints, and rejects the
+program if it can't run at line rate on that \absmachine machine.  The
+\pktlanguage compiler uses many existing compiler techniques, but adapts and
+simplifies them in important ways to suit the domain of line-rate switches
+(\S\ref{ss:related_compiler}). Throughout this section, we use flowlet
+switching as a running example to demonstrate compiler passes.
 
 \begin{figure}[!t]
   \includegraphics[width=\columnwidth]{compiler.pdf}
@@ -54,7 +56,7 @@ in a packet transaction, such as \texttt{last\_time} and \texttt{saved\_hop} in
 Figure~\ref{fig:flowlet_code}.  For each state variable, we create a
 \textit{read flank} to read the state variable into a temporary packet field.
 For an array, we also move the index expression into the read flank using the
-fact that only one array index is used by each packet.  Within the packet
+fact that only one array index is accessed by each packet.  Within the packet
 transaction, we replace the state variable with the packet temporary, and
 create a \textit{write flank} to write the packet temporary back into the state
 variable~(Figure~\ref{fig:stateful_flanks}). After this, the only operations
@@ -132,7 +134,8 @@ We use the following algorithm to create the codelet pipeline for PVSM.
 \end{CompactEnumerate}
 
 The codelet pipeline implements the packet transaction on a switch pipeline
-with no computational or resource constraints. We handle these next.
+with no computational or resource constraints. We handle these constraints
+next.
 
 \subsection{Code generation}
 \label{ss:code_gen}
@@ -155,7 +158,7 @@ codelets have multiple three-address code statements that need to execute
 atomically. For instance, updating the state variable \texttt{saved\_hop} in
 Figure~\ref{fig:flowlet_pipeline} requires a read followed by a conditional
 write.  It is not apparent whether such codelets can be mapped to an available
-atom. We develop a new technique to determine the implementability of codelets,
+atom. We develop a new technique to determine the implementability of a codelet,
 given an atom template.
 
 Each atom template has a set of configuration parameters, where the parameters
@@ -180,6 +183,8 @@ finds the solution with {\tt choice=0} and {\tt constant=1}.  In contrast, if
 the codelet {\tt x=x*x} was supplied as the specification, SKETCH will return
 an error as no parameters exist.
 
+%TODO: George's suggestion motivating SKETCH.
+
 %%To minimize search time, the range
 %%of possible inputs and parameter values need to be specified in the template
 %%(e.g., all 8 bit integers), and our experiments show that the search finishes
@@ -193,7 +198,6 @@ an error as no parameters exist.
 %%  \end{center}
 %%\end{figure}
 
-% TODO: Paragraph discussing why optimality is not a goal.
 \begin{table}[!t]
   \begin{scriptsize}
     \begin{tabular}{|p{0.1\textwidth}|p{0.1\textwidth}|p{0.2\textwidth}|}
@@ -360,27 +364,21 @@ moved into the read flank.}
 
 \subsection{Related compiler techniques}
 \label{ss:related_compiler}
-\ac{Why is this section here as opposed to the related work? Are we claiming novelty in
-the rewriting techniques here? The differences seem incremental to me.}
+%%\ac{Why is this section here as opposed to the related work? Are we claiming novelty in
+%%the rewriting techniques here? The differences seem incremental to me.}
+%%Anirudh->Alvin: I think it's useful to have it here because we explicitly say that we reuse many compiler
+%%techniques and its interesting to compare and contrast them specifically.
+%%I don't have a religious opinion on this.
 
 % TODO: Mention Rau's work as well.
 The \pktlanguage compiler employs many techniques from the compiler literature,
 but adapts and simplifies them in new ways to suit the domain of line-rate
-switches (Table~\ref{tab:prior_compiler}).
-
-Domino's branch removal resembles if-conversion~\cite{if_conversion}, a
-technique used in vectorizing compilers. This procedure is easier in Domino
-because there are no backward control transfer statements (goto, break,
-continue). Domino's SSA computation operates on straight-line code and doesn't
-need to handle branches, which considerably complicate standard SSA
-algorithms~\cite{ssa}.
-
-The use of SCCs is inspired by software pipelining for VLIW
-architectures~\cite{software_pipelining}. The size of the largest SCC affects
-the maximum throughput of the pipelined loop in software pipelining. For
-\pktlanguage, it affects the circuit area of the atom required to run a program
-at line rate. \pktlanguage trades off an increase in space for line-rate
-performance.
+switches (Table~\ref{tab:prior_compiler}). The use of SCCs is inspired by
+software pipelining for VLIW architectures~\cite{software_pipelining}. The size
+of the largest SCC affects the {\em maximum throughput} of the pipelined loop
+in software pipelining. For \pktlanguage, it affects the {\em circuit area} of
+the atom required to run a program at line rate. \pktlanguage trades off an
+increase in space for line-rate performance.
 
 Program synthesis was used for code generation in
 Chlorophyll~\cite{chlorophyll}.  Code generation for \pktlanguage shares
@@ -390,8 +388,10 @@ to \textit{multiple} instructions/tiles, using heuristics to minimize
 instruction count. Domino's problem is simpler: we map each codelet to a single
 atom using SKETCH.  The simpler problem allows a non-heuristic solution: if
 there is any way to map the codelet to an atom, SKETCH will find it.
-    %TODO: Alvin, can you check this wording for code generation.
-%%  \item High-level synthesis~\cite{nurvadathi, cash, bluespec, vivado}
-%%    simplifies hardware development by deriving digital circuits directly from
-%%    imperative programs. But, the performance of each program depends on its
-%%    complexity unlike \pktlanguage that only accepts line-rate programs.
+
+Domino's branch removal resembles if-conversion~\cite{if_conversion}, a
+technique used in vectorizing compilers. This procedure is easier in Domino
+because there are no backward control transfer statements (goto, break,
+continue). Domino's SSA computation operates on straight-line code and doesn't
+need to handle branches, which considerably complicate standard SSA
+algorithms~\cite{ssa}.
