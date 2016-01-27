@@ -198,26 +198,6 @@ an error as no parameters exist.
 %%  \end{center}
 %%\end{figure}
 
-\begin{table}[!t]
-  \begin{scriptsize}
-    \begin{tabular}{|p{0.1\textwidth}|p{0.1\textwidth}|p{0.2\textwidth}|}
-  \hline
-  Technique & Prior Work & Differences \\
-  \hline
-  Conversion to straight-line code & If Conversion~\cite{if_conversion} & No backward control flow (gotos, break, continue) \\
-  \hline
-  SSA & Cytron et. al~\cite{ssa} & SSA runs on straight-line code with no branches \\
-  \hline
-  Strongly Connected Components & Lam~\cite{software_pipelining} & Scheduling in space vs. time \\ % Mention Rau, software pipelining.
-  \hline
-  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli, flowmap, spectransform}, instruction selection~\cite{muchnik} & Optimal vs. best-effort mapping; One-to-one mapping vs. tiling \\
-  \hline
-  \end{tabular}
-  \end{scriptsize}
-  \caption{Domino's compiler in relation to prior work}
-  \label{tab:prior_compiler}
-\end{table}
-
 \begin{figure*}[!t]
   \hspace{-0.3in}
   \begin{minipage}{0.55\textwidth}
@@ -370,11 +350,10 @@ moved into the read flank.}
 %%techniques and its interesting to compare and contrast them specifically.
 %%I don't have a religious opinion on this.
 
-% TODO: Mention Rau's work as well.
 The \pktlanguage compiler employs many techniques from the compiler literature,
 but adapts and simplifies them in new ways to suit the domain of line-rate
 switches (Table~\ref{tab:prior_compiler}). The use of SCCs is inspired by
-software pipelining for VLIW architectures~\cite{software_pipelining}. The size
+software pipelining for VLIW architectures~\cite{software_pipelining, rau}. The size
 of the largest SCC affects the {\em maximum throughput} of the pipelined loop
 in software pipelining. For \pktlanguage, it affects the {\em circuit area} of
 the atom required to run a program at line rate. \pktlanguage trades off an
@@ -395,3 +374,25 @@ because there are no backward control transfer statements (goto, break,
 continue). Domino's SSA computation operates on straight-line code and doesn't
 need to handle branches, which considerably complicate standard SSA
 algorithms~\cite{ssa}.
+
+\begin{table}[!t]
+  \begin{scriptsize}
+    \begin{tabular}{|p{0.1\textwidth}|p{0.1\textwidth}|p{0.2\textwidth}|}
+  \hline
+  Technique & Prior Work & Differences \\
+  \hline
+  Conversion to straight-line code & If Conversion~\cite{if_conversion} & No backward control flow (gotos, break, continue) \\
+  \hline
+  SSA & Cytron et. al~\cite{ssa} & SSA runs on straight-line code with no branches \\
+  \hline
+  Strongly Connected Components & Lam~\cite{software_pipelining}, Rau and Glaeser~\cite{rau} & Scheduling in space vs. time \\
+  \hline
+  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli, flowmap, spectransform}, instruction selection~\cite{muchnik} & Optimal vs. best-effort mapping; One-to-one mapping vs. tiling \\
+  \hline
+  \end{tabular}
+  \end{scriptsize}
+  \caption{Domino's compiler in relation to prior work}
+  \label{tab:prior_compiler}
+\end{table}
+
+
