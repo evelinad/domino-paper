@@ -68,9 +68,6 @@ line-rate switches. We then discuss triggering packet transactions
 \subsection{\pktlanguage by example}
 \label{ss:flowlet}
 
-%We now illustrate programming using packet transactions in
-%\pktlanguage, using
-
 We use flowlet switching~\cite{flowlets} as an example. Flowlet
 switching is a load-balancing algorithm that sends bursts of packets
 (called flowlets) from a TCP flow on different paths, provided the
@@ -91,40 +88,34 @@ body (lines 18--32).  The function body can also modify persistent
 switch state using global variables (e.g.  \texttt{last\_time} and
 \texttt{saved\_hop} on lines 14 and 15, respectively).
 
-Conceptually, the switch invokes the packet transaction function one
-packet at a time, with no concurrent packet processing. To the
-programmer, the function modifies the passed-in packet argument and
-runs to completion before processing the next packet.  The function
-may invoke \textit{intrinsics} such as \texttt{hash2} on line 23 to
-use hardware accelerators such as hash generators.  The \pktlanguage
-compiler uses an intrinsic's signature to infer dependencies and
-supplies a canned run-time implementation, but otherwise does not
-analyze an intrinsics's internal behavior. When compiled to a
-\absmachine machine, the compiler converts the code in
-Figure~\ref{fig:flowlet_code} to the atom pipeline in
-Figure~\ref{fig:flowlet_pipeline}.
+Conceptually, the switch invokes the packet transaction function one packet at
+a time, with no concurrent packet processing. To the programmer, the function
+modifies the passed-in packet argument and runs to completion before processing
+the next packet.  The function may invoke \textit{intrinsics} such as
+\texttt{hash2} on line 23 to use hardware accelerators such as hash generators.
+The \pktlanguage compiler uses an intrinsic's signature to infer dependencies
+and supplies a canned run-time implementation, but otherwise does not analyze
+an intrinsics's internal behavior. When compiled to a \absmachine machine, the
+compiler converts the code in Figure~\ref{fig:flowlet_code} to the atom
+pipeline in Figure~\ref{fig:flowlet_pipeline}.
 
 \subsection{Constraints on the language}
 \label{ss:constraints}
-%\ac{I think we should just state that Domino's syntax is similar to that of C, 
-%rather than saying that we are a subset of C}
+%%\ac{I would rewrite this section using a grammar and explaining the special
+%%features (what functions can be invoked, no loops, 
+%%and restriction on array accesses).}
 
-\ac{I would rewrite this section using a grammar and explaining the special
-features (what functions can be invoked, no loops, 
-and restriction on array accesses).}
-
-The syntax of Domino is similar to C (Table~\ref{tab:restrict}).
-These constraints are required for deterministic performance.  Memory
-allocation, unbounded iteration counts, and unstructured control flow
-all cause variable performance, which may prevent an algorithm from
-achieving line rate.  Additionally, \pktlanguage constrains array
-modifications by requiring that all accesses to a given array within
-one execution of a transaction, i.e. one packet, must use the same
-array index. For example, all read and write accesses to the array
-\texttt{last\_time} use the index \texttt{pkt.id}, which is constant
-for each packet, but can change between packets. This restriction
-mirrors restrictions on memories, which don't typically support
-distinct read and write addresses every clock cycle.
+The syntax of Domino is similar to C, but with several constraints
+(Table~\ref{tab:restrict}).  These constraints are required for deterministic
+performance.  Memory allocation, unbounded iteration counts, and unstructured
+control flow all cause variable performance, which may prevent an algorithm
+from achieving line rate.  Additionally, \pktlanguage constrains array
+modifications by requiring that all accesses to a given array within one
+execution of a transaction, i.e. one packet, must use the same array index. For
+example, all read and write accesses to the array \texttt{last\_time} use the
+index \texttt{pkt.id}, which is constant for each packet, but can change
+between packets. This restriction mirrors restrictions on memories, which don't
+typically support distinct read and write addresses every clock cycle.
 %TODO: Try and address this.
 %\MA{Do we model this restriction in PISA?
 %  It would be better to add it to Sec 2.}
@@ -140,23 +131,29 @@ distinct read and write addresses every clock cycle.
 %    No arrays in packet fields.\\
   \end{tabular}
 
-\newcommand{\sep}{~|~}
-\begin{eqnarray*}
-e \in expr &::=& e.f \sep c \sep var \sep e_1~op~e_2 \sep \neg~e \sep e[e] \sep f(\ldots) \\
-%
-s \in stmt &::=& e = e \sep if~(c)~s_1~else~s_2 \sep s~;~s \\
-%
-t \in pktTxn &::=& txnName(Packet) \{ s \} \\
-%
-d \in pktDecl &::=& Packet \{ v~;~v \} \\
-%
-sv \in stateVarDecl &::=& v = e \sep sv \\
-%
-p \in program &::=& \{ d ; sv ; t \}
-\end{eqnarray*}
+%%%\newcommand{\sep}{~|~}
+%%%\begin{eqnarray*}
+%%%e \in expr &::=& e.f \sep c \sep var \sep e_1~op~e_2 \sep \neg~e \sep e[e] \sep f(\ldots) \\
+%%%%
+%%%s \in stmt &::=& e = e \sep if~(c)~s_1~else~s_2 \sep s~;~s \\
+%%%%
+%%%t \in pktTxn &::=& txnName(Packet) \{ s \} \\
+%%%%
+%%%d \in pktDecl &::=& Packet \{ v~;~v \} \\
+%%%%
+%%%sv \in stateVarDecl &::=& v = e \sep sv \\
+%%%%
+%%%p \in program &::=& \{ d ; sv ; t \}
+%%%\end{eqnarray*}
 
-  \caption{Restrictions in \pktlanguage \ac{Is this the grammar? Why not just show 
-  that rather than stating ambiguous list of restrictions?}}
+  \caption{Restrictions in \pktlanguage}
+
+%%    \ac{Is this the grammar? Why not just show 
+%%  that rather than stating ambiguous list of restrictions?}
+%% Anirudh: Alvin, no one will read a grammar carefully.
+%% It's better, imho, to give a relatable but imprecise and informal set of restrictions,
+%% than write a correct grammar, which anyone who hasn't brushed up on CNFs for a while will struggle with.
+%% We can move it into the appendix :)
   \label{tab:restrict}
 \end{table}
 
@@ -165,15 +162,18 @@ p \in program &::=& \{ d ; sv ; t \}
 Packet transactions specify \textit{how} to process packet headers and/or
 state.  To specify {\em when} to run packet transactions, we provide a {\em
 guard}: a predicate on packet fields that triggers the transaction whenever a
-packet matches the guard. An example guard would execute heavy-hitter detection
-on all packets arriving on a specific port. \ac{write out what the guard would
-look like? Can this be expressed using if stmts in transactions?} 
-The guard can be implemented using
-the match key in a match-action pipeline, with the actions being the atoms
-resulting from compiling packet transactions to an atom pipeline. Because
-guards can easily be compiled into a standard match-action pipeline, this paper
-only focuses on compiling packet transactions. \ac{so are these guards part of 
-the language or not? If so how are they expressed?}
+packet matches the guard. An example guard (pkt.tcp\_port == 80) would execute
+heavy-hitter detection on all packets arriving on TCP port 80. This guard can
+be implemented using an exact match in a match-action table, with the actions
+being the atoms resulting from compiling the packet transaction to an atom
+pipeline. Guards can be of various forms such as exact matches, ternary
+matches, longest-prefix matches, and range-based matches, depending on the
+match semantics supported by the match-action pipeline. Because guards map
+one-to-one to the match semantics available on a switch, this paper only
+focuses on compiling packet transactions.
+
+% Anirudh->Alvin: Guards are outside the Domino language. They are whatever match semantics is supported by the switch.
+% This is a practical requirement to express data-plane algorithms on a real switch, but not something very interesting to talk about.
 
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
@@ -185,9 +185,14 @@ straightforward when all guards are disjoint. When guards overlap, mutliple
 transactions need to execute on the same subset of packets, requiring a
 mechanism to compose transactions. One approach is to concatenate the two
 transaction bodies in an order specified by the user, providing the illusion of
-a larger transaction that combines two transactions. \ac{is the user going to 
-provide how transactions will be concatenated?} We leave a detailed
+a larger transaction that combines two transactions. We leave a detailed
 exploration of this and alternative approaches to future work. For the rest of
 this paper, we focus only on compiling a single packet transaction.
-\ac{would interleaving stmts from multiple transactions be a potential 
-optimization here (as in db transactions)?}
+
+%%\ac{would interleaving stmts from multiple transactions be a potential
+%%optimization here (as in db transactions)?}
+%% Possibly: I don't quite know how to reason about the semantics yet :) We should talk about this, sometime!
+
+%%\ac{is the user going to 
+%%provide how transactions will be concatenated?}
+%% Yes, the user specifies the order of concatenation. The how is basically paste one trans. body, and then the other, and call it a larger transaction.
