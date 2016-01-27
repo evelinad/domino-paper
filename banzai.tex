@@ -177,15 +177,15 @@ switches evolve, we expect that atoms will evolve as well, but
 constrained by the clock-cycle requirement ~(\S\ref{ss:perfprog}).
 
 \begin{figure}[h]
-  \begin{minipage}{0.4\columnwidth}
+  \begin{subfigure}{0.4\columnwidth}
   \begin{center}
   \includegraphics[width=\columnwidth]{circuit.pdf}
   \end{center}
   \caption{Circuit for an atom that can add or subtract a constant from a state variable.}
   \label{fig:alu_diag}
-  \end{minipage}
+  \end{subfigure}
   \hspace{0.05\columnwidth}
-  \begin{minipage}{0.55\columnwidth}
+  \begin{subfigure}{0.55\columnwidth}
   \begin{lstlisting}
   bit choice = ??;
   int constant = ??;
@@ -198,7 +198,9 @@ constrained by the clock-cycle requirement ~(\S\ref{ss:perfprog}).
   \caption{Circuit representation as an atom template.}
   %Each ``??(n)'' represents a hole that can be filled in with values in $[0, 2^n -1]$.}
   \label{fig:alu_in_sketch}
-  \end{minipage}
+  \end{subfigure}
+  \caption{Atoms and atom templates}
+  \label{fig:atom}
 \end{figure}
 
 \textbf{Resource limits:} For any real machine, we also need to limit the

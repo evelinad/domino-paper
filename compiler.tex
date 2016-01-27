@@ -343,17 +343,19 @@ moved into the read flank.}
 \end{figure*}
 
 \begin{figure*}[!t]
-\begin{minipage}{0.5\textwidth}
+\begin{subfigure}{0.5\textwidth}
   \includegraphics[width=0.8\columnwidth]{deps.pdf}
   \caption{Dependency graph before condensing SCCs. Each edge represents
   a read-after-write dependency.}
   \label{fig:partitioning_before}
-\end{minipage}
-\begin{minipage}{0.5\textwidth}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
 \includegraphics[width=0.8\columnwidth]{scc.pdf}
 \caption{Dependency graph after condensing SCCs.}
 \label{fig:partitioning_after}
-\end{minipage}
+\end{subfigure}
+\caption{Code Pipelining}
+\label{fig:pipelining}
 \end{figure*}
 
 \subsection{Related compiler techniques}
