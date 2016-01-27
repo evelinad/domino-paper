@@ -2,7 +2,7 @@
 \label{s:transactions}
 
 \begin{figure*}[!t]
-\begin{minipage}{0.5\textwidth}
+\begin{subfigure}{0.5\textwidth}
 \begin{small}
 \begin{lstlisting}[style=customc]
 #define NUM_FLOWLETS    8000
@@ -42,16 +42,16 @@ void flowlet(struct Packet pkt) {
 \end{small}
 \caption{Flowlet switching written in \pktlanguage}
 \label{fig:flowlet_code}
-\end{minipage}
+\end{subfigure}
 %
-\vrule\quad
 %
-\begin{minipage}{0.4\textwidth}
-\includegraphics[width=0.8\columnwidth]{pipe.pdf}
+\begin{subfigure}{0.4\textwidth}
+\includegraphics[width=0.9\columnwidth]{pipe.pdf}
 \caption{6-stage \absmachine pipeline for flowlet
 switching.  Control flows from top to bottom. Stateful atoms are in grey.}
 \label{fig:flowlet_pipeline}
-\end{minipage}
+\end{subfigure}
+\caption{Programming flowlet switching in \pktlanguage}
 \end{figure*}
 
 To program a data-plane algorithm, a programmer would write code in
