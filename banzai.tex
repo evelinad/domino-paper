@@ -17,37 +17,31 @@ Architecture~\cite{xpliant}. \absmachine abstracts these architectures
 and extends them with stateful processing units to implement
 data-plane algorithms. These processing units, called {\em atoms},
 precisely model the set of operations that a hardware target can
-execute at line-rate; they function as the target instruction set for
+execute at line rate; they function as the target instruction set for
 the \pktlanguage compiler.
-%TODO: We use atoms for stateless stuff as well.
 
-\subsection{Background: Programmable switch chipsets}
-Packets arriving at a programmable switch~(Figure~\ref{fig:switch})
-are parsed by a programmable parser that turns packets into header
-fields. These header fields are first processed by an ingress pipeline
-consisting of match-action tables arranged in stages. Processing a
-packet at a stage may modify its header fields as well as some
-persistent state at that stage. Each stage has access only to its own
-local state. To share state between stages, it must be carried in
-packet headers.
-%TODO: state is more than stage local. It's atom local.
+\subsection{Background: Programmable switches}
+Packets arriving at a programmable switch~(Figure~\ref{fig:switch}) are parsed
+by a programmable parser that turns packets into header fields. These header
+fields are first processed by an ingress pipeline consisting of match-action
+tables arranged in stages. Processing a packet at a stage may modify its header
+fields as well as some persistent state at that stage. Each stage has access
+only to its own local state. To share state between stages, it must be carried
+forward in packet headers. Following the ingress pipeline, the packet is
+queued. Once the packet is dequeued by the switch scheduler, it is processed by
+a similar egress pipeline before being transmitted.
 
-Following the ingress pipeline, the packet is queued. Once the packet
-is dequeued by the switch scheduler, it is processed by a similar
-egress pipeline before being transmitted.
-
-To reduce chip area, the ingress and egress pipelines are shared
-across switch ports.  Each pipeline needs to handle aggregate traffic
-belonging to all ports on the switch, at all packet sizes.  For
-instance, a 64-port switch with port speeds of 10 Gigabits/second and
-a minimum packet size of 64 bytes needs to process around a billion
-packets per second~\cite{rmt}.  Equivalently, with a clock frequency
-of 1 GHz, each pipeline stage needs to process one packet every clock
-cycle (1 ns).  The need to handle one packet per clock cycle is
-typical because switches are designed for the highest port density and
-speed for a given chip area. We assume one packet per clock
-cycle throughout the paper.\footnote{For concreteness, we assume a 1
-  GHz clock frequency.}
+To reduce chip area, the ingress and egress pipelines are shared across switch
+ports.  Each pipeline handles aggregate traffic belonging to all ports
+on the switch, at all packet sizes.  For instance, a 64-port switch with port
+speeds of 10 Gbits/s and a minimum packet size of 64 bytes needs to
+process around a billion packets per second~\cite{rmt}.  Equivalently, with a
+clock frequency of 1 GHz, each pipeline stage needs to process one packet every
+clock cycle (1 ns).  The need to handle one packet per clock cycle is typical
+because switches are designed for the highest port count and speed for a given
+chip area. We assume one packet per clock cycle throughout the
+paper.\footnote{For concreteness, we assume a 1 GHz clock frequency.}
+%TODO: Define line rate.
 
 Having to process a packet every clock cycle in each stage greatly
 constrains the operations that can be performed on each packet. In
@@ -64,7 +58,7 @@ of data-plane algorithms to be implemented, and build a compiler to
 map a user-friendly description of an algorithm to the hardware
 processing units.
 
-%low-level primitives.
+%Resume here%%%
 
 \subsection{The \absmachine machine model}
 
