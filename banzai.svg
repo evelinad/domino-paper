@@ -14,7 +14,7 @@
    version="1.1"
    id="svg2"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="pisa.svg">
+   sodipodi:docname="banzai.svg">
   <metadata
      id="metadata1928">
     <rdf:RDF>
@@ -6194,7 +6194,7 @@
          id="tspan5841-5"
          x="1789.6909"
          y="46.44342"
-         style="font-size:64px;font-weight:bold;-inkscape-font-specification:Arial Bold">The  Banzai abstract machine</tspan></text>
+         style="font-size:64px;font-weight:bold;-inkscape-font-specification:Arial Bold">The  Banzai machine model</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:16;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker9616)"
        d="m 1419.8383,-310.77178 c 256,128 64,288.000099 -256,480.0001"
