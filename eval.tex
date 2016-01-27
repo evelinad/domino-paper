@@ -175,7 +175,7 @@ A similar analysis for stateful atoms implies around 70 stateful atoms per
 stage for the most complex stateful atom with an area of 5997 $\mu m^2$.
 However, stateful atoms access memory banks storing state in each stage. The
 overhead of providing 70 independent memory banks in each stage supporting one
-read and write per clock is prohibitive~\cite{private_conv}. Further, given an
+read and write per clock is prohibitive. Further, given an
 overall stage memory budget, slicing it into many small banks reduces the
 amount of memory accessible to each atom. This is problematic for hash-based
 algorithms that need to hash into a large memory space. Taken together, these
