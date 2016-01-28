@@ -18,26 +18,27 @@ NetASM~\cite{netasm} is an abstract machine and intermediate representation
 (IR) for programmable data planes that is portable across network
 devices---FPGAs, virtual switches, and line-rate switches.  \absmachine is a
 machine model for line-rate switches alone, and hence models practical
-constraints required for line-rate packet processing that NetASM doesn't. For
+constraints required for line-rate forwarding that NetASM doesn't. For
 instance, \absmachine machines don't permit sharing state between atoms and use
-atom templates to limit the amount of packet processing that can happen at line
-rate. Further, while NetASM's dataflow framework focuses only on
-target-independent middle-end optimizations such as dead-code elimination, the
-\pktlanguage compiler shows how to implement a compiler back-end for line-rate
-switches (\S\ref{ss:code_gen}).
+atom templates to limit the computations that can happen at line rate. Further,
+while NetASM's dataflow framework focuses only on target-independent middle-end
+optimizations such as dead-code elimination, the \pktlanguage compiler shows
+how to implement a compiler back-end for line-rate switches
+(\S\ref{ss:code_gen}).
 
 \textbf{Programmable Data Planes}
 Software data planes such as Click~\cite{click},
 RouteBricks~\cite{routebricks}, and Fastpass~\cite{fastpass} are flexible but
 lack the performance required for large-scale deployments. Network
 Processors~\cite{ixp2800, ixp4xx} (NPUs) were an attempt to bridge the gap.
-While NPUs are faster than software routers, they remain an order of magnitude
-slower than merchant silicon chips~\cite{rmt}. Eden~\cite{eden} provides a
-programmable data plane using commodity switches by programming end hosts
-alone. \pktlanguage targets programmable switches that increase the scope of
-programmable data planes relative to an end-host-only solution. For instance,
-they permit us to express in-network congestion control, AQM, and
-congestion-aware load balancing (CONGA), which are beyond Eden's capabilities.
+NPUs are faster than software routers; yet, they remain
+\textasciitilde10$\times$ slower than switching chips~\cite{rmt}.
+Eden~\cite{eden} provides a programmable data plane using commodity switches by
+programming end hosts alone. \pktlanguage targets programmable switches that
+increase the scope of programmable data planes relative to an end-host-only
+solution. For instance, \pktlanguage permits us to express in-network
+congestion control, AQM, and congestion-aware load balancing (CONGA), which are
+beyond Eden's capabilities.
 
 %TODO: TPP?
 %TODO: Consider removing the stuff below.
@@ -46,7 +47,7 @@ Switchblade~\cite{switchblade}, and Chimpp~\cite{chimpp}.  These designs are
 slower than switching ASICs, and are rarely used in production network
 equipment. The Arista 7124 FX~\cite{7124fx} is a commercial switch with an
 on-board FPGA, but its capacity is limited to 160 Gbits/sec when using the
-on-board FPGA---~10x less than the multi-terabit capacities of programmable
+on-board FPGA---10$\times$ less than the multi-terabit capacities of programmable
 switch chips~\cite{xpliant}.
 
 Recent work~\cite{lavanya_compiler} focuses on compiling P4 programs to
@@ -63,17 +64,11 @@ routers. Imperative languages such as NOVA~\cite{nova}, packetC~\cite{packetc},
 Intel's auto-partitioning C compiler~\cite{intel_uiuc_pldi},
 PacLang~\cite{paclang_lang, paclang_partitioner}, and Microengine
 C~\cite{microenginec, intel_ixa} target network processors~\cite{ixp2800,
-ixp4xx}.
-
-\pktlanguage's C-like syntax and sequential semantics are inspired by these
-DSLs. However \pktlanguage is constrained relative to them: for instance, it
-forbids loops and includes no synchronization constructs because there is no
+ixp4xx}. \pktlanguage's C-like syntax and sequential semantics are inspired by
+these DSLs. However \pktlanguage is constrained relative to them: for instance,
+it forbids loops and includes no synchronization constructs because there is no
 shared state in \absmachine machines. These constraints were chosen to target
-line-rate switching chips with shared-nothing architectures.  Furthermore,
-\pktlanguage's compiler presents a different programming model: all
-\pktlanguage programs that compile run at line-rate. Unlike an NPU or software
-router, there is no slippery slope of degrading performance with increasing
-program complexity.
+line-rate switching chips with shared-nothing architectures.
 
 SNAP~\cite{snap} is a language for programming stateful data-plane algorithms
 using a network transaction: an atomic block of code that treats the entire
