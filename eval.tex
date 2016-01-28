@@ -1,6 +1,36 @@
 \section{Evaluation}
 \label{s:eval}
 
+\begin{table}[!t]
+  \begin{scriptsize}
+  \begin{tabular}{|p{0.13\textwidth}|p{0.22\textwidth}|p{0.04\textwidth}|}
+    \hline
+    Atom & Description & Area ($\mu$ m\textsuperscript{2})\\
+    \hline
+    Stateless & Arithmetic, logic, relational, and conditional operations on packet/constant operands & 1384 \\
+    \hline
+    Read/Write & Read/Write packet field/constant into single state variable. & 250 \\
+    \hline
+    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. & 431 \\
+    \hline
+    Predicated ReadAddWrite (RAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. & 791 \\
+    \hline
+    IfElse ReadAddWrite (IfElseRAW) & Two separate RAWs: one each for when a predicate is true or false. & 985 \\
+    \hline
+    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. & 1522 \\
+    \hline
+    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. & 3597 \\
+    \hline
+    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. & 5997 \\
+    \hline
+  \end{tabular}
+  \end{scriptsize}
+  \caption{Atom areas in a 32 nm standard-cell library.  All atoms meet timing
+  at 1GHz. Each of the seven compiler targets contains one of the seven
+  stateful atoms (Read/Write through Pairs) and the single stateless atom.}
+  \label{tab:templates}
+\end{table}
+
 \begin{table*}[!t]
   \begin{tabular}{|p{0.16\textwidth}|p{0.34\textwidth}|p{0.08\textwidth}|p{0.09\textwidth}|p{0.07\textwidth}|p{0.06\textwidth}|p{0.05\textwidth}|}
 \hline
@@ -35,36 +65,6 @@ CoDel~\cite{codel} & \pbox{0.34\textwidth}{Update:\\Whether we are marking or no
 \caption{Data-plane algorithms}
 \label{tab:algos}
 \end{table*}
-
-\begin{table}[!t]
-  \begin{scriptsize}
-  \begin{tabular}{|p{0.13\textwidth}|p{0.22\textwidth}|p{0.04\textwidth}|}
-    \hline
-    Atom & Description & Area ($\mu$ m\textsuperscript{2})\\
-    \hline
-    Stateless & Arithmetic, logic, relational, and conditional operations on packet/constant operands & 1384 \\
-    \hline
-    Read/Write & Read/Write packet field/constant into single state variable. & 250 \\
-    \hline
-    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. & 431 \\
-    \hline
-    Predicated ReadAddWrite (RAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. & 791 \\
-    \hline
-    IfElse ReadAddWrite (IfElseRAW) & Two separate RAWs: one each for when a predicate is true or false. & 985 \\
-    \hline
-    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. & 1522 \\
-    \hline
-    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. & 3597 \\
-    \hline
-    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. & 5997 \\
-    \hline
-  \end{tabular}
-  \end{scriptsize}
-  \caption{Atom areas in a 32 nm standard-cell library.  All atoms meet timing
-  at 1GHz. Each of the seven compiler targets contains one of the seven
-  stateful atoms (Read/Write through Pairs) and the single stateless atom.}
-  \label{tab:templates}
-\end{table}
 
 First, we evaluate \pktlanguage's expressiveness by using it to program several
 data-plane algorithms (Table~\ref{tab:algos}), and comparing it to writing them
