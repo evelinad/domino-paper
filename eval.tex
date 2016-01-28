@@ -40,7 +40,7 @@ CoDel~\cite{codel} & \pbox{0.34\textwidth}{Update:\\Whether we are marking or no
   \begin{scriptsize}
   \begin{tabular}{|p{0.13\textwidth}|p{0.22\textwidth}|p{0.04\textwidth}|}
     \hline
-    Atom & Description & Area ($\mu m^2$)\\
+    Atom & Description & Area ($\mu$ m\textsuperscript{2})\\
     \hline
     Stateless & Arithmetic, logic, relational, and conditional operations on packet/constant operands & 1384 \\
     \hline
@@ -158,10 +158,10 @@ complexity~(Table~\ref{tab:templates}).
 We design one compiler target for each combination of a stateful atom along
 with the single stateless atom in Table~\ref{tab:templates}.  We determine
 resource limits for stateful and stateless atoms separately.  For the stateless
-atom, assuming a chip area of 200 $mm^2$ (the smallest area given by Gibb et.
+atom, assuming a chip area of 200 mm\textsuperscript{2} (the smallest area given by Gibb et.
 al~\cite{gibb_parsing}), and an acceptable overhead of 7\% (the area overheads
 for actions in RMT~\cite{rmt}), we can support ~10000 stateless atoms, given
-the area of 1384 $\mu m^2$ per instance.  If these 10000 atoms were to be
+the area of 1384 $\mu$ m\textsuperscript{2} per instance.  If these 10000 atoms were to be
 spread across the same number of stages as RMT (32), we could support up to
 \~300 stateless atoms per stage.
 
@@ -169,7 +169,7 @@ spread across the same number of stages as RMT (32), we could support up to
 %which are similar in complexity to our stateless atom. 
 
 A similar analysis for stateful atoms yields 70 stateful atoms per stage for
-the most complex stateful atom (Pairs) with an area of 5997 $\mu m^2$.
+the most complex stateful atom (Pairs) with an area of 5997 $\mu$ m\textsuperscript{2}.
 However, stateful atoms access memory banks storing state in each stage.
 Providing 70 independent memory banks in each stage supporting one read and
 write per clock is prohibitive. Further, given an overall stage memory budget,
@@ -182,9 +182,9 @@ stateful atoms is \~1\%.
 
 We next look at the multiplexers to route inputs to these atoms from specific
 packet fields and route outputs from these atoms to specific packet fields. For
-this, we rely on RMT~\cite{rmt}, which estimates a crossbar area of 6 $mm^2$
+this, we rely on RMT~\cite{rmt}, which estimates a crossbar area of 6 mm\textsuperscript{2}
 for a 32-stage pipeline with 224 action units. Scaling this proportionally to
-300 stateless atoms, we estimate a crossbar area of 8 $mm^2$ for a 4\% area
+300 stateless atoms, we estimate a crossbar area of 8 mm\textsuperscript{2} for a 4\% area
 overhead.
 
 In summary, we assume 32 stages in total, 300 stateless atoms per stage and 10
