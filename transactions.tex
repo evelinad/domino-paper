@@ -95,7 +95,7 @@ the next packet.  The function may invoke \textit{intrinsics} such as
 \texttt{hash2} on line 23 to use hardware accelerators such as hash generators.
 The \pktlanguage compiler uses an intrinsic's signature to infer dependencies
 and supplies a canned run-time implementation, but otherwise does not analyze
-an intrinsics's internal behavior. When compiled to a \absmachine machine, the
+an intrinsic's internal behavior. When compiled to a \absmachine machine, the
 compiler converts the code in Figure~\ref{fig:flowlet_code} to the atom
 pipeline in Figure~\ref{fig:flowlet_pipeline}.
 
@@ -181,7 +181,7 @@ data-plane algorithm. In practice, a switch
 would run multiple data-plane algorithms---each processing its own subset of
 packets. To accommodate multiple transactions, we envision providing a policy
 language that specifies pairs of guards and transactions. Realizing a policy is
-straightforward when all guards are disjoint. When guards overlap, mutliple
+straightforward when all guards are disjoint. When guards overlap, multiple
 transactions need to execute on the same subset of packets, requiring a
 mechanism to compose transactions. One semantics for composition is to concatenate the two
 transaction bodies in an order specified by the user, providing the illusion of
