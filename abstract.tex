@@ -8,7 +8,7 @@ hardware, algorithms cannot be changed, nor new algorithms installed, after a
 switch has been built.
 
 This paper shows how to program data-plane algorithms in a high-level language
-and convert those programs into low-level microcode that can run on emerging
+and compile those programs into low-level microcode that can run on emerging
 programmable line-rate switching chipsets. The key challenge is that these
 algorithms create and modify algorithmic state. The key idea to achieve
 line-rate programmability for stateful algorithms is the notion of a {\em
@@ -16,7 +16,7 @@ packet transaction}: a sequential code block that is atomic and isolated from
 other such code blocks. We have developed this idea in \pktlanguage, a C-like
 imperative language to express data-plane algorithms. We show with many
 examples that \pktlanguage provides a convenient and natural way to express
-sophisticated data-plane algorithms, and show that they can be run at line-rate
+sophisticated data-plane algorithms, and show that they can be run at line rate
 with modest estimated die-area overhead.
 
 \end{abstract}

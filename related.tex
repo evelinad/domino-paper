@@ -7,10 +7,10 @@ devices---FPGAs, virtual switches, and line-rate switches.  \absmachine is a
 machine model for line-rate switches alone, and hence models practical
 constraints required for line-rate forwarding that NetASM doesn't. For
 instance, \absmachine machines don't permit sharing state between atoms and use
-atom templates to limit the computations that can happen at line rate. Further,
+atom templates to limit computations that can happen at line rate. Further,
 while NetASM's dataflow framework focuses only on target-independent middle-end
-optimizations such as dead-code elimination, the \pktlanguage compiler shows
-how to implement a compiler back-end for line-rate switches
+optimizations such as dead-code elimination, the \pktlanguage compiler
+implements a compiler back-end for line-rate switches
 (\S\ref{ss:code_gen}).
 
 \textbf{Programmable Data Planes:}
@@ -68,4 +68,5 @@ rules into a switch's pipeline. \pktlanguage can be used to compile SNAP's
 switch-local rules to an atom pipeline and is an enabler for SNAP and other
 network-wide abstractions. FAST~\cite{fast} is a system that provides switch
 support and software abstractions for state machines. \absmachine's atoms
-support more general stateful processing beyond state machines.
+support more general stateful processing beyond state machines that enable
+a much wide class of data-plane algorithms.

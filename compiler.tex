@@ -18,9 +18,8 @@ performance~\cite{dobrescu2012, wenfei15}.
 
 The \pktlanguage compiler has three passes (Figure~\ref{fig:passes}).  First,
 \textit{normalization} simplifies the packet transaction into a restrictive
-three-address code form while retaining the sequential semantics of packet
-transactions, i.e., conceptually processing one packet at a time without
-pipelining. Second, \textit{pipelining} transforms the normalized code into
+three-address code form while retaining the sequential nature of packet
+transactions, i.e., processing one packet at a time. Second, \textit{pipelining} transforms the normalized code into
 code for a \textit{pipelined virtual switch machine (PVSM)}. PVSM is an
 intermediate representation that models a switch pipeline with no computational
 or resource limits. Third, \textit{code generation} transforms this
@@ -44,7 +43,7 @@ switching as a running example to demonstrate compiler passes.
 \textbf{Branch removal: }A packet transaction's body can contain (potentially
 nested) branches (e.g., Lines~\ref{line:ifStart} to \ref{line:ifEnd} in
 Figure~\ref{fig:flowlet_code}).  Branches alter control flow and complicate
-dependency analysis i.e.  whether a statement should precede another.  We
+dependency analysis, i.e.,  whether a statement should precede another.  We
 transform branches into the conditional operator, starting from the innermost
 \texttt{if} and recursing outwards (Figure~\ref{fig:if_convert}).  This turns
 the transaction body into straight-line code with no branches.  Straight-line
@@ -70,14 +69,13 @@ assigned exactly once. To do so, we replace every assignment to a packet field
 with a new packet field and propagate this until the next assignment to the
 same field~(Figure~\ref{fig:ssa}) .  Because every field is assigned exactly
 once, SSA removes Write-After-Read and Write-After-Write dependencies.  Only
-Read-After-Write dependencies remain, simplifying dependency analysis during
-pipelining.
+Read-After-Write dependencies remain, simplifying dependency analysis.
 
 \textbf{Flattening to three-address code: } Three-address code~\cite{tac} is a
 representation where all instructions are either reads/writes into state
 variables or operations on packet fields of the form \texttt{pkt.f1 = pkt.f2 op
-pkt.f3;} where \texttt{op} can be a conditional, arithmetic, logical, or
-relational operator.  We also allow either one of {\tt pkt.f2} or {\tt pkt.f3}
+pkt.f3;} where \texttt{op} can be an arithmetic, logical, relational, or conditional
+\footnote{Conditional operations alone have 4 arguments.} operator.  We also allow either one of {\tt pkt.f2} or {\tt pkt.f3}
 to be an intrinsic function call.  To convert to three-adress code, we flatten
 expressions that are not in three-address code using
 temporaries~(Figure~\ref{fig:three_address}).
@@ -105,10 +103,10 @@ pipeline---much like IRs such as LLVM place no restriction on the number of
 virtual registers. Later, during code generation, we map these codelets to
 atoms available in a \absmachine machine, while respecting its constraints.
 
-We use the following algorithm to create the codelet pipeline for PVSM.
+We create PVSM's codelet pipeline using the steps below.
 \begin{CompactEnumerate}
   \item Create a dependency graph of all statements in the normalized packet
-    transaction. To do this, first, create a node for each statement. Second,
+    transaction. First, create a node for each statement. Second,
     add a pair of edges between any two nodes N1 and N2, where N1 is a read
     from a state variable and N2 is a write into the same variable, to capture
     the notion that state should be internal to a codelet/atom. Third, create
@@ -118,13 +116,12 @@ We use the following algorithm to create the codelet pipeline for PVSM.
     dependent on a preceding instruction B if the outcome of B determines
     whether A should be executed or not.} through branch removal, and
     write-after-read and write-after-write dependencies don't exist after SSA.
-    Figure~\ref{fig:partitioning_before} shows the resulting dependency graph
-    after this step.
+    Figure~\ref{fig:partitioning_before} shows the resulting dependency graph.
   \item Generate strongly connected components (SCCs) of this dependency graph
     and condense them into a directed acyclic graph (DAG). This captures the notion that all
     operations on a state variable must be confined to one codelet/atom because
     state cannot be shared between atoms. Figure~\ref{fig:partitioning_after}
-    shows the resulting DAG after this step.
+    shows the resulting DAG.
   \item Schedule the resulting DAG using critical path
     scheduling~\cite{crit_path_sched} by creating a new pipeline stage when one
     operation needs to follow another. This results in the codelet pipeline
@@ -143,14 +140,14 @@ next.
 To determine if the codelet pipeline can be compiled to a \absmachine machine,
 we consider two constraints in any \absmachine machine: resource limits, i.e.,
 the pipeline width and depth, and computational limits on atoms within a
-pipeline stage, i.e. the atom templates provided by a \absmachine machine.
+pipeline stage, i.e., the atom templates provided by a \absmachine machine.
 
 \textbf{Resource limits:} To handle resource limits, we scan each pipeline
 stage in the codelet pipeline starting from the first to check for pipeline
 width violations.  If we violate the pipeline width, we insert as many new
 stages as required and spread codelets evenly across these stages.  We continue
-until the number of codelets in all stages is under the pipeline width or we
-reach the pipeline depth, in which case we reject the program.
+until the number of codelets in all stages is under the pipeline width and
+reject the program if we exceed the pipeline depth.
 
 \textbf{Computational limits:} Next, we determine if codelets in the pipeline
 map one-to-one to atoms provided by the \absmachine machine. In general,
@@ -368,12 +365,11 @@ instruction count. Domino's problem is simpler: we map each codelet to a single
 atom using SKETCH.  The simpler problem allows a non-heuristic solution: if
 there is any way to map the codelet to an atom, SKETCH will find it.
 
-Domino's branch removal resembles if-conversion~\cite{if_conversion}, a
+Branch removal resembles if-conversion~\cite{if_conversion}, a
 technique used in vectorizing compilers. This procedure is easier in Domino
-because there are no backward control transfer statements (goto, break,
+because there is no backward control transfer (goto, break,
 continue). Domino's SSA computation operates on straight-line code and doesn't
-need to handle branches, which considerably complicate standard SSA
-algorithms~\cite{ssa}.
+ handle branches, which considerably complicate SSA algorithms~\cite{ssa}.
 
 \begin{table}[!t]
   \begin{scriptsize}
@@ -394,5 +390,3 @@ algorithms~\cite{ssa}.
   \caption{Domino's compiler in relation to prior work}
   \label{tab:prior_compiler}
 \end{table}
-
-

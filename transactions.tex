@@ -162,14 +162,13 @@ typically support distinct read and write addresses every clock cycle.
 Packet transactions specify \textit{how} to process packet headers and/or
 state.  To specify {\em when} to run packet transactions, we provide a {\em
 guard}: a predicate on packet fields that triggers the transaction whenever a
-packet matches the guard. An example guard (pkt.tcp\_port == 80) would execute
-heavy-hitter detection on all packets arriving on TCP port 80. This guard can
+packet matches the guard. An example guard (pkt.tcp\_dst\_port == 80) would execute
+heavy-hitter detection on all packets on TCP destination port 80. This guard can
 be implemented using an exact match in a match-action table, with the actions
-being the atoms resulting from compiling the packet transaction to an atom
-pipeline. Guards can be of various forms such as exact matches, ternary
-matches, longest-prefix matches, and range-based matches, depending on the
+being the atoms resulting from compiling the packet transaction. Guards can be of various forms,
+e.g., exact, ternary, longest-prefix and range-based matches, depending on the
 match semantics supported by the match-action pipeline. Because guards map
-one-to-one to the match semantics available on a switch, this paper only
+rather straightforwardly to the match key in a match-action table, this paper only
 focuses on compiling packet transactions.
 
 % Anirudh->Alvin: Guards are outside the Domino language. They are whatever match semantics is supported by the switch.
@@ -177,17 +176,18 @@ focuses on compiling packet transactions.
 
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
-So far, we have discussed a single packet transaction. In practice, a switch
+So far, we have discussed a single packet transaction corresponding to a single
+data-plane algorithm. In practice, a switch
 would run multiple data-plane algorithms---each processing its own subset of
 packets. To accommodate multiple transactions, we envision providing a policy
 language that specifies pairs of guards and transactions. Realizing a policy is
 straightforward when all guards are disjoint. When guards overlap, mutliple
 transactions need to execute on the same subset of packets, requiring a
-mechanism to compose transactions. One approach is to concatenate the two
+mechanism to compose transactions. One semantics for composition is to concatenate the two
 transaction bodies in an order specified by the user, providing the illusion of
 a larger transaction that combines two transactions. We leave a detailed
-exploration of this and alternative approaches to future work. For the rest of
-this paper, we focus only on compiling a single packet transaction.
+exploration of this and alternative semantics to future work,
+and focus only on compiling a single packet transaction.
 
 %%\ac{would interleaving stmts from multiple transactions be a potential
 %%optimization here (as in db transactions)?}

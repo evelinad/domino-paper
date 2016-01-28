@@ -51,7 +51,7 @@ next packet {\em must} finish execution in a single clock cycle (see
 programmable switching chips provide a small set of processing units
 or primitives for manipulating packets and state in a stage, unlike in
 software routers. These processing units determine what algorithms can
-run on the switch at line-rate.
+run on the switch at line rate.
 
 The challenge here is to determine primitives that allow a broad range of
 data-plane algorithms to be implemented, and build a compiler to map a
@@ -63,7 +63,7 @@ switch.
 \absmachine (the bottom half of Figure~\ref{fig:switch}) models the data-plane
 components of an ingress or egress switch pipeline, consisting of a number of
 stages executing synchronously on every clock cycle. Each stage processes one
-packet every clock cycle (1 ns) and handes it off to the next, until it exits
+packet every clock cycle (1 ns) and hands it off to the next, until it exits
 the pipeline. \absmachine models the computation within a match-action table in
 a stage (i.e., the action half of the match-action table), but not the match
 semantics (e.g., direct, or ternary) (we discuss how to embed these
@@ -74,16 +74,16 @@ it are already parsed.
 \subsection{Atoms: \absmachine's processing units}
 \label{ss:atoms}
 
-In \absmachine, each pipeline stage contains a {\em vector of
+Each pipeline stage in \absmachine contains a {\em vector of
   atoms}. All atoms in the vector execute in parallel on every clock
 cycle.  Informally, an atom is an atomic unit of packet processing
 supported natively by a \absmachine machine.
-The different types of atoms that are provided by 
-a \absmachine machine forms its instruction set.
+The atoms provided by 
+a \absmachine machine form its instruction set.
 Atoms may modify persistent state stored on the
 switch. In contrast to instruction sets for CPUs, GPUs, DSPs, and
 NPUs, the atoms for a \absmachine machine need to be substantially
-richer to enable real-world data-plane algorithms at line-rate. We
+richer to enable real-world data-plane algorithms at line rate. We
 explain why with an example.
 
 Suppose we need to atomically increment a state variable stored on the switch
@@ -94,7 +94,7 @@ third. This approach, however, does not provide atomic isolation. To see why,
 suppose packet $A$ increments the counter from 0 to 1 by executing the read,
 add, and write operations at clock cycles 1, 2, and 3 respectively.  If packet
 $B$ issues the read at time 2, it will increment the counter again from 0 to 1,
-when it should be 2. Locks over the shared counter object are a potential
+when it should be 2. Locks over the shared counter are a potential
 solution. However, locking causes packet $B$ to wait during packet $A$'s
 increment, and the switch no longer sustains line rate of one packet every
 clock cycle.\footnote{Wait-free objects~\cite{herlihy_wait} are an alternative
@@ -124,7 +124,7 @@ interface between the compiler and the switch hardware.
 %% like expression trees / tiles for instruction selection.
 
 Using this representation, a switch counter that wraps around at a
-value of 100 can be written as\footnote{We use {\tt p.x} to
+value of 100 can be written as the atom:\footnote{We use {\tt p.x} to
   represent field {\tt x} within a packet {\tt p} and {\tt x} to
   represent a state variable {\tt x} that persists across packets.}
 \begin{lstlisting}[style=customc, numbers=none, frame=none]
@@ -146,9 +146,9 @@ atomic operations are easier to support with basic packet-field arithmetic.
 Consider, for instance, the operation {\tt pkt.f1 = pkt.f2 + pkt.f3 - pkt.f4}.
 This operation does not modify any persistent switch state because it only
 reads and writes packet fields. It can be implemented without violating
-atomicity by using one atom to add fields f2 and f3 in one pipeline stage
-(clock cycle), and then using another atom to subtract f4 from the result in
-the next, without having to provide a larger atom that supports the entire
+atomicity by using two atoms: one atom to add fields f2 and f3 in one pipeline
+stage (clock cycle), and another to subtract f4 from the result in the
+next---without having to provide one large atom that supports the entire
 operation.
 
 %%\ac{but I thought you are still implement the whole thing as one single atom
@@ -214,10 +214,10 @@ algorithms that modify a small set of packet headers and carry out small
 amounts of stateful or stateless computation per packet. Data-plane algorithms
 like deep packet inspection and WAN optimization require a switch to parse and
 process the packet payload as well---effectively parsing a large ``header''
-consisting of each byte in the payload. Parsing deep parse graphs is
-challenging at line rates of 1 GHz. Such processing is best left to
-general-purpose CPU platforms~\cite{e2, aplomb, opennf}. Some algorithms
-require complex computations, but not on every packet.  For example, consider a
-measurement algorithm that periodically scans a large table to perform garbage
-collection.  \absmachine's atoms model small computations that occur on every
-packet, and are not suitable for such operations that span many clock cycles.
+consisting of each byte in the payload, which is challenging at line rates of 1
+GHz. Such algorithms are best left to general-purpose CPU platforms~\cite{e2,
+aplomb, opennf}. Some algorithms require complex computations, but not on every
+packet.  For example, consider a measurement algorithm that periodically scans
+a large table to perform garbage collection.  \absmachine's atoms model small
+computations that occur on every packet, and are not suitable for such
+operations that span many clock cycles.
