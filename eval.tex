@@ -66,8 +66,6 @@ CoDel~\cite{codel} & \pbox{0.34\textwidth}{Update:\\Whether we are marking or no
   \label{tab:templates}
 \end{table}
 
-
-
 First, we evaluate \pktlanguage's expressiveness by using it to program several
 data-plane algorithms (Table~\ref{tab:algos}), and comparing it to writing them
 in P4~(\S\ref{ss:expressiveness}).  To validate that these algorithms can be
@@ -113,7 +111,7 @@ this process can be automated; to demonstrate this, we developed a backend for
 programs are listed in Table~\ref{tab:algos}). Further, data-plane algorithms
 on most software platforms today (NPUs, Click~\cite{click}, the Linux qdisc
 subsystem)  are programmed in a manner resembling \pktlanguage---lending
-further evidence that its programming model is convenient.
+further evidence that \pktlanguage's programming model is convenient.
 
 %%TODO: Decide whether we want to keep this.
 %%%Further, the same implementation~\cite{p4_flowlet} is only guaranteed to be
@@ -130,11 +128,11 @@ further evidence that its programming model is convenient.
 We design a concrete set of compiler targets for \pktlanguage based on the
 \absmachine machine model. First, we specify computational limits on atoms in
 each compiler target using atom templates. Using the Synopsys Design
-Compiler~\cite{synopsys_dc}, we quantify the area of each atom's digital
-circuit in a 32 nm standard-cell library when running at 1 GHz.  Second, using
-an individual atom's area and a switching chip's area~\cite{gibb_parsing}, we
-determine the machine's resource limits i.e. the pipeline width for each atom
-and the pipeline depth.
+Compiler~\cite{synopsys_dc}, we quantify each atom's area in a 32 nm
+standard-cell library when running at 1 GHz.  Second, using an individual
+atom's area and a switching chip's area~\cite{gibb_parsing}, we determine the
+machine's resource limits i.e. the pipeline width for each atom and the
+pipeline depth.
 
 \textbf{Computational limits:}
 Stateless atoms are easier to design because arbitrary stateless operations can
@@ -157,71 +155,71 @@ GHz and their area increases with the atom's
 complexity~(Table~\ref{tab:templates}).
 
 \textbf{Resource limits:}
-Now that we have a single stateless atom and multiple stateful atoms, we design
-compiler targets using these atoms.  We design one compiler target for each
-combination of a stateful atom in Table~\ref{tab:templates} along with the
-single stateless atom. We determine resource limits for stateful and stateless
-atoms separately.
+We design one compiler target for each combination of a stateful atom along
+with the single stateless atom in Table~\ref{tab:templates}.  We determine
+resource limits for stateful and stateless atoms separately.  For the stateless
+atom, assuming a chip area of 200 $mm^2$ (the smallest area given by Gibb et.
+al~\cite{gibb_parsing}), and an acceptable overhead of 7\% (the area overheads
+for actions in RMT~\cite{rmt}), we can support ~10000 stateless atoms, given
+the area of 1384 $\mu m^2$ per instance.  If these 10000 atoms were to be
+spread across the same number of stages as RMT (32), we could support up to
+\~300 stateless atoms per stage.
 
-For the stateless atom, assuming a switch chip's area is 200 $mm^2$ (the
-smallest chip area given by Gibb et. al~\cite{gibb_parsing}), and an acceptable
-overhead of 7\% (the area overheads for actions in RMT~\cite{rmt}), we can
-support ~10000 stateless atoms, given the area of 1384 $\mu m^2$.  This number
-is comparable to the 7000 VLIW ALUs supported by RMT~\cite{rmt}, which are
-similar in complexity to our stateless atom. If these 10000 atoms were to be
-spread across the same number of stages as RMT (30), we could support up to 300
-stateless atoms per stage.
+%This number is comparable to the 7000 VLIW ALUs supported by RMT~\cite{rmt},
+%which are similar in complexity to our stateless atom. 
 
-A similar analysis for stateful atoms implies around 70 stateful atoms per
-stage for the most complex stateful atom with an area of 5997 $\mu m^2$.
-However, stateful atoms access memory banks storing state in each stage. The
-overhead of providing 70 independent memory banks in each stage supporting one
-read and write per clock is prohibitive. Further, given an
-overall stage memory budget, slicing it into many small banks reduces the
-amount of memory accessible to each atom. This is problematic for hash-based
-algorithms that need to hash into a large memory space. Taken together, these
-constraints limit the number of stateful atoms to around 10 per stage, which
-greatly reduces their area overhead as well.
+A similar analysis for stateful atoms yields 70 stateful atoms per stage for
+the most complex stateful atom (Pairs) with an area of 5997 $\mu m^2$.
+However, stateful atoms access memory banks storing state in each stage.
+Providing 70 independent memory banks in each stage supporting one read and
+write per clock is prohibitive. Further, given an overall stage memory budget,
+slicing it into many small banks reduces the amount of memory accessible to
+each atom. This is problematic for hash-based algorithms that need to hash into
+a large memory space. Taking these into account, we limit the number of
+stateful atoms to around 10 per stage, which is still sufficient for the
+data-plane algorithms we are interested in. The area overhead of these 10
+stateful atoms is \~1\%.
 
-In summary, we assume 30 stages in total, 300 stateless atoms per stage and 10
-stateful atoms per stage for all compiler targets. By no means is this the only
-design. We only claim that this is feasible with today's technology and show
-that it can be used to implement a wide class of data-plane algorithms---far
-beyond a fixed function switch today. As with any computational substrate, we
-must start somewhere and refine the instruction set in response to the
-algorithms using it.  In a similar vein, designs for \absmachine machines will
-evolve as data-plane algorithms demand more of the hardware.
+We next look at the multiplexers to route inputs to these atoms from specific
+packet fields and route outputs from these atoms to specific packet fields. For
+this, we rely on RMT~\cite{rmt}, which estimates a crossbar area of 6 $mm^2$
+for a 32-stage pipeline with 224 action units. Scaling this proportionally to
+300 stateless atoms, we estimate a crossbar area of 8 $mm^2$ for a 4\% area
+overhead.
 
-%TODO: What about the crossbar costs?
-
-%We also assume every \absmachine machine provides only one stateful atom
-%template, though we don't restrict the number of instances of this template.
-%This is because ASIC engineers prefer to design, implement, verify, and
-%physically layout one circuit, thereby amortizing design and layout effort over
-%multiple instances of the same circuit.
+In summary, we assume 32 stages in total, 300 stateless atoms per stage and 10
+stateful atoms per stage for all compiler targets with an area overhead of 12\%
+(7\% for stateless atoms, 1\% for the stateful atoms, and 4\% for the
+crossbars). By no means is this the only design. We only claim that this is
+feasible and show that it can be used to implement a variety of data-plane
+algorithms---far beyond a fixed-function switch today. We anticipate designs
+for \absmachine machines will evolve as data-plane algorithms demand more of
+the hardware.
 
 \subsection{Compiling \pktlanguage programs to \absmachine machines}
 \label{ss:compiler}
 We now consider every target from Table~\ref{tab:templates}, and every
 data-plane algorithm from Table~\ref{tab:algos} to determine if the algorithm
-is \textit{implementable} on a particular \absmachine machine. We say an
-algorithm is implementable on a \absmachine machine, if every codelet within
-the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to either the
-stateful or stateless atom provided by the \absmachine machine. Because
-stateful atoms are arranged in a containment hierarchy, we list the
-\textit{least expressive} stateful atom/target that can be used to implement a
-data-plane algorithm in Table~\ref{tab:algos}. The same table also shows the
-algorithms that are implementable on a \absmachine machine with a specific
-stateful atom. For instance, a \absmachine machine with the Pairs atom can
-implement the first eight algorithms, while a machine with a simpler RAW atom
-can implement only the first two.
+can run at line rate on a particular \absmachine machine. We say an algorithm
+can run at line rate on a \absmachine machine if every codelet within the
+data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to either the stateful
+or stateless atom provided by the \absmachine machine. Because stateful atoms
+are arranged in a containment hierarchy, we list the \textit{least expressive}
+stateful atom/target required for each data-plane algorithm in
+Table~\ref{tab:algos}.
+%%
+%%The same table also shows the
+%%algorithms that are implementable on a \absmachine machine with a specific
+%%stateful atom. For instance, a \absmachine machine with the Pairs atom can
+%%implement the first eight algorithms, while a machine with a simpler RAW atom
+%%can implement only the first two.
 
-We note two broader lessons for designing programmable switches.  First,
-atoms supporting stateful operations on a single state variable are sufficient
-for several data-plane algorithms (Bloom Filters through Adaptive Virtual Queue
-in Table~\ref{tab:algos}). Second, we find, however, that there are algorithms
-that need the ability to update a pair of state variables atomically. One
-example is CONGA, whose code we reproduce below:
+From Table~\ref{tab:algos}, we note two lessons for designing programmable
+switches.  First, atoms supporting stateful operations on a single state
+variable are sufficient for several data-plane algorithms (Bloom Filters
+through Adaptive Virtual Queue in Table~\ref{tab:algos}). Second, there are
+algorithms that need the ability to update a pair of state variables
+atomically. One example is CONGA, whose code we reproduce below:
 \begin{verbatim}
   if (p.util < best_path_util[p.src]) {
     best_path_util[p.src] = p.util;
@@ -235,10 +233,10 @@ destination) is updated conditioned on \texttt{best\_path\_util} (the
 utilization of the best path to that destination)\footnote{{\tt p.src} is the
   address of the host originating this message, and hence the destination for
 the host receiving it and executing CONGA.} and vice versa. These two state
-variables cannot be separated into different stages and still guarantee
-correctness. The Pairs atom, where the update to a state variable is
-conditioned on a predicate of a pair of state variables, allows us to implement
-CONGA at line rate.
+variables cannot be separated into different stages and still guarantee a
+packet transaction's semantics. The Pairs atom, where the update to a state
+variable is conditioned on a predicate of a pair of state variables, allows us
+to run CONGA at line rate.
 
 While the targets in Tab~\ref{tab:templates} are sufficient for several
 data-plane algorithms, there are algorithms that they can't run at line rate.
@@ -257,31 +255,31 @@ mathematical functions. We leave this exploration to future work.
 \textbf{Compilation time:}
 Compilation time is dominated by SKETCH's search procedure.  To speed up the
 search, we limit SKETCH to search for constants (e.g., for addition) of size up
-to 5 bits, given that the constants we observe within stateful codelets in our
+to 5 bits, given that the constants seen within stateful codelets in our
 algorithms are small. Our longest compilation time is 10 seconds when CoDel
 doesn't map to a \absmachine machine with the Pairs atom because SKETCH has to
-search and rule out every configuration in its search space.  This time will
-increase if we increase the bit width of constants that SKETCH has to search;
-however, because the data-plane algorithms themselves are small, we don't
-expect compilation times to be a concern.
+rule out every configuration in its search space.  This time will increase if
+we increase the bit width of constants that SKETCH has to search; however,
+because the data-plane algorithms themselves are small, we don't expect
+compilation times to be a concern.
 
 \subsection{Performance vs. programmability}
 \label{ss:perfprog}
 While powerful atoms like Pairs can implement more data-plane algorithms, they
-have a cost.  A more expressive atom needs more gates in hardware and incurs
-longer signal propagation delays. A longer propagation delay implies a lower
-clock frequency (the inverse of propagation delay) and hence a lower line rate.
-To quantify this intuition, we consider each stateful atom from
-Table~\ref{tab:templates} and synthesize a circuit with the lowest possible
-delay using the Synopsys Design Compiler. As we increase the complexity of the
-atom, the number of algorithms from Table~\ref{tab:algos} that it can implement
-increases (programmability), while at the same time, its achievable line rate
-(performance) decreases (Table~\ref{tab:perfprog}).\footnote{The slightly
-non-monotonic behavior between PRAW and IfElseRAW is because the logic
-synthesis tool is not optimal and employs many heuristics.} This decrease in
-line rate can be explained by looking at the simplified circuit diagrams for
-the first three atoms (Table~\ref{tab:circuits}), which show an increase in
-circuit depth with atom complexity.
+have a cost.  A more expressive atom needs more gates and incurs longer signal
+propagation delays. A longer propagation delay implies a lower clock frequency
+(the inverse of propagation delay) and hence a lower line rate.  To quantify
+this intuition, we consider each stateful atom from Table~\ref{tab:templates}
+and synthesize a circuit with the lowest possible delay. As we increase the
+complexity of the atom, the number of algorithms from Table~\ref{tab:algos}
+that it can implement increases (programmability), while at the same time, its
+achievable line rate (performance) decreases
+(Table~\ref{tab:perfprog}).\footnote{The slightly non-monotonic behavior
+between PRAW and IfElseRAW is because the logic synthesis tool is not optimal
+and employs many heuristics.} This decrease in line rate can be explained by
+looking at the simplified circuit diagrams for the first three atoms
+(Table~\ref{tab:circuits}), which show an increase in circuit depth with atom
+complexity.
 
 \begin{table}[!t]
   \begin{scriptsize}
@@ -308,8 +306,8 @@ circuit depth with atom complexity.
   \end{tabular}
 \end{scriptsize}
 \caption{Programmability (the number of algorithms an atom implements)
-increases with more complex atoms, but performance (the maximum line rate it
-can support in packets / sec) decreases.}
+increases with more complex atoms, but performance (the max. line rate it
+can support in packets/s) decreases.}
 \label{tab:perfprog}
 \end{table}
 
