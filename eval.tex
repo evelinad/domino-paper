@@ -157,8 +157,8 @@ increases with the atom's complexity~(Table~\ref{tab:templates}).
 We design one compiler target for each combination of a stateful atom along
 with the single stateless atom in Table~\ref{tab:templates}.  We determine
 resource limits for stateful and stateless atoms separately.  For the stateless
-atom, assuming a chip area of 200 \si{\milli\metre\squared} (the smallest area given by Gibb et.
-al~\cite{gibb_parsing}), and an acceptable overhead of 7\% (the area overheads
+atom, assuming a chip area of 200 \si{\milli\metre\squared} (the smallest area given by Gibb et
+al.~\cite{gibb_parsing}), and an acceptable overhead of 7\% (the area overheads
 for actions in RMT~\cite{rmt}), we can support ~10000 stateless atoms, given
 the area of 1384 \si{\micro\metre\squared} per instance.  If these 10000 atoms were
 spread across the same number of stages as RMT (32), we could support up to
