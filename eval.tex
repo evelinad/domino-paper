@@ -32,9 +32,9 @@
 \end{table}
 
 \begin{table*}[!t]
-  \begin{tabular}{|p{0.16\textwidth}|p{0.37\textwidth}|p{0.08\textwidth}|p{0.06\textwidth}|p{0.07\textwidth}|p{0.06\textwidth}|p{0.05\textwidth}|}
+  \begin{tabular}{|p{0.16\textwidth}|p{0.34\textwidth}|p{0.08\textwidth}|p{0.09\textwidth}|p{0.07\textwidth}|p{0.06\textwidth}|p{0.05\textwidth}|}
 \hline
-Algorithm & Description & Least expressive atom & Number of stages, max. atoms/stage & Ingress or Egress Pipeline? & Domino LOC & P4 LOC\\
+Algorithm & Description & Least expressive atom & \# of stages, max. atoms/stage & Ingress or Egress Pipeline? & Domino LOC & P4 LOC\\
 \hline
 \pbox{0.16\textwidth}{Bloom filter~\cite{bloom}\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29 & 104 \\
 \hline
@@ -42,7 +42,7 @@ Algorithm & Description & Least expressive atom & Number of stages, max. atoms/s
 \hline
 Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6, 2 & Ingress & 37 & 107 \\
 \hline
-RCP~\cite{rcp} & \pbox{0.37\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress & 23 & 75 \\
+RCP~\cite{rcp} & \pbox{0.34\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress & 23 & 75 \\
 \hline
 \pbox{0.16\textwidth}{Sampled\\NetFlow~\cite{sampled_nflow}} & \pbox{0.47\textwidth}{Sample a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either  & 18 & 70 \\
 \hline
@@ -54,12 +54,12 @@ HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress & 26 
 \hline
 \pbox{0.16\textwidth}{DNS TTL change tracking~\cite{dns_change}} & Track number of changes in announced TTL for each domain & Nested & 6,3 & Ingress & 27 & 119 \\
 \hline
-CONGA~\cite{conga} & \pbox{0.37\textwidth}{Update best path's utilization/id if we see a better path.\\
+CONGA~\cite{conga} & \pbox{0.34\textwidth}{Update best path's utilization/id if we see a better path.\\
                                            Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress & 32 & 89\\
 \hline
 %trTCM~\cite{trTCM} & Update token counts for each token bucket & Doesn't map & 7, 3 & Either \\
 %\hline
-CoDel~\cite{codel} & \pbox{0.37\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queuing delay will exceed target.}& Doesn't map & 15, 3 & Egress & 57 & 271\\
+CoDel~\cite{codel} & \pbox{0.34\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queuing delay will exceed target.}& Doesn't map & 15, 3 & Egress & 57 & 271\\
 \hline
 \end{tabular}
 \caption{Data-plane algorithms}
