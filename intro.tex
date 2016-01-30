@@ -16,7 +16,8 @@ measurement~\cite{opensketch, bitmap_george, elephant_george},
 security~\cite{dns_change}, and traffic load balancing~\cite{conga}.
 
 An important requirement for data-plane algorithms is the ability to
-process packets at the switch's line rate.  As a result, these
+process packets at the switch's line rate (typically 10--100 Gbit/s on
+10--100 ports).  As a result, these
 algorithms are typically implemented using dedicated
 hardware. Hardware designs are rigid, however, and not reconfigurable
 in the field. Thus, to implement and deploy a new algorithm today, or
@@ -71,7 +72,7 @@ endpoints~\cite{qdisc}.
 
 By studying the requirements of data-plane algorithms and the
 constraints of line-rate hardware, we introduce a new abstraction to
-express and implement data-plane algorithms: a {\em packet
+program and implement data-plane algorithms: a {\em packet
   transaction} (\S\ref{s:transactions}). A packet transaction is a
 sequential code block that is atomic and isolated from other such code
 blocks (i.e., any visible state is equivalent to a serial execution of
@@ -105,14 +106,14 @@ line rate, or not at all. Performance is not just predictable, but
 is guaranteed.
 
 Third, {\em an evaluation of \pktlanguage} (\S\ref{s:eval}). We evaluate
-\pktlanguage's expressiveness by expressing a variety of data-plane
+\pktlanguage's expressiveness by programming a variety of data-plane
 algorithms (Table~\ref{tab:algos}) in \pktlanguage and compare with
 P4. We find that \pktlanguage provides a more concise and easier
 programming model for stateful data-plane algorithms.  Next, because
 no existing programmable switch supports the set of atoms required for
 our data-plane algorithms, we design a set of compiler targets
 (\S\ref{ss:targets}) based on \absmachine and show that these are
-feasible in a 32 nm standard-cell library with $< 15\%$ chip area
+feasible in a 32 nm standard-cell library with $< 15\%$ estimated chip area
 overhead.  Finally, we compile data-plane algorithms written in
 \pktlanguage to these targets to show how the choice of atoms in a
 target determines which algorithms it can support.
