@@ -50,14 +50,14 @@ HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress & 26 
 \hline
 \pbox{0.16\textwidth}{Adaptive\\Virtual Queue~\cite{avq}} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress & 36 & 147 \\
 \hline
-\pbox{0.16\textwidth}{Priority computation for weighted fair queueing~\cite{pifo_hotnets}} & Compute packet's virtual start time using finish time of last packet in that flow. & Nested & 4, 2 & Ingress & 29 & 87 \\
+\pbox{0.16\textwidth}{Priority computation\\for weighted fair queueing~\cite{pifo_hotnets}} & Compute packet's virtual start time using finish time of last packet in that flow. & Nested & 4, 2 & Ingress & 29 & 87 \\
 \hline
-\pbox{0.16\textwidth}{DNS TTL change tracking~\cite{dns_change}} & Track number of changes in announced TTL for each domain & Nested & 6,3 & Ingress & 27 & 119 \\
+\pbox{0.16\textwidth}{DNS TTL change\\tracking~\cite{dns_change}} & Track number of changes in announced TTL for each domain & Nested & 6,3 & Ingress & 27 & 119 \\
 \hline
-CONGA~\cite{conga} & \pbox{0.34\textwidth}{Update best path's utilization/id if we see a better path.\\
-                                           Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress & 32 & 89\\
+CONGA~\cite{conga} & \pbox{0.34\textwidth}{Update best path's utilization/id if we see a \\ better path.\\
+                                           Update best path utilization alone if it \\ changes.}  & Pairs & 4, 2 & Ingress & 32 & 89\\
 \hline
-CoDel~\cite{codel} & \pbox{0.34\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queueing delay will exceed target.}& Doesn't map & 15, 3 & Egress & 57 & 271\\
+CoDel~\cite{codel} & \pbox{0.34\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queueing delay will\\ exceed target.}& Doesn't map & 15, 3 & Egress & 57 & 271\\
 \hline
 \end{tabular}
 \caption{Data-plane algorithms}
@@ -266,7 +266,7 @@ complexity.
   \hline
   \pbox{0.1\textwidth}
   {Predicated\\
-  ReadAddWrite (PRAW)} & 393 & 4 & 2.54 \\
+  ReadAddWrite\\(PRAW)} & 393 & 4 & 2.54 \\
   \hline
   IfElse ReadAddWrite (IfElseRAW) & 392 & 5 & 2.55 \\
   \hline
@@ -295,7 +295,7 @@ complexity.
   \hline
   \pbox{0.1\textwidth}
   {Predicated\\
-  ReadAddWrite (PRAW)} & \includegraphics[width=0.3\textwidth]{pred_raw.pdf}  & 393 \\
+  ReadAddWrite\\(PRAW)} & \includegraphics[width=0.3\textwidth]{pred_raw.pdf}  & 393 \\
   \hline
   \end{tabular}
 \end{scriptsize}
