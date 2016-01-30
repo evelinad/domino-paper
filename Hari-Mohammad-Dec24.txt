@@ -1,5 +1,0 @@
-1. If we have 32 nm, 45 nm is wasteful. We shouldn't bother about it.
-2. Present the atoms naturally as being inspired by the algorithms themselves,
-much like a RISC architecture.
-3. Programmability-performance curve: get the numbers first and then figure out how to
-present it.

@@ -1,5 +1,0 @@
-Questions for meeting with Chang:
------------------------------------
-
-1. Is there someone at Barefoot who can sanity check my Verilog numbers? Anurag, maybe?
-2. Why are there typically many fewer stateful units than stateless ones?

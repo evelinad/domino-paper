@@ -1,1 +1,0 @@
-Call domino an imperative language with C-like syntax.
