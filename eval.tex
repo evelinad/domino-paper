@@ -36,28 +36,27 @@
 \hline
 Algorithm & Description & Least expressive atom & \# of stages, max. atoms/stage & Ingress or Egress Pipeline? & Domino LOC & P4 LOC\\
 \hline
-\pbox{0.16\textwidth}{Bloom filter~\cite{bloom}\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29 & 104 \\
+Bloom filter~\cite{bloom} (3 hash functions) & Set membership bit on every packet. & Write & 4, 3 & Either & 29 & 104 \\
 \hline
-\pbox{0.16\textwidth}{Heavy Hitters~\cite{opensketch}\\(3 hash functions)} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10, 9 & Either & 35 & 192 \\
+Heavy Hitters~\cite{opensketch} (3 hash functions) & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10, 9 & Either & 35 & 192 \\
 \hline
 Flowlets~\cite{flowlets} & Update saved next hop if flowlet threshold is exceeded. & PRAW & 6, 2 & Ingress & 37 & 107 \\
 \hline
-RCP~\cite{rcp} & \pbox{0.34\textwidth}{Accumulate RTT sum if\\RTT is under maximum allowable RTT.} & PRAW & 3, 3 & Egress & 23 & 75 \\
+RCP~\cite{rcp} & Accumulate RTT sum if  RTT is under maximum allowable RTT. & PRAW & 3, 3 & Egress & 23 & 75 \\
 \hline
-\pbox{0.16\textwidth}{Sampled\\NetFlow~\cite{sampled_nflow}} & \pbox{0.47\textwidth}{Sample a packet if packet count reaches N;\\Reset count to 0 when it reaches N.} & IfElseRAW & 4, 2 & Either  & 18 & 70 \\
+Sampled NetFlow~\cite{sampled_nflow} & Sample a packet if packet count reaches N; Reset count to 0 when it reaches N. & IfElseRAW & 4, 2 & Either  & 18 & 70 \\
 \hline
 HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress & 26 & 95 \\
 \hline
-\pbox{0.16\textwidth}{Adaptive\\Virtual Queue~\cite{avq}} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress & 36 & 147 \\
+Adaptive Virtual Queue~\cite{avq} & Update virtual queue size and virtual capacity & Nested & 7, 3 & Ingress & 36 & 147 \\
 \hline
-\pbox{0.16\textwidth}{Compute priorities\\for weighted fair\\queueing~\cite{pifo_hotnets}} & \pbox{0.34\textwidth}{Compute packet's virtual start time using\\finish time of last packet in that flow.} & Nested & 4, 2 & Ingress & 29 & 87 \\
+Compute priorities for weighted fair queueing~\cite{pifo_hotnets} & Compute packet's virtual start time using finish time of last packet in that flow. & Nested & 4, 2 & Ingress & 29 & 87 \\
 \hline
-\pbox{0.16\textwidth}{DNS TTL change\\tracking~\cite{dns_change}} & Track number of changes in announced TTL for each domain & Nested & 6,3 & Ingress & 27 & 119 \\
+DNS TTL change tracking~\cite{dns_change} & Track number of changes in announced TTL for each domain & Nested & 6,3 & Ingress & 27 & 119 \\
 \hline
-CONGA~\cite{conga} & \pbox{0.34\textwidth}{Update best path's utilization/id if we see a \\ better path.\\
-                                           Update best path utilization alone if it \\ changes.}  & Pairs & 4, 2 & Ingress & 32 & 89\\
+CONGA~\cite{conga} & Update best path's utilization/id if we see a better path. Update best path utilization alone if it changes. & Pairs & 4, 2 & Ingress & 32 & 89\\
 \hline
-CoDel~\cite{codel} & \pbox{0.34\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queueing delay will\\ exceed target.}& Doesn't map & 15, 3 & Egress & 57 & 271\\
+CoDel~\cite{codel} & Update: Whether we are marking or not, Time for next mark, Number of marks so far, Time at which min. queueing delay will exceed target. & Doesn't map & 15, 3 & Egress & 57 & 271\\
 \hline
 \end{tabular}
 \caption{Data-plane algorithms}
@@ -264,9 +263,7 @@ complexity.
   \hline
   ReadAddWrite (RAW) & 316 & 2 & 3.16\\
   \hline
-  \pbox{0.1\textwidth}
-  {Predicated\\
-  ReadAddWrite\\(PRAW)} & 393 & 4 & 2.54 \\
+  Predicated ReadAddWrite (PRAW) & 393 & 4 & 2.54 \\
   \hline
   IfElse ReadAddWrite (IfElseRAW) & 392 & 5 & 2.55 \\
   \hline
@@ -293,9 +290,7 @@ complexity.
   \hline
   ReadAddWrite (RAW) & \includegraphics[width=0.2\textwidth]{raw.pdf} & 316\\
   \hline
-  \pbox{0.1\textwidth}
-  {Predicated\\
-  ReadAddWrite\\(PRAW)} & \includegraphics[width=0.3\textwidth]{pred_raw.pdf}  & 393 \\
+  Predicated ReadAddWrite (PRAW) & \includegraphics[width=0.3\textwidth]{pred_raw.pdf}  & 393 \\
   \hline
   \end{tabular}
 \end{scriptsize}
