@@ -196,7 +196,7 @@ stateful atoms per stage for all compiler targets with an area overhead of 12\%
 (7\% for stateless atoms, 1\% for the stateful atoms, and 4\% for the
 crossbars). By no means is this the only design. We only claim that this is
 feasible and show that it can be used to implement a variety of data-plane
-algorithms---far beyond a fixed-function switch today. We anticipate
+algorithms, which is far beyond a fixed-function switch today. We anticipate
 \absmachine machines evolving as data-plane algorithms demand more of
 the hardware.
 
@@ -218,13 +218,14 @@ Table~\ref{tab:algos}.
 %%implement the first eight algorithms, while a machine with a simpler RAW atom
 %%can implement only the first two.
 
-From Table~\ref{tab:algos}, we note two lessons for designing programmable
-switches.  First, atoms supporting stateful operations on a single state
+We note two lessons for designing programmable
+switches from Table~\ref{tab:algos}.
+First, atoms supporting stateful operations on a single state
 variable are sufficient for several data-plane algorithms. For instance, the
 algorithms from Bloom Filter through DNS TTL Change Tracking in
 Table~\ref{tab:algos} can be run at line rate using the Nested Ifs atom that
-manipulates a single state variable. Second, there are algorithms that need the
-ability to update a pair of state variables atomically. One example is CONGA,
+manipulates a single state variable. Second, there are algorithms that need
+to update a pair of state variables atomically. One example is CONGA,
 whose code we reproduce below:
 \begin{verbatim}
   if (p.util < best_path_util[p.src]) {
