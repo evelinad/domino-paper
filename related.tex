@@ -32,7 +32,8 @@ switch. TPPs are written in a restricted instruction set to facilitate switch
 execution; we show that switch instructions must and can be substantially
 richer (Table~\ref{tab:templates}) to support stateful data-plane algorithms.
 
-An alternative is to use FPGAs; examples include NetFPGA~\cite{netfpga},
+An alternative is to utilize hardware such as 
+FPGAs; examples include NetFPGA~\cite{netfpga},
 Switchblade~\cite{switchblade}, and Chimpp~\cite{chimpp}.  These designs are
 slower than switching ASICs, and are rarely used in production network
 equipment. The Arista 7124 FX~\cite{7124fx} is a commercial switch with an
@@ -48,7 +49,8 @@ while \pktlanguage focuses on stateful data-plane algorithms.
 \textbf{Packet-processing languages:}
 Many programming languages target the network control plane. Examples include
 Frenetic~\cite{frenetic}, Pyretic~\cite{pyretic}, and Maple~\cite{maple}.
-\pktlanguage focuses on the data plane.
+\pktlanguage focuses on the data plane instead, which requires different
+programming constructs and compilation techniques.
 
 Several DSLs target the data-plane. Click~\cite{click} uses C++ for packet
 processing on software routers. NOVA~\cite{nova}, packetC~\cite{packetc},
@@ -57,16 +59,18 @@ PacLang~\cite{paclang_lang, paclang_partitioner}, and Microengine
 C~\cite{microenginec, intel_ixa} target network processors~\cite{ixp2800,
 ixp4xx}. \pktlanguage's C-like syntax and sequential semantics are inspired by
 these DSLs. However, by targeting line-rate switches, \pktlanguage is more
-constrained: e.g., it forbids loops and includes no synchronization constructs
-because there is no shared state in \absmachine machines.
+constrained: e.g., it needs to ensure that the compiled programs can run
+at line-rate, hence the language 
+forbids loops and includes no synchronization constructs
+as there is no shared state in \absmachine machines.
 
-The SNAP~\cite{snap} system programs stateful data-plane algorithms using a
+The SNAP system~\cite{snap} programs stateful data-plane algorithms using a
 network transaction: an atomic block of code that treats the entire network as
 one switch~\cite{onebigswitch} and uses a compiler to translate network
 transactions into rules on each switch. SNAP doesn't compile these switch-local
 rules into a switch's pipeline. \pktlanguage can be used to compile SNAP's
 switch-local rules to an atom pipeline and is an enabler for SNAP and other
-network-wide abstractions. FAST~\cite{fast} is a system that provides switch
+network-wide abstractions. FAST~\cite{fast} is another system that provides switch
 support and software abstractions for state machines. \absmachine's atoms
 support more general stateful processing beyond state machines that enable
-a much wide class of data-plane algorithms.
+a much wide class of data-plane algorithms to be implemented.
