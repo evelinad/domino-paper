@@ -80,7 +80,7 @@ ports; it is easy to extend it to the full 5-tuple.
 This example demonstrates the core language constructs in
 \pktlanguage. All packet processing happens in the context of a packet
 transaction (the function \texttt{flowlet} starting at line 17). The
-function's argument {\tt pkt} declares the fields in a packet (lines
+function's argument type {\tt Packet} declares the fields in a packet (lines
 5--12)\footnote{We use fields to refer to both packet headers such as
   source port ({\tt sport}) and destination port ({\tt dport}) and
   packet metadata ({\tt id}).} that can be referenced by the function
@@ -179,7 +179,7 @@ focuses on compiling packet transactions.
 So far, we have discussed a single packet transaction corresponding to a single
 data-plane algorithm. In practice, a switch
 would run multiple data-plane algorithms---each processing its own subset of
-packets. To accommodate multiple transactions, we envision providing a policy
+packets. To accommodate multiple transactions, we envision a policy
 language that specifies pairs of guards and transactions. Realizing a policy is
 straightforward when all guards are disjoint. When guards overlap, multiple
 transactions need to execute on the same subset of packets, requiring a
