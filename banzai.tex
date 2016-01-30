@@ -83,7 +83,7 @@ a \absmachine machine form its instruction set.
 Atoms may modify persistent state stored on the
 switch. In contrast to instruction sets for CPUs, GPUs, DSPs, and
 NPUs, the atoms for a \absmachine machine need to be substantially
-richer to enable real-world data-plane algorithms at line rate. We
+richer to run real-world data-plane algorithms at line rate. We
 explain why with an example.
 
 Suppose we need to atomically increment a state variable stored on the switch
@@ -100,7 +100,7 @@ increment, and the switch no longer sustains line rate of one packet every
 clock cycle.\footnote{Wait-free objects~\cite{herlihy_wait} are an alternative
   to locking, but are typically too complex for hardware.} CPUs employ microarchitectural
   techniques such as operand forwarding to address this problem, but these techniques
-  still suffer from occasional pipeline stalls, which militates against line-rate
+  suffer from occasional pipeline stalls, which militates against line-rate
   performance.
 %% TODO: Not mentioning that shared memory is costly. Because, while that's true.
 %% there are parts of the switch pipeline that use it (such as the scheduler).
@@ -115,7 +115,7 @@ code. An atom completes execution of the entire body of code and modifies a
 packet before processing the next packet.  An atom may also contain internal
 state that is local to that atom alone and persists across packets. An atom's
 body of sequential code fully specifies the atom's behavior and serves as an
-interface between the compiler and the switch hardware.
+interface between the compiler and the programmable switch hardware.
 %%\ac{does this mean we could have invented a new
 %%instruction to represent each atom, and the current representation as a
 %%body of (C-like?) sequential code is simply convenience for people to 
