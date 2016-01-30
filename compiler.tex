@@ -1,8 +1,6 @@
 \section{The Domino compiler}
 \label{s:compiler}
 
-%TODO: Decide if we can add the figure before each point to make it more stylized.
-% like (Figure XXX Branch removal).
 The \pktlanguage compiler compiles from \pktlanguage programs to \absmachine
 targets. The compiler provides an {\em all-or-nothing model}: if compilation
 succeeds, the compiler guarantees that the program will run at line rate on the
@@ -79,16 +77,6 @@ pkt.f3;} where \texttt{op} can be an arithmetic, logical, relational, or conditi
 to be an intrinsic function call.  To convert to three-address code, we flatten
 expressions that are not in three-address code using
 temporaries~(Figure~\ref{fig:three_address}).
-
-%%Flattening may result in
-%%temporaries that compute the same expression; we remove these using common
-%%subexpression elimination~\cite{cse}.
-%\footnote{Ternary/Conditional operators take in 4 addresses instead
-%of 3.}
-%%%\MA{Do we need a figure for every step? They're taking a lot of space,
-%%%  and I feel weaving through them disrupts the flow of the paper. One
-%%%  option is to only show the final result of the normalization stage
-%%%  (Figure 8) and move all the intermediate figures to an Appendix}
 
 \subsection{Pipelining}
 \label{ss:partitioning}
@@ -179,21 +167,6 @@ to the codelet, for all possible input values of {\tt x}.  In this case, SKETCH
 finds the solution with {\tt choice=0} and {\tt constant=1}.  In contrast, if
 the codelet {\tt x=x*x} was supplied as the specification, SKETCH will return
 an error as no parameters exist.
-
-%TODO: George's suggestion motivating SKETCH.
-
-%%To minimize search time, the range
-%%of possible inputs and parameter values need to be specified in the template
-%%(e.g., all 8 bit integers), and our experiments show that the search finishes
-%%quickly, taking 10 secs at most.
-
-%%\begin{figure}[!b]
-%%  \begin{center}
-%%  \includegraphics[width=0.4\columnwidth]{sketch.pdf}
-%%  \caption{Overview of SKETCH and its application to atom configuration}
-%%  \label{fig:sketch}
-%%  \end{center}
-%%\end{figure}
 
 \begin{figure*}[!t]
   \hspace{-0.3in}
@@ -341,11 +314,6 @@ $\Longrightarrow$
 
 \subsection{Related compiler techniques}
 \label{ss:related_compiler}
-%%\ac{Why is this section here as opposed to the related work? Are we claiming novelty in
-%%the rewriting techniques here? The differences seem incremental to me.}
-%%Anirudh->Alvin: I think it's useful to have it here because we explicitly say that we reuse many compiler
-%%techniques and its interesting to compare and contrast them specifically.
-%%I don't have a religious opinion on this.
 
 The \pktlanguage compiler employs many techniques from the compiler literature,
 but adapts and simplifies them in new ways to suit the domain of line-rate

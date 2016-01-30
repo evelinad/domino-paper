@@ -57,8 +57,6 @@ HULL~\cite{hull} & Update counter for virtual queue. & Sub & 7, 1 & Egress & 26 
 CONGA~\cite{conga} & \pbox{0.34\textwidth}{Update best path's utilization/id if we see a better path.\\
                                            Update best path utilization alone if it changes.}  & Pairs & 4, 2 & Ingress & 32 & 89\\
 \hline
-%trTCM~\cite{trTCM} & Update token counts for each token bucket & Doesn't map & 7, 3 & Either \\
-%\hline
 CoDel~\cite{codel} & \pbox{0.34\textwidth}{Update:\\Whether we are marking or not.\\Time for next mark.\\Number of marks so far.\\Time at which min. queueing delay will exceed target.}& Doesn't map & 15, 3 & Egress & 57 & 271\\
 \hline
 \end{tabular}
@@ -78,10 +76,6 @@ the algorithms in Table~\ref{tab:algos} to these targets~(\S\ref{ss:compiler}).
 We conclude by quantifying the tradeoff between a target's programmability (the
 space of data-plane algorithms that it can run at line rate) and the target's
 performance (the maximum line rate it can support)~(\S\ref{ss:perfprog}).
-%%
-%%\footnote{We develop our own atoms since
-%%no existing programmable switching chip supports a sufficiently rich set of
-%%operations needed for data-plane algorithms.}
 
 \subsection{Expressiveness}
 \label{ss:expressiveness}
@@ -117,18 +111,6 @@ Click~\cite{click}, the Linux qdisc subsystem~\cite{qdisc})  are programmed in l
 resembling \pktlanguage---hence we are confident that the \pktlanguage
 syntax is already familiar to network operators.
 
-%lending further evidence that \pktlanguage's
-%programming model is convenient.
-
-%%TODO: Decide whether we want to keep this.
-%%%Further, the same implementation~\cite{p4_flowlet} is only guaranteed to be
-%%%correct on a software switch because it requires synchronized access to the
-%%%saved\_hop variable from two adjacent pipeline stages, which requires locking
-%%%that is challenging at line rate. This illustrates the additional programmer
-%%%burden when programming with P4. Reasoning about how state variables should be
-%%%distributed across a pipeline is error prone and is best moved into a compiler
-%%%where all algorithms can benefit from it.
-%%%
 \subsection{Compiler targets}
 \label{ss:targets}
 
@@ -169,9 +151,6 @@ the area of 1384 \si{\micro\metre\squared} per instance.  If these 10000 atoms w
 spread across the same number of stages (32) as RMT, we could support up to
 \textasciitilde300 stateless atoms per stage.
 
-%This number is comparable to the 7000 VLIW ALUs supported by RMT~\cite{rmt},
-%which are similar in complexity to our stateless atom. 
-
 A similar analysis for the stateful atoms yields 70 stateful atoms per stage for
 the most complex stateful atom (Pairs) with an area of 5997 \si{\micro\metre\squared}.
 However, stateful atoms access per-stage memory banks storing state.
@@ -211,12 +190,6 @@ or stateless atom provided by the \absmachine machine. Because stateful atoms
 are arranged in a containment hierarchy, we list the \textit{least expressive}
 stateful atom/target required for each data-plane algorithm in
 Table~\ref{tab:algos}.
-%%
-%%The same table also shows the
-%%algorithms that are implementable on a \absmachine machine with a specific
-%%stateful atom. For instance, a \absmachine machine with the Pairs atom can
-%%implement the first eight algorithms, while a machine with a simpler RAW atom
-%%can implement only the first two.
 
 We note two lessons for designing programmable
 switches from Table~\ref{tab:algos}.
@@ -251,14 +224,6 @@ An example is CoDel, which cannot be implemented because it requires a square
 root operation that isn't provided by any of our targets. One possibility is a
 look-up table abstraction that allows us to approximate such
 mathematical functions. We leave this exploration to future work.
-%%
-%%However, it is \textit{still} insufficient for algorithms such as
-%%CoDel~\cite{codel} and the two-rate three-color meter (trTCM)~\cite{trTCM}.  On
-%%a positive note, however, we observed that the codelets in both trTCM and CoDel
-%%are still restricted to a pair of state variables.  We haven't yet encountered
-%%a triplet of state variables all falling in the same strongly connected
-%%component/codelet, requiring a three-way state update.
-%%
 
 \textbf{Compilation time:}
 Compilation time is dominated by SKETCH's search procedure.  To speed up the

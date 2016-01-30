@@ -101,9 +101,6 @@ pipeline in Figure~\ref{fig:flowlet_pipeline}.
 
 \subsection{Constraints on the language}
 \label{ss:constraints}
-%%\ac{I would rewrite this section using a grammar and explaining the special
-%%features (what functions can be invoked, no loops, 
-%%and restriction on array accesses).}
 
 The syntax of Domino is similar to C, but with several constraints
 (Table~\ref{tab:restrict}).  These constraints are required for deterministic
@@ -116,9 +113,6 @@ example, all read and write accesses to the array \texttt{last\_time} use the
 index \texttt{pkt.id}, which is constant for each packet, but can change
 between packets. This restriction mirrors restrictions on memories, which don't
 typically support distinct read and write addresses every clock cycle.
-%TODO: Try and address this.
-%\MA{Do we model this restriction in PISA?
-%  It would be better to add it to Sec 2.}
 
 \begin{table}
   \begin{tabular}{p{0.9\columnwidth}}
@@ -128,32 +122,10 @@ typically support distinct read and write addresses every clock cycle.
     No dynamic memory allocation / heap.\\
     Array index is constant for each transaction execution.\\
     No access to data i.e. unparsed portion of the packet.\\
-%    No arrays in packet fields.\\
   \end{tabular}
-
-%%%\newcommand{\sep}{~|~}
-%%%\begin{eqnarray*}
-%%%e \in expr &::=& e.f \sep c \sep var \sep e_1~op~e_2 \sep \neg~e \sep e[e] \sep f(\ldots) \\
-%%%%
-%%%s \in stmt &::=& e = e \sep if~(c)~s_1~else~s_2 \sep s~;~s \\
-%%%%
-%%%t \in pktTxn &::=& txnName(Packet) \{ s \} \\
-%%%%
-%%%d \in pktDecl &::=& Packet \{ v~;~v \} \\
-%%%%
-%%%sv \in stateVarDecl &::=& v = e \sep sv \\
-%%%%
-%%%p \in program &::=& \{ d ; sv ; t \}
-%%%\end{eqnarray*}
 
   \caption{Restrictions in \pktlanguage}
 
-%%    \ac{Is this the grammar? Why not just show 
-%%  that rather than stating ambiguous list of restrictions?}
-%% Anirudh: Alvin, no one will read a grammar carefully.
-%% It's better, imho, to give a relatable but imprecise and informal set of restrictions,
-%% than write a correct grammar, which anyone who hasn't brushed up on CNFs for a while will struggle with.
-%% We can move it into the appendix :)
   \label{tab:restrict}
 \end{table}
 
@@ -171,9 +143,6 @@ match semantics supported by the match-action pipeline. Because guards map
 rather straightforwardly to the match key in a match-action table, this paper only
 focuses on compiling packet transactions.
 
-% Anirudh->Alvin: Guards are outside the Domino language. They are whatever match semantics is supported by the switch.
-% This is a practical requirement to express data-plane algorithms on a real switch, but not something very interesting to talk about.
-
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
 So far, we have discussed a single packet transaction corresponding to a single
@@ -188,11 +157,3 @@ transaction bodies in an order specified by the user, providing the illusion of
 a larger transaction that combines two transactions. We leave a detailed
 exploration of this and alternative semantics to future work,
 and focus only on compiling a single packet transaction.
-
-%%\ac{would interleaving stmts from multiple transactions be a potential
-%%optimization here (as in db transactions)?}
-%% Possibly: I don't quite know how to reason about the semantics yet :) We should talk about this, sometime!
-
-%%\ac{is the user going to 
-%%provide how transactions will be concatenated?}
-%% Yes, the user specifies the order of concatenation. The how is basically paste one trans. body, and then the other, and call it a larger transaction.
