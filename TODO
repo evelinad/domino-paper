@@ -1,0 +1,5 @@
+1. Just say 10 atoms per stage and 32 stages and nothing more. This should keep the description simpler, like Mihai suggested.
+(It also gets rid of all the verbage around stateful memories).
+2. Rename Pairs to Pair.
+3. Name atoms more evocatively.
+4. Maybe switch to flowlet switching as the example??
