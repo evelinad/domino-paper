@@ -3,3 +3,4 @@
 2. Rename Pairs to Pair.
 3. Name atoms more evocatively.
 4. Maybe switch to flowlet switching as the example??
+5. Be consistent with naming "Bloom filter" and not "Bloom Filter".
