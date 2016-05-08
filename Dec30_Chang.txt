@@ -41,6 +41,9 @@ The users should worry more about the correctness of the algorithm rather
 than realization of the algorithm subject to constraints.
 Come up with a simple and convincing example of this difference.
 
-Flowlet switching P4 code: Doesn't even run on Barefoot's chip because of
-memory sharing. Code is incorrect despite quite some thought.
-HULA P4 code: similar argument as well. 
+Flowlet switching P4 code as used in P4 SIGCOMM tutorial: Doesn't run directly
+on an RMT-based chip because of memory sharing.  Thus, the code is incorrect
+despite quite some thought being put into coding it up.
+
+HULA P4 code: similar argument as well (need to think carefully about state
+sharing).
