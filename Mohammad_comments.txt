@@ -1,0 +1,31 @@
+1. Lay out the paper like this:
+Packet transactions are our abstraction, all-or-nothing is our approach.
+
+We have three core new ideas:
+1. A machine model (what's hard: memory constraints, time budgets for stateful operations)
+2. A language with restrictions for line-rate informed by the machine.
+3. A compiler that extracts atomic components.
+
+Machine model itself (Section 2):
+
+1. Maybe make the bypass example clearer.
+2. Lay out restrictions on memory as part of the machine model (no multi-porting).
+
+Language section (Section 3):
+
+1. Add the grammar.
+
+Compiler (Section 4):
+
+1. Maybe simplify description, use packet sampling as an example.
+
+Evaluation (Section 5):
+
+1. Simplify description of why and how many stateful and stateless atoms we need.
+2. Add 16 nm numbers for 5.4
+
+Add a discussion section.
+
+Conclusion:
+
+More forward-looking/dynamic conclusion.
