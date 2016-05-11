@@ -3,7 +3,7 @@ Packet transactions are our abstraction, all-or-nothing is our approach.
 
 We have three core new ideas:
 1. A machine model (what's hard: memory constraints, time budgets for stateful operations)
-2. A language with restrictions for line-rate informed by the machine.
+2. A language with restrictions for line-rate informed by the machine model.
 3. A compiler that extracts atomic components.
 
 Machine model itself (Section 2):
