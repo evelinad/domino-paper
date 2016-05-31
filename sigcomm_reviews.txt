@@ -1,0 +1,354 @@
+===========================================================================
+                          SIGCOMM'16 Review #239A
+---------------------------------------------------------------------------
+Paper #239: Packet Transactions: High-level Programming for Line-Rate
+            Switches
+---------------------------------------------------------------------------
+
+                      Overall merit: 1. Bottom 50% of submissions
+                Reviewer confidence: 2. Some familiarity / fair confidence
+Is this paper exciting or thought provoking?:
+                                     2. Somewhat, I learned a few things
+                  Technical Quality: 1. Flawed, probably not or definitely
+                                        not fixable
+
+                         ===== Paper summary =====
+
+The paper proposes a compiler from one new language to another, with both new languages presented via examples rather than formally defined. Domino, the source language, is similar to C and intentionally lacks a number of features - such as loops, pointers, and access to packet payloads - to support both stateless and stateful processing of packet headers. Banzai, the target language, is a programmable-switch model where each hardware primitive of a match-action pipeline is executable within one clock cycle of 1 ns. To evaluate Domino, the paper reimplements a 231-line P4 program as a 37-line Domino program and reports the number of Domino lines needed to implement 10 functionalities from existing network protocols, with a CoDel functionality found to be not implementable in Domino. To evaluate Banzai and the Domino-to-Banzai compiler, the paper uses the Synopsys Design Compiler to quantify the chip area and execution time for 7 Banzai hardware primitives and argues that a 32-stage pipeline with 300 stateless and 10 stateful Banzai primitives per stage can fit on a chip.
+
+                      ===== Principal Strengths =====
+
+Switch programming is a relevant and timely topic.
+
+                        ===== Ways to improve =====
+
+The paper amorphously tries to do too many things and ends up doing neither of them well. Defining a new language by examples is generally treacherous and substantially hurts this particular submission. While the title and abstract tout packet transactions and their atomic implementation as a key contribution, the paper does not corroborate their novelty and significance. The evaluation fails to make a convincing case for the proposed languages. The evaluation does not even mention packet transactions. The performance evaluation is limited to section 5.4 consisting of one short paragraph. The chaotic presentation is another reason why it is hard to make heads or tails of this paper.
+
+                      ===== Comments for author =====
+
+Switch programming is a relevant and timely topic. Starting from the vision of active networks, a number of prominent initiatives have dealt with this topic. Software-Defined Networking (SDN) is the most recent popular vision that involves programmable switches. The submission explores the topic by looking at various programming and compiling issues.
+
+The paper amorphously tries to do too many things and ends up doing neither of them well. It remains unclear what exactly the submission attempts to contribute. The presented individual pieces are half-baked with questionable novelty of their contributions. The root cause of the trouble seems to be in biting off more than a conference paper can chew: proposing and evaluating two new languages and a compiler appear overambitious. Regardless of the cause, the initial excitement about the direction quickly fades and leaves the reader disappointed.
+
+Defining a new language by examples is generally treacherous and substantially hurts this particular submission. While examples are great for illustrative purposes, a new language needs to be formally defined to enable its meaningful evaluation. In contract, the submission describes Domino vaguely by calling it C-like, listing omitted features, mentioning the concepts of packet transactions and their guards, giving a couple of code examples, and deferring the handling of multiple transactions to future work. Banzai with its notion of atoms are also described imprecisely via atom examples without allowing the reader to appreciate the novelty and significance of these contributions. From the description, Banzai seems just another match-action pipeline model. Also, whereas atomicity of operations is a standard concurrent-programming notion with various existing implementations, the paper does not explain what is new about Banzai atoms. By not clearly specifying the Domino and Banzai languages, the paper precludes their credible evaluation: how can one credibly evaluate expressiveness, usability, and compactness of a language if only a small subset of its syntax is given?
+
+While the title and abstract tout packet transactions and their atomic implementation as a key contribution, the paper does not corroborate their novelty and significance. As mentioned above, operation atomicity is a common notion, and the paper does not clarify what is new or challenging about applying this notion to packet-header processing. The counter-increment example is confusing: as with locking, packet transactions make packet B wait until packet A finishes incrementing the counter. The wait is unavoidable with two atomic concurrent transactions. Also, the imposed constraint of executing each atom within one clock cycle is artificial. This constraint unnecessarily limits either the functionality of atomic operations or the execution rate. Having an atomic operation that spans multiple clock cycles is fully feasible, and supported in real switches, without endangering the pipeline operation at the line rate. Besides, the issue of multiple transactions is too relevant to be deferred to future work.
+
+The evaluation fails to make a convincing case for the proposed languages. The ability to reimplement the 231-line P4 program as the 37-line Domino program does not necessarily mean that writing the Domino code is easier or that the complied Banzai version utilizes the switch resources more effectively. When implementing in Domino an existing network protocol, the paper seems to implement only a subset of the full protocol. Still, the paper finds the chosen CoDel functionality not implementable in Domino. Because the paper evaluates the chip area and execution time for only 7 Banzai atoms and appears to miss a lot of other atoms needed for comprehensive packet-header programming, this evaluation puts on shaky ground the conclusions about the expressiveness of feasible Domino programs. 
+
+The evaluation does not even mention packet transactions. While packet transactions are touted as a key contribution, the paper will greatly benefit from evaluating the limits of which packet transactions are implementable as Banzai atoms. Taking this a step higher, the paper will improve from carefully assessing which packet-header processing needs the implementable packet transactions do not support.
+
+The performance evaluation is limited to section 5.4 consisting of one short paragraph. Even this paragraph is mostly about programmability than performance. The paper clearly needs a more extensive implementation and experimentation. Ideally, the paper should implement a full protocol, e.g., RCP, on a real switch and show that the Domino implementation of the protocol operates as intended at the line rate.
+
+The chaotic presentation is another reason why it is hard to make heads or tails of this paper. The submission organizes its material poorly and relies on a large number of forward pointers. Figures appear not on the pages where they are referred to for the first time, e.g., figures 5 and 6 are cited on page 6 and appear on page 8. The same goes for tables, e.g., table 3 is cited on page 4 and appears on page 9. The paper presents the source language only after the target language, which seems strange. The submission describes Domino in the section entitled "Packet transactions", which is also weird because packet transactions constitute only one element of the source language. There is redundant text, e.g., figure 2a is discussed twice in sections 2.4 and 4.3. The writing relies excessively on parenthetical remarks, e.g., "(i.e., ...), but ... (e.g., ...) (we ...)".
+ 
+The writing is not targeted at a networking researcher. Without giving sufficient explanations, the paper mentions a lot of programming-language terms such as "static single-assignment form", "temporaries", "LLVM", and "containment hierarchy". The current presentation is more appropriate for a conference on compilers, e.g., PLDI (Programming Language Design and Implementation), than a networking venue like SIGCOMM.
+
+The presentation also suffers from a large number of minor problems. These problems include missing articles (e.g., "at line rate", "sustains line rate", and "achieving line rate"), incorrect spacing (e.g., "1GHz" and "7) ."), inappropriate contractions (e.g., "don't" and "can't"), anthropomorphism (e.g., "algorithm’s intent"), and just typos (e.g., "a much wide class"). Acronyms are not explained through expansion, e.g., "LLVM", "DSP", and "GPU". There are one-sentence paragraphs, e.g., on page 1. Figure fonts are too small, e.g., figure 4. Table 1 contains no table but an unbulleted list of sentences.
+
+===========================================================================
+                          SIGCOMM'16 Review #239B
+---------------------------------------------------------------------------
+Paper #239: Packet Transactions: High-level Programming for Line-Rate
+            Switches
+---------------------------------------------------------------------------
+
+                      Overall merit: 4. Top 12.5% of submissions
+                Reviewer confidence: 2. Some familiarity / fair confidence
+Is this paper exciting or thought provoking?:
+                                     3. Yes, I can’t stop thinking about
+                                        it
+                  Technical Quality: 4. No obvious problems
+
+                         ===== Paper summary =====
+
+The paper makes several outstanding contributions, at the core of which are packet transactions; abstractions that allow stateful data plane algorithms to be executed at line rate. 
+
+With high speed programmable switching chips becoming a reality, the paper is very timely, providing a high level domain specific language for stateful data plane algorithms that is not tied to chip architecture. To enable this separation, the authors come up with a machine model Banzai that helps realize packet transactions on programmable switch hardware, and a compiler to translate Domino programs to atoms, Banzai's instruction set.
+
+                      ===== Principal Strengths =====
+
+The paper tackles a timely and important problem. Stateful data plane algorithms are killer applications for programmable chips, and having a high level domain specific language to express these without having to tie oneself very closely with a particular architecture is very powerful.
+
+                        ===== Ways to improve =====
+
+The paper claims that no programmable switch supports the atoms presented in this paper. A discussion around reasons for this and feasibility (apart from chip area) would be useful.
+
+                      ===== Comments for author =====
+
+I really liked the paper. I learned something about the key considerations for implementing stateful algorithms with deterministic performance on programmable chips. 
+
+It would be good to elaborate on the feasibility of atoms. What would hardware support cost and what would the power profile be? Table 5 provides current line rates, and with 1500B packets the line rates are pretty impressive. How will atoms scale with increasing line rate requirements? 
+
+It would have been good to see a mapping of Domino programs into existing programmable switch chips to see these data flow algorithms in action. Authors should consider making atom implementations and domino programs publicly available to get feedback.
+
+===========================================================================
+                          SIGCOMM'16 Review #239C
+---------------------------------------------------------------------------
+Paper #239: Packet Transactions: High-level Programming for Line-Rate
+            Switches
+---------------------------------------------------------------------------
+
+                      Overall merit: 4. Top 12.5% of submissions
+                Reviewer confidence: 2. Some familiarity / fair confidence
+Is this paper exciting or thought provoking?:
+                                     3. Yes, I can’t stop thinking about
+                                        it
+                  Technical Quality: 3. Only minor technical problems
+
+                         ===== Paper summary =====
+
+The paper takes the next step in programmable switch hardware. RMT/Fulcrum etc. gave us the first step with programmable header parsing and configurable match-action pipelines but said little about the programmability of the actions. This paper tells us how we can support programmable stateful processing in the `actions' portion of the match-action model. 
+
+The authors take a vertical top-to-bottom pass through the problem: they develop a machine model for a programmable switch with stateful actions, a high(ish) level language in which to program this switch, and a compiler that translates from the latter to the former. Each of these components is evaluated.
+
+                      ===== Principal Strengths =====
+
+-- relevant and interesting problem: seems like the natural and useful next step for programmable switch hardware. Plus, I can see this having impact in the sense of triggering follow-on work on improving/applying these ideas.
+
+-- ambitious effort!
+
+                        ===== Ways to improve =====
+
+-- The presentation needs significant improvement. The paper tries to cover so much ground that, as a reader, I found myself unclear/unsatisfied with my understanding of each individual piece. (Suggestions for improvements below.)
+
+                      ===== Comments for author =====
+
+Overall, I like this paper -- this seems like a hard and useful problem to take on and I was impressed by your coverage of it. 
+
+That said, I found it hard to fully understand/appreciate many aspects of your solution. Some of this is probably unavoidable since the paper spans expertise in circuit design, PL, compilers, etc. Nonetheless, I think the presentation could be greatly improved to allow 
+a broader audience to appreciate it. A few suggestions on this in what follows... 
+
+Clarify what's special/important in your ideas. The way I understood things, you bring two different things to the table. First are a few key insights/proposal on what makes for a practical sweet-spot in the tradeoff between programmability and performance: namely, that if we constrain programmability to logic that can be implemented on a single packet in single clock cycle (akin to a transaction on the packet) then this constraint simultaneously ensures pipelining/line-rate processing and avoids the need for complex mechanisms to ensure correctness as successive packets read and write the same state. Also your all-or-nothing model of compilation which (again) allows programmability without compromising performance (the opposite tradeoff a software router would make). Second, you show us how to borrow/apply techniques from various other fields to the networking problem at hand. 
+
+Assuming the above characterization is correct (and just view it as a template if not), my problem with the paper is that the work of extracting this is left to the reader (instead of explicitly articulated) and that the paper's real estate is equally divided between the two different forms of contribution. I'd have much preferred the paper if you devoted far more time rationalizing the insights and relegate a lot of the borrowed techniques to a tech report. E.g., I would have liked to better understand the tradeoff between performance and atom complexity (currently squeezed in 1 paragraph in 5.4) and hence get a better sense of what functions are actually practical. 
+Likewise, I'm still a little confused by the usage model of your overall architecture. What is the developer supposed to do when their program fails to compile? Likewise, is the idea that a switch vendor will select a set of atoms they want to support and then derive the resultant switch complexity/cost? How does one do the inverse: e.g., pick a hardware budget and then maximize programmability? In short: I needed more hand-holding on the context/assumptions surrounding the high-level approach.  You could do so by cutting some piece of the paper entirely. E.g., the compiler -- you could just say that you adapt a number of PL techniques to build a compiler and describe the compiler in detail in a separate publication. 
+
+
+Other comments: 
+
+-- Elaborate on the difference with P4. This is interesting given the widespread momentum behind P4 but currently only (and almost parenthetically) covered in any detail deep in section 5.1
+
+===========================================================================
+                          SIGCOMM'16 Review #239D
+---------------------------------------------------------------------------
+Paper #239: Packet Transactions: High-level Programming for Line-Rate
+            Switches
+---------------------------------------------------------------------------
+
+                      Overall merit: 2. Top 50% but below top 25% of
+                                        submissions
+                Reviewer confidence: 1. No familiarity / low confidence
+Is this paper exciting or thought provoking?:
+                                     2. Somewhat, I learned a few things
+                  Technical Quality: 3. Only minor technical problems
+
+                         ===== Paper summary =====
+
+In order to deterministically ensure correct processing on wire-speed switches, the authors develop the concept of packet transactions to model the mapping of functions onto switch ASICs. The main idea is to have a set of atomic switch primitives that can be composed both in parallel and in serial through pipelining to process packets at line rate. Stateless processing does not require this type of complexity, but the stateful processing needed for many data plane functions arguably does. Given tis approach, the scheme defines an abstract programming model called “Bansai” to capture the packet transaction formalism, and a compiler called “Domino” to translate a C-like imperative language to Bansai executables. The compiler has a model of the hardware built in and can either compile a program that will run at wire rate on all ports of a switch, or refuse to compile the program.
+
+                      ===== Principal Strengths =====
+
++ Nice approach of knowing at compile time whether the program meets the deterministic wire-speed constraints of the ASIC
++ Useful way to model inter-packet state and global state
++ Clear and well structured exposition
+
+                        ===== Ways to improve =====
+
+- Could do a better job of highlighting what’s truly new; most of the ideas are present elsewhere
+- Not clear how more complex programs are composed using Domino (also related to the handling of multiple transactions as discussed briefly in section 3.4)
+- How useful is this to provide similar/identical features across different switch ASICs? Is it just friendlier than Verilog?
+
+                      ===== Comments for author =====
+
+I really liked the narrow focus on how to improve the programming environment for pure wire-speed ASIC switches. The packet transactions paradigm seems useful and the way you model state across packets in an ASIC-friendly way has a lot of appeal. My doubts about the overall utility of the approach has to do with whether a single Domino program can in fact be targeted at different switch ASICs successfully. Unless all the ASIC designers choose the same atoms to instantiate as their “Bansai” instruction set, it seems to be a trial-and-error process to figure out what combination of features, at what scale, will result in a Domino program that compiles successfully. If this is a big step forward from P4 or Verily, then you have a good case, but you probably need more than individual pieces of data planes to make your case.
+
+Some other detailed comments and questions:
+
+- It wasn’t entirely clear what is different in your definition of atoms from a conventional Instruction Set architecture definition. Are atoms just instructions?
+
+- Isn’t assuming the existing parsing model a bit limiting? Would you program differently if you have an FSM parser and not just a header-by-header matching scheme? What if you want to dictate parsing contingent on the result of some computation?
+
+- in section 2.5, you say “line rate of 1Ghz”. Shouldn’t you be talking about Gbps here?
+
+- i *think* it’s straightforward as you say to extend the hash to the full 5-tuple and hence just using ports for “simplicity” in your example should be ok, but I’m not entirely sure of this. Is the only reason for the limited example space in the paper as opposed to simplicity, or is there something else going on here?
+
+- The constraint of only one array index within one execution seems a quite a severe limitation. What about hardware that in fact can do multiple memory accesses per clock cycle? How would Bansai/Domino allow for this?
+
+- In section 3.4 it would be helpful to give at least one example of when this policy language is not needed. Seems like it’s always needed if you want to have a full data plane, and hence Domino has some potentially important holes.
+
+===========================================================================
+                          SIGCOMM'16 Review #239E
+---------------------------------------------------------------------------
+Paper #239: Packet Transactions: High-level Programming for Line-Rate
+            Switches
+---------------------------------------------------------------------------
+
+                      Overall merit: 2. Top 50% but below top 25% of
+                                        submissions
+                Reviewer confidence: 2. Some familiarity / fair confidence
+Is this paper exciting or thought provoking?:
+                                     2. Somewhat, I learned a few things
+                  Technical Quality: 2. Flawed but fixable for camera-ready
+
+                         ===== Paper summary =====
+
+Switch domain specific languages like P4 promises high programmability on a hardware switch without loss of forwarding performance. However, their popular programming model is based on match-action abstraction, which is often inconvenient to directly express state update in the data plane. This paper presents a new domain language called Domino, which allows easy state management without worrying about concurrent packet processing. The key abstraction they propose is “packet transaction”, which is a sequential code block that is executed atomically and is independently from other packet processing. To support their abstraction, they present a new machine model called ‘Banzai’, and an atomic processing unit called ‘atom’ that allows line-rate packet processing. The paper also describes a Domino compiler that translates the Domino code to Banzai code and a set of optimization techniques. In evaluation, the paper compares the expressiveness of Domino with that of P4, checks the feasibility of a hardware implementation in terms of required chip area, and measures compilation time to a machine target.
+
+                      ===== Principal Strengths =====
+
+The paper proposes a new switch programming model that allows line-rate packet processing in a hardware switch. The paper is comprehensive in that it deals with the entire components for a programmable hardware switch – Domino DSL, Banzai machine model, Domino compiler, hardware implementation feasibility, and implementations of data-plane algorithms. It is pretty rare to see a paper of this caliber.
+
+                        ===== Ways to improve =====
+
+The description of each component could be dealt in more depth. Also, writing could be improved significantly. I find many statements are unclear and see implicit assumptions that are never explained. These act as barrier to clear understanding of the paper.
+
+                      ===== Comments for author =====
+
+It's great to have a new machine model and a DSL for flexible packet processing on a hardware switch at line rate. I do believe that this work has a potential that could influence on future switch programming model. Unfortunately, the paper, as is, is very challenging to understand mostly due to unclear writing. I would have liked the paper much better if writing was clearer. 
+
+You might want to compare Domino with P4 in more depth given that the goal of these languages is very similar. What aspect of Domino that’s missing in P4 produces a code line reduction as in Table 4? Is there any program that one can write in Domino and not in P4 or vice versa?
+
+What is the relationship between packet transaction and line-rate forwarding? The paper seems to assume that supporting atomic operations is the key to line-rate packet processing, but it never explains why. In section 2.3, atomic operations help ensure correctness instead of line-rate processing. As an alternative to atomic operations in section 2.3, one could have independent local counters and sum up these periodically. 
+
+How do you ensure the atomicity of multiple operations? What if processing a packet needs to update multiple state variables? Do you need to split them into multiple stages? Doesn't it create any inconsistency in the view of other packet processing?
+
+Figure 1 is pretty cryptic. What's the body and state in atom? Who parses the packet headers?
+
+On page 3, "Banzai models the computation within …  not the match semantics." => What do you mean by the match semantics? 
+
+On page 3, "In contrast, … need to be substantially richer to run real-world data-plane algorithms at line rate." => Please elaborate on this statement. What do you mean by “richer” and show some examples of “real-world data-plane algorithms”. 
+
+Section 3.3 could be explained in more depth. How do you support longest prefix matching? Do you allow processing IP/TCP options?
+
+===========================================================================
+                          SIGCOMM'16 Review #239F
+---------------------------------------------------------------------------
+Paper #239: Packet Transactions: High-level Programming for Line-Rate
+            Switches
+---------------------------------------------------------------------------
+
+                      Overall merit: 3. Top 25% but below top 12.5% of
+                                        submissions
+                Reviewer confidence: 2. Some familiarity / fair confidence
+Is this paper exciting or thought provoking?:
+                                     2. Somewhat, I learned a few things
+                  Technical Quality: 3. Only minor technical problems
+
+                         ===== Paper summary =====
+
+The paper focuses on designing a new program framework for implementing algorithms in the data plane of switches that can operate at line rates. The core of this framework is a notion the authors call packet transactions, which are code fragments that execute in an atomic manner. The authors present various examples to motivate their design choices.
+
+                      ===== Principal Strengths =====
+
+The work provides a way to efficiently implement custom packet processing algorithms at line speeds. This is an important capability that can allow for greater flexibility at line-rate switches.
+
+                        ===== Ways to improve =====
+
+It seems a lot of the work relates to the hardware and micro architecture of the switch that needs to be designed differently and there are a lot of design details that perhaps need to be vetted in terms of cost and feasibility.
+
+                      ===== Comments for author =====
+
+The concept of providing better programmability at line rates seems useful. While the authors present some convincing arguments as to why the programming model is the appropriate one.
+There were some very interesting ideas in the paper, the one I liked the most was that the compiler provides a yes or no answer on whether that piece of code could actually be compiled to operate at line rates.
+It was not clear from the description whether this is a particularly good design --- how do you know you capture all common cases of code that would fit in the atomic instruction? Is this a comprehensive set of instructions and code cases.
+The paper felt a bit anecdotal as a result.
+
+However, it seems an interesting idea and the approach definitely has a lot of merit.
+
+===========================================================================
+                          SIGCOMM'16 Review #239G
+---------------------------------------------------------------------------
+Paper #239: Packet Transactions: High-level Programming for Line-Rate
+            Switches
+---------------------------------------------------------------------------
+
+                      Overall merit: 3. Top 25% but below top 12.5% of
+                                        submissions
+                Reviewer confidence: 2. Some familiarity / fair confidence
+Is this paper exciting or thought provoking?:
+                                     2. Somewhat, I learned a few things
+                  Technical Quality: 4. No obvious problems
+
+                         ===== Paper summary =====
+
+This paper presents a scheme for compiling data-plane packet-processing algorithms down to a programmable pipelined packet processor suitable for implementation in a switch.  Two main components are described: a programming language with C-like syntax called Domino, and a machine model for the pipeline called Banzai.  Two features of this scheme that distinguish it from previous schemes are that it supports stateful packet processing (where state is maintained outside of the headers of the packets as they pass through the pipeline), and the compiler is "all or nothing" in the sense that unless a program can be compiled down to "atoms" (pipeline stages are composed of atoms) that can be implemented with a processing time of 1ns, then the compiler simply reports failure rather than producing an implementation with a slow processing time.  The goal is to be able to sustain a minimum line rate of (in this case) 1 billion packets per second.  Because of this restriction on processing time, Domino forbids certain operations like iterations and backwards branching.  Domino also constrains the way that programs can access state in order to avoid various common types of conflicts that arise when state is shared, such as RAW conflicts.  For example, one packet might read some state in on stage of the pipeline, and in  a later stage increment it, and then in another stage write the new value back out.  A second packet might read the same value before it is updated and increment it, and then write the same value, when the intention was for both packets to increment the value.  Domino just doesn't allow state changes to the same variable in different stages.
+
+                      ===== Principal Strengths =====
+
+The paper is well written, and the motivation is clear.  I like the fact that the authors have written a collection data plane algorithms in Domino, and that they have worked out the layouts of the circuits for the various atoms in Banzai.  The authors do a nice job comparing to previous work.
+
+                        ===== Ways to improve =====
+
+I will point out minor issues in the comments for the authors section.
+
+                      ===== Comments for author =====
+
+p.1 can you say what merchant silicon means?
+
+p.2 < 15% overhead -> overhead over what?  In three or four places in the paper you express chip area in terms of overhead, but you haven't really explained what this means.  At the very end of the paper, I gather that you are computing the total data-plane processing pipeline area (two pipelines, I guess) compared to the chip area needed by a typical switch
+
+p.2 "the ingress and egress pipelines are shared across switch ports" -> I was confused by this paragraph for a while -- I think it would be helpful to state explicitly that there is a SINGLE ingress pipeline and a SINGLE egress pipeline
+
+p.2 you cite [36] for the calculation of the processing rate in billions of packets per second that are needed to support 64 ports with a line rate of 10 Gbits/sec and 64-byte packets, but I think this is a simple back-of-the-envelope calculation, e.g., (640 Gbits/sec)/(512 bits/packet) = 1.25 Gpackets/sec.  Is there something more to this?  (Here we assume separate ingress and egress pipes to handle simultaneously sending/receiving on each port.)
+
+p.2 I think it would also be good to indicate that the billion packets per second is the aggregate rate for the whole switch
+
+p.5 What do you mean when you say that you provide a canned run-time implementation?  Who is this canned implementation provided to, and how does the compiler provide it?
+
+p.5 You say that a guard is a predicate, and then you give an example that checks for tcp destination port 80, but then you write that "An example guard ... would execute heavy-hitter detection on all packets on TCP destination port 80".  Technically the guard doesn't execute anything, it's just a predicate, and you've given the predicate and it doesn't say anything about heavy hitter detection.  I think you just mean that this guard could be used to determine whether the heavy hitter detection algorithm should run.
+
+p.7 "much like IRs such as LLVM" - it would be helpful to explain what IR and LLVM stand for
+
+p.9: I like the comparison to prior work in Table 2.
+
+p.10 300 stateless atoms seems like a lot to me -- why would you need so many?  But then comments on page 11,e.g., the constants used for addition are limited to 5 bits to reduce the search space makes me wonder if you have to have a different atom for each constant value (i.e., 32 or 31 different addition atoms).  Can you clear this up?
+
+===========================================================================
+                          SIGCOMM'16 Review #239H
+---------------------------------------------------------------------------
+Paper #239: Packet Transactions: High-level Programming for Line-Rate
+            Switches
+---------------------------------------------------------------------------
+
+                      Overall merit: 3. Top 25% but below top 12.5% of
+                                        submissions
+                Reviewer confidence: 3. Knowledgeable / good confidence
+Is this paper exciting or thought provoking?:
+                                     2. Somewhat, I learned a few things
+                  Technical Quality: 4. No obvious problems
+
+                         ===== Paper summary =====
+
+This paper presents Domino, a new language and accompanying compiler for programming stateful data planes. Compared to prior work, the main innovations are: 
+* Based on intuitive C-like constructs (but without loops, arbitrary memory accesses, etc.)
+* Sequential consistenty model
+* Guarantee of line-rate performance (if compilation succeeds)
+The paper describes the Domino language, an idealized target called Banzai, and highlights aspects of the compilation from Domino to Banzai. The system is evaluated on several data-plane algorithms (flowlet switching, CONGA, Bloom filters, CoDel, etc.) in terms of simplicity (LOC), compilation time, and circuit delay (an upper bound on throughput of the resulting network device).
+
+                      ===== Principal Strengths =====
+
+* The first end-to-end story that takes a high-level language with intuitive constructs (standard control flow, imperative assignment, and standard primitive operations) all the way down to programmable network hardware while ensuring (i) strong consistency and (ii) line-rate performance.
+
+* Although the individual components of the compilation algorithm are not new (branch removal, SSA, pipelining, instruction synthesis), their combination in the domain of networking is novel.
+
+* The paper is very clearly written and does a great job of highlighting the main technical challenges without snowing the reader under with spurious details. The main flowlet example illustrates the key points nicely.
+
+                        ===== Ways to improve =====
+
+* Some of the design choices, such as the restrictions on the Domino source language, are not discussed in much depth. For example, not allowing loops seems completely natural, but the restrictions on array accesses seems pretty cumbersome for programmers. It would be nice to understand whether there are alternatives or if this is really essential. Without this discussion, the language design comes off as ad hoc.
+
+* Compilation of a Domino program can fail. It's a little unclear both (a) whether this only happens if the program is infeasible and (b) what the programmer does in this case. Does the compiler enjoy any kind of completeness result -- i.e., every program that can be implemented in some way will be produced by the compiler given sufficient running time? If not, where does the incompleteness come from? Sketch? Some other aspect of the compiler?
+
+* It would be nice to have a discussion of why strong consistency is needed in each of the applications, given that it was one of the main design points; relatedly, I would have appreciated having more discussion of alternatives such as wait-free structures. For example, did you consider just having atmoic blocks? It seems like that would give the compiler more flexibility. 
+
+* The paper does not do a great job explaining how consistency is guranteed in Banzai (i.e., through the pipelined architecture, and careful analysis of dependencies). This is somewhat buried in the current presentation but it is arguably the main point. It's also important because if one extended with multiple, possibly-overlapping transactions, one might need to generalize the underlying mechanism...
+
+* The use of SKETCH is undermotivated and not presented in very much detail. Only synthesis experts will be able to understand what is really going on. Other approaches to generating instructions are not discussed in detail.
+
+* The implementation currently only handles a single transaction. The paper would be stronger if it identified more of a possible roadmap for lifting this restriction, especially overlapping transactions, expanding the discussion in Section 3.4
+
+                      ===== Comments for author =====
+
+Overall, I believe this is good work that, while not a slam dunk, is above the technical bar for SIGCOMM. It is not earth-shattering from a language or compilation perspective, but it is well-done and (on the verge of being) practically useful. The paper is thought provoking and should trigger a lot of follow-on work in the area.
+
