@@ -1,31 +1,55 @@
-1. Lay out the paper like this:
+Introduction (Section 1):
+================================
+
+1. Lay out the paper like this in the introduction:
 Packet transactions are our abstraction, all-or-nothing is our approach.
 
 We have three core new ideas:
-1. A machine model (what's hard: memory constraints, time budgets for stateful operations)
+1. A machine model (what's hard: memory constraints, time budgets for stateful
+operations)
 2. A language with restrictions for line-rate informed by the machine model.
-3. A compiler that extracts atomic components.
+3. A compiler that extracts atomic components aka. codelets.
 
 Machine model itself (Section 2):
+================================
 
 1. Maybe make the bypass example clearer.
 2. Lay out restrictions on memory as part of the machine model (no multi-porting).
 
 Language section (Section 3):
+================================
 
-1. Add the grammar.
+1. Add the grammar like Alvin suggested.
 
 Compiler (Section 4):
+================================
 
-1. Maybe simplify description, use packet sampling as an example.
+1. Maybe simplify description, use packet sampling from the slide deck as an
+example (sample every Nth packet), instead of flowlet switching. It's much
+simpler.
 
 Evaluation (Section 5):
+================================
 
-1. Simplify description of why and how many stateful and stateless atoms we need.
-2. Add 16 nm numbers for 5.4
+1. Simplify description of why and how many stateful and stateless atoms we
+need. For instance, in my slide deck, I just say we are going to provision 300
+stateless and stateful atom instances. That is a much simpler description than
+the verbage that's there right now. Also, we are currently overestimating the
+area overhead because we should be estimating the area overhead ONLY for the
+algorithms that we care about (and not try to normalize to RMT's atom counts
+because RMT's need to provision an entire data path, not a single algorithm).
 
-Add a discussion section.
+2. Add 16 nm numbers for 5.4. People were confused that I had 32 nm in one
+place and 16 nm in another during my talk.
+
+Add a discussion section:
+================================
+
+--> limitations
+--> future work: non-transactional/approximate semantics, an optimizing
+compiler (right now we only guarantee correctness, not any form of optimal
+packing).
 
 Conclusion:
-
-More forward-looking/dynamic conclusion.
+================================
+More forward-looking/dynamic conclusion. kind of drab now.
