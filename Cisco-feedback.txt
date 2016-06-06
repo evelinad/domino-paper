@@ -1,0 +1,7 @@
+Feedback from Mohammad's Cisco talk:
+=============================
+
+1. How we expect people to use Domino?
+--> Think about "if you are compiling to P4, can we make it a P4 language feature to begin with?"
+2. Stateful vs. stateless atoms.
+Simply write into state without reading it at all: This is a stateful operation that can be pipelined.
