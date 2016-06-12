@@ -117,3 +117,12 @@ feasible in a 32 nm standard-cell library with $< 15\%$ estimated chip area
 overhead.  Finally, we compile data-plane algorithms written in
 \pktlanguage to these targets to show how the choice of atoms in a
 target determines which algorithms it can support.
+
+%% 1. Lay out the paper like this in the introduction:
+%% Packet transactions are our abstraction, all-or-nothing is our approach.
+%% 
+%% We have three core new ideas:
+%% 1. A machine model (what's hard: memory constraints, time budgets for stateful
+%% operations)
+%% 2. A language with restrictions for line-rate informed by the machine model.
+%% 3. A compiler that extracts atomic components aka. codelets.

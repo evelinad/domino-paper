@@ -130,7 +130,11 @@ typically support distinct read and write addresses every clock cycle.
     No access to data i.e. unparsed portion of the packet.\\
 %    No arrays in packet fields.\\
   \end{tabular}
+  \caption{Restrictions in \pktlanguage}
+  \label{tab:restrict}
+\end{table}
 
+\begin{figure}
 \newcommand{\sep}{~|~}
 \begin{eqnarray*}
 e \in expr &::=& e.f \sep c \sep var \sep e_1~op~e_2 \sep \neg~e \sep e[e] \sep f(\ldots) \\
@@ -145,17 +149,9 @@ sv \in stateVarDecl &::=& v = e \sep sv \\
 %
 p \in program &::=& \{ d ; sv ; t \}
 \end{eqnarray*}
-
-  \caption{Restrictions in \pktlanguage}
-
-%%    \ac{Is this the grammar? Why not just show 
-%%  that rather than stating ambiguous list of restrictions?}
-%% Anirudh: Alvin, no one will read a grammar carefully.
-%% It's better, imho, to give a relatable but imprecise and informal set of restrictions,
-%% than write a correct grammar, which anyone who hasn't brushed up on CNFs for a while will struggle with.
-%% We can move it into the appendix :)
-  \label{tab:restrict}
-\end{table}
+\label{fig:grammar}
+\caption{\pktlanguage grammar}
+\end{figure}
 
 \subsection{Triggering packet transactions}
 \label{ss:guards}
