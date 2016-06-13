@@ -3,31 +3,32 @@
 
 \begin{table}[!t]
   \begin{scriptsize}
-  \begin{tabular}{|p{0.13\textwidth}|p{0.22\textwidth}|p{0.04\textwidth}|}
+  \begin{tabular}{|p{0.13\textwidth}|p{0.18\textwidth}|p{0.04\textwidth}|p{0.04\textwidth}|}
     \hline
-    Atom & Description & Area (\si{\micro\metre\squared})\\
+    Atom & Description & Area (\si{\micro\metre\squared}) at 1 GHz & Min. delay (picoseconds) \\
     \hline
-    Stateless & Arithmetic, logic, relational, and conditional operations on packet/constant operands & 1384 \\
+    Stateless & Arithmetic, logic, relational, and conditional operations on packet/constant operands & 1384 & 387 \\
     \hline
-    Read/Write & Read/Write packet field/constant into single state variable. & 250 \\
+    Read/Write & Read/Write packet field/constant into single state variable. & 250 & 176 \\
     \hline
-    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. & 431 \\
+    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. & 431 & 316 \\
     \hline
-    Predicated ReadAddWrite (PRAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. & 791 \\
+    Predicated ReadAddWrite (PRAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. & 791 & 393 \\
     \hline
-    IfElse ReadAddWrite (IfElseRAW) & Two separate RAWs: one each for when a predicate is true or false. & 985 \\
+    IfElse ReadAddWrite (IfElseRAW) & Two separate RAWs: one each for when a predicate is true or false. & 985 & 392 \\
     \hline
-    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. & 1522 \\
+    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. & 1522 & 409 \\
     \hline
-    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. & 3597 \\
+    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. & 3597 & 580 \\
     \hline
-    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. & 5997 \\
+    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. & 5997 & 606 \\
     \hline
   \end{tabular}
   \end{scriptsize}
-  \caption{Atom areas in a 32 nm standard-cell library.  All atoms meet timing
-  at 1GHz. Each of the seven compiler targets contains one of the seven
-  stateful atoms (Read/Write through Pairs) and the single stateless atom.}
+  \caption{Atom areas and minimum timing delays in a 32 nm standard-cell
+  library.  All atoms meet timing at 1GHz. Each of the seven compiler targets
+  contains one of the seven stateful atoms (Read/Write through Pairs) and the
+  single stateless atom.}
   \label{tab:templates}
 \end{table}
 
@@ -92,10 +93,9 @@ encompass a variety of data-plane functionality including data-plane load
 balancing, in-network congestion control, active queue management, security,
 and measurement. In addition, we also used Domino to express the priority
 computation for programming scheduling using the push-in first-out queue
-abstraction~\cite{pifo_hotnets}. In all these cases, the algorithms are
-already available as blocks of imperative code from online sources; 
-translating them to \pktlanguage syntax
-was straightforward.
+abstraction~\cite{pifo_hotnets}. In all these cases, the algorithms are already
+available as blocks of imperative code from online sources; translating them to
+\pktlanguage syntax was straightforward.
 
 In contrast, expressing any of these algorithms in P4 requires manually teasing
 out portions of the algorithm that can reside in independent match-action
@@ -109,97 +109,71 @@ using P4 also requires the programmer to manually specify tables, the actions
 within the tables, how tables are chained, and what headers are required---all
 to implement a single data-plane algorithm. As the \pktlanguage compiler shows,
 this process can be automated; to demonstrate this, we developed a backend for
-\pktlanguage that generates the equivalent P4 code (lines of code for these auto-generated P4
-programs are listed in Table~\ref{tab:algos}).
+\pktlanguage that generates the equivalent P4 code (lines of code for these
+auto-generated P4 programs are listed in Table~\ref{tab:algos}).
 
 Lastly, data-plane algorithms on software platforms today (NPUs,
-Click~\cite{click}, the Linux qdisc subsystem~\cite{qdisc})  are programmed in languages
-resembling \pktlanguage---hence we are confident that the \pktlanguage
-syntax is already familiar to network operators.
+Click~\cite{click}, the Linux qdisc subsystem~\cite{qdisc})  are programmed in
+languages resembling \pktlanguage---hence we are confident that the
+\pktlanguage syntax is already familiar to network operators.
 
-%lending further evidence that \pktlanguage's
-%programming model is convenient.
-
-%%TODO: Decide whether we want to keep this.
-%%%Further, the same implementation~\cite{p4_flowlet} is only guaranteed to be
-%%%correct on a software switch because it requires synchronized access to the
-%%%saved\_hop variable from two adjacent pipeline stages, which requires locking
-%%%that is challenging at line rate. This illustrates the additional programmer
-%%%burden when programming with P4. Reasoning about how state variables should be
-%%%distributed across a pipeline is error prone and is best moved into a compiler
-%%%where all algorithms can benefit from it.
-%%%
 \subsection{Compiler targets}
 \label{ss:targets}
 
 We design a concrete set of compiler targets for \pktlanguage based on the
-\absmachine machine model. First, we specify computational limits on atoms in
-each compiler target using atom templates. Using the Synopsys Design
-Compiler~\cite{synopsys_dc}, we quantify each atom's area in a 32 nm
-standard-cell library when running at 1 GHz.  Second, using an individual
-atom's area and a switching chip's area~\cite{gibb_parsing}, we determine the
-machine's resource limits, i.e., the pipeline width for each atom and the
-pipeline depth.
+\absmachine machine model (\S\ref{ss:absmachine}). First, we describe how to
+assess the feasibility of atoms: whether they can run at a 1 GHz clock
+frequency, and what area overhead they incur as a result. Next, we discuss the
+design of stateless and stateful atoms separately. Finally, we discuss how
+these stateless and stateful atoms are combined together in our compiler
+targets.
 
-\textbf{Computational limits:}
+\paragraph{Atom feasibility}
+For both stateless and stateful atoms, we first specify atoms using atom
+templates. We then synthesize a digital circuit corresponding to each atom
+template by writing the atom as a module in Verilog, and using the Synopsys
+Design Compiler~\cite{synopsys_dc} to check if it meets timing at 1 GHz in a
+32-nm standard-cell library (a library of primitive gates designed using a
+transistor with a feature size of 32 nm).  Second, we use an individual atom's
+gate area, also obtained from the Synopsys Design Compiler, and a switching
+chip's area~\cite{gibb_parsing}, to estimate the area overhead for provisioning
+a \absmachine machine with multiple instances of each atom.
+
+\paragraph{Designing stateless atoms}
 Stateless atoms are easier to design because arbitrary stateless operations can
 be spread out across multiple pipeline stages without violating
 atomicity~(\S\ref{ss:atoms}). We design a stateless atom that can support
 simple arithmetic (add, subtract, left shift, right shift), logical (and, or,
-xor), relational ({\tt >=}, {\tt <=}, {\tt ==}, {\tt !=}), or conditional operations (C's ``{\tt ?}''
-operator) on a set of packet fields. Any packet field can also be substituted
-with a constant operand.
+xor), relational ({\tt >=}, {\tt <=}, {\tt ==}, {\tt !=}), or conditional
+operations (C's ``{\tt ?}'' operator) on a set of packet fields. Any packet
+field can also be substituted with a constant operand.
 
-Designing stateful atoms is more involved because it determines which
-algorithms the switch can support. A more complex stateful atom can support
-more data-plane algorithms, but occupies greater chip area. To illustrate this,
-we design a containment hierarchy of stateful atoms, where each atom can
-express all stateful operations that its predecessor can. When synthesized to a
-32 nm standard-cell library, all of our designed atoms meet timing at 1 GHz and their area
-increases with the atom's complexity~(Table~\ref{tab:templates}).
+\paragraph{Designing stateful atoms}
+Designing stateful atoms is more involved because the choice of stateful atoms
+determines which algorithms a line-rate switch can support. A more complex
+stateful atom can support more data-plane algorithms, but has a higher chance
+of not meeting timing, and occupies greater chip area. To illustrate this
+effect, we design a containment hierarchy of stateful atoms, where each atom
+can express all stateful operations that its predecessor can. Concretely, these
+atoms start out with the simplest stateful capability: the ability to read or
+write state alone.  They then move on to the ability to read, add, and write
+back state atomically (RAW), a predicated version of the same (PRAW), and so
+on. When synthesized to a 32 nm standard-cell library, all of our designed
+atoms meet timing at 1 GHz. However, the atom's area and minimum end-to-end
+propagation delay increases with the atom's
+complexity~(Table~\ref{tab:templates}).
 
-\textbf{Resource limits:}
-% TODO: Simplify the resource limits section drastically.
-We design one compiler target for each combination of a stateful atom along
-with the single stateless atom in Table~\ref{tab:templates}.  We determine
-resource limits for stateful and stateless atoms separately.  For the stateless
-atom, assuming a chip area of 200 \si{\milli\metre\squared} (the smallest area given by Gibb et
-al.~\cite{gibb_parsing}), and an acceptable overhead of 7\% (the area overheads
-for actions in RMT~\cite{rmt}), we can support \textasciitilde10000 stateless atoms, given
-the area of 1384 \si{\micro\metre\squared} per instance.  If these 10000 atoms were
-spread across the same number of stages (32) as RMT, we could support up to
-\textasciitilde300 stateless atoms per stage.
-
-%This number is comparable to the 7000 VLIW ALUs supported by RMT~\cite{rmt},
-%which are similar in complexity to our stateless atom. 
-
-A similar analysis for the stateful atoms yields 70 stateful atoms per stage for
-the most complex stateful atom (Pairs) with an area of 5997 \si{\micro\metre\squared}.
-However, stateful atoms access per-stage memory banks storing state.
-Providing 70 independent memory banks per stage supporting one read and
-write per clock is prohibitive. Furthermore, given an overall stage memory budget,
-slicing it into many small banks reduces the amount of memory accessible to
-each atom. This is problematic for hash-based algorithms that need to hash into
-a large memory space. Taking these into account, we limit the number of
-stateful atoms to around 10 per stage, which is still sufficient for the
-data-plane algorithms that we are interested in. The area overhead of these 10
-stateful atoms is \textasciitilde1\%.
-
-We next look at the multiplexers to route inputs to these atoms from specific
-packet fields and route outputs from these atoms to specific packet fields. For
-this, we rely on RMT~\cite{rmt}, which estimates a crossbar area of 6 \si{\milli\metre\squared}
-for a 32-stage pipeline with 224 action units. Scaling this proportionally to
-300 atoms, we estimate a crossbar area of 8 \si{\milli\metre\squared} with a 4\% area
-overhead.
-
-In summary, we assume 32 stages in total, 300 stateless atoms per stage and 10
-stateful atoms per stage for all compiler targets with an area overhead of 12\%
-(7\% for stateless atoms, 1\% for the stateful atoms, and 4\% for the
-crossbars). By no means is this the only design. We only claim that this is
-feasible and show that it can be used to implement a variety of data-plane
-algorithms, which is far beyond a fixed-function switch today. We anticipate
-\absmachine machines evolving as data-plane algorithms demand more of
-the hardware.
+\paragraph{The compiler targets}
+We design seven compiler targets: each target combines one of the seven
+stateful atoms in Table~\ref{tab:templates} with the single stateless atom in
+the same table. For each target, we assume 300 instances each of the stateful
+and stateless atoms. We spread the 300 instances over 30 pipeline stages; so, a
+single stage has 10 instances each of the stateful and stateless atoms.
+Relative to a 200 \si{\milli\metre\squared} chip\footnote{This is the smallest
+chip size quoted by Gibb et al.~\cite{gibb_parsing}}, the aggregate chip area
+overheads (Table~\ref{tab:templates}) for 300 instances of each atom are
+modest: it is 0.2 \% for the stateless atoms and 0.9 \% for the Pairs atom, the
+most complex among our stateful atoms.
 
 \subsection{Compiling \pktlanguage programs to \absmachine machines}
 \label{ss:compiler}
@@ -212,22 +186,19 @@ or stateless atom provided by the \absmachine machine. Because stateful atoms
 are arranged in a containment hierarchy, we list the \textit{least expressive}
 stateful atom/target required for each data-plane algorithm in
 Table~\ref{tab:algos}.
-%%
-%%The same table also shows the
-%%algorithms that are implementable on a \absmachine machine with a specific
-%%stateful atom. For instance, a \absmachine machine with the Pairs atom can
-%%implement the first eight algorithms, while a machine with a simpler RAW atom
-%%can implement only the first two.
 
-We note two lessons for designing programmable
-switches from Table~\ref{tab:algos}.
-First, atoms supporting stateful operations on a single state
-variable are sufficient for several data-plane algorithms. For instance, the
-algorithms from Bloom Filter through DNS TTL Change Tracking in
-Table~\ref{tab:algos} can be run at line rate using the Nested Ifs atom that
-manipulates a single state variable. Second, there are algorithms that need
-to update a pair of state variables atomically. One example is CONGA,
-whose code we reproduce below:
+\subsection{Lessons learned}
+We now reflect on some lessons learned from these evaluations.
+
+\paragraph{Atoms with a single state variable support many algorithms}
+
+For instance, the algorithms from Bloom Filter through DNS TTL Change Tracking
+in Table~\ref{tab:algos} can be run at line rate using the Nested Ifs atom that
+manipulates a single state variable.
+
+\paragraph{But, some algorithms modify pairs of state variables}
+
+One example is CONGA, whose code we reproduce below:
 \begin{verbatim}
   if (p.util < best_path_util[p.src]) {
     best_path_util[p.src] = p.util;
@@ -246,78 +217,39 @@ packet transaction's semantics. The Pairs atom, where the update to a state
 variable is conditioned on a predicate of a pair of state variables, allows us
 to run CONGA at line rate.
 
-While the targets in Table~\ref{tab:templates} are sufficient for several
-data-plane algorithms, there are algorithms that they can't run at line rate.
-An example is CoDel, which cannot be implemented because it requires a square
-root operation that isn't provided by any of our targets. One possibility is a
-look-up table abstraction that allows us to approximate such
-mathematical functions. We leave this exploration to future work.
-%%
-%%However, it is \textit{still} insufficient for algorithms such as
-%%CoDel~\cite{codel} and the two-rate three-color meter (trTCM)~\cite{trTCM}.  On
-%%a positive note, however, we observed that the codelets in both trTCM and CoDel
-%%are still restricted to a pair of state variables.  We haven't yet encountered
-%%a triplet of state variables all falling in the same strongly connected
-%%component/codelet, requiring a three-way state update.
-%%
+\paragraph{There will always be algorithms that cannot sustain line rate}
 
-\textbf{Compilation time:}
-Compilation time is dominated by SKETCH's search procedure.  To speed up the
-search, we limit SKETCH to search for constants (e.g., for addition) of size up
-to 5 bits, given that the constants seen within stateful codelets in our
-algorithms are small. Our longest compilation time is 10 seconds when CoDel
-doesn't map to a \absmachine machine with the Pairs atom because SKETCH has to
-rule out every configuration in its search space.  This time will increase if
-we increase the bit width of constants that SKETCH has to search; however,
-because the data-plane algorithms themselves are small, we don't expect
-compilation times to be a concern.
+While the targets and their atoms in Table~\ref{tab:templates} are sufficient
+for several data-plane algorithms, there are algorithms that they can't run at
+line rate.  An example is CoDel, which cannot be implemented because it
+requires a square root operation that isn't provided by any of our targets. One
+possibility is a look-up table abstraction that allows us to approximate such
+mathematical functions. However, regardless of what set of atoms we design for
+a particular line rate target (say 1 GHz), there will always be algorithms that
+cannot be run at this rate. This is because the set of computations that can be
+expressed by an atom (or a finite pipeline of atoms) are finite because these
+computations all need to finish within a ns, while the set of algorithms is
+infinite.
 
-\subsection{Performance vs. programmability}
-\label{ss:perfprog}
-While powerful atoms like Pairs can implement more data-plane algorithms, they
-have a performance cost.  A more expressive atom incurs longer signal
-propagation delays and implies a lower clock frequency or line rate
-(the inverse of propagation delay).  To quantify
-this intuition, we consider each stateful atom from Table~\ref{tab:templates}
-and synthesize a circuit with the lowest possible delay. As we increase the
-complexity of the atom, the number of algorithms from Table~\ref{tab:algos}
-that it can implement increases (programmability), while at the same time, its
-achievable line rate (performance) decreases
-(Table~\ref{tab:perfprog}).\footnote{The slightly non-monotonic behavior
-between PRAW and IfElseRAW is because the logic synthesis tool is not optimal
-and employs many heuristics.} This decrease in line rate can be explained by
-looking at the simplified circuit diagrams for the first three atoms
-(Table~\ref{tab:circuits}), which show an increase in circuit depth with atom
-complexity.
+\paragraph{Atom design is constrained by timing, not area}
 
-\begin{table}[!t]
-  \begin{scriptsize}
-  \begin{tabular}{|p{0.08\textwidth}|p{0.12\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|}
-  \hline
-  Atom & Min. delay (picoseconds) & Programmability (\# of algorithms implemented by atom) & Performance (Max. line rate in billion pkts/sec) \\
-  \hline
-  Write & 176 & 1  & 5.68 \\
-  \hline
-  ReadAddWrite (RAW) & 316 & 2 & 3.16\\
-  \hline
-  \pbox{0.1\textwidth}
-  {Predicated\\
-  ReadAddWrite (PRAW)} & 393 & 4 & 2.54 \\
-  \hline
-  IfElse ReadAddWrite (IfElseRAW) & 392 & 5 & 2.55 \\
-  \hline
-  Subtract (Sub) & 409 & 6 & 2.44 \\
-  \hline
-  Nested Ifs (Nested) & 580 & 9 & 1.72 \\
-  \hline
-  Paired updates (Pairs) & 609 & 10 & 1.64 \\
-  \hline
-  \end{tabular}
-\end{scriptsize}
-\caption{Programmability increases with more complex atoms,
-  but performance decreases.}
-\label{tab:perfprog}
-\end{table}
+Atoms are constrained by two factors, their area and their timing, i.e., the
+end-to-end delay on the critical path of the atom's combinational circuit. For
+the few hundred atoms that we require, atom area is insignificant (< 1\%)
+relative to chip area. Further, even for future atoms that are more
+complicated, area is easily controlled by provisioning fewer atom instances.
+
+However, atom timing is more critical. Table~\ref{tab:templates} shows a 3.4x
+range in timing between the simplest and the most complex atoms. This increase
+in line rate can be explained by looking at the simplified circuit diagrams for
+the first three atoms (Table~\ref{tab:circuits}), which show an increase in
+circuit depth with atom complexity. The clock frequency of a circuit is at
+least as small as the inverse of this timing; consequently, a more complex atom
+results in a lower clock frequency and a lower line rate. While all our atoms
+have an end-to-end delay under a ns (and hence can run at 1 GHz), it is easy to
+extend them with progressively more functionality that causes them to violate
+timing at 1 GHz.
+%TODO: Try and synthesize this atom.
 
 \begin{table}[!t]
   \begin{scriptsize}
@@ -340,3 +272,43 @@ stands for a multiplexer, RELOP stands for a relational operation between two
 operands.}
 \label{tab:circuits}
 \end{table}
+
+
+% TODO: Be consistent between compiler target and programmable router.
+\paragraph{Compilers can be used to design instruction sets}
+Designing an instruction set for a programmable substrate is a chicken-and-egg
+problem: the choice of instructions determines which algorithms can execute on
+that target, while the choice of algorithms dictates what instructions are
+required in the target. Indeed, most other programmable substrates (GPUs, CPUs,
+DSPs) go through an iterative process to design a good instruction set.
+
+% TODO: Add a figure for this.
+ A compiler can help with this iterative process. To show how, we outline our
+own process for designing the atoms in Table~\ref{tab:templates}. We pick a
+data-plane algorithm, partially execute our compiler to generate a pipeline of
+codelets, inspect the stateful ones, and create an atom that expresses the
+computations required across all stateful codelets. We check that an atom can
+express the computations we require by fully executing our compiler on the
+data-plane algorithm. We then move on to the next algorithm, extending our atom
+through a process of trial-and-error to capture more computations---in the
+process generating a hierarchy of atoms, each of which works for a subset of
+algorithms.
+
+Our atom design process is manual and ad-hoc at this point, but it already
+shows how compilers can aid in instruction-set design for programmable
+switches. That said, We make no claim to this being the correct or optimal
+instruction set. We only show that this is feasible and can be used to
+implement a variety of data-plane algorithms, which is far beyond a
+fixed-function switch today. We anticipate \absmachine machines evolving as
+data-plane algorithms demand more of the hardware.
+
+%%\textbf{Compilation time:}
+%%Compilation time is dominated by SKETCH's search procedure.  To speed up the
+%%search, we limit SKETCH to search for constants (e.g., for addition) of size up
+%%to 5 bits, given that the constants seen within stateful codelets in our
+%%algorithms are small. Our longest compilation time is 10 seconds when CoDel
+%%doesn't map to a \absmachine machine with the Pairs atom because SKETCH has to
+%%rule out every configuration in its search space.  This time will increase if
+%%we increase the bit width of constants that SKETCH has to search; however,
+%%because the data-plane algorithms themselves are small, we don't expect
+%%compilation times to be a concern.
