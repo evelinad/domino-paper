@@ -70,59 +70,56 @@ avq, blue}, and implemented in software routers~\cite{click, dpdk,
 routebricks}, network processors~\cite{packetc, nova}, and network
 endpoints~\cite{qdisc}.
 
-By studying the requirements of data-plane algorithms and the
-constraints of line-rate hardware, we introduce a new abstraction to
-program and implement data-plane algorithms: a {\em packet
-  transaction} (\S\ref{s:transactions}). A packet transaction is a
-sequential code block that is atomic and isolated from other such code
-blocks (i.e., any visible state is equivalent to a serial execution of
-packet transactions across packets). Packet transactions allow the programmer to
-focus on the operations needed for each packet without worrying about
-other concurrent packets.
+By studying the requirements of data-plane algorithms and the constraints of
+line-rate hardware, we introduce a new abstraction to program and implement
+data-plane algorithms: a {\em packet transaction} (\S\ref{s:transactions}). A
+packet transaction is a sequential code block that is atomic and isolated from
+other such code blocks (i.e., any visible state is equivalent to a serial
+execution of packet transactions across packets). Packet transactions allow the
+programmer to focus on the operations needed for each packet without worrying
+about other concurrent packets.
 
-We have designed and implemented {\em \pktlanguage{}}, a new
-domain-specific language (DSL) for data-plane algorithms, with packet
-transactions at its core.  \pktlanguage is an imperative language with
-C-like syntax, perhaps the first to offer such a high level
-programming abstraction for line-rate switches.
+Packet transactions have an \textit{all-or-nothing} guarantee, where all packet
+transactions accepted by the packet transactions compiler will run at line
+rate, or be rejected outright. There is no ``slippery slope'' of running
+network algorithms at lower speeds as with traditional network processors or
+software routers: when compiled, a \pktlanguage program runs at the line rate,
+or not at all.  Performance is not just predictable, but is guaranteed.
 
-This paper makes three further contributions. First, {\em
-  \absmachine}, a machine model for line-rate programmable switches
-(\S\ref{s:absmachine}). \absmachine generalizes and abstracts
-essential features of line-rate programmable switches~\cite{rmt,
-  xpliant, flexpipe}. \absmachine also models practical constraints
-limiting stateful operations at line rate.  Informed by these
-constraints, we introduce the concept of {\em atoms} to represent a
-programmable switch's instruction set.
+In realizing packet transactions end-to-end, we make three new contributions.
+First, {\em \absmachine}, a machine model for line-rate programmable
+switches~\cite{rmt, xpliant, flexpipe}(\S\ref{s:absmachine}).  \absmachine
+models two important constraints for line-rate operation: the inability to
+share state between different units of packet processing, and the requirement
+that any modifications to switch state be visible to the very next packet
+entering the switch. Informed by these constraints, we introduce the concept of
+{\em atoms} to represent a programmable switch's packet processing units, i.e.,
+its instruction set.
 
-Second, {\em a compiler from \pktlanguage packet transactions to a
-  \absmachine target}~(\S\ref{s:compiler}). The \pktlanguage compiler
-introduces \textit{all-or-nothing compilation}, where all packet
-transactions accepted by the compiler will run at line rate, or be
-rejected outright. There is no ``slippery slope'' of running network
-algorithms at lower speeds as with traditional network processors or
-software routers: when compiled, a \pktlanguage program runs at the
-line rate, or not at all. Performance is not just predictable, but
-is guaranteed.
+Second, {\em \pktlanguage{}}, a new domain-specific language (DSL) for
+data-plane algorithms, with packet transactions at its core
+(\S\ref{s:transactions}).  \pktlanguage is an imperative language with C-like
+syntax, the first we know to offer such a high level programming abstraction
+for line-rate switches. \pktlanguage also introduces important restrictions
+such as the absence of loops to target the domain of line-rate switches.
 
-Third, {\em an evaluation of \pktlanguage} (\S\ref{s:eval}). We evaluate
-\pktlanguage's expressiveness by programming a variety of data-plane
-algorithms (Table~\ref{tab:algos}) in \pktlanguage and compare with
-P4. We find that \pktlanguage provides a more concise and easier
-programming model for stateful data-plane algorithms.  Next, because
-no existing programmable switch supports the set of atoms required for
-our data-plane algorithms, we design a set of compiler targets
-(\S\ref{ss:targets}) based on \absmachine and show that these are
-feasible in a 32 nm standard-cell library with $< 15\%$ estimated chip area
-overhead.  Finally, we compile data-plane algorithms written in
-\pktlanguage to these targets to show how the choice of atoms in a
-target determines which algorithms it can support.
+Third, {\em a compiler from \pktlanguage packet transactions to a \absmachine
+target}~(\S\ref{s:compiler}). The \pktlanguage compiler infers {\em codelets}
+from the transaction: code fragments, which when executed atomically, guarantee
+the semantics of packet transaction. The compiler then attempts to map codelets
+to atoms, rejecting the transaction if the atom cannot execute the codelet.
+This way, the compiler guarantees that all packet transactions that compile can
+be run at line rate, rejecting them if that's not possible.
 
-%% 1. Lay out the paper like this in the introduction:
-%% Packet transactions are our abstraction, all-or-nothing is our approach.
-%% 
-%% We have three core new ideas:
-%% 1. A machine model (what's hard: memory constraints, time budgets for stateful
-%% operations)
-%% 2. A language with restrictions for line-rate informed by the machine model.
-%% 3. A compiler that extracts atomic components aka. codelets.
+We evaluate \pktlanguage's expressiveness by programming a variety of
+data-plane algorithms (Table~\ref{tab:algos}) in \pktlanguage and compare with
+P4. We find that \pktlanguage provides a more concise and easier programming
+model for stateful data-plane algorithms.  Next, because no existing
+programmable switch supports the set of atoms required for our data-plane
+algorithms, we design a set of compiler targets (\S\ref{ss:targets}) based on
+\absmachine and show that these are feasible in a 32 nm standard-cell library
+with $< 15\%$ estimated chip area overhead. Finally, we compile data-plane
+algorithms written in \pktlanguage to these targets to show how the choice of
+atoms in a target determines which algorithms it can support. We conclude by
+discussing several lessons in programmable switch design that we learned in the
+process.
