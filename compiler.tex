@@ -15,7 +15,7 @@ are used today. Routers are rated for a particular line rate, regardless of the
 enabled feature set. The all-or-nothing model trades off diminished
 programmability for guaranteed line-rate performance, in contrast to software
 routers that provide greater flexibility but unpredictable run-time
-performance~\cite{dobrescu2012, wenfei15}.
+performance~\cite{dobrescu2012}.
 
 The \pktlanguage compiler has three passes (Figure~\ref{fig:passes}).  First,
 \textit{normalization} simplifies the packet transaction into a restrictive
@@ -72,7 +72,8 @@ same field~(Figure~\ref{fig:ssa}) .  Because every field is assigned exactly
 once, SSA removes Write-After-Read and Write-After-Write dependencies.  Only
 Read-After-Write dependencies remain, simplifying dependency analysis.
 
-\textbf{Flattening to three-address code: } Three-address code~\cite{tac} is a
+% Don't bother citing tac
+\textbf{Flattening to three-address code: } Three-address code is a
 representation where all instructions are either reads/writes into state
 variables or operations on packet fields of the form \texttt{pkt.f1 = pkt.f2 op
 pkt.f3;} where \texttt{op} can be an arithmetic, logical, relational, or conditional
@@ -172,7 +173,7 @@ to configure the atom such that it implements the provided specification.
 We use the SKETCH program synthesizer~\cite{sketch_asplos} for this purpose, as
 the atom templates can be easily expressed using SKETCH, while SKETCH also
 provides efficient search algorithms and has been used for similar purposes in
-other domains~\cite{bitstreaming, lifejoin, qbs, chlorophyll}.  As an
+other domains~\cite{bitstreaming, chlorophyll}.  As an
 illustration, assume we want to map the codelet {\tt x=x+1} to the atom
 template shown in Figure~\ref{fig:alu_in_sketch}. SKETCH will search for
 possible parameter values so that the resulting atom is functionally identical
@@ -347,11 +348,11 @@ $\Longrightarrow$
 %%Anirudh->Alvin: I think it's useful to have it here because we explicitly say that we reuse many compiler
 %%techniques and its interesting to compare and contrast them specifically.
 %%I don't have a religious opinion on this.
-
+% TODO: Don't cite rau. It doesn't mention SCCs anywhere.
 The \pktlanguage compiler employs many techniques from the compiler literature,
 but adapts and simplifies them in new ways to suit the domain of line-rate
 switches (Table~\ref{tab:prior_compiler}). The use of SCCs is inspired by
-software pipelining for VLIW architectures~\cite{software_pipelining, rau}. The size
+software pipelining for VLIW architectures~\cite{software_pipelining}. The size
 of the largest SCC affects the {\em maximum throughput} of the pipelined loop
 in software pipelining. For \pktlanguage, it affects the {\em circuit area} of
 the atom required to run a program at line rate. \pktlanguage trades off an
@@ -359,7 +360,7 @@ increase in space for line-rate performance.
 
 Program synthesis was used for code generation in
 Chlorophyll~\cite{chlorophyll}.  Code generation for \pktlanguage shares
-similar goals as technology mapping~\cite{micheli, flowmap, spectransform} and
+similar goals as technology mapping~\cite{micheli} and
 instruction selection~\cite{muchnik}.  However, prior work maps a code sequence
 to \textit{multiple} instructions/tiles, using heuristics to minimize
 instruction count. Domino's problem is simpler: we map each codelet to a single
@@ -382,9 +383,9 @@ continue). Domino's SSA computation operates on straight-line code and doesn't
   \hline
   SSA & Cytron et. al~\cite{ssa} & SSA runs on straight-line code with no branches \\
   \hline
-  Strongly Connected Components & Lam~\cite{software_pipelining}, Rau and Glaeser~\cite{rau} & Scheduling in space vs. time \\
+  Strongly Connected Components & Lam~\cite{software_pipelining} & Scheduling in space vs. time \\
   \hline
-  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli, flowmap, spectransform}, instruction selection~\cite{muchnik} & Optimal vs. best-effort mapping; One-to-one mapping vs. tiling \\
+  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli}, instruction selection~\cite{muchnik} & Optimal vs. best-effort mapping; One-to-one mapping vs. tiling \\
   \hline
   \end{tabular}
   \end{scriptsize}

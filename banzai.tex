@@ -11,7 +11,7 @@
 \absmachine is a machine model for programmable line-rate switches
 that serves as the compiler target for \pktlanguage programs.
 \absmachine's design is inspired by recent programmable switch
-architectures such as RMT~\cite{rmt}, Intel's
+architectures such as Barefoot's Tofino~\cite{tofino}, Intel's
 FlexPipe~\cite{flexpipe}, and Cavium's XPliant Packet
 Architecture~\cite{xpliant}. \absmachine abstracts these architectures
 and extends them with stateful processing units to implement
@@ -215,8 +215,8 @@ amounts of stateful or stateless computation per packet. Data-plane algorithms
 like deep packet inspection and WAN optimization require a switch to parse and
 process the packet payload as well---effectively parsing a large ``header''
 consisting of each byte in the payload, which is challenging at line rates of 1
-GHz. Such algorithms are best left to general-purpose CPU platforms~\cite{e2,
-aplomb, opennf}. Some algorithms require complex computations, but not on every
+GHz. Such algorithms are best left to general-purpose CPU platforms~\cite{e2}.
+Some algorithms require complex computations, but not on every
 packet.  For example, consider a measurement algorithm that periodically scans
 a large table to perform garbage collection.  \absmachine's atoms model small
 computations that occur on every packet, and are not suitable for such

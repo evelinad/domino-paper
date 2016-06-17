@@ -37,7 +37,7 @@
 \hline
 Algorithm & Description & Least expressive atom & \# of stages, max. atoms/stage & Ingress or Egress Pipeline? & Domino LOC & P4 LOC\\
 \hline
-\pbox{0.16\textwidth}{Bloom filter~\cite{bloom}\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29 & 104 \\
+\pbox{0.16\textwidth}{Bloom filter\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29 & 104 \\
 \hline
 \pbox{0.16\textwidth}{Heavy Hitters~\cite{opensketch}\\(3 hash functions)} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10, 9 & Either & 35 & 192 \\
 \hline

@@ -9,10 +9,10 @@ performance and security.  Performance and security may be improved
 using both data-plane and control-plane mechanisms. This paper focuses
 on data-plane algorithms. These algorithms process and transform
 packets, creating and maintaining state in the switch. Examples
-include active queue management~\cite{red,blue,avq,codel,pie},
+include active queue management~\cite{red,avq,codel},
 scheduling~\cite{pifo_hotnets}, congestion control with switch
-feedback~\cite{xcp, rcp, pdq, dctcp}, network
-measurement~\cite{opensketch, bitmap_george, elephant_george},
+feedback~\cite{xcp, rcp, dctcp}, network
+measurement~\cite{opensketch, bitmap_george},
 security~\cite{dns_change}, and traffic load balancing~\cite{conga}.
 
 An important requirement for data-plane algorithms is the ability to
@@ -29,34 +29,33 @@ vendors~\cite{cisco_nexus, dell_force10, arista_7050} building network
 switches with merchant-silicon chips~\cite{trident, tomahawk,
   mellanox}, network operators deploying
 switches~\cite{google,facebook,vl2}, and researchers developing new
-switch algorithms~\cite{xcp, codel, d3, detail, pdq}.  
+data-plane algorithms.
 
 To run data-plane algorithms after a switch has been built,
 researchers and companies have attempted to build programmable routers
 for many years, starting from efforts on active
-networks~\cite{active-nets} to network processors~\cite{npu_survey} to
-software routers~\cite{click, dpdk, routebricks}. All these efforts
+networks~\cite{active-nets} to network processors~\cite{ixp4xx} to
+software routers~\cite{click, dpdk}. All these efforts
 sacrificed performance for programmability, typically running an order
 of magnitude (or worse) slower than hardware line
 rates. Unfortunately, this reduction in performance has meant that
 these systems are rarely deployed in production networks, if at all.
 
-Programmable switching chips~\cite{flexpipe, xpliant, rmt, corsa,
-  uadp, algo_logic} competitive in performance with state-of-the-art
+Programmable switching chips~\cite{flexpipe, xpliant, tofino} competitive in performance with state-of-the-art
 fixed-function chipsets~\cite{trident, tomahawk, mellanox} are now
 becoming available. These chips implement a few low-level hardware
 primitives that can be configured by software into a processing
 pipeline, and are
-field-reconfigurable~\cite{xpliant_sdk,xpliant_sdk2,intel_sdk}. Building
+field-reconfigurable. Building
 a switch with such a chip is attractive because it does not compromise
 on data rates~\cite{rmt}.
 
-In terms of programmability, these chips today allow the network
-operator to specify packet parsing and forwarding without restricting
-the set of protocol formats or the set of actions that can be executed
-when matching packet headers in a match-action table. Languages such
-as P4 are emerging as a way to express such {\em match-action
-  processing} in a hardware-independent way~\cite{p4,p4spec,dc_p4}.
+In terms of programmability, these chips today allow the network operator to
+specify packet parsing and forwarding without restricting the set of protocol
+formats or the set of actions that can be executed when matching packet headers
+in a match-action table. Languages such as P4~\cite{p4,p4spec}are emerging as a
+way to express such {\em match-action processing} in a hardware-independent
+way.
 
 There is a gap between this form of programmability and the needs of data-plane
 algorithms. By contrast to packet header parsing and forwarding, which don't
@@ -65,10 +64,9 @@ algorithmic state in the switch as part of packet processing. For such
 algorithms, it is important for programmability to directly capture the
 algorithm's intent without requiring it to be ``shoehorned'' into hardware
 constructs such as a sequence of match-action tables. Indeed, this is how such
-data-plane algorithms are expressed in pseudocode~\cite{red, csfq, codel_code,
-avq, blue}, and implemented in software routers~\cite{click, dpdk,
-routebricks}, network processors~\cite{packetc, nova}, and network
-endpoints~\cite{qdisc}.
+data-plane algorithms are expressed in pseudocode~\cite{red, codel_code}, and
+implemented in software routers~\cite{click}, network
+processors~\cite{packetc}, and network endpoints~\cite{qdisc}.
 
 By studying the requirements of data-plane algorithms and the constraints of
 line-rate hardware, we introduce a new abstraction to program and implement
@@ -88,7 +86,7 @@ or not at all.  Performance is not just predictable, but is guaranteed.
 
 In realizing packet transactions end-to-end, we make three new contributions.
 First, {\em \absmachine}, a machine model for line-rate programmable
-switches~\cite{rmt, xpliant, flexpipe}(\S\ref{s:absmachine}).  \absmachine
+switches~\cite{tofino, xpliant, flexpipe}(\S\ref{s:absmachine}).  \absmachine
 models two important constraints for line-rate operation: the inability to
 share state between different units of packet processing, and the requirement
 that any modifications to switch state be visible to the very next packet
