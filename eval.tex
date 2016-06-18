@@ -75,9 +75,8 @@ we use as compiler targets for \pktlanguage~(\S\ref{ss:targets}).  We estimate
 that these machines are feasible in hardware today because their atoms incur
 modest chip area overhead. Next, we use the \pktlanguage compiler to compile
 the algorithms in Table~\ref{tab:algos} to these targets~(\S\ref{ss:compiler}).
-We conclude by quantifying the tradeoff between a target's programmability (the
-space of data-plane algorithms that it can run at line rate) and the target's
-performance (the maximum line rate it can support)~(\S\ref{ss:perfprog}).
+We conclude by describing several lessons learned from our
+evaluation~(\S\ref{ss:lessons}).
 %%
 %%\footnote{We develop our own atoms since
 %%no existing programmable switching chip supports a sufficiently rich set of
@@ -119,7 +118,7 @@ familiar to network engineers.
 \label{ss:targets}
 
 We design a set of compiler targets for \pktlanguage based on the
-\absmachine machine model (\S\ref{ss:absmachine}). First, we describe how to
+\absmachine machine model (\S\ref{s:absmachine}). First, we describe how to
 assess the feasibility of atoms: whether they can run at a 1 GHz clock
 frequency, and what area overhead they incur. Next, we discuss the
 design of stateless and stateful atoms separately. Finally, we discuss how
@@ -188,6 +187,7 @@ Table~\ref{tab:algos}.
 %TODO: Clarify least/most expressive.
 
 \subsection{Lessons learned}
+\label{ss:lessons}
 We now reflect on some lessons learned from these evaluations.
 
 \paragraph{Atoms with a single state variable support many algorithms}
