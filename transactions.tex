@@ -127,7 +127,7 @@ typically support distinct read and write addresses every clock cycle.
     No pointers.\\
     No dynamic memory allocation / heap.\\
     Array index is constant for each transaction execution.\\
-    No access to data i.e. unparsed portion of the packet.\\
+    No access to the unparsed portion of the packet.\\
 %    No arrays in packet fields.\\
   \end{tabular}
   \caption{Restrictions in \pktlanguage}
@@ -162,7 +162,7 @@ packet matches the guard. An example guard (pkt.tcp\_dst\_port == 80) would exec
 heavy-hitter detection on all packets on TCP destination port 80. This guard can
 be implemented using an exact match in a match-action table, with the actions
 being the atoms resulting from compiling the packet transaction. Guards can be of various forms,
-e.g., exact, ternary, longest-prefix and range-based matches, depending on the
+e.g., exact, ternary, longest-prefix, and range-based matches, depending on the
 match semantics supported by the match-action pipeline. Because guards map
 rather straightforwardly to the match key in a match-action table, this paper only
 focuses on compiling packet transactions.
@@ -174,7 +174,7 @@ focuses on compiling packet transactions.
 \label{ss:multiple}
 So far, we have discussed a single packet transaction corresponding to a single
 data-plane algorithm. In practice, a switch
-would run multiple data-plane algorithms---each processing its own subset of
+would run multiple data-plane algorithms, each processing its own subset of
 packets. To accommodate multiple transactions, we envision a policy
 language that specifies pairs of guards and transactions. Realizing a policy is
 straightforward when all guards are disjoint. When guards overlap, multiple
