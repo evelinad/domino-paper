@@ -8,3 +8,4 @@
 7. Is link load balancing an acceptable term to use?
 8. Hari: Stress exactly what's new about the work, synthesis, strongly
 connected components, etc.
+9. Fix dependency graph (right side of the pipelining figure) to make fonts larger.
