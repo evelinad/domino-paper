@@ -136,6 +136,7 @@ typically support distinct read and write addresses every clock cycle.
 
 \begin{figure}
 \newcommand{\sep}{~|~}
+\begin{scriptsize}
 \begin{eqnarray*}
 e \in expr &::=& e.f \sep c \sep var \sep e_1~op~e_2 \sep \neg~e \sep e[e] \sep f(\ldots) \\
 %
@@ -149,6 +150,7 @@ sv \in stateVarDecl &::=& v = e \sep sv \\
 %
 p \in program &::=& \{ d ; sv ; t \}
 \end{eqnarray*}
+\end{scriptsize}
 \label{fig:grammar}
 \caption{\pktlanguage grammar}
 \end{figure}
