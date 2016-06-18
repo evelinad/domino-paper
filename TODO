@@ -1,11 +1,7 @@
-0. Link to Barefoot press release.
 1. Get all the compiler figures in one page by the end.
 2. SKETCH justification per George.
-3. Stress what's new (per Hari's feedback), over and above synthesis.
 4. How do we guarantee transactional semantics? And what are our precise semantics anyway?
-5. Hari, Mohammad, and Alvin's feedback.
 6. Shorten references.
 7. Is link load balancing an acceptable term to use?
 8. Hari: Stress exactly what's new about the work, synthesis, strongly
 connected components, etc.
-9. Fix dependency graph (right side of the pipelining figure) to make fonts larger.
