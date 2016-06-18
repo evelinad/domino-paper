@@ -1,27 +1,22 @@
 \section{Discussion}
-Packet transactions provide a pathway to take algorithms that were so far meant
-only for software routers and for the first time, allows them to be run on
-emerging programmble line-rate switching chipsets. However, packet transactions
-only represent the first step in providing a convenient high-level programming
-model for stateful algorithms running on programmable switches and much work
-remains before packet transactions are ready for production use. We outline
-these future directions below.
+Packet transactions provide a pathway to take algorithms that were hitherto
+meant only for software routers and run them on emerging programmble line-rate
+switching chipsets. However, more work must be done before packet transactions
+are ready for production use.
 
 \begin{CompactEnumerate}
 \item With packet transactions, we strove for the strongest and simplest
 semantics possible: transactional semantics that provide the notion of an
-atomic and isolated block of code, akin to database transactions. While these
-semantics make it much easier to reason about performance, they also exclude a
-large corpus of algorithms that cannot be run exactly at line rate. Are weaker
----and simultaneously sensible---semantics possible? One possibility is
-approximating transactional semantics. This could be done by executing the code
-on a subset of the packet stream, which provides an increased time budget for
-each packet, potentially allowing the packet to be {\em recirculated} through
-the pipeline multiple times to carry out packet processing. Another possibility
-is allow for the implementation to be eventually consistent with the
-transactional model, perhaps by updating state over many clock cycles and
-guaranteeing that it will be correct only if there are no subsequent state
-updates.
+atomic and isolated block of code. Although these semantics make it easier to
+reason about performance, they exclude algorithms that cannot be run exactly at
+line rate. Are weaker semantics sensible? One possibility is approximating
+transactional semantics by executing the code on a subset of the packet stream.
+This provides an increased time budget for each packet, potentially allowing
+the packet to be {\em recirculated} through the pipeline multiple times to
+carry out packet processing. Another possibility is for the implementation to
+be eventually consistent with the transactional model, perhaps by updating
+state over many clock cycles and guaranteeing that it will be correct only if
+there are no subsequent state updates.
 \item Our current implementation doesn't handle multiple transactions and the
 associated issues of composing transactions. Providing a policy language to
 specify multiple transactions executing on different, possibly overlapping,
@@ -29,22 +24,18 @@ subsets of packets is an area for future work.
 \item Our compiler doesn't provide completeness: the guarantee that for any
 algorithm, if there exists any way to map an algorithm to a line-rate switch,
 it will be found. We haven't required this for the examples in our evaluation
-because they are simple enough that our implementation of the compiler does
-find a solution if one exists. However, as we scale to larger code examples,
-having this guarantee would be useful.
+because the compiler does find a solution if one exists. However, as we scale
+to larger code examples, having this guarantee would be useful.
 \item Our compiler doesn't guarantee optimality. For instance, it may be
 possible to fuse two stateful codelets that independently increment two
 separate counters into the same instance of the Pairs atom. However, by
 carrying out a one-to-one mapping from codelets to the atoms implementing them,
 our compiler precludes these optimizations. 
-\item Finally, our design process for atoms is largely manual and ad-hoc.
-Formalizing this design process and automating it into an atom-design tool
-would be useful for switch designers. For instance, given a corpus of
-data-plane algorithms, can we automatically mine this corpus for stateful and
-stateless codelets, and design an atom (or atoms) that captures the
-computations required by some (or all) of them?  Does this atom guarantee
-programmability in the sense that it captures computations that aren't seen in
-the corpus of algorithms, yet are likely to occur in other, as-yet-unseen
-algorithms?
+\item Finally, our design process for atoms is largely manual.  Formalizing
+this design process and automating it into an atom-design tool would be useful
+for switch designers. For instance, given a corpus of data-plane algorithms,
+can we automatically mine this corpus for stateful and stateless codelets, and
+design an atom (or atoms) that captures the computations required by some (or
+all) of them?
 %TODO: Heterogenous architectures with different atom types?
 \end{CompactEnumerate}
