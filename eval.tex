@@ -35,7 +35,7 @@
 \begin{table*}[!t]
   \begin{tabular}{|p{0.16\textwidth}|p{0.34\textwidth}|p{0.08\textwidth}|p{0.09\textwidth}|p{0.07\textwidth}|p{0.06\textwidth}|p{0.05\textwidth}|}
 \hline
-Algorithm & Description & Least expressive atom & \# of stages, max. atoms/stage & Ingress or Egress Pipeline? & Domino LOC & P4 LOC\\
+Algorithm & Description & Most expressive atom & \# of stages, max. atoms/stage & Ingress or Egress Pipeline? & Domino LOC & P4 LOC\\
 \hline
 \pbox{0.16\textwidth}{Bloom filter\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29 & 104 \\
 \hline
@@ -67,8 +67,7 @@ CoDel~\cite{codel} & \pbox{0.34\textwidth}{Update:\\Whether we are marking or no
 \label{tab:algos}
 \end{table*}
 
-We have performed a number of experiments to evaluate \pktlanguage. 
-First, we evaluate \pktlanguage's expressiveness by using it to program several
+We evaluate \pktlanguage's expressiveness by using it to program several
 data-plane algorithms (Table~\ref{tab:algos}), and comparing it to writing them
 in P4~(\S\ref{ss:expressiveness}).  To validate that these algorithms can be
 implemented at line rate, we design a concrete set of \absmachine machines that
@@ -89,41 +88,40 @@ performance (the maximum line rate it can support)~(\S\ref{ss:perfprog}).
 
 To evaluate \pktlanguage's expressiveness, we express several data-plane
 algorithms (Table~\ref{tab:algos}) using \pktlanguage. These algorithms
-encompass a variety of data-plane functionality including data-plane load
-balancing, in-network congestion control, active queue management, security,
-and measurement. In addition, we also used Domino to express the priority
-computation for programming scheduling using the push-in first-out queue
-abstraction~\cite{pifo_hotnets}. In all these cases, the algorithms are already
-available as blocks of imperative code from online sources; translating them to
-\pktlanguage syntax was straightforward.
+encompass data-plane load balancing, in-network congestion control, active
+queue management, security, and measurement. In addition, we also used Domino
+to express the priority computation for programming scheduling using the
+push-in first-out queue abstraction~\cite{pifo_hotnets}.
 
-In contrast, expressing any of these algorithms in P4 requires manually teasing
-out portions of the algorithm that can reside in independent match-action
-tables and then chaining these tables together. In essence, the programmer
-manually carries out the transformations in \pktlanguage's compiler. Of the
-algorithms in Table~\ref{tab:algos}, only flowlet switching has a publicly
-available P4 implementation~\cite{p4_flowlet} that we can compare against. This
-implementation requires 231 lines of uncommented P4, in comparison to the 37
-lines of \pktlanguage code in Figure~\ref{fig:flowlet_code}. Not only that,
-using P4 also requires the programmer to manually specify tables, the actions
-within the tables, how tables are chained, and what headers are required---all
-to implement a single data-plane algorithm. As the \pktlanguage compiler shows,
-this process can be automated; to demonstrate this, we developed a backend for
-\pktlanguage that generates the equivalent P4 code (lines of code for these
-auto-generated P4 programs are listed in Table~\ref{tab:algos}).
+In all these cases, the algorithms are already available as blocks of
+imperative code from online sources; translating them to \pktlanguage syntax
+was straightforward. In contrast, expressing any of these algorithms in P4
+requires manually teasing out portions of the algorithm that can reside in
+independent match-action tables and then chaining these tables together.
 
-Lastly, data-plane algorithms on software platforms today (NPUs,
-Click~\cite{click}, the Linux qdisc subsystem~\cite{qdisc})  are programmed in
-languages resembling \pktlanguage---hence we are confident that the
-\pktlanguage syntax is already familiar to network operators.
+Of the algorithms in Table~\ref{tab:algos}, only flowlet switching has a
+publicly available P4 implementation~\cite{p4_flowlet} that we can compare
+against. This implementation requires 231 lines of uncommented P4, compared to
+only 37 lines of \pktlanguage code in Figure~\ref{fig:flowlet_code}. Not only
+that, using P4 also requires the programmer to manually specify tables, the
+actions within the tables, how tables are chained, and what headers are
+required---all to implement a single data-plane algorithm. The \pktlanguage
+compiler automates this process; to demonstrate this, we developed a backend
+for \pktlanguage that generates the equivalent P4 code (the number of lines of
+code for these auto-generated P4 programs are listed in Table~\ref{tab:algos}).
+
+Data-plane algorithms on software platforms today (NPUs, Click, the Linux qdisc
+subsystem~\cite{qdisc})  are programmed in languages resembling
+\pktlanguage---hence we are confident that the \pktlanguage syntax is already
+familiar to network engineers.
 
 \subsection{Compiler targets}
 \label{ss:targets}
 
-We design a concrete set of compiler targets for \pktlanguage based on the
+We design a set of compiler targets for \pktlanguage based on the
 \absmachine machine model (\S\ref{ss:absmachine}). First, we describe how to
 assess the feasibility of atoms: whether they can run at a 1 GHz clock
-frequency, and what area overhead they incur as a result. Next, we discuss the
+frequency, and what area overhead they incur. Next, we discuss the
 design of stateless and stateful atoms separately. Finally, we discuss how
 these stateless and stateful atoms are combined together in our compiler
 targets.
@@ -154,7 +152,7 @@ determines which algorithms a line-rate switch can support. A more complex
 stateful atom can support more data-plane algorithms, but has a higher chance
 of not meeting timing, and occupies greater chip area. To illustrate this
 effect, we design a containment hierarchy of stateful atoms, where each atom
-can express all stateful operations that its predecessor can. Concretely, these
+can express all stateful operations that its predecessor can. These
 atoms start out with the simplest stateful capability: the ability to read or
 write state alone.  They then move on to the ability to read, add, and write
 back state atomically (RAW), a predicated version of the same (PRAW), and so
@@ -164,6 +162,7 @@ propagation delay increases with the atom's
 complexity~(Table~\ref{tab:templates}).
 
 \paragraph{The compiler targets}
+%TODO: This paragraph is unclear. Rewrite.
 We design seven compiler targets: each target combines one of the seven
 stateful atoms in Table~\ref{tab:templates} with the single stateless atom in
 the same table. For each target, we assume 300 instances each of the stateful
@@ -183,9 +182,10 @@ can run at line rate on a particular \absmachine machine. We say an algorithm
 can run at line rate on a \absmachine machine if every codelet within the
 data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to either the stateful
 or stateless atom provided by the \absmachine machine. Because stateful atoms
-are arranged in a containment hierarchy, we list the \textit{least expressive}
+are arranged in a containment hierarchy, we list the \textit{most expressive}
 stateful atom/target required for each data-plane algorithm in
 Table~\ref{tab:algos}.
+%TODO: Clarify least/most expressive.
 
 \subsection{Lessons learned}
 We now reflect on some lessons learned from these evaluations.
@@ -225,11 +225,13 @@ line rate.  An example is CoDel, which cannot be implemented because it
 requires a square root operation that isn't provided by any of our targets. One
 possibility is a look-up table abstraction that allows us to approximate such
 mathematical functions. However, regardless of what set of atoms we design for
-a particular line rate target (say 1 GHz), there will always be algorithms that
-cannot be run at this rate. This is because the set of computations that can be
-expressed by an atom (or a finite pipeline of atoms) are finite because these
-computations all need to finish within a ns, while the set of algorithms is
-infinite.
+a particular line rate target, there will always be algorithms that
+cannot be run at this rate.
+
+%%This is because the set of computations that can be
+%%expressed by an atom (or a finite pipeline of atoms) are finite because these
+%%computations all need to finish within a ns, while the set of algorithms is
+%%infinite.
 
 \paragraph{Atom design is constrained by timing, not area}
 
@@ -237,18 +239,17 @@ Atoms are constrained by two factors, their area and their timing, i.e., the
 end-to-end delay on the critical path of the atom's combinational circuit. For
 the few hundred atoms that we require, atom area is insignificant (< 1\%)
 relative to chip area. Further, even for future atoms that are more
-complicated, area is easily controlled by provisioning fewer atom instances.
+complicated, area may be controlled by provisioning fewer atom instances.
 
 However, atom timing is more critical. Table~\ref{tab:templates} shows a 3.4x
 range in timing between the simplest and the most complex atoms. This increase
 in line rate can be explained by looking at the simplified circuit diagrams for
 the first three atoms (Table~\ref{tab:circuits}), which show an increase in
-circuit depth with atom complexity. The clock frequency of a circuit is at
-least as small as the inverse of this timing; consequently, a more complex atom
-results in a lower clock frequency and a lower line rate. While all our atoms
-have an end-to-end delay under a ns (and hence can run at 1 GHz), it is easy to
-extend them with progressively more functionality that causes them to violate
-timing at 1 GHz.
+circuit depth with atom complexity. Because the clock frequency of a circuit is at
+least as small as the reciprocal of this timing, a more complex atom
+results in a lower clock frequency and a lower line rate. Although all our atoms
+have an end-to-end delay under  1 ns (1 GHz), it is easy to
+extend them with functionality that violates timing at 1 GHz.
 %TODO: Try and synthesize this atom.
 
 \begin{table}[!t]
@@ -279,29 +280,32 @@ operands.}
 Designing an instruction set for a programmable substrate is a chicken-and-egg
 problem: the choice of instructions determines which algorithms can execute on
 that target, while the choice of algorithms dictates what instructions are
-required in the target. Indeed, most other programmable substrates (GPUs, CPUs,
+required in the target. Indeed, other programmable substrates (GPUs, CPUs,
 DSPs) go through an iterative process to design a good instruction set.
 
 % TODO: Add a figure for this.
  A compiler can help with this iterative process. To show how, we outline our
-own process for designing the atoms in Table~\ref{tab:templates}. We pick a
-data-plane algorithm, partially execute our compiler to generate a pipeline of
-codelets, inspect the stateful ones, and create an atom that expresses the
-computations required across all stateful codelets. We check that an atom can
-express the computations we require by fully executing our compiler on the
-data-plane algorithm. We then move on to the next algorithm, extending our atom
-through a process of trial-and-error to capture more computations---in the
-process generating a hierarchy of atoms, each of which works for a subset of
-algorithms.
+process for designing the atoms in Table~\ref{tab:templates}. We pick a
+data-plane algorithm, partially execute the \pktlanguage compiler to generate a
+pipeline of codelets, inspect the stateful ones, and create an atom that
+expresses the computations required across all stateful codelets. We check that
+an atom can express the computations required by fully executing the compiler
+on the data-plane algorithm. We then move on to the next algorithm, extending
+our atom through a process of trial-and-error to capture more computations---in
+the process, generating a hierarchy of atoms, each of which works for a subset
+of algorithms.
 
-Our atom design process is manual and ad-hoc at this point, but it already
-shows how compilers can aid in instruction-set design for programmable
-switches. That said, We make no claim to this being the correct or optimal
-instruction set. We only show that this is feasible and can be used to
-implement a variety of data-plane algorithms, which is far beyond a
-fixed-function switch today. We anticipate \absmachine machines evolving as
-data-plane algorithms demand more of the hardware.
+Our atom design process is manual and ad hoc at this point, but it already
+shows how  a compiler can aid in instruction-set design for programmable
+switches. Using the same iterative approach involing a compiler, we anticipate
+\absmachine machines evolving as data-plane algorithms demand more of the
+hardware.
 
+%That said, We make no claim to this being the correct or optimal
+%instruction set. We only show that this is feasible and can be used to
+%implement a variety of data-plane algorithms, which is far beyond a
+%fixed-function switch today. 
+%
 %%\textbf{Compilation time:}
 %%Compilation time is dominated by SKETCH's search procedure.  To speed up the
 %%search, we limit SKETCH to search for constants (e.g., for addition) of size up
