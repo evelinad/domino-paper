@@ -4,22 +4,23 @@
 NetASM~\cite{netasm} is an abstract machine and intermediate representation
 (IR) for programmable data planes that is portable across network
 devices---FPGAs, virtual switches, and line-rate switches.  \absmachine is a
-machine model for line-rate switches alone, and hence models practical
-constraints required for line-rate forwarding that NetASM doesn't. For
-instance, \absmachine machines don't permit sharing state between atoms and use
-atom templates to limit computations that can happen at line rate. Further,
-while NetASM's dataflow framework focuses only on target-independent middle-end
-optimizations such as dead-code elimination, the \pktlanguage compiler
-implements a compiler back-end for line-rate switches
-(\S\ref{ss:code_gen}).
+low-level machine model for line-rate switches alone and can be used as a
+NetASM target. Because of its role as a low-level machine model, \absmachine
+models practical constraints required for line-rate forwarding that an IR like
+NetASM doesn't have to. For instance, \absmachine machines don't permit sharing
+state between atoms and use atom templates to limit computations that can
+happen at line rate.
+
+%Further, while NetASM's dataflow framework
+%focuses only on target-independent middle-end optimizations such as dead-code
+%elimination, the \pktlanguage compiler implements a compiler back-end for
+%line-rate switches (\S\ref{ss:code_gen}).
 
 \textbf{Programmable data planes:}
-Software data planes such as Click~\cite{click},
-RouteBricks~\cite{routebricks}, and Fastpass~\cite{fastpass} are flexible but
-lack the performance required for large-scale deployments. Network
-Processors~\cite{ixp4xx} (NPUs) were an attempt to bridge the gap.  NPUs are
-faster than software routers; yet, they remain \textasciitilde10$\times$ slower
-than switching chips~\cite{rmt}.
+Software data planes such as Click~\cite{click} and
+RouteBricks~\cite{routebricks}, and network processors~\cite{ixp4xx} (NPUs) are
+flexible, but at least \textasciitilde10$\times$ slower than switching
+chips~\cite{rmt}.
 
 Eden~\cite{eden} provides a programmable data plane using commodity switches by
 programming end hosts alone. \pktlanguage targets programmable switches that
@@ -37,13 +38,13 @@ These platforms are
 slower than switching ASICs, and are rarely used in production network
 equipment. The Arista 7124 FX~\cite{7124fx} is a commercial switch with an
 on-board FPGA, but its capacity is limited to 160 Gbits/sec when using the
-on-board FPGA---10$\times$ less than the multi-terabit capacities of programmable
+on-board FPGA---10$\times$ lower than the multi-terabit capacities of programmable
 switch chips~\cite{xpliant, tofino}.
 
 Jose et al.~\cite{lavanya_compiler} focus on compiling P4 programs to
 programmable data planes such as the RMT and FlexPipe architectures. Their work
-focuses on compiling stateless data-plane tasks such as forwarding and routing,
-while \pktlanguage focuses on stateful data-plane algorithms.
+focuses only on compiling stateless data-plane tasks such as forwarding and
+routing, while \pktlanguage handles stateful data-plane algorithms.
 
 \textbf{Packet-processing languages:}
 Many programming languages~\cite{frenetic, maple} target the network control plane.
@@ -55,18 +56,17 @@ processing on software routers. packetC~\cite{packetc}, Intel's
 auto-partitioning C compiler~\cite{intel_uiuc_pldi}, , and Microengine
 C~\cite{microenginec} target network processors. \pktlanguage's C-like syntax
 and sequential semantics are inspired by these DSLs. However, by targeting
-line-rate switches, \pktlanguage is more constrained: e.g., it needs to ensure
-that the compiled programs can run at line-rate, hence the language forbids
-loops and includes no synchronization constructs as there is no shared state in
+line-rate switches, \pktlanguage is more constrained: e.g., because it ensures
+that compiled programs can run at line-rate, the language forbids loops and
+includes no synchronization constructs as there is no shared state in
 \absmachine machines.
 
-The SNAP system~\cite{snap} programs stateful data-plane algorithms using a
-network transaction: an atomic block of code that treats the entire network as
-one switch~\cite{onebigswitch} and uses a compiler to translate network
+SNAP~\cite{snap} programs stateful data-plane algorithms using a network
+transaction: an atomic block of code that treats the entire network as one
+switch~\cite{onebigswitch} and uses a compiler to translate network
 transactions into rules on each switch. SNAP doesn't compile these switch-local
 rules into a switch's pipeline. \pktlanguage can be used to compile SNAP's
-switch-local rules to an atom pipeline and is an enabler for SNAP and other
-network-wide abstractions. FAST~\cite{fast} is another system that provides switch
+switch-local rules to an atom pipeline. FAST~\cite{fast} provides switch
 support and software abstractions for state machines. \absmachine's atoms
-support more general stateful processing beyond state machines that enable
-a much wide class of data-plane algorithms to be implemented.
+support more general stateful processing beyond state machines that enable a
+much wider class of data-plane algorithms.
