@@ -339,14 +339,14 @@ moved into the read flank.}
 \end{figure*}
 
 \begin{figure*}[!t]
-\begin{subfigure}{0.5\textwidth}
-  \includegraphics[width=0.8\columnwidth]{deps.pdf}
+\begin{subfigure}{\columnwidth}
+  \includegraphics[width=\columnwidth]{deps.pdf}
   \caption{Dependency graph. Edges are read-after-write dependencies.}
   \label{fig:partitioning_before}
 \end{subfigure}
-$\Longrightarrow$ 
-\begin{subfigure}{0.5\textwidth}
-\includegraphics[width=0.8\columnwidth]{scc.pdf}
+\textbf{$\Longrightarrow$ }
+\begin{subfigure}{\columnwidth}
+\includegraphics[width=\columnwidth]{scc.pdf}
 \caption{DAG after condensing SCCs.}
 \label{fig:partitioning_after}
 \end{subfigure}
