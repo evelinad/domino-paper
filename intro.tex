@@ -2,18 +2,18 @@
 \label{s:intro}
 
 Network switches and routers in modern datacenters, enterprises, and
-service-provider networks perform many tasks in addition to standard
-packet forwarding. The set of requirements for routers has only
-increased with time as network operators seek greater control over
-performance and security.  Performance and security may be improved
-using both data-plane and control-plane mechanisms. This paper focuses
-on data-plane algorithms. These algorithms process and transform
-packets, creating and maintaining state in the switch. Examples
-include active queue management~\cite{red,avq,codel},
+service-provider networks perform many tasks in addition to standard packet
+forwarding. The set of requirements for routers has only increased with time as
+network operators seek greater control over performance and security.
+Performance and security may be improved using both data-plane and
+control-plane mechanisms. This paper focuses on data-plane algorithms. These
+algorithms process and transform packets, creating and maintaining state in the
+switch. Examples include active queue management~\cite{red,avq,codel},
 scheduling~\cite{pifo_hotnets}, congestion control with switch
-feedback~\cite{xcp, rcp, dctcp}, network
-measurement~\cite{opensketch, bitmap_george},
-security~\cite{dns_change}, and traffic load balancing~\cite{conga}.
+feedback~\cite{xcp, rcp, dctcp}, network measurement~\cite{opensketch,
+bitmap_george}, network security~\cite{dns_change}, and link load
+balancing~\cite{conga}.
+%TODO: Name for algorithms like CONGA, HULA, PRESTO, etc.
 
 An important requirement for data-plane algorithms is the ability to
 process packets at the switch's line rate (typically 10--100 Gbit/s on
@@ -39,7 +39,7 @@ software routers~\cite{click, dpdk}. All these efforts
 sacrificed performance for programmability, typically running an order
 of magnitude (or worse) slower than hardware line
 rates. Unfortunately, this reduction in performance has meant that
-these systems are rarely deployed in production networks, if at all.
+these systems are rarely deployed in production networks.
 
 Programmable switching chips~\cite{flexpipe, xpliant, tofino} competitive in performance with state-of-the-art
 fixed-function chipsets~\cite{trident, tomahawk, mellanox} are now
@@ -72,10 +72,10 @@ By studying the requirements of data-plane algorithms and the constraints of
 line-rate hardware, we introduce a new abstraction to program and implement
 data-plane algorithms: a {\em packet transaction} (\S\ref{s:transactions}). A
 packet transaction is a sequential code block that is atomic and isolated from
-other such code blocks (i.e., any visible state is equivalent to a serial
-execution of packet transactions across packets). Packet transactions allow the
-programmer to focus on the operations needed for each packet without worrying
-about other concurrent packets.
+other such code blocks (i.e., any visible state is equivalent to a serially
+executing packet transactions across packets in the order of packet arrival).
+Packet transactions allow the programmer to focus on the operations needed for
+each packet without worrying about other concurrent packets.
 
 Packet transactions have an \textit{all-or-nothing} guarantee, where all packet
 transactions accepted by the packet transactions compiler will run at line
@@ -84,30 +84,32 @@ network algorithms at lower speeds as with traditional network processors or
 software routers: when compiled, a \pktlanguage program runs at the line rate,
 or not at all.  Performance is not just predictable, but is guaranteed.
 
-In realizing packet transactions end-to-end, we make three new contributions.
-First, {\em \absmachine}, a machine model for line-rate programmable
-switches~\cite{tofino, xpliant, flexpipe}(\S\ref{s:absmachine}).  \absmachine
-models two important constraints for line-rate operation: the inability to
-share state between different units of packet processing, and the requirement
-that any modifications to switch state be visible to the very next packet
-entering the switch. Informed by these constraints, we introduce the concept of
-{\em atoms} to represent a programmable switch's packet processing units, i.e.,
-its instruction set.
+In realizing packet transactions, we make three new contributions.  First, {\em
+\absmachine}, a machine model for programmable line-rate switches~\cite{tofino,
+xpliant, flexpipe}(\S\ref{s:absmachine}).  \absmachine models two important
+constraints for line-rate operation: the inability to share state between
+different units of packet processing, and the requirement that any
+modifications to switch state be visible to the very next packet entering the
+switch. Informed by these constraints, we introduce the concept of {\em atoms}
+to represent a programmable switch's packet processing units, i.e., its
+instruction set.
 
 Second, {\em \pktlanguage{}}, a new domain-specific language (DSL) for
 data-plane algorithms, with packet transactions at its core
 (\S\ref{s:transactions}).  \pktlanguage is an imperative language with C-like
-syntax, the first we know to offer such a high level programming abstraction
-for line-rate switches. \pktlanguage also introduces important restrictions
-such as the absence of loops to target the domain of line-rate switches.
+syntax, to our knowledge the first to offer such a high level programming
+abstraction for line-rate switches. \pktlanguage also introduces important
+restrictions such as the absence of loops to target the domain of line-rate
+switches.
 
 Third, {\em a compiler from \pktlanguage packet transactions to a \absmachine
 target}~(\S\ref{s:compiler}). The \pktlanguage compiler infers {\em codelets}
 from the transaction: code fragments, which when executed atomically, guarantee
-the semantics of packet transaction. The compiler then attempts to map codelets
-to atoms, rejecting the transaction if the atom cannot execute the codelet.
-This way, the compiler guarantees that all packet transactions that compile can
-be run at line rate, rejecting them if that's not possible.
+the semantics of packet transaction. The compiler then uses program
+synthesis~\cite{sketch_asplos} to attempt to map codelets to atoms, rejecting
+the transaction if the atom cannot execute the codelet.  This way, the compiler
+guarantees that all packet transactions that compile can be run at line rate,
+rejecting them if that's not possible.
 
 We evaluate \pktlanguage's expressiveness by programming a variety of
 data-plane algorithms (Table~\ref{tab:algos}) in \pktlanguage and compare with
