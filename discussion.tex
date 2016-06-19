@@ -21,11 +21,13 @@ there are no subsequent state updates.
 associated issues of composing transactions. Providing a policy language to
 specify multiple transactions executing on different, possibly overlapping,
 subsets of packets is an area for future work.
-\item Our compiler doesn't provide completeness: the guarantee that for any
-algorithm, if there exists any way to map an algorithm to a line-rate switch,
-it will be found. We haven't required this for the examples in our evaluation
-because the compiler does find a solution if one exists. However, as we scale
-to larger code examples, having this guarantee would be useful.
+%% \item Our compiler doesn't provide completeness: the guarantee that for any
+%% algorithm, if there exists any way to map an algorithm to a line-rate switch,
+%% it will be found. We haven't required this for the examples in our evaluation
+%% because the compiler does find a solution if one exists. However, as we scale
+%% to larger code examples, having this guarantee would be useful.
+%TODO: This is confusing. The writing makes it sound like SKETCH is complete, but the compiler isn't.
+% Clarify this. Removing for now.
 \item Our compiler doesn't guarantee optimality. For instance, it may be
 possible to fuse two stateful codelets that independently increment two
 separate counters into the same instance of the Pairs atom. However, by
