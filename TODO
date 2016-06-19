@@ -5,3 +5,4 @@
 8. Hari: Stress exactly what's new about the work, synthesis, strongly connected components, etc.
 9. Consider renaming Banzai to PISA.
 10. Fix Alvin's grammar.
+11. We use THRESHOLD in some places and expand it to 5 in others. Be consistent and maybe rename it to THRESH to save space.
