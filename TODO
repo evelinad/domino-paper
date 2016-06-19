@@ -2,6 +2,6 @@
 2. SKETCH justification per George.
 4. How do we guarantee transactional semantics? And what are our precise semantics anyway?
 6. Shorten references.
-7. Is link load balancing an acceptable term to use?
-8. Hari: Stress exactly what's new about the work, synthesis, strongly
-connected components, etc.
+8. Hari: Stress exactly what's new about the work, synthesis, strongly connected components, etc.
+9. Consider renaming Banzai to PISA.
+10. Fix Alvin's grammar.
