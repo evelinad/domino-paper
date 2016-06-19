@@ -1,12 +1,6 @@
 \section{The Domino compiler}
 \label{s:compiler}
 
-%TODO: Make sketching and strongly connected components more prominent and emphasize
-% what's new/interesting about them. 
-% 
-%TODO why does our design achieve (ordered) transactions?
-%TODO why is it beneficial?
-
 The \pktlanguage compiler compiles from \pktlanguage programs to \absmachine
 targets. The compiler provides an {\em all-or-nothing model}: if compilation
 succeeds, the program will run at line rate on the target with packet
@@ -369,6 +363,13 @@ Branch removal resembles if-conversion~\cite{if_conversion}, a
 technique used in vectorizing compilers. This procedure is easier in Domino
 because there is no backward control transfer (goto, break,
 continue).
+
+% TODO: Maybe add a subsection here that's a postscript that says: Why does this work and other comments Hari had?
+% 1.  Make sketching and strongly connected components more prominent and emphasize
+% what's new/interesting about them. 
+% 
+% 2.  why does our design achieve (ordered) transactions?
+% 3.  why is it beneficial?
 
 \begin{table}[!t]
   \begin{scriptsize}
