@@ -4,8 +4,10 @@
 
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{banzai.pdf}
-  \caption{The \absmachine machine model and its relationship to
-  programmable switch architectures.}
+  \caption{\absmachine models the ingress and egress pipelines of a
+  programmable switch. Each atom corresponds to an action in a match-action
+  table. Internally, an atom contains local state and a digital circuit that
+  operates on this state. Figure~\ref{fig:atom} shows an atom in greater detail.}
   \label{fig:switch}
 \end{figure*}
 
