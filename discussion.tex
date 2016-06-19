@@ -12,13 +12,13 @@ reason about performance, they exclude algorithms that cannot be run exactly at
 line rate. Are weaker semantics sensible? One possibility is approximating
 transactional semantics by executing the code on a subset of the packet stream.
 This provides an increased time budget for each packet, potentially allowing
-the packet to be {\em recirculated} through the pipeline multiple times to
-carry out packet processing. Another possibility is for the implementation to
+the packet to be {\em recirculated} through the pipeline multiple times
+for packet processing. Another possibility is for the implementation to
 be eventually consistent with the transactional model, perhaps by updating
 state over many clock cycles and guaranteeing that it will be correct only if
 there are no subsequent state updates.
 \item Our current implementation doesn't handle multiple transactions and the
-associated issues of composing transactions. Providing a policy language to
+associated issues of composing transactions. A policy language to
 specify multiple transactions executing on different, possibly overlapping,
 subsets of packets is an area for future work.
 %% \item Our compiler doesn't provide completeness: the guarantee that for any
@@ -28,11 +28,12 @@ subsets of packets is an area for future work.
 %% to larger code examples, having this guarantee would be useful.
 %TODO: This is confusing. The writing makes it sound like SKETCH is complete, but the compiler isn't.
 % Clarify this. Removing for now.
-\item Our compiler doesn't guarantee optimality. For instance, it may be
+\item Our compiler doesn't aggressively optimize. For instance, it may be
 possible to fuse two stateful codelets that independently increment two
 separate counters into the same instance of the Pairs atom. However, by
 carrying out a one-to-one mapping from codelets to the atoms implementing them,
-our compiler precludes these optimizations. 
+our compiler precludes these optimizations.  Developing an {\em optimizing}
+compiler for packet transactions is an area for future work.
 \item Finally, our design process for atoms is largely manual.  Formalizing
 this design process and automating it into an atom-design tool would be useful
 for switch designers. For instance, given a corpus of data-plane algorithms,
