@@ -7,37 +7,28 @@
 %TODO why does our design achieve (ordered) transactions?
 %TODO why is it beneficial?
 
-
 The \pktlanguage compiler compiles from \pktlanguage programs to \absmachine
 targets. The compiler provides an {\em all-or-nothing model}: if compilation
-succeeds, the compiler guarantees that the program will run at line rate on the
-target. This all-or-nothing model trades off diminished programmability for
-guaranteed line-rate performance, in contrast to software routers that provide
-greater flexibility but lower and unpredictable run-time
+succeeds, the program will run at line rate on the target with packet
+transaction semantics. Otherwise, if the program cannot run at line rate, it
+will not compile. This all-or-nothing model trades off diminished
+programmability for guaranteed line-rate performance, in contrast to software
+routers that provide greater flexibility but lower and unpredictable run-time
 performance~\cite{dobrescu2012}.
 
-% Hari told me to remove this:
-%If the program can't be run at line rate, the compiler rejects the
-%program outright; there is no smooth tradeoff between a program's performance
-%and its complexity.  This all-or-nothing compilation model is unusual relative
-%to other substrates such as a CPU, GPU, or DSP. But, it reflects how routers
-%are used today. Routers are rated for a particular line rate, regardless of the
-%enabled feature set. 
-
-The \pktlanguage compiler has three passes (Figure~\ref{fig:passes}).  First,
-\textit{normalization} simplifies the packet transaction into a restrictive
-three-address code form while retaining the sequential nature of packet
-transactions, i.e., processing one packet at a time. Second, \textit{pipelining} transforms the normalized code into
-code for a \textit{Pipelined Virtual Switch Machine (PVSM)}. PVSM is an
-intermediate representation that models a switch pipeline with no computational
-or resource limits. Third, \textit{code generation} transforms this
+The \pktlanguage compiler has three passes (Figure~\ref{fig:passes}), which we
+illustrate using the flowlet switching example.  \textit{Preprocessing}
+(\S\ref{ss:preprocessing}) simplifies the packet transaction into a simpler
+three-address code form~\cite{tac} that is amenable to pipelining.
+\textit{Pipelining} (\S\ref{ss:pipelining}) transforms preprocessed code into
+code for a \textit{Pipelined Virtual Switch Machine (PVSM)}, an intermediate
+representation that models a switch pipeline with no computational or resource
+limits. Third, \textit{code generation} (\S\ref{ss:code_gen}) transforms this
 intermediate representation into configuration for a \absmachine machine, given
- the machine's computational and resource constraints, and rejects the
-program if it can't run at line rate on that \absmachine machine.  The
-\pktlanguage compiler uses many existing compilation techniques, but adapts and
-simplifies them in important ways for line-rate switches
-(\S\ref{ss:related_compiler}). Throughout this section, we use flowlet
-switching as a running example to demonstrate compiler passes.
+the machine's computational and resource limits (\S\ref{s:atomConstraints}),
+and rejects the program if it can't run at line rate.  The \pktlanguage
+compiler uses many existing compilation techniques, but adapts and simplifies
+them in important ways for line-rate switches (\S\ref{ss:related_compiler}).
 
 \begin{figure}[!t]
   \includegraphics[width=\columnwidth]{compiler.pdf}
@@ -45,8 +36,8 @@ switching as a running example to demonstrate compiler passes.
   \label{fig:passes}
 \end{figure}
 
-\subsection{Normalization}
-\label{ss:normalization}
+\subsection{Preprocessing}
+\label{ss:preprocessing}
 
 \textbf{Branch removal: }A packet transaction's body can contain (potentially
 nested) branches (e.g., Lines~\ref{line:ifStart} to \ref{line:ifEnd} in
@@ -54,38 +45,38 @@ Figure~\ref{fig:flowlet_code}).  Branches alter control flow and complicate
 dependency analysis, i.e.,  whether a statement should precede another.  We
 transform branches into the conditional operator, starting from the innermost
 \texttt{if} and proceeding outwards (Figure~\ref{fig:if_convert}).  This turns
-the transaction body into straight-line code with no branches.  Straight-line
-code simplifies dependency analysis during pipelining (\S\ref{ss:partitioning}).
+the transaction body into straight-line code with no branches, which simplifies
+dependency analysis during pipelining (\S\ref{ss:pipelining}).
 
 \textbf{Rewriting state variable operations: }We now identify state variables
-in a packet transaction, such as \texttt{last\_time} and \texttt{saved\_hop} in
+in a packet transaction, e.g., \texttt{last\_time} and \texttt{saved\_hop} in
 Figure~\ref{fig:flowlet_code}.  For each state variable, we create a
-\textit{read flank} to read the state variable into a temporary packet field.
+\textit{read flank} to read the variable into a temporary packet field.
 For an array, we also move the index expression into the read flank using the
-fact that only one array index is accessed by each packet.  Within the packet
-transaction, we replace the state variable with the packet temporary, and
-create a \textit{write flank} to write the packet temporary back into the state
-variable~(Figure~\ref{fig:stateful_flanks}). After this, the only operations
-on state variables are reads and writes; all arithmetic happens on packet
-fields. Restricting stateful operations simplifies handling of state during
-pipelining (\S\ref{ss:partitioning}).
+fact that only one array index is accessed per packet (\S\ref{ss:constraints}).
+Within the packet transaction, we replace the state variable with the temporary
+packet field, and create a \textit{write flank} to write this temporary packet
+field back to the state variable~(Figure~\ref{fig:stateful_flanks}). After
+this, the only operations on state variables are reads and writes; all
+arithmetic happens on packet fields. Restricting stateful operations simplifies
+handling of state during pipelining (\S\ref{ss:pipelining}).
 
-\textbf{Converting to static single-assignment form: }We next convert the code to
-static single-assignment form (SSA)~\cite{ssa}, where every packet field is
-assigned exactly once. To do so, we replace every assignment to a packet field
-with a new packet field and propagate this until the next assignment to the
-same field~(Figure~\ref{fig:ssa}) .  Because every field is assigned exactly
-once, SSA removes Write-After-Read and Write-After-Write dependencies.  Only
-Read-After-Write dependencies remain, simplifying dependency analysis during
-pipelining (\S\ref{ss:partitioning}).
+\textbf{Converting to static single-assignment form: }We next convert the code
+to static single-assignment form (SSA)~\cite{ssa}, where every packet field is
+assigned exactly once. We do this by replacing every assignment to a packet
+field with a new packet field and propagating this until the next assignment to
+the same field~(Figure~\ref{fig:ssa}) .  Because fields are assigned once, SSA
+removes Write-After-Read and Write-After-Write dependencies.  Only
+Read-After-Write dependencies remain during pipelining (\S\ref{ss:pipelining}).
 
 % Don't bother citing tac
 \textbf{Flattening to three-address code: } Three-address code is a
 representation where all instructions are either reads/writes into state
 variables or operations on packet fields of the form \texttt{pkt.f1 = pkt.f2 op
-pkt.f3}, where \texttt{op} can be an arithmetic, logical, relational, or conditional
-\footnote{Conditional operations alone have four arguments.} operator.  We also allow either one of {\tt pkt.f2} or {\tt pkt.f3}
-to be an intrinsic function call.  To convert to three-address code, we flatten
+pkt.f3}, where \texttt{op} can be an arithmetic, logical, relational, or
+conditional \footnote{Conditional operations alone have four arguments.}
+operator.  We also allow either one of {\tt pkt.f2} or {\tt pkt.f3} to be an
+intrinsic function call.  To convert to three-address code, we flatten
 expressions that are not in three-address code using
 temporaries~(Figure~\ref{fig:three_address}).
 
@@ -100,57 +91,55 @@ temporaries~(Figure~\ref{fig:three_address}).
 %%%  (Figure 8) and move all the intermediate figures to an Appendix}
 
 \subsection{Pipelining}
-\label{ss:partitioning}
+\label{ss:pipelining}
 %TODO: What is new/new application in Pipelining relative to prior work?
 
 % in that it operates on a
 %single packet at a time without using a pipeline to process packets
 %concurrently.
-At this point, the normalized code is still sequential.  Pipelining turns
-sequential code into a pipeline of \textit{codelets}, where each codelet is a
-sequential block of three-address code statements. This codelet pipeline
-corresponds to an intermediate representation we call the \textit{Pipelined
-Virtual Switch Machine (PVSM)}. PVSM places no computational or resource
-constraints on the pipeline, analogous to representations like LLVM that place
-no restriction on the number of virtual registers. Later, during code
-generation, we map these codelets to atoms available in a \absmachine machine,
-while respecting its constraints.
+At this point, the preprocessed code is still one sequential code block.
+Pipelining turns this sequential code block into a pipeline of
+\textit{codelets}, where each codelet is a sequential block of three-address
+code statements. This codelet pipeline corresponds to an intermediate
+representation we call the \textit{Pipelined Virtual Switch Machine (PVSM)}.
+PVSM has no computational or resource constraints, analogous to intermediate
+representations for CPUs~\cite{llvm} that have infinite virtual
+registers. Later, during code generation, we map these codelets to atoms
+available in a \absmachine machine, while respecting its constraints.
 
 We create PVSM's codelet pipeline using the steps below.
 \begin{CompactEnumerate}
-  \item Create a dependency graph of all statements in the normalized packet
-    transaction by creating a graph node for each statement.
+  \item Create a graph with one node for each statement in the preprocessed code.
   \item Now, add {\em stateful dependencies} by adding a pair of edges between
-    a pair of nodes that read and write the same state variable, e.g., in
+    the read and write flanks of the same state variable, e.g., in
     Figure~\ref{fig:partitioning_before}, the node pair {\tt pkt.last\_time =
-    last\_time[pkt.id]} and {\tt last\_time[pkt.id] = pkt.last\_time}. Note that
-    reads and writes to state variables always come in pairs because of how we
-    rewrite stateful operations, implying that there will not be any ``stranded''
-    stateful operations after this step.
+    last\_time[pkt.id]} and {\tt last\_time[pkt.id] = pkt.last\_time}. Because of
+    preprocessing, all stateful operations are pairs of read and write flanks,
+    so there is no risk of a ``stranded'' stateful operation.
   \item Now, add {\em stateless dependencies} by adding an edge from any node
-    that writes a packet variable to any node that reads the same packet
-    variable.  We only check read-after-write dependencies because we
-    eliminate control dependencies\footnote{An instruction A is control
-    dependent on a preceding instruction B if the outcome of B determines
-    whether A should be executed or not.} through branch removal, and
-    write-after-read and write-after-write dependencies don't exist after SSA.
+    that writes a packet variable to any node that reads the same packet variable,
+    e.g., from {\tt pkt.tmp = pkt.arrival - pkt.last\_time} to {\tt pkt.tmp2 =
+    pkt.tmp > THRESHOLD} in Figure~\ref{fig:partitioning_before}. We only check read-after-write dependencies because
+    write-after-read and write-after-write dependencies don't exist after SSA, and
+    we eliminate control dependencies~\cite{ssa} through branch removal.
     Figure~\ref{fig:partitioning_before} shows the resulting dependency graph.
   \item Generate strongly connected components (SCCs) of this dependency graph
     and condense them into a directed acyclic graph (DAG). This captures the notion that all
     operations on a state variable must be confined to one codelet/atom because
     state cannot be shared between atoms. Figure~\ref{fig:partitioning_after}
-    shows the resulting DAG for the flowlet switching example.
-  \item Schedule the resulting DAG using critical path
-    scheduling~\cite{crit_path_sched} by creating a new pipeline stage when one
+    shows the resulting DAG.
+  \item Schedule the resulting DAG by creating a new pipeline stage when one
     operation needs to follow another. This results in the codelet pipeline
     shown in Figure~\ref{fig:flowlet_pipeline}.\footnote{We refer to this both
     as a codelet and an atom pipeline because codelets map one-to-one atoms
   (\S\ref{ss:code_gen}).}
+% Ditching ref to crit. path scheduling.
 \end{CompactEnumerate}
-
+%\footnote{An instruction A is control
+%    dependent on a preceding instruction B if the outcome of B determines
+%    whether A should be executed or not.}
 The codelet pipeline implements the packet transaction on a switch pipeline
-with no computational or resource constraints. We handle these constraints
-next.
+with no computational or resource constraints. We handle these next.
 
 \subsection{Code generation}
 \label{ss:code_gen}
@@ -158,15 +147,14 @@ next.
 To determine if the codelet pipeline can be compiled to a \absmachine machine,
 we consider two constraints specified by any \absmachine machine: resource
 limits, i.e., the pipeline width and depth, and computational limits on atoms
-within a pipeline stage, i.e., the atom templates provided by a \absmachine
-machine.
+, i.e., the atom templates provided by a \absmachine machine.
 
 \textbf{Resource limits:} To handle resource limits, we scan each pipeline
 stage in the codelet pipeline starting from the first to check for pipeline
 width violations.  If we violate the pipeline width, we insert as many new
 stages as required and spread codelets evenly across these stages.  We continue
 until the number of codelets in all stages is under the pipeline width and
-reject the program if we exceed the pipeline depth of the \absmachine machine.
+reject the program if we exceed the pipeline depth.
 
 \textbf{Computational limits:} Next, we determine if codelets in the pipeline
 map one-to-one to atoms provided by the \absmachine machine. In general,
@@ -178,14 +166,12 @@ atom. We develop a new technique to determine the implementability of a codelet,
 given an atom template.
 
 Each atom template has a set of configuration parameters, where the parameters
-determine the atom's behavior.  For instance, Figure~\ref{fig:alu_diag} shows a
-hardware circuit that can perform stateful addition or subtraction, depending
-on the value of the constant and which output is selected from the multiplexer.
-Its atom template is shown in Figure~\ref{fig:alu_in_sketch}, where {\tt
-choice} and {\tt constant} represent configuration parameters.  Each codelet
-can be viewed as a functional specification of the atom.  With that in mind,
-the mapping problem is equivalent to searching for the value of the parameters
-to configure the atom such that it implements the provided specification.
+determine the atom's behavior.  For instance, Figure~\ref{fig:alu_diag} shows
+an atom that can perform stateful addition or subtraction, depending on the
+configuration parameters {\tt choice} and {\tt constant}.  Each codelet can be
+viewed as a functional specification of the atom.  With that in mind, the
+mapping problem is equivalent to searching for the value of the parameters to
+configure the atom such that it implements the provided specification.
 
 We use the SKETCH program synthesizer~\cite{sketch_asplos} for this purpose, as
 the atom templates can be easily expressed using SKETCH. SKETCH also
@@ -376,7 +362,7 @@ program at line rate. \pktlanguage trades off an increase in space for
 line-rate performance.
 
 Program synthesis was used for code generation in
-Chlorophyll~\cite{chlorophyll}.  Code generation for \pktlanguage shares
+Chlorophyll~\cite{chlorophyll}.  Code generation for \pktlanguage also shares
 similar goals to technology mapping~\cite{micheli} and
 instruction selection~\cite{muchnik}.  However, prior work maps a code sequence
 to \textit{multiple} instructions/tiles, using heuristics to minimize
