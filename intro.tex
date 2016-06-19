@@ -114,11 +114,13 @@ We evaluate expressiveness by programming a variety of data-plane algorithms
 data-plane algorithms.  Next, because no existing programmable switch supports
 the set of atoms required for our data-plane algorithms, we design a set of
 compiler targets (\S\ref{ss:targets}) based on \absmachine and show that these
-are feasible in a 32-nm standard-cell library with $< 2\%$ estimated chip area
-overhead. Finally, we compile data-plane algorithms written in \pktlanguage to
-these targets (\S\ref{ss:compiler}) to show how a target's atoms determine
-which algorithms it can support. We conclude with several lessons for
-programmable switch design (\S\ref{ss:lessons}).
+are feasible in a 32-nm standard-cell library with $< 2\%$ chip area cost
+relative to a baseline switching chip of size 200
+\si{\milli\metre\squared}~\cite{gibb_parsing}.  Finally, we compile data-plane
+algorithms written in \pktlanguage to these targets (\S\ref{ss:compiler}) to
+show how a target's atoms determine which algorithms it can support. We
+conclude with several lessons for programmable switch design
+(\S\ref{ss:lessons}).
 
 Code for the \pktlanguage compiler, the \absmachine machine model, and the code
 examples presented in Table~\ref{tab:algos} is available at
