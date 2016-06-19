@@ -1,128 +1,124 @@
+\newpage
 \section{Introduction}
 \label{s:intro}
 
-Network switches and routers in modern datacenters, enterprises, and
-service-provider networks perform many tasks in addition to standard packet
-forwarding. The set of requirements for routers has only increased with time as
-network operators seek greater control over performance and security.
-Performance and security may be improved using both data-plane and
-control-plane mechanisms. This paper focuses on data-plane algorithms. These
-algorithms process and transform packets, creating and maintaining state in the
-switch. Examples include active queue management~\cite{red,avq,codel},
-scheduling~\cite{pifo_hotnets}, congestion control with switch
-feedback~\cite{xcp, rcp, dctcp}, network measurement~\cite{opensketch,
-bitmap_george}, network security~\cite{dns_change}, and link load
-balancing~\cite{conga}.
-%TODO: Name for algorithms like CONGA, HULA, PRESTO, etc.
+Network switches in modern datacenters, enterprises, and service-provider
+networks perform many tasks in addition to standard packet forwarding. The set
+of requirements for switches has only increased with time as network operators
+seek greater control over performance.  Performance may be improved using both
+data-plane and control-plane mechanisms. This paper focuses on data-plane
+algorithms. These algorithms process and transform packets, creating and
+maintaining state in the switch. Examples include active queue
+management~\cite{red,avq,codel}, scheduling~\cite{pifo_hotnets}, congestion
+control with switch feedback~\cite{xcp, rcp}, network
+measurement~\cite{opensketch, bitmap_george}, and data-plane traffic
+engineering~\cite{conga}.
+% network security~\cite{dns_change}
+% Name for algorithms like CONGA, HULA, PRESTO, etc.: data plane traffic engineering.
 
-An important requirement for data-plane algorithms is the ability to
-process packets at the switch's line rate (typically 10--100 Gbit/s on
-10--100 ports).  As a result, these
-algorithms are typically implemented using dedicated
-hardware. Hardware designs are rigid, however, and not reconfigurable
-in the field. Thus, to implement and deploy a new algorithm today, or
-to even modify a deployed one, the user must invest in new
-hardware---a time-consuming and expensive proposition.
+An important requirement for data-plane algorithms is the ability to process
+packets at the switch's line rate (10--100 Gbit/s on 10--100 ports).
+Therefore, these algorithms are typically implemented using dedicated hardware.
+Hardware designs are rigid, however, and not reconfigurable in the field. Thus,
+to implement and deploy a new algorithm, or to even modify a deployed one, the
+user must invest in new hardware---a time-consuming and expensive proposition.
 
-This rigidity affects many stakeholders adversely:
-vendors~\cite{cisco_nexus, dell_force10, arista_7050} building network
-switches with merchant-silicon chips~\cite{trident, tomahawk,
-  mellanox}, network operators deploying
-switches~\cite{google,facebook,vl2}, and researchers developing new
-data-plane algorithms.
+This rigidity affects many stakeholders adversely: vendors~\cite{cisco_nexus,
+dell_force10, arista_7050} building network switches with merchant-silicon
+chips~\cite{trident, tomahawk, mellanox}, network operators deploying
+switches~\cite{google,facebook,vl2}, and researchers developing new data-plane
+algorithms.
 
-To run data-plane algorithms after a switch has been built,
-researchers and companies have attempted to build programmable routers
-for many years, starting from efforts on active
-networks~\cite{active-nets} to network processors~\cite{ixp4xx} to
-software routers~\cite{click, dpdk}. All these efforts
-sacrificed performance for programmability, typically running an order
-of magnitude (or worse) slower than hardware line
-rates. Unfortunately, this reduction in performance has meant that
-these systems are rarely deployed in production networks.
+To run data-plane algorithms after a switch has been built, researchers and
+companies have attempted to build programmable switches for many years,
+starting from efforts on active networks~\cite{active-nets} to network
+processors~\cite{ixp4xx} to software routers~\cite{click, dpdk}. All these
+efforts sacrificed performance for programmability, typically running an order
+of magnitude (or worse) slower than hardware line rates. Unfortunately, this
+reduction in performance has meant that these systems are rarely deployed in
+production networks.
 
-Programmable switching chips~\cite{flexpipe, xpliant, tofino} competitive in performance with state-of-the-art
-fixed-function chipsets~\cite{trident, tomahawk, mellanox} are now
-becoming available. These chips implement a few low-level hardware
-primitives that can be configured by software into a processing
-pipeline, and are
-field-reconfigurable. Building
-a switch with such a chip is attractive because it does not compromise
-on data rates~\cite{rmt}.
+Programmable switching chips~\cite{flexpipe, xpliant, tofino} competitive in
+performance with state-of-the-art fixed-function chips~\cite{trident,
+tomahawk, mellanox} are now becoming available. These chips implement a few
+low-level hardware primitives that can be configured by software into a
+processing pipeline, and are field-reconfigurable. Building a switch with such
+a chip is attractive because it does not compromise on data rates~\cite{rmt}.
 
+%TODO: Get someone else to read the below paragraph.
 In terms of programmability, these chips today allow the network operator to
-specify packet parsing and forwarding without restricting the set of protocol
-formats or the set of actions that can be executed when matching packet headers
-in a match-action table. Languages such as P4~\cite{p4,p4spec}are emerging as a
-way to express such {\em match-action processing} in a hardware-independent
-way.
+program packet parsing and forwarding, i.e., a programmer can program the set
+of protocol formats to be matched and the set of actions to be executed when
+matching packet headers in a match-action table. Languages such as P4~\cite{p4}
+are emerging as a way to express such {\em match-action processing} in a
+hardware-independent way.
 
 There is a gap between this form of programmability and the needs of data-plane
-algorithms. By contrast to packet header parsing and forwarding, which don't
-modify state in the data plane, many data-plane algorithms create and modify
-algorithmic state in the switch as part of packet processing. For such
-algorithms, it is important for programmability to directly capture the
-algorithm's intent without requiring it to be ``shoehorned'' into hardware
-constructs such as a sequence of match-action tables. Indeed, this is how such
-data-plane algorithms are expressed in pseudocode~\cite{red, codel_code}, and
-implemented in software routers~\cite{click}, network
-processors~\cite{packetc}, and network endpoints~\cite{qdisc}.
+algorithms. By contrast to packet forwarding, which doesn't modify state in the
+data plane, many data-plane algorithms create and modify algorithmic state in
+the switch as part of packet processing.  For such algorithms, it is important
+for programmability to directly capture the algorithm's intent without
+requiring it to be ``shoehorned'' into hardware constructs like a sequence of
+match-action tables. Indeed, this is how such data-plane algorithms are
+expressed in pseudocode~\cite{red, codel_code}, and implemented in software
+routers~\cite{click}, network processors~\cite{packetc}, and network
+endpoints~\cite{qdisc}.
 
 By studying the requirements of data-plane algorithms and the constraints of
 line-rate hardware, we introduce a new abstraction to program and implement
 data-plane algorithms: a {\em packet transaction} (\S\ref{s:transactions}). A
 packet transaction is a sequential code block that is atomic and isolated from
-other such code blocks (i.e., any visible state is equivalent to a serially
-executing packet transactions across packets in the order of packet arrival).
-Packet transactions allow the programmer to focus on the operations needed for
-each packet without worrying about other concurrent packets.
+other such code blocks (i.e., any visible state is equivalent to a serial
+execution of packet transactions across packets in the order of packet
+arrival).  Packet transactions allow the programmer to focus on the operations
+needed for each packet without worrying about other concurrent packets.
 
 Packet transactions have an \textit{all-or-nothing} guarantee, where all packet
 transactions accepted by the packet transactions compiler will run at line
-rate, or be rejected outright. There is no ``slippery slope'' of running
-network algorithms at lower speeds as with traditional network processors or
-software routers: when compiled, a \pktlanguage program runs at the line rate,
-or not at all.  Performance is not just predictable, but is guaranteed.
+rate, or be rejected. There is no ``slippery slope'' of running network
+algorithms at lower speeds as with traditional network processors or software
+routers: when compiled, a \pktlanguage program runs at the line rate, or not at
+all.  Performance is not just predictable, but guaranteed.
 
 In realizing packet transactions, we make three new contributions.  First, {\em
-\absmachine}, a machine model for programmable line-rate switches~\cite{tofino,
-xpliant, flexpipe}(\S\ref{s:absmachine}).  \absmachine models two important
-constraints for line-rate operation: the inability to share state between
-different units of packet processing, and the requirement that any
-modifications to switch state be visible to the very next packet entering the
-switch. Informed by these constraints, we introduce the concept of {\em atoms}
-to represent a programmable switch's packet processing units, i.e., its
-instruction set.
+\absmachine}, a machine model for programmable line-rate
+switches~(\S\ref{s:absmachine}).  \absmachine models two important constraints
+for line-rate operation: the inability to share state between different
+packet-processing units and the requirement that any switch state
+modifications are visible to the next packet entering the switch. Based on
+these constraints, we introduce the concept of {\em atoms} to represent a
+programmable switch's packet-processing units, i.e., its instruction set.
 
 Second, {\em \pktlanguage{}}, a new domain-specific language (DSL) for
 data-plane algorithms, with packet transactions at its core
 (\S\ref{s:transactions}).  \pktlanguage is an imperative language with C-like
-syntax, to our knowledge the first to offer such a high level programming
-abstraction for line-rate switches. \pktlanguage also introduces important
-restrictions such as the absence of loops to target the domain of line-rate
-switches.
+syntax, to our knowledge the first to offer such a high-level programming
+abstraction for line-rate switches.
+% \pktlanguage also introduces important
+%restrictions such as the absence of loops to target the domain of line-rate
+%switches.
 
 Third, {\em a compiler from \pktlanguage packet transactions to a \absmachine
-target}~(\S\ref{s:compiler}). The \pktlanguage compiler infers {\em codelets}
-from the transaction: code fragments, which when executed atomically, guarantee
-the semantics of packet transaction. The compiler then uses program
-synthesis~\cite{sketch_asplos} to attempt to map codelets to atoms, rejecting
-the transaction if the atom cannot execute the codelet.  This way, the compiler
-guarantees that all packet transactions that compile can be run at line rate,
-rejecting them if that's not possible.
+target}~(\S\ref{s:compiler}). The \pktlanguage compiler extracts {\em codelets}
+from the transaction: code fragments, which if executed atomically, guarantee a
+packet transaction's semantics. The compiler then uses program
+synthesis~\cite{sketch_asplos} to map codelets to atoms, rejecting the
+transaction if the atom cannot execute the codelet.
 
-We evaluate \pktlanguage's expressiveness by programming a variety of
-data-plane algorithms (Table~\ref{tab:algos}) in \pktlanguage and compare with
-P4. We find that \pktlanguage provides a more concise and easier programming
-model for stateful data-plane algorithms.  Next, because no existing
-programmable switch supports the set of atoms required for our data-plane
-algorithms, we design a set of compiler targets (\S\ref{ss:targets}) based on
-\absmachine and show that these are feasible in a 32 nm standard-cell library
-with $< 15\%$ estimated chip area overhead. Finally, we compile data-plane
-algorithms written in \pktlanguage to these targets to show how the choice of
-atoms in a target determines which algorithms it can support. We conclude by
-discussing several lessons in programmable switch design that we learned in the
-process.
+%This way, the compiler
+%guarantees that all compiled packet transactions run at line rate.
+
+We evaluate expressiveness by programming a variety of data-plane algorithms
+(Table~\ref{tab:algos}) in \pktlanguage and compare with P4. We find that
+\pktlanguage provides a more concise and natural programming model for stateful
+data-plane algorithms.  Next, because no existing programmable switch supports
+the set of atoms required for our data-plane algorithms, we design a set of
+compiler targets (\S\ref{ss:targets}) based on \absmachine and show that these
+are feasible in a 32-nm standard-cell library with $< 2\%$ estimated chip area
+overhead. Finally, we compile data-plane algorithms written in \pktlanguage to
+these targets (\S\ref{ss:compiler}) to show how a target's atoms determine
+which algorithms it can support. We conclude with several lessons for
+programmable switch design (\S\ref{ss:lessons}).
 
 Code for the \pktlanguage compiler, the \absmachine machine model, and the code
 examples presented in Table~\ref{tab:algos} is available at
