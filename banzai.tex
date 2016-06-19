@@ -47,6 +47,7 @@ of this restriction, programmable switching chips provide a small set of
 processing units or primitives for manipulating packets and state in a stage,
 unlike software routers. These processing units determine the algorithms that
 run on the switch at line rate.
+%TODO: must finish within a clock cycle is a bit too strong, I think.
 
 The challenge for us is to develop primitives that allow a broad range of
 data-plane algorithms to be implemented, and to build a compiler to map a
@@ -58,7 +59,7 @@ switch.
 \absmachine (the bottom half of Figure~\ref{fig:switch}) is a model for the
 data-plane components of an ingress or egress switch pipeline.  We model the
 computation within a match-action table in a stage (i.e., the action half of
-the match-action table), but not how packets are matched (e.g., direct, or
+the match-action table), but not how packets are matched (e.g., direct or
 ternary). We discuss how to embed \absmachine in a standard match-action
 pipeline in \S\ref{ss:guards}.  We also do not model packet parsing and assume
 that packets arriving to \absmachine are already parsed.
@@ -110,17 +111,18 @@ line-rate performance from being achieved.
 \absmachine provides an atomic increment operation at line rate with an {\em
 atom} to read memory, increment it, and write it back in a single stage within
 one clock cycle. It uses the same approach of reading, modifying, and writing
-back to implement other atomic operations at line rate.
+back to implement other stateful atomic operations at line rate.
 
-Unlike stateful atomic operations such as a counter---stateless atomic
-operations are easier to support with simple packet-field
-arithmetic~\cite{rmt}.  Consider, for instance, the operation {\tt pkt.f1 =
-pkt.f2 + pkt.f3 - pkt.f4}.  This operation does not modify any persistent
-switch state because it only reads and writes packet fields. It can be
-implemented without violating atomicity by using two atoms: one atom to add
-fields f2 and f3 in one pipeline stage (clock cycle), and another to subtract
-f4 from the result in the next, without designing one large atom that
-supports the entire operation.
+Unlike stateful atomic operations, stateless atomic operations are easier to
+support with simple packet-field arithmetic~\cite{rmt}.  Consider, for
+instance, the operation {\tt pkt.f1 = pkt.f2 + pkt.f3 - pkt.f4}.  This
+operation does not modify any persistent switch state and only accesses packet
+fields. It can be implemented atomically by using two atoms: one atom to add
+fields f2 and f3 in one pipeline stage, and another to subtract f4 from the
+result in the next. An instruction set designer can provide {\em simple}
+stateless instructions on pairs of packet fields alone, which can then be
+composed into larger stateless operations, without designing atoms specifically
+for each stateless operation.
 
 %TODO: Maybe specify Hari's representation counter = counter ++ % 100 as well
 % The representation doesn't matter.
@@ -160,11 +162,11 @@ technically challenging and consumes additional chip area. However, state can
 be read into a packet header in one stage for subsequent use by a downstream
 stage\footnote{Figure~\ref{fig:flowlet_pipeline} shows how. Here {\tt
 last\_time} is read into {\tt pkt.last\_time} in stage 2, and {\tt
-pkt.last\_time} is used in stage 3}.  But, the \absmachine pipeline is
+pkt.last\_time} is used in stage 3.}.  But, the \absmachine pipeline is
 feed-forward, so state can only be carried forward, not backward.
 
 \textbf{Computational limits:} Atoms need to execute atomically from one packet
-to the next, implying that any state internal to the atom must be updated
+to the next, so any state internal to the atom must be updated
 before the next packet arrives.  Because packets may be separated by as little
 as one clock cycle, we mandate that atom bodies finish execution within one
 clock cycle, and constrain atom bodies to do so.
@@ -203,15 +205,15 @@ and experiment with \absmachine machines with different atoms.
   %Each ``??(n)'' represents a hole that can be filled in with values in $[0, 2^n -1]$.}
   \label{fig:alu_in_sketch}
   \end{subfigure}
-  \caption{Atoms and atom templates. The atom above can add or subtract a constant from a state
+  \caption{An atom and its template. The atom above can add or subtract a constant from a state
   variable based on two configurable parameters, {\tt constant} and {\tt choice}.}
   \label{fig:atom}
 \end{figure}
 
-\textbf{Resource limits:} We also need limit the number of atoms in each stage
+\textbf{Resource limits:} We also limit the number of atoms in each stage
 (\textit{pipeline width}) and the number of stages in the pipeline
 (\textit{pipeline depth}). This is similar to limits on the number of stages,
-tables per stage, memory per stage in programmable switch
+tables per stage, and memory per stage in programmable switch
 architectures~\cite{lavanya_compiler}.
 
 \subsection{What can \absmachine not do?}
