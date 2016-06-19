@@ -331,7 +331,7 @@ moved into the read flank.}
 \begin{figure*}[!t]
 \begin{subfigure}{\columnwidth}
   \includegraphics[width=\columnwidth]{deps.pdf}
-  \caption{Dependency graph. Edges are read-after-write dependencies.}
+  \caption{Dependency graph.  Stateless dependencies in black, stateful in gray.}
   \label{fig:partitioning_before}
 \end{subfigure}
 \textbf{$\Longrightarrow$ }
@@ -342,7 +342,6 @@ moved into the read flank.}
 \end{subfigure}
 \caption{Code Pipelining}
 \label{fig:pipelining}
-%TODO: Maybe color edges differently for stateful and stateless ops
 \end{figure*}
 
 \subsection{Related compiler techniques}
@@ -376,9 +375,6 @@ technique used in vectorizing compilers. This procedure is easier in Domino
 because there is no backward control transfer (goto, break,
 continue).
 
-%Domino's SSA computation operates on straight-line code and doesn't
-% handle branches, which considerably complicate SSA algorithms~\cite{ssa}.
-%
 \begin{table}[!t]
   \begin{scriptsize}
     \begin{tabular}{|p{0.1\textwidth}|p{0.1\textwidth}|p{0.2\textwidth}|}
@@ -391,7 +387,7 @@ continue).
   \hline
   Strongly Connected Components & Lam~\cite{software_pipelining} & Scheduling in space vs. time \\
   \hline
-  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli}, instruction selection~\cite{muchnik} & Optimal vs. best-effort mapping; One-to-one mapping vs. tiling \\
+  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli}, instruction selection~\cite{muchnik} & Optimal vs. best-effort mapping; One-to-one mapping vs. one-to-many mapping \\
   \hline
   \end{tabular}
   \end{scriptsize}
