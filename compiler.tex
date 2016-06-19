@@ -141,65 +141,6 @@ We create PVSM's codelet pipeline using the steps below.
 The codelet pipeline implements the packet transaction on a switch pipeline
 with no computational or resource constraints. We handle these next.
 
-\subsection{Code generation}
-\label{ss:code_gen}
-
-To determine if the codelet pipeline can be compiled to a \absmachine machine,
-we consider two constraints specified by any \absmachine machine: resource
-limits, i.e., the pipeline width and depth, and computational limits on atoms
-, i.e., the atom templates provided by a \absmachine machine.
-
-\textbf{Resource limits:} To handle resource limits, we scan each pipeline
-stage in the codelet pipeline starting from the first to check for pipeline
-width violations.  If we violate the pipeline width, we insert as many new
-stages as required and spread codelets evenly across these stages.  We continue
-until the number of codelets in all stages is under the pipeline width and
-reject the program if we exceed the pipeline depth.
-
-\textbf{Computational limits:} Next, we determine if codelets in the pipeline
-map one-to-one to atoms provided by the \absmachine machine. In general,
-codelets have multiple three-address code statements that need to execute
-atomically. For instance, updating the state variable \texttt{saved\_hop} in
-Figure~\ref{fig:flowlet_pipeline} requires a read followed by a conditional
-write.  It is not apparent whether such codelets can be mapped to an available
-atom. We develop a new technique to determine the implementability of a codelet,
-given an atom template.
-
-Each atom template has a set of configuration parameters, where the parameters
-determine the atom's behavior.  For instance, Figure~\ref{fig:alu_diag} shows
-an atom that can perform stateful addition or subtraction, depending on the
-configuration parameters {\tt choice} and {\tt constant}.  Each codelet can be
-viewed as a functional specification of the atom.  With that in mind, the
-mapping problem is equivalent to searching for the value of the parameters to
-configure the atom such that it implements the provided specification.
-
-We use the SKETCH program synthesizer~\cite{sketch_asplos} for this purpose, as
-the atom templates can be easily expressed using SKETCH. SKETCH also
-provides efficient search algorithms and has been used for similar purposes in
-other domains~\cite{bitstreaming, chlorophyll}.  As an
-illustration, assume we want to map the codelet {\tt x=x+1} to the atom
-template shown in Figure~\ref{fig:alu_in_sketch}. SKETCH will search for
-possible parameter values so that the resulting atom is functionally identical
-to the codelet, for all possible input values of {\tt x}.  In this case, SKETCH
-finds the solution with {\tt choice=0} and {\tt constant=1}.  In contrast, if
-the codelet {\tt x=x*x} was supplied as the specification, SKETCH will return
-an error as no parameters exist.
-
-%TODO: George's suggestion motivating SKETCH.
-
-%%To minimize search time, the range
-%%of possible inputs and parameter values need to be specified in the template
-%%(e.g., all 8 bit integers), and our experiments show that the search finishes
-%%quickly, taking 10 secs at most.
-
-%%\begin{figure}[!b]
-%%  \begin{center}
-%%  \includegraphics[width=0.4\columnwidth]{sketch.pdf}
-%%  \caption{Overview of SKETCH and its application to atom configuration}
-%%  \label{fig:sketch}
-%%  \end{center}
-%%\end{figure}
-
 \begin{figure*}[!t]
   \hspace{-0.3in}
   \begin{minipage}{0.55\textwidth}
@@ -330,19 +271,73 @@ moved into the read flank.}
 
 \begin{figure*}[!t]
 \begin{subfigure}{\columnwidth}
-  \includegraphics[width=\columnwidth]{deps.pdf}
-  \caption{Dependency graph.  Stateless dependencies in black, stateful in gray.}
+  \includegraphics[width=0.98\columnwidth]{deps.pdf}
+  \caption{Stateless dependencies in black, stateful in gray.}
   \label{fig:partitioning_before}
 \end{subfigure}
 \textbf{$\Longrightarrow$ }
 \begin{subfigure}{\columnwidth}
-\includegraphics[width=\columnwidth]{scc.pdf}
+\includegraphics[width=0.98\columnwidth]{scc.pdf}
 \caption{DAG after condensing SCCs.}
 \label{fig:partitioning_after}
 \end{subfigure}
-\caption{Code Pipelining}
+\caption{Dependency graphs before and after condensing strongly connected components}
 \label{fig:pipelining}
 \end{figure*}
+
+
+
+
+\subsection{Code generation}
+\label{ss:code_gen}
+
+To determine if the codelet pipeline can be compiled to a \absmachine machine,
+we consider two constraints specified by any \absmachine machine: resource
+limits, i.e., the pipeline width and depth, and computational limits on atoms
+, i.e., the atom templates provided by a \absmachine machine.
+
+\textbf{Resource limits:} To handle resource limits, we scan each pipeline
+stage in the codelet pipeline starting from the first to check for pipeline
+width violations.  If we violate the pipeline width, we insert as many new
+stages as required and spread codelets evenly across these stages.  We continue
+until the number of codelets in all stages is under the pipeline width and
+reject the program if we exceed the pipeline depth.
+
+\textbf{Computational limits:} Next, we determine if codelets in the pipeline
+map one-to-one to atoms provided by the \absmachine machine. In general,
+codelets have multiple three-address code statements that need to execute
+atomically. For instance, updating the state variable \texttt{saved\_hop} in
+Figure~\ref{fig:flowlet_pipeline} requires a read followed by a conditional
+write.  It is not apparent whether such codelets can be mapped to an available
+atom. We develop a new technique to determine the implementability of a codelet,
+given an atom template.
+
+Each atom template has a set of configuration parameters, where the parameters
+determine the atom's behavior.  For instance, Figure~\ref{fig:alu_diag} shows
+an atom that can perform stateful addition or subtraction, depending on the
+configuration parameters {\tt choice} and {\tt constant}.  Each codelet can be
+viewed as a functional specification of the atom.  With that in mind, the
+mapping problem is equivalent to searching for the value of the parameters to
+configure the atom such that it implements the provided specification.
+
+We use the SKETCH program synthesizer~\cite{sketch_asplos} for this purpose, as
+the atom templates can be easily expressed using SKETCH. SKETCH also
+provides efficient search algorithms and has been used for similar purposes in
+other domains~\cite{bitstreaming, chlorophyll}.  As an
+illustration, assume we want to map the codelet {\tt x=x+1} to the atom
+template shown in Figure~\ref{fig:alu_in_sketch}. SKETCH will search for
+possible parameter values so that the resulting atom is functionally identical
+to the codelet, for all possible input values of {\tt x}.  In this case, SKETCH
+finds the solution with {\tt choice=0} and {\tt constant=1}.  In contrast, if
+the codelet {\tt x=x*x} was supplied as the specification, SKETCH will return
+an error as no parameters exist.
+
+%TODO: George's suggestion motivating SKETCH.
+
+%%To minimize search time, the range
+%%of possible inputs and parameter values need to be specified in the template
+%%(e.g., all 8 bit integers), and our experiments show that the search finishes
+%%quickly, taking 10 secs at most.
 
 \subsection{Related compiler techniques}
 \label{ss:related_compiler}
