@@ -83,11 +83,12 @@ all.  Performance is not just predictable, but guaranteed.
 In realizing packet transactions, we make three new contributions.  First, {\em
 \absmachine}, a machine model for programmable line-rate
 switches~(\S\ref{s:absmachine}).  \absmachine models two important constraints
-for stateful line-rate operations: the inability to share state between different
-packet-processing units and the requirement that any switch state
-modifications are visible to the next packet entering the switch. Based on
-these constraints, we introduce the concept of {\em atoms} to represent a
-programmable switch's packet-processing units, i.e., its instruction set.
+(\S\ref{s:atomConstraints}) for stateful line-rate operations: the inability to
+share state between different packet-processing units and the requirement that
+any switch state modifications are visible to the next packet entering the
+switch. Based on these constraints, we introduce the concept of {\em atoms} to
+represent a programmable switch's packet-processing units, i.e., its
+instruction set.
 
 Second, {\em \pktlanguage{}}, a new domain-specific language (DSL) for
 data-plane algorithms, with packet transactions at its core
