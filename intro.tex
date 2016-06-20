@@ -1,7 +1,8 @@
 \newpage
 \section{Introduction}
 \label{s:intro}
-
+%TODO: Ensure that the discussion is generic (about different kind of network
+%operators), and not specific to datacenters alone.
 Network switches in modern datacenters, enterprises, and service-provider
 networks perform many tasks in addition to standard packet forwarding. The set
 of requirements for switches has only increased with time as network operators
@@ -13,21 +14,19 @@ management~\cite{red,avq,codel}, scheduling~\cite{pifo_hotnets}, congestion
 control with switch feedback~\cite{xcp, rcp}, network
 measurement~\cite{opensketch, bitmap_george}, and data-plane traffic
 engineering~\cite{conga}.
-% network security~\cite{dns_change}
-% Name for algorithms like CONGA, HULA, PRESTO, etc.: data plane traffic engineering.
 
 An important requirement for data-plane algorithms is the ability to process
-packets at the switch's line rate (10--100 Gbit/s on 10--100 ports).
-Therefore, these algorithms are typically implemented using dedicated hardware.
-Hardware designs are rigid, however, and not reconfigurable in the field. Thus,
-to implement and deploy a new algorithm, or to even modify a deployed one, the
+packets at the switch's line rate: 10--100 Gbit/s on 10--100 ports.  Therefore,
+these algorithms are typically implemented using dedicated hardware.  Hardware
+designs are rigid, however, and not reconfigurable in the field. Thus, to
+implement and deploy a new algorithm, or to even modify a deployed one, the
 user must invest in new hardware---a time-consuming and expensive proposition.
 
 This rigidity affects many stakeholders adversely: vendors~\cite{cisco_nexus,
 dell_force10, arista_7050} building network switches with merchant-silicon
-chips~\cite{trident, tomahawk, mellanox}, network operators deploying
+chips~\cite{trident, tomahawk, mellanox}, network operators deploying these
 switches~\cite{google,facebook,vl2}, and researchers developing new data-plane
-algorithms.
+algorithms~\cite{rcp, conga, xcp, bitmap_george}.
 
 To run data-plane algorithms after a switch has been built, researchers and
 companies have attempted to build programmable switches for many years,
