@@ -137,22 +137,22 @@ support distinct read and write addresses every clock cycle.
 \newcommand{\sep}{~|~}
 \begin{scriptsize}
 \begin{eqnarray*}
-e \in expr &::=& e.f \sep c \sep var \sep e_1~op~e_2 \sep \neg~e \sep e[e] \sep f(\ldots) \\
+e \in expr &::=& e.f \sep const \sep var \sep e~op~e \sep \neg~e \sep e[e] \sep f(\ldots) \\
 %
-s \in stmt &::=& e = e \sep if~(c)~s_1~else~s_2 \sep s~;~s \\
+s \in stmt &::=& e = e \sep if~(e)~s~else~s \sep s~;~s \\
 %
-t \in pktTxn &::=& txnName(Packet) \{ s \} \\
+t \in pktTxn &::=& txnName(Packet~var) \{ s \} \\
 %
-d \in pktDecl &::=& Packet \{ v~;~v \} \\
-%TODO, Doesn't there need to be a * or + here (one or more variables in a packet field)?.
-%TODO: Also are all restrictions supposed to be captured in the grammar?
+vlist \in varList &::=& var;vlist \sep vlist \\
 %
-sv \in stateVarDecl &::=& v = e \sep sv \\
+d \in pktDecl &::=& Packet \{ vlist \} \\
+%
+sv \in stateVarDecl &::=& var = e;sv \sep sv \\
 %
 p \in program &::=& \{ d ; sv ; t \}
 \end{eqnarray*}
 \end{scriptsize}
-\caption{\pktlanguage grammar}
+\caption{\pktlanguage grammar. Type annotations are elided, e.g., struct and int.}
 \label{fig:grammar}
 \end{figure}
 
