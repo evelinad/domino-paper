@@ -176,10 +176,10 @@ modest price for the programmability it enables.
     \hline
   \end{tabular}
   \end{scriptsize}
-  \caption{Atom areas and minimum delays in a 32-nm standard-cell
-  library.  All atoms meet timing at 1 GHz. Each of the seven compiler targets
-  contains one of the seven stateful atoms (Read/Write to Pairs) and the
-  single stateless atom.}
+  \caption{Atom areas and minimum critical-path delays in a 32-nm
+  standard-cell library.  All atoms meet timing at 1 GHz. Each of the seven
+  compiler targets contains one of the seven stateful atoms (Read/Write to Pairs)
+  and the single stateless atom.}
   \label{tab:templates}
 \end{table}
 
@@ -251,7 +251,6 @@ rate.
 %%computations all need to finish within a ns, while the set of algorithms is
 %%infinite.
 
-% TODO: Be consistent between timing, delay, end-to-end delay, critical path, etc.
 \paragraph{Atom design is constrained by timing, not area}
 
 Atoms are affected by two factors: their area and their timing, i.e., the
@@ -261,15 +260,15 @@ relative to chip area. Further, even for future atoms that are larger, area may
 be controlled by provisioning fewer atom instances.
 
 However, atom timing is critical. Table~\ref{tab:templates} shows a 3.4x
-range in minimum delay between the simplest and the most complex atoms. This increase
+range in minimum critical-path delay between the simplest and the most complex atoms. This increase
 can be explained by looking at the simplified circuit
 diagrams for the first three atoms (Table~\ref{tab:circuits}), which show an
 increase in circuit depth with atom complexity.
 
 Because the clock frequency of
-a circuit is at least as small as the reciprocal of this minimum delay, a more complex
+a circuit is at least as small as the reciprocal of this minimum critical-path delay, a more complex
 atom results in a lower clock frequency and a lower line rate. Although all our
-atoms have a minimum delay under 1 ns (1 GHz), it is easy to extend them
+atoms have a minimum critical-path delay under 1 ns (1 GHz), it is easy to extend them
 with functionality that violates timing at 1 GHz.
 
 In summary, for a switch designer, the minimum delay on the critical path of atoms
@@ -293,7 +292,7 @@ squeezed into a critical path budget of 1 clock cycle.
   \hline
   \end{tabular}
 \end{scriptsize}
-\caption{Minimum delay of an atom increases with circuit depth. MUX
+\caption{An atom's minimum critical-path delay increases with circuit depth. MUX
 stands for a multiplexer, RELOP stands for a relational operation between two
 operands.}
 \label{tab:circuits}
