@@ -74,23 +74,8 @@ intrinsic function call.  To convert to three-address code, we flatten
 expressions that are not in three-address code using
 temporaries~(Figure~\ref{fig:three_address}).
 
-%%Flattening may result in
-%%temporaries that compute the same expression; we remove these using common
-%%subexpression elimination~\cite{cse}.
-%\footnote{Ternary/Conditional operators take in 4 addresses instead
-%of 3.}
-%%%\MA{Do we need a figure for every step? They're taking a lot of space,
-%%%  and I feel weaving through them disrupts the flow of the paper. One
-%%%  option is to only show the final result of the normalization stage
-%%%  (Figure 8) and move all the intermediate figures to an Appendix}
-
 \subsection{Pipelining}
 \label{ss:pipelining}
-%TODO: What is new/new application in Pipelining relative to prior work?
-
-% in that it operates on a
-%single packet at a time without using a pipeline to process packets
-%concurrently.
 At this point, the preprocessed code is still one sequential code block.
 Pipelining turns this sequential code block into a pipeline of
 \textit{codelets}, where each codelet is a sequential block of three-address
@@ -326,8 +311,6 @@ finds the solution with {\tt choice=0} and {\tt constant=1}.  In contrast, if
 the codelet {\tt x=x*x} was supplied as the specification, SKETCH will return
 an error as no parameters exist.
 
-%TODO: George's suggestion motivating SKETCH.
-
 %%To minimize search time, the range
 %%of possible inputs and parameter values need to be specified in the template
 %%(e.g., all 8 bit integers), and our experiments show that the search finishes
@@ -335,12 +318,6 @@ an error as no parameters exist.
 
 \subsection{Related compiler techniques}
 \label{ss:related_compiler}
-%%\ac{Why is this section here as opposed to the related work? Are we claiming novelty in
-%%the rewriting techniques here? The differences seem incremental to me.}
-%%Anirudh->Alvin: I think it's useful to have it here because we explicitly say that we reuse many compiler
-%%techniques and its interesting to compare and contrast them specifically.
-%%I don't have a religious opinion on this.
-% TODO: Don't cite rau. It doesn't mention SCCs anywhere.
 Table~\ref{tab:prior_compiler} shows the relationship between \pktlanguage's
 compilation techniques and prior work. The use of Strongly Connected Components
 (SCCs) is inspired by software pipelining for VLIW
@@ -363,13 +340,6 @@ Branch removal resembles if-conversion~\cite{if_conversion}, a
 technique used in vectorizing compilers. This procedure is easier in Domino
 because there is no backward control transfer (goto, break,
 continue).
-
-% TODO: Maybe add a subsection here that's a postscript that says: Why does this work and other comments Hari had?
-% 1.  Make sketching and strongly connected components more prominent and emphasize
-% what's new/interesting about them. 
-% 
-% 2.  why does our design achieve (ordered) transactions?
-% 3.  why is it beneficial?
 
 \begin{table}[!t]
   \begin{scriptsize}
