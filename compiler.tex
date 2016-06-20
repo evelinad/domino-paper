@@ -86,6 +86,7 @@ representations for CPUs~\cite{llvm} that have infinite virtual
 registers. Later, during code generation, we map these codelets to atoms
 available in a \absmachine machine, while respecting its constraints.
 
+\new{
 We create PVSM's codelet pipeline using the steps below.
 \begin{CompactEnumerate}
   \item Create a graph with one node for each statement in the preprocessed code.
@@ -113,6 +114,7 @@ We create PVSM's codelet pipeline using the steps below.
   (\S\ref{ss:code_gen}).}
 % Ditching ref to crit. path scheduling.
 \end{CompactEnumerate}
+}
 %\footnote{An instruction A is control
 %    dependent on a preceding instruction B if the outcome of B determines
 %    whether A should be executed or not.}

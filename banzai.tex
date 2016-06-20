@@ -119,6 +119,7 @@ stateless instructions on pairs of packet fields alone, which can then be
 composed into larger stateless operations, without designing atoms specifically
 for each stateless operation.
 
+\new{
 \paragraph{Representing atoms}
 An atom is represented by a body of sequential code that captures the atom's
 behavior. It may also contain internal state local to the atom. An atom
@@ -127,7 +128,7 @@ internal state before processing the next packet. The designer of a
 programmable switch would develop these atoms, and expose them to a switch
 compiler as the programmable switch's instruction set, e.g.,
 Table~\ref{tab:templates}.
-
+}
 Using this representation, a switch counter that wraps around at a
 value of 100 can be written as the atom:\footnote{We use {\tt p.x} to
   represent field {\tt x} within a packet {\tt p} and {\tt x} to
@@ -149,6 +150,7 @@ value can be written as the atom:
 \subsection{Constraints for line-rate operation}
 \label{s:atomConstraints}
 
+\new{
 \textbf{Memory limits: } State in \absmachine is local to each atom.  It can
 neither be shared by atoms within a stage, nor atoms across stages. This is
 because building multi-ported memories accessible to multiple atoms is
@@ -157,6 +159,7 @@ be read into a packet header in one stage for subsequent use by a downstream
 stage\footnote{Figure~\ref{fig:flowlet_pipeline} shows an example. {\tt
 last\_time} is read into {\tt pkt.last\_time} in stage 2, for subsequent use by stage 3.}.  But, the \absmachine pipeline is
 feed-forward, so state can only be carried forward, not backward.
+}
 
 \textbf{Computational limits:} Atoms need to execute atomically from one packet
 to the next, so any state internal to the atom must be updated

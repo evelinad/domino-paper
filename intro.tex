@@ -78,6 +78,7 @@ algorithms at lower speeds as with network processors or software routers: when
 compiled, a packet transaction runs at line rate, or not at all.  Performance
 is not just predictable, but guaranteed.
 
+\new{
 In realizing packet transactions, we make three new contributions.  First, {\em
 \absmachine}, a machine model for programmable line-rate
 switches~(\S\ref{s:absmachine}).  \absmachine models two important constraints
@@ -86,19 +87,24 @@ share state between different packet-processing units, and the requirement that
 any switch state modifications be visible to the next packet entering the
 switch. Based on these constraints, we introduce {\em atoms} to represent a
 programmable switch's packet-processing units, i.e., its instruction set.
+}
 
+\new{
 Second, {\em \pktlanguage{}}, a new domain-specific language (DSL) for
 data-plane algorithms, with packet transactions at its core
 (\S\ref{s:transactions}).  \pktlanguage is an imperative language with C-like
 syntax, to our knowledge the first to offer such a high-level programming
 abstraction for line-rate switches.
+}
 
+\new{
 Third, {\em a compiler from \pktlanguage packet transactions to a \absmachine
 target}~(\S\ref{s:compiler}). The \pktlanguage compiler extracts {\em codelets}
 from  transactions: code fragments, which if executed atomically, guarantee a
 packet transaction's semantics. It then uses program
 synthesis~\cite{sketch_asplos} to map codelets to atoms, rejecting the
 transaction if the atom cannot execute the codelet.
+}
 
 We evaluate expressiveness by programming a variety of data-plane algorithms
 (Table~\ref{tab:algos}) in \pktlanguage and compare with P4. We find that
@@ -114,6 +120,8 @@ targets (\S\ref{ss:compiler}) to show how a target's atoms determine the
 algorithms it can support. We conclude with several lessons for programmable
 switch design (\S\ref{ss:lessons}).
 
+\new{
 Code for the \pktlanguage compiler, the \absmachine machine model, and the code
 examples listed in Table~\ref{tab:algos} is available at
 \url{http://web.mit.edu/domino}.
+}

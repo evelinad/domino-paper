@@ -90,6 +90,7 @@ design of stateless and stateful atoms separately. Finally, we discuss how
 these stateless and stateful atoms are combined together in our compiler
 targets.
 
+\new{
 \paragraph{Atom feasibility}
 We synthesize a digital circuit corresponding to an atom template by
 writing the atom template in Verilog, and using the Synopsys Design
@@ -99,6 +100,7 @@ standard-cell library, and outputs its gate area. We use this gate area,
 along with the area of a 200 \si{\milli\metre\squared}
 baseline switching chip~\cite{gibb_parsing}, to estimate the area overhead for provisioning a
 \absmachine machine with multiple instances of this atom.
+}
 % (a library of primitive gates designed using a
 %transistor with a feature size of 32 nm)
 
@@ -128,6 +130,7 @@ propagation delay increases with the atom's
 complexity~(Table~\ref{tab:templates}).
 
 %TODO: Get Hari to read this.
+\new{
 \paragraph{The compiler targets}
 We design seven \absmachine machines that serve as compiler targets. A single
 \absmachine machine has 600 atoms.
@@ -142,7 +145,8 @@ and stateful atoms per pipeline stage and 30 pipeline stages. While the number
 300 and the pipeline layout are arbitrary, they are sufficient for all
 examples in Table~\ref{tab:algos}, and incur modest area overhead
 as we show next.
-
+}
+\new{
 We estimate the area overhead of these seven targets relative to a 200
 \si{\milli\metre\squared} chip~\cite{gibb_parsing}, which is at the lower end
 of chip sizes today. For this, we multiply the individual atom areas from
@@ -151,7 +155,7 @@ Table~\ref{tab:templates} by 300 for both the stateless and stateful atoms. For
 the Pairs atom, the largest among our stateful atoms.  The area overhead
 combining both stateless and staeful atoms for all our targets is at most 1.1\%---a
 modest price for the programmability it enables.
-
+}
 \begin{table}[!t]
   \begin{scriptsize}
   \begin{tabular}{|p{0.13\textwidth}|p{0.18\textwidth}|p{0.04\textwidth}|p{0.04\textwidth}|}
@@ -252,29 +256,36 @@ rate.
 %%infinite.
 
 \paragraph{Atom design is constrained by timing, not area}
-
+\new{
 Atoms are affected by two factors: their area and their timing, i.e., the
 minimum delay on the critical path of the atom's combinational circuit. For
 the few hundred atoms that we require, atom area is insignificant (< 2\%)
 relative to chip area. Further, even for future atoms that are larger, area may
 be controlled by provisioning fewer atom instances.
+}
 
+\new{
 However, atom timing is critical. Table~\ref{tab:templates} shows a 3.4x
 range in minimum critical-path delay between the simplest and the most complex atoms. This increase
 can be explained by looking at the simplified circuit
 diagrams for the first three atoms (Table~\ref{tab:circuits}), which show an
 increase in circuit depth with atom complexity.
+}
 
+\new{
 Because the clock frequency of
 a circuit is at least as small as the reciprocal of this minimum critical-path delay, a more complex
 atom results in a lower clock frequency and a lower line rate. Although all our
 atoms have a minimum critical-path delay under 1 ns (1 GHz), it is easy to extend them
 with functionality that violates timing at 1 GHz.
+}
 
+\new{
 In summary, for a switch designer, the minimum delay on the critical path of atoms
 is the most important metric to optimize. The most programmable line-rate
 switches will have the highest density of useful stateful functionality
 squeezed into a critical path budget of 1 clock cycle.
+}
 
 \begin{table}[!t]
   \begin{scriptsize}
@@ -298,14 +309,15 @@ operands.}
 \label{tab:circuits}
 \end{table}
 
-
 \paragraph{Compilers can be used to design instruction sets}
+\new{
 Designing an instruction set for a programmable substrate is a chicken-and-egg
 problem: the choice of instructions determines which algorithms can execute on
 that target, while the choice of algorithms dictates what instructions are
 required in the target. Indeed, other programmable substrates (GPUs, CPUs,
 DSPs) go through an iterative process to design a good instruction set.
-
+}
+\new{
  A compiler can help with this process. To show how, we describe how we
 designed the atoms in Table~\ref{tab:templates}. We pick a data-plane
 algorithm, partially execute the \pktlanguage compiler to generate a pipeline
@@ -317,12 +329,14 @@ algorithm, extending our atom through a process of trial-and-error to capture
 more computations, and using the compiler to verify our intuitions on atom
 design. In the process,  we generate a hierarchy of atoms, each of which works
 for a subset of algorithms.
-
+}
+\new{
 Our atom design process is manual and ad hoc at this point, but it already
 shows how  a compiler can aid in instruction-set design for programmable
 switches. Using the same iterative approach involving a compiler, we anticipate
 the atoms in \absmachine machines evolving as data-plane algorithms demand more
 of the hardware.
+}
 
 %%\textbf{Compilation time:}
 %%Compilation time is dominated by SKETCH's search procedure.  To speed up the

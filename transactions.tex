@@ -90,6 +90,7 @@ and 15, respectively). The function body may use \textit{intrinsics} such as
 switch such as hash generators.  The \pktlanguage compiler uses an intrinsic's
 signature when analyzing dependencies, but otherwise treats it as a blackbox.
 
+\new{
 \paragraph{Packet transaction semantics}
 Semantically, the programmer sees the switch invoking the packet transaction
 serially in the order in which packets arrive, with no concurrent packet
@@ -101,6 +102,7 @@ these two views: it converts the packet transaction in
 Figure~\ref{fig:flowlet_code} to the atom pipeline in
 Figure~\ref{fig:flowlet_pipeline}, and guarantees the semantics of a packet
 transaction.
+}
 
 \subsection{Constraints on the language}
 \label{ss:constraints}
@@ -153,6 +155,7 @@ p \in program &::=& \{ d ; sv ; t \}
 \caption{\pktlanguage grammar. Type annotations are elided, e.g., struct and int.}
 \label{fig:grammar}
 \end{figure}
+
 
 \subsection{Triggering packet transactions}
 \label{ss:guards}
