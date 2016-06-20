@@ -1,8 +1,6 @@
 1. Get all the compiler figures in one page by the end.
 2. SKETCH justification per George.
 4. How do we guarantee transactional semantics? And what are our precise semantics anyway?
-6. Shorten references.
 8. Hari: Stress exactly what's new about the work, synthesis, strongly connected components, etc.
 9. Consider renaming Banzai to PISA.
 10. Fix Alvin's grammar.
-11. We use THRESHOLD in some places and expand it to 5 in others. Be consistent and maybe rename it to THRESH to save space.
