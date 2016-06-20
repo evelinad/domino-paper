@@ -47,7 +47,7 @@ program packet parsing and forwarding, i.e., a programmer can program the set
 of protocol formats to be matched and the set of actions to be executed when
 matching packet headers in a match-action table. Languages such as P4~\cite{p4}
 are emerging as a way to express such {\em match-action processing} in a
-hardware-independent way.
+hardware-independent manner.
 
 There is a gap between this form of programmability and the needs of data-plane
 algorithms. By contrast to packet forwarding, which doesn't modify state in the
@@ -58,8 +58,8 @@ state} in the switch as part of packet processing.
 For such algorithms, programmability must directly capture the algorithm's
 intent without requiring the algorithm to be shoehorned into hardware
 primitives like a sequence of match-action tables. Indeed, the ability to
-directly capture an algorithm's intent pervades programming models for any
-other networking device: software routers~\cite{click}, network
+directly capture an algorithm's intent pervades programming models for many
+other networking devices, e.g., software routers~\cite{click}, network
 processors~\cite{packetc}, and network endpoints~\cite{qdisc}.
 
 By studying the requirements of data-plane algorithms and the constraints of
@@ -107,8 +107,8 @@ data-plane algorithms.  Next, because no existing programmable switch supports
 the set of atoms required for our data-plane algorithms, we design a set of
 compiler targets for these algorithms based on \absmachine
 (\S\ref{ss:targets}).  We show that these targets are feasible in a 32-nm
-standard-cell library with $< 2\%$ chip area cost relative to a baseline
-switching chip of size 200 \si{\milli\metre\squared}~\cite{gibb_parsing}.
+standard-cell library with $< 2\%$ cost in area relative to a 200
+\si{\milli\metre\squared} baseline switching chip~\cite{gibb_parsing}.
 Finally, we compile data-plane algorithms written in \pktlanguage to these
 targets (\S\ref{ss:compiler}) to show how a target's atoms determine the
 algorithms it can support. We conclude with several lessons for programmable
