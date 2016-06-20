@@ -71,11 +71,14 @@ conditional \footnote{Conditional operations alone have four arguments.}
 operator.  We also allow either one of {\tt pkt.f2} or {\tt pkt.f3} to be an
 intrinsic function call.  To convert to three-address code, we flatten
 expressions that are not in three-address code using
-temporaries~(Figure~\ref{fig:three_address}). Flattening to three-address code breaks down
+temporaries~(Figure~\ref{fig:three_address}).
+
+Flattening to three-address code breaks down
 statements in the packet transaction into a much simpler form that is closer
 to the atoms available in the \absmachine machine. For instance, there are no
 longer any  nested expressions. The simpler form of three-address code statements
 makes it easier to map them to atoms during code generation (\S\ref{ss:code_gen}).
+% Anirudh->Alvin: Can you check the above paragraph?
 
 \subsection{Pipelining}
 \label{ss:pipelining}
