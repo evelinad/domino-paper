@@ -54,8 +54,8 @@ switching.  Control flows from top to bottom. Stateful atoms are in grey.}
 \caption{Programming flowlet switching in \pktlanguage}
 \end{figure*}
 
-To program a data-plane algorithm, a programmer would write code in
-\pktlanguage using packet transactions (Figure~\ref{fig:flowlet_code}).  The
+To program a data-plane algorithm, a programmer writes \pktlanguage code
+using packet transactions (Figure~\ref{fig:flowlet_code}).  The
 \pktlanguage compiler then compiles this transaction to an atom pipeline for a
 \absmachine machine (Figure~\ref{fig:flowlet_pipeline}). We first describe
 packet transactions in greater detail by walking through an example
@@ -80,6 +80,7 @@ Figure~\ref{fig:flowlet_code} shows flowlet switching in \pktlanguage and
 demonstrates its core language constructs. All packet processing happens in the
 context of a packet transaction (the function \texttt{flowlet} starting at line
 17). The function's argument type {\tt Packet} declares the fields in a packet
+\ac{why not call them ``class fields'' instead to distinguish from packet headers}
 (lines 5--12)\footnote{We use fields to refer to both packet headers such as
 source port ({\tt sport}) and destination port ({\tt dport}) and packet
 metadata ({\tt id}).} that can be referenced by the function body (lines
@@ -89,6 +90,7 @@ and 15, respectively). The function body may use \textit{intrinsics} such as
 \texttt{hash2} on line 23 to directly access hardware accelerators on the
 switch such as hash generators.  The \pktlanguage compiler uses an intrinsic's
 signature when analyzing dependencies, but otherwise treats it as a blackbox.
+\ac{variable read / write dependencies?}
 %TODO: Rethink intrinsic description
 
 \paragraph{Packet transaction semantics}
@@ -103,8 +105,11 @@ Figure~\ref{fig:flowlet_code} to the atom pipeline in
 Figure~\ref{fig:flowlet_pipeline}, and guarantees the semantics of a packet
 transaction.
 % TODO: This could come all the way at the beginning of this section.
+\ac{I find this para a bit weird. Is the goal to describe how the compiler
+works? Or is it to justify the transaction programming model? Seems to be 
+doing a half-baked job of either.}
 
-\subsection{Constraints on the language}
+\subsection{The \pktlanguage language}
 \label{ss:constraints}
 \pktlanguage's syntax (Figure~\ref{fig:grammar}) is similar to C, but with
 several constraints (Table~\ref{tab:restrict}).  These constraints are required
@@ -112,21 +117,24 @@ for deterministic performance.  Memory allocation, unbounded iteration counts,
 and unstructured control flow cause variable performance, which may prevent an
 algorithm from achieving line rate.  Additionally, \pktlanguage constrains
 array modifications by requiring that all accesses to a given array within one
-execution of a transaction, i.e., one packet, must use the same array index.
+execution of a transaction, i.e., one packet, must be constant. 
+%use the same array index.
 For example, all read and write accesses to the array \texttt{last\_time} use
-the index \texttt{pkt.id}, which is constant for each packet, but can change
+the index \texttt{pkt.id}, which is constant for a given packet, but can change
 between packets. This restriction mirrors restrictions on the stateful memories
 attached to atoms (\S\ref{s:atomConstraints}), which require multiple ports to
 support distinct read and write addresses every clock cycle.
+\ac{is this more like all array indexes need to be known during compile time?} 
 
 \begin{table}
   \begin{tabular}{p{0.9\columnwidth}}
     No iteration (while, for, do-while).\\
-    No goto, break, or continue.\\
-    No pointers.\\
+    No goto, break, or continue.\\ \ac{just say unstructured control flow?}\\
+    No pointers.\\ \ac{no heap already implies no pointers and dynamic mem allocation. combine these two lines?}
     No dynamic memory allocation / heap.\\
     Array index is constant for each transaction execution.\\
     No access to the unparsed portion of the packet.\\
+    \ac{how do I know which fields are parsed?}\\
 %    No arrays in packet fields.\\
   \end{tabular}
   \caption{Restrictions in \pktlanguage}
@@ -137,33 +145,39 @@ support distinct read and write addresses every clock cycle.
 \newcommand{\sep}{~|~}
 \begin{scriptsize}
 \begin{eqnarray*}
-e \in expr &::=& e.f \sep const \sep var \sep e~op~e \sep \neg~e \sep e[e] \sep f(\ldots) \\
+l \in \text{literals} \quad v \in \text{variables} \quad &bop& \in \text{binary ops} \quad
+uop \in \text{unary ops} \\
 %
-s \in stmt &::=& e = e \sep if~(e)~s~else~s \sep s~;~s \\
+e \in \text{exprs} &::=& e.f \sep l \sep v \sep e~bop~e \sep uop~e \sep e[e] \sep \\
+                   & &   f(e_1, \ldots) \\
 %
-t \in pktTxn &::=& txnName(Packet~var) \{ s \} \\
+s \in \text{stmts} &::=& e = e \sep {\tt if}~(e)~\{ s \}~{\tt else}~ \{ s \} \sep s~;~s \\
 %
-vlist \in varList &::=& var;vlist \sep vlist \\
+t \in \text{pktTxns} &::=& name(v) \{ s \} \\
 %
-d \in pktDecl &::=& Packet \{ vlist \} \\
+%vlist \in varList &::=& var;vlist \sep vlist \\
 %
-sv \in stateVarDecl &::=& var = e;sv \sep sv \\
+d \in \text{pktDecls} &::=& \text{\tt struct Packet} \{ v_1, \ldots \} \\
 %
-p \in program &::=& \{ d ; sv ; t \}
+sv \in \text{stateVarInits} &::=& v = e \sep sv~;~sv \\
+%
+p \in \text{\pktlanguage progs} &::=& \{ d ; sv; t \}
 \end{eqnarray*}
 \end{scriptsize}
-\caption{\pktlanguage grammar. Type annotations are elided, e.g., struct and int.}
+\caption{\pktlanguage grammar. Type annotations are elided for variable declarations.}
 \label{fig:grammar}
 \end{figure}
 
 \subsection{Triggering packet transactions}
 \label{ss:guards}
 Packet transactions specify \textit{how} to process packet headers and/or
-state.  To specify {\em when} to run packet transactions, we provide a {\em
-guard}: a predicate on packet fields that triggers the transaction whenever a
-packet matches the guard. An example guard (pkt.tcp\_dst\_port == 80) would
-trigger heavy-hitter detection on all packets on TCP destination port 80. This
-guard can be realized using an exact match in a match-action table, with the
+state.  To specify {\em when} to run packet transactions, programmers use a {\em
+guards}: predicates on packet fields that trigger the transaction whenever a
+packet matches the guard. An example guard {\tt (pkt.tcp\_dst\_port == 80)} would
+trigger heavy-hitter detection on all packets on TCP destination port 80.
+\ac{I think i's better to give the full guard+trigger in the example rather than 
+just the guard?} 
+Guards can be realized using an exact match in a match-action table, with the
 actions being the atoms compiled from a packet transaction. Guards
 can take various forms, e.g., exact, ternary, longest-prefix, and range-based
 matches, depending on the matches supported by the match-action
@@ -172,12 +186,13 @@ match-action table, we focus only on compiling packet transactions.
 
 % Anirudh->Alvin: Guards are outside the Domino language. They are whatever
 % match semantics is supported by the switch.
-% This is a practical requirement to express data-plane algorithms on a real switch, but not something very interesting to talk about.
+% This is a practical requirement to express data-plane algorithms on a real
+% switch, but not something very interesting to talk about.
 
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
 So far, we have discussed a single packet transaction corresponding to a single
-data-plane algorithm. In practice, a switch would run multiple data-plane
+data-plane algorithm. In practice, a switch can run multiple data-plane
 algorithms, each processing its own subset of packets. To address this, we
 envision a policy language that specifies pairs of guards and transactions.
 Realizing a policy is straightforward when all guards are disjoint. When guards
@@ -187,6 +202,7 @@ to concatenate the two transaction bodies in an order specified by the user,
 providing the illusion of a larger transaction that combines two transactions.
 We leave a detailed exploration of this and alternative semantics to future
 work, and focus only on compiling a single packet transaction.
+\ac{why not just execute txns one after another sequentially?}
 
 %%\ac{would interleaving stmts from multiple transactions be a potential
 %%optimization here (as in db transactions)?}
