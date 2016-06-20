@@ -480,9 +480,9 @@
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1600"
-     inkscape:window-height="848"
-     inkscape:window-x="320"
-     inkscape:window-y="1080"
+     inkscape:window-height="824"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
      inkscape:window-maximized="1"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -508,7 +508,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -560,7 +560,7 @@
          sodipodi:role="line"
          x="53.21875"
          y="1834.9797"
-         id="tspan3122-2">Normalization</tspan><tspan
+         id="tspan3122-2">Preprocessing</tspan><tspan
          sodipodi:role="line"
          x="53.21875"
          y="1939.9797"
