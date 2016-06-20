@@ -1,6 +1,4 @@
 1. Get all the compiler figures in one page by the end.
-2. SKETCH justification per George.
-4. How do we guarantee transactional semantics? And what are our precise semantics anyway?
+4. How do we guarantee transactional semantics?
 8. Hari: Stress exactly what's new about the work, synthesis, strongly connected components, etc.
-9. Consider renaming Banzai to PISA.
 10. Simplify Alvin's grammar (maybe use the example from the path queries paper).
