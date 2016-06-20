@@ -43,17 +43,14 @@ implemented at line rate, we design a concrete set of \absmachine machines
 \pktlanguage~(\S\ref{ss:targets}).  We estimate that these machines are
 feasible in hardware today because their atoms incur modest chip area overhead.
 Next, we use the \pktlanguage compiler to compile the algorithms in
-Table~\ref{tab:algos} to the targets in Table~\ref{tab:templates}~(\S\ref{ss:compiler}).  Finally, we
-describe lessons learned from our evaluation~(\S\ref{ss:lessons}).
-%%
-%%\footnote{We develop our own atoms since
-%%no existing programmable switching chip supports a sufficiently rich set of
-%%operations needed for data-plane algorithms.}
+Table~\ref{tab:algos} to the targets in
+Table~\ref{tab:templates}~(\S\ref{ss:compiler}).  Finally, we describe lessons
+learned from our evaluation~(\S\ref{ss:lessons}).
 
 \subsection{Expressiveness}
 \label{ss:expressiveness}
 
-To evaluate \pktlanguage's expressiveness, we express several data-plane
+We program several data-plane
 algorithms (Table~\ref{tab:algos}) using \pktlanguage. These algorithms
 encompass data-plane traffic engineering, in-network congestion control, active
 queue management, network security, and measurement. We also used \pktlanguage
@@ -96,17 +93,18 @@ targets.
 \paragraph{Atom feasibility}
 We synthesize a digital circuit corresponding to an atom template by
 writing the atom template in Verilog, and using the Synopsys Design
-Compiler~\cite{synopsys_dc} to check if it meets timing at 1 GHz in a 32-nm
-standard-cell library.  Second, we use an individual atom's gate area, also
-obtained from the Synopsys Design Compiler, and a switching chip's
-area~\cite{gibb_parsing}, to estimate the area overhead for provisioning a
-\absmachine machine with multiple instances of each atom.
+Compiler~\cite{synopsys_dc} to compile the Verilog code. The Design Compiler checks
+if the resulting circuit meets timing at 1 GHz in a 32-nm
+standard-cell library, and outputs its gate area. We use this gate area,
+along with the area of a 200 \si{\milli\metre\squared}
+baseline switching chip~\cite{gibb_parsing}, to estimate the area overhead for provisioning a
+\absmachine machine with multiple instances of this atom.
 % (a library of primitive gates designed using a
 %transistor with a feature size of 32 nm)
 
 \paragraph{Designing stateless atoms}
 Stateless atoms are easier to design because arbitrary stateless operations can
-be spread out across multiple pipeline stages without violating
+be broken into multiple pipeline stages without violating
 atomicity~(\S\ref{ss:atoms}). We design a stateless atom that can support
 simple arithmetic (add, subtract, left shift, right shift), logical (and, or,
 xor), relational ({\tt >=}, {\tt <=}, {\tt ==}, {\tt !=}), and conditional
@@ -118,17 +116,18 @@ meets timing at 1 GHz and occupies an area of 1384 \si{\micro\meter\squared}
 \paragraph{Designing stateful atoms}
 The choice of stateful atoms determines the algorithms a line-rate switch can
 support. A more complex stateful atom can support more data-plane algorithms,
-but may not meet timing, and occupies more area. To illustrate this effect, we
+but may not meet timing and occupies more area. To illustrate this effect, we
 design a containment hierarchy (Table~\ref{tab:templates}) of stateful atoms,
 where each atom can express all stateful operations that its predecessor can.
 These atoms start out with the simplest stateful capability: the ability to
 read or write state alone.  They then move on to the ability to read, add, and
 write back state atomically (RAW), a predicated version of the same (PRAW), and
-so on. When synthesized to a 32 nm standard-cell library, all our stateful
+so on. When synthesized to a 32-nm standard-cell library, all our stateful
 atoms meet timing at 1 GHz.  However, the atom's area and minimum end-to-end
 propagation delay increases with the atom's
 complexity~(Table~\ref{tab:templates}).
 
+%TODO: Get Hari to read this.
 \paragraph{The compiler targets}
 We design seven \absmachine machines that serve as compiler targets. A single
 \absmachine machine has 600 atoms.
@@ -136,12 +135,12 @@ We design seven \absmachine machines that serve as compiler targets. A single
 \item 300 are stateless atoms of the single stateless atom type from
 Table~\ref{tab:templates}.
 \item 300 are stateful atoms of one of the seven stateful atom types from
-Table~\ref{tab:templates}.
+Table~\ref{tab:templates} (Read/Write through Pairs).
 \end{CompactEnumerate}
 These 300 stateless and stateful atoms are laid out physically as 10 stateless
 and stateful atoms per pipeline stage and 30 pipeline stages. While the number
-300 and the pipeline layout are arbitrary, they are sufficient for all the
-examples we consider in Table~\ref{tab:algos}, and incur modest area overhead
+300 and the pipeline layout are arbitrary, they are sufficient for all
+examples in Table~\ref{tab:algos}, and incur modest area overhead
 as we show next.
 
 We estimate the area overhead of these seven targets relative to a 200
@@ -149,15 +148,15 @@ We estimate the area overhead of these seven targets relative to a 200
 of chip sizes today. For this, we multiply the individual atom areas from
 Table~\ref{tab:templates} by 300 for both the stateless and stateful atoms. For
 300 atoms, the area overhead is 0.2 \% for the stateless atom and 0.9 \% for
-the Pairs atom, the largest among our stateful atoms.  The total area overhead
-combining both stateless and staeful atoms for each target is at most 1.1\%---a
+the Pairs atom, the largest among our stateful atoms.  The area overhead
+combining both stateless and staeful atoms for all our targets is at most 1.1\%---a
 modest price for the programmability it enables.
 
 \begin{table}[!t]
   \begin{scriptsize}
   \begin{tabular}{|p{0.13\textwidth}|p{0.18\textwidth}|p{0.04\textwidth}|p{0.04\textwidth}|}
     \hline
-    Atom & Description & Area (\si{\micro\metre\squared}) at 1 GHz & Min. delay (picoseconds) \\
+    Atom & Description & Area (\si{\micro\metre\squared}) at 1 GHz & Min. delay (ps) \\
     \hline
     Stateless & Arithmetic, logic, relational, and conditional operations on packet/constant operands & 1384 & 387 \\
     \hline
@@ -177,7 +176,7 @@ modest price for the programmability it enables.
     \hline
   \end{tabular}
   \end{scriptsize}
-  \caption{Atom areas and minimum timing delays in a 32-nm standard-cell
+  \caption{Atom areas and minimum delays in a 32-nm standard-cell
   library.  All atoms meet timing at 1 GHz. Each of the seven compiler targets
   contains one of the seven stateful atoms (Read/Write to Pairs) and the
   single stateless atom.}
@@ -195,27 +194,27 @@ machine.
 We say an algorithm can run at line rate on a \absmachine machine if every
 codelet within the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to
 either the stateful or stateless atom provided by the \absmachine machine.
-Because stateful atoms are arranged in a containment hierarchy, we list the
+Because our stateful atoms are arranged in a containment hierarchy, we list the
 \textit{most expressive} stateful atom/target required for each data-plane
 algorithm in Table~\ref{tab:algos}.
 
 As Table~\ref{tab:algos} shows, the choice of stateful atom determines
  what algorithms can run on a switch. For instance, with only the
 ability to read or write state, only the Bloom Filter algorithm can run at line
-rate because it only requires the ability to test and set membership bits.
+rate, because it only requires the ability to test and set membership bits.
 Adding the ability to increment state values (the RAW atom) permits Heavy
-Hitters to run at line rate because it employs a count-min sketch that is
+Hitters to run at line rate, because it employs a count-min sketch that is
 incremented on each packet.
 
 \subsection{Lessons learned}
 \label{ss:lessons}
 \paragraph{Atoms with a single state variable support many algorithms}
 
-For instance, the algorithms from Bloom Filter through DNS TTL Change Tracking
-in Table~\ref{tab:algos} can be run at line rate using the Nested Ifs atom that
-manipulates a single state variable.
+The algorithms from Bloom Filter through DNS TTL Change Tracking
+in Table~\ref{tab:algos} can run at line rate using the Nested Ifs atom that
+modifies a single state variable.
 
-\paragraph{But, some algorithms modify pairs of state variables}
+\paragraph{But, some algorithms modify a pair of state variables atomically}
 
 An example is CONGA, whose code is given below:
 \begin{verbatim}
@@ -244,7 +243,7 @@ line rate.  An example is CoDel, which cannot be implemented because it
 requires a square root operation that isn't provided by any of our targets. One
 possibility is a look-up table abstraction that allows us to approximate such
 mathematical functions. However, regardless of what set of atoms we design for
-a particular target, there will always be algorithms that cannot be run at line
+a particular target, there will always be algorithms that cannot run at line
 rate.
 
 %%This is because the set of computations that can be
@@ -252,28 +251,31 @@ rate.
 %%computations all need to finish within a ns, while the set of algorithms is
 %%infinite.
 
+% TODO: Be consistent between timing, delay, end-to-end delay, critical path, etc.
 \paragraph{Atom design is constrained by timing, not area}
 
-Atoms are affected by two factors, their area and their timing, i.e., the
-end-to-end delay on the critical path of the atom's combinational circuit. For
+Atoms are affected by two factors: their area and their timing, i.e., the
+minimum delay on the critical path of the atom's combinational circuit. For
 the few hundred atoms that we require, atom area is insignificant (< 2\%)
 relative to chip area. Further, even for future atoms that are larger, area may
 be controlled by provisioning fewer atom instances.
 
-However, atom timing is more critical. Table~\ref{tab:templates} shows a 3.4x
-range in timing between the simplest and the most complex atoms. This increase
-in timing across atoms can be explained by looking at the simplified circuit
+However, atom timing is critical. Table~\ref{tab:templates} shows a 3.4x
+range in minimum delay between the simplest and the most complex atoms. This increase
+can be explained by looking at the simplified circuit
 diagrams for the first three atoms (Table~\ref{tab:circuits}), which show an
-increase in circuit depth with atom complexity. Because the clock frequency of
-a circuit is at least as small as the reciprocal of this timing, a more complex
+increase in circuit depth with atom complexity.
+
+Because the clock frequency of
+a circuit is at least as small as the reciprocal of this minimum delay, a more complex
 atom results in a lower clock frequency and a lower line rate. Although all our
-atoms have an end-to-end delay under  1 ns (1 GHz), it is easy to extend them
+atoms have a minimum delay under 1 ns (1 GHz), it is easy to extend them
 with functionality that violates timing at 1 GHz.
 
-In summary, for a switch designer, the end-to-end critical path delay of atoms
+In summary, for a switch designer, the minimum delay on the critical path of atoms
 is the most important metric to optimize. The most programmable line-rate
 switches will have the highest density of useful stateful functionality
-squeezed into an end-to-end timing budget of 1 clock cycle.
+squeezed into a critical path budget of 1 clock cycle.
 
 \begin{table}[!t]
   \begin{scriptsize}
@@ -323,11 +325,6 @@ switches. Using the same iterative approach involving a compiler, we anticipate
 the atoms in \absmachine machines evolving as data-plane algorithms demand more
 of the hardware.
 
-%That said, We make no claim to this being the correct or optimal
-%instruction set. We only show that this is feasible and can be used to
-%implement a variety of data-plane algorithms, which is far beyond a
-%fixed-function switch today. 
-%
 %%\textbf{Compilation time:}
 %%Compilation time is dominated by SKETCH's search procedure.  To speed up the
 %%search, we limit SKETCH to search for constants (e.g., for addition) of size up
