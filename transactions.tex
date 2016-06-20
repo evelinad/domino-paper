@@ -89,7 +89,6 @@ and 15, respectively). The function body may use \textit{intrinsics} such as
 \texttt{hash2} on line 23 to directly access hardware accelerators on the
 switch such as hash generators.  The \pktlanguage compiler uses an intrinsic's
 signature when analyzing dependencies, but otherwise treats it as a blackbox.
-%TODO: Rethink intrinsic description
 
 \paragraph{Packet transaction semantics}
 Semantically, the programmer sees the switch invoking the packet transaction
@@ -102,7 +101,6 @@ these two views: it converts the packet transaction in
 Figure~\ref{fig:flowlet_code} to the atom pipeline in
 Figure~\ref{fig:flowlet_pipeline}, and guarantees the semantics of a packet
 transaction.
-% TODO: This could come all the way at the beginning of this section.
 
 \subsection{Constraints on the language}
 \label{ss:constraints}

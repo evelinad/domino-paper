@@ -301,7 +301,6 @@ operands.}
 \end{table}
 
 
-% TODO: Be consistent between compiler target and programmable router.
 \paragraph{Compilers can be used to design instruction sets}
 Designing an instruction set for a programmable substrate is a chicken-and-egg
 problem: the choice of instructions determines which algorithms can execute on
@@ -309,7 +308,6 @@ that target, while the choice of algorithms dictates what instructions are
 required in the target. Indeed, other programmable substrates (GPUs, CPUs,
 DSPs) go through an iterative process to design a good instruction set.
 
-% TODO: Add a figure for this.
  A compiler can help with this process. To show how, we describe how we
 designed the atoms in Table~\ref{tab:templates}. We pick a data-plane
 algorithm, partially execute the \pktlanguage compiler to generate a pipeline

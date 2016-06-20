@@ -102,10 +102,6 @@ longer sustains the line rate of one packet every clock cycle. CPUs employ
 microarchitectural techniques such as operand forwarding to address this
 problem, but CPUs still suffer the occasional pipeline stall, which prevents
 line-rate performance from being achieved.
-%\footnote{Wait-free
-%objects~\cite{herlihy_wait} are an alternative to locking, but are typically
-%too complex for hardware.}
-%TODO: Maybe add a figure?
 
 \absmachine provides an atomic increment operation at line rate with an {\em
 atom} to read a counter, increment it, and write it back in a single stage within
@@ -123,8 +119,6 @@ stateless instructions on pairs of packet fields alone, which can then be
 composed into larger stateless operations, without designing atoms specifically
 for each stateless operation.
 
-%TODO: Maybe specify Hari's representation counter = counter ++ % 100 as well
-% The representation doesn't matter.
 \paragraph{Representing atoms}
 An atom is represented by a body of sequential code that captures the atom's
 behavior. It may also contain internal state local to the atom. An atom
