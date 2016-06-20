@@ -10,7 +10,7 @@ semantics possible: transactional semantics that provide the notion of an
 atomic and isolated block of code. Although these semantics make it easier to
 reason about performance, they exclude algorithms that cannot be run exactly at
 line rate. Are weaker semantics sensible? One possibility is approximating
-transactional semantics by executing the code on a subset of the packet stream.
+transactional semantics by only processing a sampled packet stream.
 This provides an increased time budget for each packet, potentially allowing
 the packet to be {\em recirculated} through the pipeline multiple times
 for packet processing. Another possibility is for the implementation to
