@@ -147,7 +147,7 @@ with no computational or resource constraints. We handle these next.
   \end{small}
   \end{minipage}
 %  
-  \hspace{-0.5in}
+  \hspace{-0.3in}
   $\Longrightarrow$ 
   \hspace{-0.3in}
 %  
@@ -155,9 +155,9 @@ with no computational or resource constraints. We handle these next.
   \begin{small}
   \begin{lstlisting}[style=customc, numbers=none, frame=none]
   @\textcolor{blue}{pkt.tmp = pkt.arrival - last\_time[pkt.id]  > THRESH}@;
-  saved_hop[pkt.id] = @\textcolor{blue}{pkt.tmp}@
+  saved_hop[pkt.id] = @\textcolor{blue}{pkt.tmp}@  @\textcolor{magenta}{// Rewritten}@
                       ? pkt.new_hop
-                      : saved_hop[pkt.id]; @\textcolor{magenta}{// Rewritten}@
+                      : saved_hop[pkt.id];
   \end{lstlisting}
   \end{small}
   \end{minipage}
