@@ -54,12 +54,12 @@ switching.  Control flows from top to bottom. Stateful atoms are in grey.}
 \caption{Programming flowlet switching in \pktlanguage}
 \end{figure*}
 
-To program a data-plane algorithm, a programmer writes \pktlanguage code
-using packet transactions (Figure~\ref{fig:flowlet_code}).  The
+A programmer programs a data-plane algorithm by writing it as
+a packet transaction in \pktlanguage (Figure~\ref{fig:flowlet_code}).  The
 \pktlanguage compiler then compiles this transaction to an atom pipeline for a
 \absmachine machine (Figure~\ref{fig:flowlet_pipeline}). We first describe
 packet transactions in greater detail by walking through an example
-(\S\ref{ss:flowlet}). Next, we discuss constraints in \pktlanguage
+(\S\ref{ss:flowlet}). Next, we discuss language constraints in \pktlanguage
 (\S\ref{ss:constraints}) informed by line-rate switches.  We then discuss
 triggering packet transactions (\S\ref{ss:guards}) and handling multiple
 transactions (\S\ref{ss:multiple}).
@@ -68,8 +68,8 @@ transactions (\S\ref{ss:multiple}).
 \label{ss:flowlet}
 
 We use flowlet switching~\cite{flowlets} as our running example. Flowlet
-switching is a load-balancing algorithm that sends bursts of packets (called
-flowlets) from a TCP flow on a randomly chosen next hop, provided the bursts
+switching is a load-balancing algorithm that sends bursts of packets, called
+flowlets, from a TCP flow on a randomly chosen next hop, provided the bursts
 are separated by a large enough time interval to ensure packets do not arrive
 out of order at a TCP receiver. For ease of exposition, we use only the source
 and destination ports in the hash function that randomly computes the next hop
@@ -85,7 +85,7 @@ context of a packet transaction (the function \texttt{flowlet} starting at line
 source port ({\tt sport}) and destination port ({\tt dport}) and packet
 metadata ({\tt id}).} that can be referenced by the function body (lines
 18--32).  The function body can also modify persistent switch state using
-global variables (e.g.  \texttt{last\_time} and \texttt{saved\_hop} on lines 14
+global variables (e.g., \texttt{last\_time} and \texttt{saved\_hop} on lines 14
 and 15, respectively). The function body may use \textit{intrinsics} such as
 \texttt{hash2} on line 23 to directly access hardware accelerators on the
 switch such as hash generators.  The \pktlanguage compiler uses an intrinsic's
@@ -93,6 +93,7 @@ signature when analyzing dependencies, but otherwise treats it as a blackbox.
 \ac{variable read / write dependencies?}
 %TODO: Rethink intrinsic description
 
+\new{
 \paragraph{Packet transaction semantics}
 Semantically, the programmer sees the switch invoking the packet transaction
 serially in the order in which packets arrive, with no concurrent packet
@@ -108,6 +109,8 @@ transaction.
 \ac{I find this para a bit weird. Is the goal to describe how the compiler
 works? Or is it to justify the transaction programming model? Seems to be 
 doing a half-baked job of either.}
+}
+
 
 \subsection{The \pktlanguage language}
 \label{ss:constraints}
@@ -168,6 +171,7 @@ p \in \text{\pktlanguage progs} &::=& \{ d ; sv; t \}
 \label{fig:grammar}
 \end{figure}
 
+
 \subsection{Triggering packet transactions}
 \label{ss:guards}
 Packet transactions specify \textit{how} to process packet headers and/or
@@ -181,7 +185,7 @@ Guards can be realized using an exact match in a match-action table, with the
 actions being the atoms compiled from a packet transaction. Guards
 can take various forms, e.g., exact, ternary, longest-prefix, and range-based
 matches, depending on the matches supported by the match-action
-pipeline. Because guards map rather straightforwardly to the match key in a
+pipeline. Because guards map straightforwardly to the match key in a
 match-action table, we focus only on compiling packet transactions.
 
 % Anirudh->Alvin: Guards are outside the Domino language. They are whatever
@@ -199,7 +203,7 @@ Realizing a policy is straightforward when all guards are disjoint. When guards
 overlap, multiple transactions need to execute on the same subset of packets,
 requiring a mechanism to compose transactions. One semantics for composition is
 to concatenate the two transaction bodies in an order specified by the user,
-providing the illusion of a larger transaction that combines two transactions.
+providing the illusion of a larger transaction that combines two transactions serially.
 We leave a detailed exploration of this and alternative semantics to future
 work, and focus only on compiling a single packet transaction.
 \ac{why not just execute txns one after another sequentially?}

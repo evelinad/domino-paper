@@ -13,11 +13,11 @@ performance~\cite{dobrescu2012}.
 The \pktlanguage compiler has three passes (Figure~\ref{fig:passes}), which we
 illustrate using the flowlet switching example.  \textit{Preprocessing}
 (\S\ref{ss:preprocessing}) simplifies the packet transaction into a simpler
-three-address code form~\cite{tac} that is amenable to pipelining.
+three-address code form~\cite{tac}.
 \textit{Pipelining} (\S\ref{ss:pipelining}) transforms preprocessed code into
 code for a \textit{Pipelined Virtual Switch Machine (PVSM)}, an intermediate
 representation that models a switch pipeline with no computational or resource
-limits. Third, \textit{code generation} (\S\ref{ss:code_gen}) transforms this
+limits. \textit{Code generation} (\S\ref{ss:code_gen}) transforms this
 intermediate representation into configuration for a \absmachine machine, given
 the machine's computational and resource limits (\S\ref{s:atomConstraints}),
 and rejects the program if it can't run at line rate.  The \pktlanguage
@@ -63,7 +63,6 @@ the same field~(Figure~\ref{fig:ssa}) .  Because fields are assigned once, SSA
 removes Write-After-Read and Write-After-Write dependencies.  Only
 Read-After-Write dependencies remain during pipelining (\S\ref{ss:pipelining}).
 
-% Don't bother citing tac
 \textbf{Flattening to three-address code: } Three-address code is a
 representation where all instructions are either reads/writes into state
 variables or operations on packet fields of the form \texttt{pkt.f1 = pkt.f2 op
@@ -74,23 +73,15 @@ intrinsic function call.  To convert to three-address code, we flatten
 expressions that are not in three-address code using
 temporaries~(Figure~\ref{fig:three_address}).
 
-%%Flattening may result in
-%%temporaries that compute the same expression; we remove these using common
-%%subexpression elimination~\cite{cse}.
-%\footnote{Ternary/Conditional operators take in 4 addresses instead
-%of 3.}
-%%%\MA{Do we need a figure for every step? They're taking a lot of space,
-%%%  and I feel weaving through them disrupts the flow of the paper. One
-%%%  option is to only show the final result of the normalization stage
-%%%  (Figure 8) and move all the intermediate figures to an Appendix}
+Flattening to three-address code breaks down
+statements in the packet transaction into a much simpler form that is closer
+to the atoms available in the \absmachine machine. For instance, there are no
+longer any  nested expressions. The simpler form of three-address code statements
+makes it easier to map them to atoms during code generation (\S\ref{ss:code_gen}).
+% Anirudh->Alvin: Can you check the above paragraph?
 
 \subsection{Pipelining}
 \label{ss:pipelining}
-%TODO: What is new/new application in Pipelining relative to prior work?
-
-% in that it operates on a
-%single packet at a time without using a pipeline to process packets
-%concurrently.
 At this point, the preprocessed code is still one sequential code block.
 Pipelining turns this sequential code block into a pipeline of
 \textit{codelets}, where each codelet is a sequential block of three-address
@@ -101,6 +92,7 @@ representations for CPUs~\cite{llvm} that have infinite virtual
 registers. Later, during code generation, we map these codelets to atoms
 available in a \absmachine machine, while respecting its constraints.
 
+\new{
 We create PVSM's codelet pipeline using the steps below.
 \begin{CompactEnumerate}
   \item Create a graph with one node for each statement in the preprocessed code.
@@ -108,27 +100,27 @@ We create PVSM's codelet pipeline using the steps below.
     the read and write flanks of the same state variable, e.g., in
     Figure~\ref{fig:partitioning_before}, the node pair {\tt pkt.last\_time =
     last\_time[pkt.id]} and {\tt last\_time[pkt.id] = pkt.last\_time}. Because of
-    preprocessing, all stateful operations are pairs of read and write flanks,
-    so there is no risk of a ``stranded'' stateful operation.
+    preprocessing, all stateful operations are paired up as read and write flanks.
+    Hence, there is no risk of a ``stranded'' stateful operation.
   \item Now, add {\em stateless dependencies} by adding an edge from any node
     that writes a packet variable to any node that reads the same packet variable,
     e.g., from {\tt pkt.tmp = pkt.arrival - pkt.last\_time} to {\tt pkt.tmp2 =
     pkt.tmp > THRESH} in Figure~\ref{fig:partitioning_before}. We only check read-after-write dependencies because
     write-after-read and write-after-write dependencies don't exist after SSA, and
     we eliminate control dependencies~\cite{ssa} through branch removal.
-    Figure~\ref{fig:partitioning_before} shows the resulting dependency graph.
   \item Generate strongly connected components (SCCs) of this dependency graph
     and condense them into a directed acyclic graph (DAG). This captures the notion that all
     operations on a state variable must be confined to one codelet/atom because
     state cannot be shared between atoms. Figure~\ref{fig:partitioning_after}
-    shows the resulting DAG.
+    shows the DAG produced by condensing Figure~\ref{fig:partitioning_before}.
   \item Schedule the resulting DAG by creating a new pipeline stage when one
-    operation needs to follow another. This results in the codelet pipeline
+    node depends on another. This results in the codelet pipeline
     shown in Figure~\ref{fig:flowlet_pipeline}.\footnote{We refer to this both
     as a codelet and an atom pipeline because codelets map one-to-one atoms
   (\S\ref{ss:code_gen}).}
 % Ditching ref to crit. path scheduling.
 \end{CompactEnumerate}
+}
 %\footnote{An instruction A is control
 %    dependent on a preceding instruction B if the outcome of B determines
 %    whether A should be executed or not.}
@@ -294,8 +286,8 @@ limits, i.e., the pipeline width and depth, and computational limits on atoms
 stage in the codelet pipeline starting from the first to check for pipeline
 width violations.  If we violate the pipeline width, we insert as many new
 stages as required and spread codelets evenly across these stages.  We continue
-until the number of codelets in all stages is under the pipeline width and
-reject the program if we exceed the pipeline depth.
+until the number of codelets in all stages is under the pipeline width,
+rejecting the program if we exceed the pipeline depth.
 
 \textbf{Computational limits:} Next, we determine if codelets in the pipeline
 map one-to-one to atoms provided by the \absmachine machine. In general,
@@ -311,8 +303,8 @@ determine the atom's behavior.  For instance, Figure~\ref{fig:alu_diag} shows
 an atom that can perform stateful addition or subtraction, depending on the
 configuration parameters {\tt choice} and {\tt constant}.  Each codelet can be
 viewed as a functional specification of the atom.  With that in mind, the
-mapping problem is equivalent to searching for the value of the parameters to
-configure the atom such that it implements the provided specification.
+mapping problem is equivalent to searching for values of the atom's configuration
+parameters that result in the atom implementing the provided specification.
 
 We use the SKETCH program synthesizer~\cite{sketch_asplos} for this purpose, as
 the atom templates can be easily expressed using SKETCH. SKETCH also
@@ -326,8 +318,6 @@ finds the solution with {\tt choice=0} and {\tt constant=1}.  In contrast, if
 the codelet {\tt x=x*x} was supplied as the specification, SKETCH will return
 an error as no parameters exist.
 
-%TODO: George's suggestion motivating SKETCH.
-
 %%To minimize search time, the range
 %%of possible inputs and parameter values need to be specified in the template
 %%(e.g., all 8 bit integers), and our experiments show that the search finishes
@@ -335,12 +325,6 @@ an error as no parameters exist.
 
 \subsection{Related compiler techniques}
 \label{ss:related_compiler}
-%%\ac{Why is this section here as opposed to the related work? Are we claiming novelty in
-%%the rewriting techniques here? The differences seem incremental to me.}
-%%Anirudh->Alvin: I think it's useful to have it here because we explicitly say that we reuse many compiler
-%%techniques and its interesting to compare and contrast them specifically.
-%%I don't have a religious opinion on this.
-% TODO: Don't cite rau. It doesn't mention SCCs anywhere.
 Table~\ref{tab:prior_compiler} shows the relationship between \pktlanguage's
 compilation techniques and prior work. The use of Strongly Connected Components
 (SCCs) is inspired by software pipelining for VLIW
@@ -363,13 +347,6 @@ Branch removal resembles if-conversion~\cite{if_conversion}, a
 technique used in vectorizing compilers. This procedure is easier in Domino
 because there is no backward control transfer (goto, break,
 continue).
-
-% TODO: Maybe add a subsection here that's a postscript that says: Why does this work and other comments Hari had?
-% 1.  Make sketching and strongly connected components more prominent and emphasize
-% what's new/interesting about them. 
-% 
-% 2.  why does our design achieve (ordered) transactions?
-% 3.  why is it beneficial?
 
 \begin{table}[!t]
   \begin{scriptsize}

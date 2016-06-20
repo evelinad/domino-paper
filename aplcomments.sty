@@ -20,12 +20,11 @@
 \ifx\noeditingmarks\undefined
    \usepackage{xcolor}
    \ifx\inlinecomments\undefined
-     \usepackage[hoffset=-5pt,voffset=9pt]{pdfcomment}
-
-     \newcommand\@aplcomment[3]{{\catcode`\"=11\pdfcomment[author=#1,color=#2]{#3}}}
+     \newcommand\@aplcomment[3]{#3}
      \def\newcommenter#1#2{
         \definecolor{#1@aplcomment@color}{rgb}{#2}
-        \expandafter\def\csname #1\endcsname##1{\@aplcomment{#1}{#1@aplcomment@color}{#1: ##1}}
+        \colorlet{#1@aplcomment@shade}{#1@aplcomment@color!60!black}
+        \expandafter\def\csname #1\endcsname##1{\@aplcomment{#1}{#1@aplcomment@shade}{##1}}
      }
    \else
      \newcommand\@aplcomment[3]{\textcolor{#2}{[#1: #3]}}

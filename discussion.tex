@@ -1,16 +1,18 @@
 \section{Discussion}
+\new{
 Packet transactions provide a pathway to take algorithms that were hitherto
 meant only for software routers and run them on emerging programmble line-rate
 switching chips. However, more work must be done before packet transactions
 are ready for production use.
-
+}
+\new{
 \begin{CompactEnumerate}
 \item With packet transactions, we strove for the strongest and simplest
 semantics possible: transactional semantics that provide the notion of an
 atomic and isolated block of code. Although these semantics make it easier to
 reason about performance, they exclude algorithms that cannot be run exactly at
 line rate. Are weaker semantics sensible? One possibility is approximating
-transactional semantics by executing the code on a subset of the packet stream.
+transactional semantics by only processing a sampled packet stream.
 This provides an increased time budget for each packet, potentially allowing
 the packet to be {\em recirculated} through the pipeline multiple times
 for packet processing. Another possibility is for the implementation to
@@ -26,8 +28,8 @@ subsets of packets is an area for future work.
 %% it will be found. We haven't required this for the examples in our evaluation
 %% because the compiler does find a solution if one exists. However, as we scale
 %% to larger code examples, having this guarantee would be useful.
-%TODO: This is confusing. The writing makes it sound like SKETCH is complete, but the compiler isn't.
-% Clarify this. Removing for now.
+% This is confusing. The writing makes it sound like SKETCH is complete, but the compiler isn't.
+% Removing for now.
 \item Our compiler doesn't aggressively optimize. For instance, it may be
 possible to fuse two stateful codelets that independently increment two
 separate counters into the same instance of the Pairs atom. However, by
@@ -40,5 +42,8 @@ for switch designers. For instance, given a corpus of data-plane algorithms,
 can we automatically mine this corpus for stateful and stateless codelets, and
 design an atom (or atoms) that captures the computations required by some (or
 all) of them?
-%TODO: Heterogenous architectures with different atom types?
+%%\ac{would interleaving stmts from multiple transactions be a potential
+%%optimization here (as in db transactions)?}
+%% Possibly: I don't quite know how to reason about the semantics yet :) We should talk about this, sometime!
 \end{CompactEnumerate}
+}

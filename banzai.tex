@@ -1,7 +1,5 @@
 \section{A Machine Model for Line-rate Switches}
 \label{s:absmachine}
-% TODO: Consider renaming to PISA
-
 \begin{figure*}[!t]
   \includegraphics[width=\textwidth]{banzai.pdf}
   \caption{\absmachine models the ingress and egress pipelines of a
@@ -11,7 +9,6 @@
   \label{fig:switch}
 \end{figure*}
 
-%TODO: Run below by Chang.
 \absmachine is a machine model for programmable line-rate switches that serves
 as the compiler target for \pktlanguage.  \absmachine is inspired by recent
 programmable switch architectures such as Barefoot Networks' Tofino~\cite{tofino},
@@ -26,15 +23,15 @@ Packets arriving at a switch~(top half of Figure~\ref{fig:switch}) are parsed
 by a programmable parser that turns packets into header fields. These header
 fields are first processed by an ingress pipeline consisting of match-action
 tables arranged in stages. Processing a packet at a stage may modify its header
-fields (through match-action rules) as well as some persistent state at that
-stage (such as packet counters). After the ingress pipeline, the packet is
-queued. Once the packet is dequeued by the scheduler, it is processed by a
+fields, through match-action rules, as well as some persistent state at that
+stage, e.g., packet counters. After the ingress pipeline, the packet is
+queued. Once the scheduler dequeues the packet, it is processed by a
 similar egress pipeline before it is transmitted.
 
 To reduce chip area, there is only one ingress and one egress pipeline.  This
 single pipeline is shared across all switch ports and handles aggregate traffic
 belonging to all ports, at all packet sizes.  For instance, a 64-port switch
-with a line rate of 10 Gbits/s per port and a minimum packet size of 64 bytes
+with a line rate of 10 Gbit/s per port and a minimum packet size of 64 bytes
 needs to process around a billion packets per second, after accounting for
 minimum inter-packet gaps~\cite{rmt}.  Equivalently, the pipeline runs at 1
 GHz, and pipeline stages process a packet every clock cycle (1 ns).  We assume
@@ -58,12 +55,12 @@ switch.
 
 \subsection{The \absmachine machine model}
 
-\absmachine (the bottom half of Figure~\ref{fig:switch}) is a model for the
-data-plane components of an ingress or egress switch pipeline.  We model the
+\absmachine (the bottom half of Figure~\ref{fig:switch}) models
+the ingress or egress switch pipeline.  It models the
 computation within a match-action table in a stage (i.e., the action half of
 the match-action table), but not how packets are matched (e.g., direct or
 ternary). We discuss how to embed \absmachine in a standard match-action
-pipeline in \S\ref{ss:guards}.  We also do not model packet parsing and assume
+pipeline in \S\ref{ss:guards}.  \absmachine also does not model packet parsing and assumes
 that packets arriving to \absmachine are already parsed.
 
  Concretely, \absmachine is a feed-forward pipeline\footnote{It is hard to
@@ -72,7 +69,7 @@ consisting of a number of stages executing synchronously on every clock cycle.
 Each stage processes one packet every clock cycle and hands it off to the next.
 Unlike a CPU pipeline, which occasionally suffers from pipeline stalls,
 \absmachine's pipeline is deterministic, never stalls, and always sustains line
-rate. However, unlike a CPU pipeline, \absmachine is restricted in the
+rate. However, relative to a CPU pipeline, \absmachine is restricted in the
 operations it supports (\S\ref{s:atomConstraints}).
 
 \subsection{Atoms: \absmachine's processing units}
@@ -80,7 +77,7 @@ operations it supports (\S\ref{s:atomConstraints}).
  An {\em atom} is an atomic unit of packet processing supported natively by a
 \absmachine machine, and the atoms within a \absmachine machine form its
 instruction set. Each pipeline stage in \absmachine contains a vector of atoms.
-Atoms in the vector modify mutually exclusive portions of the same packet
+Atoms in the vector modify mutually exclusive sections of the same packet
 header in parallel in every clock cycle, and process a new packet header every
 clock cycle.
 
@@ -97,26 +94,22 @@ one in the next, and \textit{write} it to memory in the third.  This approach,
 however, does not provide atomicity. To see why, suppose packet $A$ increments
 the counter from 0 to 1 by executing its read, add, and write at clock cycles
 1, 2, and 3 respectively.  If packet $B$ issues its read at time 2, it will
-increment the counter again from 0 to 1, when it should be 2.
+increment the counter again from 0 to 1, when it should be incremented to 2.
 
 Locks over the shared counter are a potential solution.  However, locking
 causes packet $B$ to wait during packet $A$'s increment, and the switch no
-longer sustains line rate of one packet every clock cycle. CPUs employ
+longer sustains the line rate of one packet every clock cycle. CPUs employ
 microarchitectural techniques such as operand forwarding to address this
-problem, but they still suffer from occasional pipeline stalls, which prevents
+problem, but CPUs still suffer the occasional pipeline stall, which prevents
 line-rate performance from being achieved.
-%\footnote{Wait-free
-%objects~\cite{herlihy_wait} are an alternative to locking, but are typically
-%too complex for hardware.}
-%TODO: Maybe add a figure?
 
 \absmachine provides an atomic increment operation at line rate with an {\em
-atom} to read memory, increment it, and write it back in a single stage within
+atom} to read a counter, increment it, and write it back in a single stage within
 one clock cycle. It uses the same approach of reading, modifying, and writing
 back to implement other stateful atomic operations at line rate.
 
 Unlike stateful atomic operations, stateless atomic operations are easier to
-support with simple packet-field arithmetic~\cite{rmt}.  Consider, for
+support with simple packet-field arithmetic.  Consider, for
 instance, the operation {\tt pkt.f1 = pkt.f2 + pkt.f3 - pkt.f4}.  This
 operation does not modify any persistent switch state and only accesses packet
 fields. It can be implemented atomically by using two atoms: one atom to add
@@ -126,8 +119,7 @@ stateless instructions on pairs of packet fields alone, which can then be
 composed into larger stateless operations, without designing atoms specifically
 for each stateless operation.
 
-%TODO: Maybe specify Hari's representation counter = counter ++ % 100 as well
-% The representation doesn't matter.
+\new{
 \paragraph{Representing atoms}
 An atom is represented by a body of sequential code that captures the atom's
 behavior. It may also contain internal state local to the atom. An atom
@@ -136,7 +128,7 @@ internal state before processing the next packet. The designer of a
 programmable switch would develop these atoms, and expose them to a switch
 compiler as the programmable switch's instruction set, e.g.,
 Table~\ref{tab:templates}.
-
+}
 Using this representation, a switch counter that wraps around at a
 value of 100 can be written as the atom:\footnote{We use {\tt p.x} to
   represent field {\tt x} within a packet {\tt p} and {\tt x} to
@@ -149,23 +141,25 @@ else
 \end{lstlisting}
 
 Similarly, a stateless operation like setting a packet field to a constant
-value~\cite{rmt} can be written as the atom:
+value can be written as the atom:
 \begin{lstlisting}[style=customc, numbers=none, frame=none]
   p.field = value;
 \end{lstlisting}
 
+%TODO: Flip flopping between constraints and limits
 \subsection{Constraints for line-rate operation}
 \label{s:atomConstraints}
 
+\new{
 \textbf{Memory limits: } State in \absmachine is local to each atom.  It can
 neither be shared by atoms within a stage, nor atoms across stages. This is
 because building multi-ported memories accessible to multiple atoms is
 technically challenging and consumes additional chip area. However, state can
 be read into a packet header in one stage for subsequent use by a downstream
-stage\footnote{Figure~\ref{fig:flowlet_pipeline} shows how. Here {\tt
-last\_time} is read into {\tt pkt.last\_time} in stage 2, and {\tt
-pkt.last\_time} is used in stage 3.}.  But, the \absmachine pipeline is
+stage\footnote{Figure~\ref{fig:flowlet_pipeline} shows an example. {\tt
+last\_time} is read into {\tt pkt.last\_time} in stage 2, for subsequent use by stage 3.}.  But, the \absmachine pipeline is
 feed-forward, so state can only be carried forward, not backward.
+}
 
 \textbf{Computational limits:} Atoms need to execute atomically from one packet
 to the next, so any state internal to the atom must be updated
@@ -176,15 +170,15 @@ clock cycle, and constrain atom bodies to do so.
 We constrain atom bodies by defining {\it atom templates}
 (\S\ref{ss:code_gen}).  An atom template is a program with configurable
 parameters that terminates within a clock cycle and specifies the atom's
-behavior.  One example is an ALU with a restricted set of primitive operations
-to choose from (Figure~\ref{fig:alu_diag}). Atom templates allow us to create
-and experiment with \absmachine machines with different atoms.
+behavior.  An example is an ALU with a restricted set of primitive operations
+(Figure~\ref{fig:alu_diag}).
+
+% Atom templates allow us to create
+%and experiment with \absmachine machines with different atoms.
 
 %As programmable
 %switches evolve, we expect that atoms will evolve as well, but constrained by
 %the clock-cycle requirement.
-%TODO: Consider removing this last sentence or replacing it with how
-%transistor scaling could improve how much we pack into these atoms.
 
 \begin{figure}[h]
   \begin{subfigure}{0.4\columnwidth}
@@ -208,7 +202,7 @@ and experiment with \absmachine machines with different atoms.
   \label{fig:alu_in_sketch}
   \end{subfigure}
   \caption{An atom and its template. The atom above can add or subtract a constant from a state
-  variable based on two configurable parameters, {\tt constant} and {\tt choice}.}
+  variable {\tt x} based on two configurable parameters, {\tt constant} and {\tt choice}.}
   \label{fig:atom}
 \end{figure}
 
