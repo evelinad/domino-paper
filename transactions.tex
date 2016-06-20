@@ -54,12 +54,12 @@ switching.  Control flows from top to bottom. Stateful atoms are in grey.}
 \caption{Programming flowlet switching in \pktlanguage}
 \end{figure*}
 
-To program a data-plane algorithm, a programmer would write code in
-\pktlanguage using packet transactions (Figure~\ref{fig:flowlet_code}).  The
+A programmer programs a data-plane algorithm by writing it as
+a packet transaction in \pktlanguage (Figure~\ref{fig:flowlet_code}).  The
 \pktlanguage compiler then compiles this transaction to an atom pipeline for a
 \absmachine machine (Figure~\ref{fig:flowlet_pipeline}). We first describe
 packet transactions in greater detail by walking through an example
-(\S\ref{ss:flowlet}). Next, we discuss constraints in \pktlanguage
+(\S\ref{ss:flowlet}). Next, we discuss language constraints in \pktlanguage
 (\S\ref{ss:constraints}) informed by line-rate switches.  We then discuss
 triggering packet transactions (\S\ref{ss:guards}) and handling multiple
 transactions (\S\ref{ss:multiple}).
@@ -68,8 +68,8 @@ transactions (\S\ref{ss:multiple}).
 \label{ss:flowlet}
 
 We use flowlet switching~\cite{flowlets} as our running example. Flowlet
-switching is a load-balancing algorithm that sends bursts of packets (called
-flowlets) from a TCP flow on a randomly chosen next hop, provided the bursts
+switching is a load-balancing algorithm that sends bursts of packets, called
+flowlets, from a TCP flow on a randomly chosen next hop, provided the bursts
 are separated by a large enough time interval to ensure packets do not arrive
 out of order at a TCP receiver. For ease of exposition, we use only the source
 and destination ports in the hash function that randomly computes the next hop
@@ -80,11 +80,11 @@ Figure~\ref{fig:flowlet_code} shows flowlet switching in \pktlanguage and
 demonstrates its core language constructs. All packet processing happens in the
 context of a packet transaction (the function \texttt{flowlet} starting at line
 17). The function's argument type {\tt Packet} declares the fields in a packet
-(lines 5--12)\footnote{We use fields to refer to both packet headers such as
-source port ({\tt sport}) and destination port ({\tt dport}) and packet
+(lines 5--12)\footnote{A field is either a packet header, e.g.,
+source port ({\tt sport}) and destination port ({\tt dport}), or packet
 metadata ({\tt id}).} that can be referenced by the function body (lines
 18--32).  The function body can also modify persistent switch state using
-global variables (e.g.  \texttt{last\_time} and \texttt{saved\_hop} on lines 14
+global variables (e.g., \texttt{last\_time} and \texttt{saved\_hop} on lines 14
 and 15, respectively). The function body may use \textit{intrinsics} such as
 \texttt{hash2} on line 23 to directly access hardware accelerators on the
 switch such as hash generators.  The \pktlanguage compiler uses an intrinsic's
@@ -158,21 +158,17 @@ p \in program &::=& \{ d ; sv ; t \}
 
 \subsection{Triggering packet transactions}
 \label{ss:guards}
-Packet transactions specify \textit{how} to process packet headers and/or
+Packet transactions specify \textit{how} to process packet headers and
 state.  To specify {\em when} to run packet transactions, we provide a {\em
 guard}: a predicate on packet fields that triggers the transaction whenever a
 packet matches the guard. An example guard (pkt.tcp\_dst\_port == 80) would
-trigger heavy-hitter detection on all packets on TCP destination port 80. This
+trigger heavy-hitter detection on all packets with TCP destination port 80. This
 guard can be realized using an exact match in a match-action table, with the
 actions being the atoms compiled from a packet transaction. Guards
 can take various forms, e.g., exact, ternary, longest-prefix, and range-based
 matches, depending on the matches supported by the match-action
-pipeline. Because guards map rather straightforwardly to the match key in a
+pipeline. Because guards map straightforwardly to the match key in a
 match-action table, we focus only on compiling packet transactions.
-
-% Anirudh->Alvin: Guards are outside the Domino language. They are whatever
-% match semantics is supported by the switch.
-% This is a practical requirement to express data-plane algorithms on a real switch, but not something very interesting to talk about.
 
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
@@ -184,14 +180,6 @@ Realizing a policy is straightforward when all guards are disjoint. When guards
 overlap, multiple transactions need to execute on the same subset of packets,
 requiring a mechanism to compose transactions. One semantics for composition is
 to concatenate the two transaction bodies in an order specified by the user,
-providing the illusion of a larger transaction that combines two transactions.
+providing the illusion of a larger transaction that combines two transactions serially.
 We leave a detailed exploration of this and alternative semantics to future
 work, and focus only on compiling a single packet transaction.
-
-%%\ac{would interleaving stmts from multiple transactions be a potential
-%%optimization here (as in db transactions)?}
-%% Possibly: I don't quite know how to reason about the semantics yet :) We should talk about this, sometime!
-
-%%\ac{is the user going to 
-%%provide how transactions will be concatenated?}
-%% Yes, the user specifies the order of concatenation. The how is basically paste one trans. body, and then the other, and call it a larger transaction.
