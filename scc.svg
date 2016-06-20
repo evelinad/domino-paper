@@ -27,7 +27,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -766,10 +766,10 @@
     <!-- 4151992980388096987&#45;&gt;8104638048253350837 -->
     <!-- 12723286500395325711 -->
     <path
-       style="fill:#ffffff;stroke:#000000;stroke-width:4;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:#ffffff;stroke:#000000;stroke-width:3.7039001;stroke-miterlimit:4;stroke-dasharray:none"
        inkscape:connector-curvature="0"
        id="path110"
-       d="m 494.27554,-2.3826036 c 0,0 -330.12094,0 -330.12094,0 -16.10346,0 -32.20693,10.1294952 -32.20693,20.2589906 0,0 0,20.25899 0,20.25899 0,10.129495 16.10347,20.258991 32.20693,20.258991 0,0 330.12094,0 330.12094,0 16.10346,0 32.20691,-10.129496 32.20691,-20.258991 0,0 0,-20.25899 0,-20.25899 0,-10.1294954 -16.10345,-20.2589906 -32.20691,-20.2589906" />
+       d="m 480.66508,-2.3826036 c 0,0 -283.05554,0 -283.05554,0 -13.8076,0 -27.61519,10.1294952 -27.61519,20.2589906 0,0 0,20.25899 0,20.25899 0,10.129495 13.80759,20.258991 27.61519,20.258991 0,0 283.05554,0 283.05554,0 13.80758,0 27.61516,-10.129496 27.61516,-20.258991 0,0 0,-20.25899 0,-20.25899 0,-10.1294954 -13.80758,-20.2589906 -27.61516,-20.2589906" />
     <text
        style="font-size:24.13100243px;text-anchor:middle;stroke-width:2.32066607;stroke-miterlimit:4;stroke-dasharray:none;font-family:'Times,serif'"
        id="text112"
@@ -887,7 +887,7 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:5.84244633;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
-       d="M 131.85405,43.098124 C 68.342959,55.078024 63.686843,106.26803 62.518209,137.36995 61.13303,174.235 89.136065,204.86066 157.39955,249.01065"
+       d="M 165.53826,30.466545 C 92.553485,30.867498 72.107896,107.32066 70.939262,138.42258 69.554083,175.28763 85.97817,230.12382 157.39955,249.01065"
        id="path3158-1-5-3-5"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csc" />
@@ -968,14 +968,14 @@
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-       x="140.79715"
-       y="35.488464"
+       x="178.69188"
+       y="38.646358"
        id="text4475"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4477"
-         x="140.79715"
-         y="35.488464">pkt.tmp2 = pkt.tmp &gt; THRESHOLD</tspan></text>
+         x="178.69188"
+         y="38.646358">pkt.tmp2 = pkt.tmp &gt; THRESH</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
@@ -1012,7 +1012,7 @@
          y="118.70417">pkt.saved_hop = saved_hop[pkt.id]</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:5.84244633;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
-       d="m 530.70647,23.606916 76.36089,52.758709"
+       d="m 508.60121,27.817442 98.46615,48.548183"
        id="path3158-1-8"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />

@@ -806,10 +806,10 @@
     <!-- 4151992980388096987&#45;&gt;8104638048253350837 -->
     <!-- 12723286500395325711 -->
     <path
-       style="fill:#ffffff;stroke:#000000;stroke-width:4;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:#ffffff;stroke:#000000;stroke-width:3.72411489;stroke-miterlimit:4;stroke-dasharray:none"
        inkscape:connector-curvature="0"
        id="path110"
-       d="m 494.27554,-2.3826036 c 0,0 -330.12094,0 -330.12094,0 -16.10346,0 -32.20693,10.1294952 -32.20693,20.2589906 0,0 0,20.25899 0,20.25899 0,10.129495 16.10347,20.258991 32.20693,20.258991 0,0 330.12094,0 330.12094,0 16.10346,0 32.20691,-10.129496 32.20691,-20.258991 0,0 0,-20.25899 0,-20.25899 0,-10.1294954 -16.10345,-20.2589906 -32.20691,-20.2589906" />
+       d="m 467.55158,-2.3826036 c 0,0 -286.15361,0 -286.15361,0 -13.95871,0 -27.91743,10.1294952 -27.91743,20.2589906 0,0 0,20.25899 0,20.25899 0,10.129495 13.95872,20.258991 27.91743,20.258991 0,0 286.15361,0 286.15361,0 13.95871,0 27.91742,-10.129496 27.91742,-20.258991 0,0 0,-20.25899 0,-20.25899 0,-10.1294954 -13.95871,-20.2589906 -27.91742,-20.2589906" />
     <text
        style="font-size:24.13100243px;text-anchor:middle;stroke-width:2.32066607;stroke-miterlimit:4;stroke-dasharray:none;font-family:'Times,serif'"
        id="text112"
@@ -963,7 +963,7 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:5.84244633;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
-       d="M 131.85405,43.098124 C 64.373108,124.48531 56.773402,187.0197 157.39955,249.01065"
+       d="M 151.85405,38.887598 C 59.10995,104.48531 56.773402,187.0197 157.39955,249.01065"
        id="path3158-1-5-3-5"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -988,7 +988,7 @@
          id="tspan4507">                                pkt.saved_hop</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:5.84244633;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Send)"
-       d="M 127.93322,23.810366 C 42.703105,51.224172 65.283805,225.16295 68.835875,300.65751 c 3.890062,82.67812 -14.913245,66.843 401.687535,48.87414"
+       d="M 150.03848,18.547208 C 54.282052,24.908383 65.283805,225.16295 68.835875,300.65751 c 3.890062,82.67812 -14.913245,66.843 401.687535,48.87414"
        id="path3158-1-5-3-5-3"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csc" />
@@ -1056,14 +1056,14 @@
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-       x="140.79715"
-       y="35.488464"
+       x="163.95505"
+       y="36.541096"
        id="text4475"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4477"
-         x="140.79715"
-         y="35.488464">pkt.tmp2 = pkt.tmp &gt; THRESHOLD</tspan></text>
+         x="163.95505"
+         y="36.541096">pkt.tmp2 = pkt.tmp &gt; THRESH</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"

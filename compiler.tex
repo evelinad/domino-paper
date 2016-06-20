@@ -113,7 +113,7 @@ We create PVSM's codelet pipeline using the steps below.
   \item Now, add {\em stateless dependencies} by adding an edge from any node
     that writes a packet variable to any node that reads the same packet variable,
     e.g., from {\tt pkt.tmp = pkt.arrival - pkt.last\_time} to {\tt pkt.tmp2 =
-    pkt.tmp > THRESHOLD} in Figure~\ref{fig:partitioning_before}. We only check read-after-write dependencies because
+    pkt.tmp > THRESH} in Figure~\ref{fig:partitioning_before}. We only check read-after-write dependencies because
     write-after-read and write-after-write dependencies don't exist after SSA, and
     we eliminate control dependencies~\cite{ssa} through branch removal.
     Figure~\ref{fig:partitioning_before} shows the resulting dependency graph.
@@ -140,7 +140,7 @@ with no computational or resource constraints. We handle these next.
   \begin{minipage}{0.55\textwidth}
   \begin{small}
   \begin{lstlisting}[style=customc, numbers=none, frame=none]
-  if (@\textcolor{blue}{pkt.arrival - last\_time[pkt.id] > THRESHOLD}@) {
+  if (@\textcolor{blue}{pkt.arrival - last\_time[pkt.id] > THRESH}@) {
     saved_hop[pkt.id] = pkt.new_hop;
   }
   \end{lstlisting}
@@ -154,7 +154,7 @@ with no computational or resource constraints. We handle these next.
   \begin{minipage}{0.6\textwidth}
   \begin{small}
   \begin{lstlisting}[style=customc, numbers=none, frame=none]
-  @\textcolor{blue}{pkt.tmp = pkt.arrival - last\_time[pkt.id]  > THRESHOLD}@;
+  @\textcolor{blue}{pkt.tmp = pkt.arrival - last\_time[pkt.id]  > THRESH}@;
   saved_hop[pkt.id] = @\textcolor{blue}{pkt.tmp}@
                       ? pkt.new_hop
                       : saved_hop[pkt.id]; @\textcolor{magenta}{// Rewritten}@
@@ -249,7 +249,7 @@ pkt.saved_hop     = saved_hop[pkt.id]; @\label{line:stateRead}@
 pkt.last_time     = last_time[pkt.id];
 pkt.new_hop       = hash3(pkt.sport, pkt.dport, pkt.arrival) % NUM_HOPS; @\label{line:newhop}@
 pkt.tmp           = pkt.arrival - pkt.last_time;
-pkt.tmp2          = pkt.tmp > THRESHOLD;
+pkt.tmp2          = pkt.tmp > THRESH;
 pkt.next_hop      = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop;
 saved_hop[pkt.id] = pkt.tmp2 ? pkt.new_hop : pkt.saved_hop; @\label{line:stateWrite}@
 last_time[pkt.id] = pkt.arrival;
