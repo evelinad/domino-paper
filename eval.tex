@@ -1,39 +1,5 @@
 \section{Evaluation}
 \label{s:eval}
-% TODO: Tables 3 and 4 i.e., atom templates and code examples are referenced in
-% flipped order in the text. Figure out what to do about this.
-
-\begin{table}[!t]
-  \begin{scriptsize}
-  \begin{tabular}{|p{0.13\textwidth}|p{0.18\textwidth}|p{0.04\textwidth}|p{0.04\textwidth}|}
-    \hline
-    Atom & Description & Area (\si{\micro\metre\squared}) at 1 GHz & Min. delay (picoseconds) \\
-    \hline
-    Stateless & Arithmetic, logic, relational, and conditional operations on packet/constant operands & 1384 & 387 \\
-    \hline
-    Read/Write & Read/Write packet field/constant into single state variable. & 250 & 176 \\
-    \hline
-    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. & 431 & 316 \\
-    \hline
-    Predicated ReadAddWrite (PRAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. & 791 & 393 \\
-    \hline
-    IfElse ReadAddWrite (IfElseRAW) & Two separate RAWs: one each for when a predicate is true or false. & 985 & 392 \\
-    \hline
-    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. & 1522 & 409 \\
-    \hline
-    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. & 3597 & 580 \\
-    \hline
-    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. & 5997 & 606 \\
-    \hline
-  \end{tabular}
-  \end{scriptsize}
-  \caption{Atom areas and minimum timing delays in a 32-nm standard-cell
-  library.  All atoms meet timing at 1 GHz. Each of the seven compiler targets
-  contains one of the seven stateful atoms (Read/Write to Pairs) and the
-  single stateless atom.}
-  \label{tab:templates}
-\end{table}
-
 \begin{table*}[!t]
   \begin{tabular}{|p{0.16\textwidth}|p{0.34\textwidth}|p{0.08\textwidth}|p{0.09\textwidth}|p{0.07\textwidth}|p{0.06\textwidth}|p{0.05\textwidth}|}
 \hline
@@ -186,6 +152,37 @@ Table~\ref{tab:templates} by 300 for both the stateless and stateful atoms. For
 the Pairs atom, the largest among our stateful atoms.  The total area overhead
 combining both stateless and staeful atoms for each target is at most 1.1\%---a
 modest price for the programmability it enables.
+
+\begin{table}[!t]
+  \begin{scriptsize}
+  \begin{tabular}{|p{0.13\textwidth}|p{0.18\textwidth}|p{0.04\textwidth}|p{0.04\textwidth}|}
+    \hline
+    Atom & Description & Area (\si{\micro\metre\squared}) at 1 GHz & Min. delay (picoseconds) \\
+    \hline
+    Stateless & Arithmetic, logic, relational, and conditional operations on packet/constant operands & 1384 & 387 \\
+    \hline
+    Read/Write & Read/Write packet field/constant into single state variable. & 250 & 176 \\
+    \hline
+    ReadAddWrite (RAW) & Add packet field/constant to state variable (OR) Write packet field/constant into state variable. & 431 & 316 \\
+    \hline
+    Predicated ReadAddWrite (PRAW) & Execute RAW on state variable only if a predicate is true, else leave unchanged. & 791 & 393 \\
+    \hline
+    IfElse ReadAddWrite (IfElseRAW) & Two separate RAWs: one each for when a predicate is true or false. & 985 & 392 \\
+    \hline
+    Subtract (Sub) & Same as IfElseRAW, but also allow subtracting a packet field/constant. & 1522 & 409 \\
+    \hline
+    Nested Ifs (Nested) & Same as Sub, but with an additional level of nesting that provides 4-way predication. & 3597 & 580 \\
+    \hline
+    Paired updates (Pairs) & Same as Nested, but allow updates to a pair of state variables, where predicates can use both state variables. & 5997 & 606 \\
+    \hline
+  \end{tabular}
+  \end{scriptsize}
+  \caption{Atom areas and minimum timing delays in a 32-nm standard-cell
+  library.  All atoms meet timing at 1 GHz. Each of the seven compiler targets
+  contains one of the seven stateful atoms (Read/Write to Pairs) and the
+  single stateless atom.}
+  \label{tab:templates}
+\end{table}
 
 \subsection{Compiling \pktlanguage programs to \absmachine machines}
 \label{ss:compiler}
