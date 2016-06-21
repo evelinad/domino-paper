@@ -1,2 +1,9 @@
-Be consistent with the number of authors beyond which we change to et al. (or)
-don't use it at all.
+1. Be consistent with the number of authors beyond which we change to et al. (or)
+don't use it et al. at all.
+2. Remove all the
+\paragraph{…}
+and replace with
+
+\medskip
+\noindent
+\textbf{…}
