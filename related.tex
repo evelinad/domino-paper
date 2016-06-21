@@ -11,11 +11,6 @@ NetASM doesn't have to. For instance, \absmachine machines don't permit sharing
 state between atoms and use atom templates to limit computations that can
 happen at line rate.
 
-%Further, while NetASM's dataflow framework
-%focuses only on target-independent middle-end optimizations such as dead-code
-%elimination, the \pktlanguage compiler implements a compiler back-end for
-%line-rate switches (\S\ref{ss:code_gen}).
-
 \textbf{Programmable data planes:}
 Eden~\cite{eden} provides a programmable data plane using commodity switches by
 programming end hosts alone. \pktlanguage targets programmable switches that
@@ -39,14 +34,14 @@ switches~\cite{xpliant, tofino}.
 \pktlanguage focuses on the data plane instead, which requires different
 programming constructs and compilation techniques.
 
-Several DSLs target the data-plane. Click~\cite{click} uses C++ for packet
+Several DSLs target the data plane. Click~\cite{click} uses C++ for packet
 processing on software routers. packetC~\cite{packetc}, Intel's
 auto-partitioning C compiler~\cite{intel_uiuc_pldi}, and Microengine
 C~\cite{microenginec} target network processors. \pktlanguage's C-like syntax
 and sequential semantics are inspired by these DSLs. However, because it targets
-line-rate switches, \pktlanguage is more constrained, e.g., because it ensures
-that compiled programs can run at line rate, the language forbids loops and
-includes no synchronization constructs as \absmachine has  no shared state.
+line-rate switches, \pktlanguage is more constrained. For instance, because
+compiled programs run at line rate, \pktlanguage forbids loops, and because
+\absmachine has no shared state, \pktlanguage has no synchronization constructs.
 
 Jose et al.~\cite{lavanya_compiler} focus on compiling P4 programs to
 programmable data planes such as the RMT and FlexPipe architectures. Their work
@@ -56,9 +51,9 @@ routing, while \pktlanguage handles stateful data-plane algorithms.
 SNAP~\cite{snap} programs stateful data-plane algorithms using a network
 transaction: an atomic block of code that treats the entire network as one
 switch~\cite{onebigswitch}. It then uses a compiler to translate network
-transactions into rules on each switch. SNAP doesn't compile these switch-local
-rules into a switch's pipeline. \pktlanguage can be used to compile SNAP's
-switch-local rules to an atom pipeline.
+transactions into rules on each switch. SNAP needs a compiler to compile
+these switch-local rules to a switch's pipeline, and can use \pktlanguage for
+this purpose.
 
 FAST~\cite{fast} provides switch
 support and software abstractions for state machines. \absmachine's atoms
