@@ -294,19 +294,20 @@ squeezed into a critical path budget of 1 clock cycle.
   \hline
   Atom & Circuit & Min. delay (ps) \\
   \hline
-  Read/Write & \includegraphics[width=0.2\textwidth]{rw.pdf} & 176 \\
+  Read/Write & \centering\includegraphics[width=0.2\textwidth]{rw.pdf} & 176 \\
   \hline
-  ReadAddWrite (RAW) & \includegraphics[width=0.2\textwidth]{raw.pdf} & 316\\
+  ReadAddWrite (RAW) & \centering\includegraphics[width=0.25\textwidth]{raw.pdf} & 316\\
   \hline
   \pbox{0.1\textwidth}
   {Predicated\\
-  ReadAddWrite (PRAW)} & \includegraphics[width=0.3\textwidth]{pred_raw.pdf}  & 393 \\
+  ReadAddWrite (PRAW)} & \centering\includegraphics[width=0.3\textwidth]{pred_raw.pdf}  & 393 \\
   \hline
   \end{tabular}
 \end{scriptsize}
-\caption{An atom's minimum critical-path delay increases with circuit depth. MUX
-stands for a multiplexer, RELOP stands for a relational operation between two
-operands.}
+\caption{An atom's minimum critical-path delay increases with circuit depth.
+Mux is a multiplexer. RELOP is a relational operation (>, <, ==, !=). {\tt x}
+is a state variable. {\tt pkt.f1} and {\tt pkt.f2} are packet fields. {\tt
+Const} is a constant operand.}
 \label{tab:circuits}
 \end{table}
 

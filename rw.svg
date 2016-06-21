@@ -216,7 +216,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -273,7 +273,7 @@
          id="tspan4790-5-7"
          x="556.52789"
          y="826.2406"
-         style="font-family:Bitstream vera sans;-inkscape-font-specification:Bitstream vera sans">pkt_1</tspan></text>
+         style="font-family:Bitstream vera sans;-inkscape-font-specification:Bitstream vera sans">pkt.f1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:42.28474808px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Sans"
