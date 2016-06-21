@@ -101,7 +101,6 @@ single, extremely fast, processor is executing the packet processing code for
 all packets without worrying about how the code should be parallelised within
 and across pipeline stages to run at line rate.
 }
-%Anirudh->Alvin: Is this better?
 
 \subsection{The \pktlanguage language}
 \label{ss:constraints}
@@ -110,12 +109,14 @@ several constraints (Table~\ref{tab:restrict}).  These constraints are required
 for deterministic performance.  Memory allocation, unbounded iteration counts,
 and unstructured control flow cause variable performance, which may prevent an
 algorithm from achieving line rate.  Additionally, \pktlanguage constrains
-array modifications by requiring that all accesses to a given array within one
-execution of a transaction, i.e., one packet, must use the same array index. 
+array modifications by mandating that a single execution of a transaction (the
+execution of a transaction for a single packet) can access only one entry in an
+array.
 
-For example, all read and write accesses to the array \texttt{last\_time} use
-the index \texttt{pkt.id}, which takes on only one value for a given packet, but can change
-between packets. This restriction mirrors restrictions on the stateful memories
+For example, all read and write accesses to \texttt{last\_time} use the
+index \texttt{pkt.id}. \texttt{pkt.id}'s value doesn't change during the
+course of a single execution (packet); it only changes between executions
+(packets).  This restriction mirrors restrictions on the stateful memories
 attached to atoms (\S\ref{s:atomConstraints}), which require multiple ports to
 support distinct read and write addresses every clock cycle.
 
@@ -124,7 +125,7 @@ support distinct read and write addresses every clock cycle.
    No iteration (while, for, do-while).\\
    No unstructured control flow (goto, break, continue).\\
    No heap, dynamic memory allocation, or pointers.\\
-   Each transaction execution accesses an array at exactly one index.\\
+   A single execution of a transaction accesses only one entry in an array.\\
    No access to unparsed portions of the packet (payload).\\
   \end{tabular}
   \caption{Restrictions in \pktlanguage}
