@@ -166,7 +166,7 @@ Packet transactions specify \textit{how} to process packet headers state.  To
 specify {\em when} to run packet transactions, programmers use {\em guards}:
 predicates on packet fields that trigger a transaction whenever a packet
 matches the guard. An example guard {\tt (pkt.tcp\_dst\_port == 80)} would
-trigger heavy-hitter detection~\cite{opensketch} on all packets on TCP
+trigger heavy-hitter detection~\cite{opensketch} on all packets with TCP
 destination port 80.
 
 Guards can be realized using an exact match in a match-action table, with the
