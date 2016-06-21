@@ -37,8 +37,7 @@ them in important ways for line-rate switches (\S\ref{ss:related_compiler}).
 nested) branches (e.g., Lines~\ref{line:ifStart} to \ref{line:ifEnd} in
 Figure~\ref{fig:flowlet_code}).  Branches alter control flow and complicate
 dependency analysis, i.e.,  whether a statement should precede another.  We
-transform branches into the conditional operator \ac{conditional assignments sound 
-better and less confusing than conditional statements}, starting from the innermost
+transform branches into conditional assignments, starting from the innermost
 \texttt{if} and proceeding outwards (Figure~\ref{fig:if_convert}).  This turns
 the transaction body into straight-line code with no branches, which simplifies
 dependency analysis during pipelining (\S\ref{ss:pipelining}).
@@ -78,10 +77,13 @@ Flattening to three-address code breaks down
 statements in the packet transaction into a much simpler form that is closer
 to the atoms available in the \absmachine machine. For instance, there are no
 nested expressions. The simpler form of three-address code statements
-makes it easier to map them to atoms during code generation (\S\ref{ss:code_gen}).
-\ac{I don't think it's any easier conceptually 
-since we are using sketch to find the mapping. But it might be easier to write 
-the mapping sketch code.}
+makes it easier to map them one-to-one to atoms during code generation (\S\ref{ss:code_gen}).
+%\ac{I don't think it's any easier conceptually 
+%since we are using sketch to find the mapping. But it might be easier to write 
+%the mapping sketch code.}
+% I agree. That's what I meant here. E.g., the stateless codelets correspond directly to the instructions available.
+% Otherwise, we might have to break up codelets into multiple atoms and worry about how to do that.
+
 % Anirudh->Alvin: Can you check the above paragraph?
 
 \subsection{Pipelining}
