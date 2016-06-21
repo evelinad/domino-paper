@@ -11,18 +11,15 @@ are ready for production use.
 \item With packet transactions, we strove for the strongest and simplest
 semantics possible: transactional semantics that provide the notion of an
 atomic and isolated block of code. Although these semantics make it easier to
-reason about performance, they exclude algorithms that cannot be run exactly at
+reason about performance, they exclude algorithms that cannot run exactly at
 line rate. Are weaker semantics sensible? One possibility is approximating
 transactional semantics by only processing a sampled packet stream.
 This provides an increased time budget for each packet, potentially allowing
 the packet to be {\em recirculated} through the pipeline multiple times
-for packet processing. Another possibility is for the implementation to
-be eventually consistent with the transactional model, perhaps by updating
-state over many clock cycles and guaranteeing that it will be correct only if
-there are no subsequent state updates.
-\item Our compiler doesn't aggressively optimize. For instance, it may be
-possible to fuse two stateful codelets that independently increment two
-separate counters into the same instance of the Pairs atom. However, by
+for packet processing.
+\item Our compiler doesn't aggressively optimize. For instance, it is
+possible to fuse two stateful codelets incrementing two
+independent counters into the same instance of the Pairs atom. However, by
 carrying out a one-to-one mapping from codelets to the atoms implementing them,
 our compiler precludes these optimizations.  Developing an {\em optimizing}
 compiler for packet transactions is an area for future work.
@@ -30,11 +27,9 @@ compiler for packet transactions is an area for future work.
 further work. In particular, when a switch executes multiple transactions,
 there may be opportunities for whole-program compilation~\cite{whole_program}, which
 goes beyond compiling individual transactions. For
-instance, the compiler may detect computations that are common across
-transactions and execute them only once. It could also interleave statements
-between transactions provided the interleaving doesn't violate the semantics of
-composing transactions (\S\ref{ss:multiple}).
-\item Finally, our design process for atoms is largely manual.  Formalizing
+instance, the compiler may detect computations common to multiple
+transactions and execute them only once.
+\item Finally, we have a manual design process for atoms.  Formalizing
 this design process and automating it into an atom-design tool would be useful
 for switch designers. For instance, given a corpus of data-plane algorithms,
 can we automatically mine this corpus for stateful and stateless codelets, and
@@ -42,3 +37,12 @@ design an atom (or atoms) that captures the computations required by some (or
 all) of them?
 \end{CompactEnumerate}
 }
+
+%It could also interleave statements
+%between transactions provided the interleaving doesn't violate the semantics of
+%composing transactions (\S\ref{ss:multiple}).
+
+%Another possibility is for the implementation to
+%be eventually consistent with the transactional model, perhaps by updating
+%state over many clock cycles and guaranteeing that it will be correct only if
+%there are no subsequent state updates.
