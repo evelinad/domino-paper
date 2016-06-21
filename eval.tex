@@ -1,11 +1,11 @@
 \section{Evaluation}
 \label{s:eval}
 \begin{table*}[!t]
-  \begin{tabular}{|p{0.16\textwidth}|p{0.34\textwidth}|p{0.08\textwidth}|p{0.09\textwidth}|p{0.07\textwidth}|p{0.06\textwidth}|p{0.05\textwidth}|}
+  \begin{tabular}{|p{0.16\textwidth}|p{0.34\textwidth}|p{0.08\textwidth}|p{0.09\textwidth}|p{0.07\textwidth}|p{0.06\textwidth}|p{0.03\textwidth}|}
 \hline
-Algorithm & Description & Most expressive atom & \# of stages, max. atoms/stage & Ingress or Egress Pipeline? & Domino LOC & P4 LOC\\
+Algorithm & Stateful operations & Most expressive atom & \# of stages, max. atoms/stage & Ingress or Egress Pipeline? & Domino LOC & P4 LOC\\
 \hline
-\pbox{0.16\textwidth}{Bloom filter\\(3 hash functions)} & \pbox{0.54\textwidth}{Set membership bit on every packet.} & Write & 4, 3 & Either & 29 & 104 \\
+\pbox{0.16\textwidth}{Bloom filter\\(3 hash functions)} & \pbox{0.54\textwidth}{Test/Set membership bit on every packet.} & Write & 4, 3 & Either & 29 & 104 \\
 \hline
 \pbox{0.16\textwidth}{Heavy Hitters~\cite{opensketch}\\(3 hash functions)} & Increment Count-Min Sketch~\cite{cormode} on every packet. & RAW & 10, 9 & Either & 35 & 192 \\
 \hline
@@ -37,15 +37,15 @@ CoDel~\cite{codel} & \pbox{0.34\textwidth}{Update:\\Whether we are marking or no
 
 We evaluate \pktlanguage's expressiveness by using it to program several
 data-plane algorithms (Table~\ref{tab:algos}), and comparing it to writing them
-in P4~(\S\ref{ss:expressiveness}).  To validate that these algorithms can be
-implemented at line rate, we design a concrete set of \absmachine machines
-(Table~\ref{tab:templates}) that we use as compiler targets for
+in P4~(\S\ref{ss:expressiveness}).  To validate that these algorithms can
+run at line rate, we design a concrete set of \absmachine machines
+(Table~\ref{tab:templates}) as compiler targets for
 \pktlanguage~(\S\ref{ss:targets}).  We estimate that these machines are
-feasible in hardware today because their atoms incur modest chip area overhead.
-Next, we use the \pktlanguage compiler to compile the algorithms in
+feasible in hardware because their atoms incur modest chip area overhead.
+We use the \pktlanguage compiler to compile the algorithms in
 Table~\ref{tab:algos} to the targets in
-Table~\ref{tab:templates}~(\S\ref{ss:compiler}).  Finally, we describe lessons
-learned from our evaluation~(\S\ref{ss:lessons}).
+Table~\ref{tab:templates}~(\S\ref{ss:compiler}).  We conclude with some lessons
+for programmable switch design~(\S\ref{ss:lessons}).
 
 \subsection{Expressiveness}
 \label{ss:expressiveness}
@@ -54,8 +54,8 @@ We program several data-plane
 algorithms (Table~\ref{tab:algos}) using \pktlanguage. These algorithms
 encompass data-plane traffic engineering, in-network congestion control, active
 queue management, network security, and measurement. We also used \pktlanguage
-to express the priority computation for programming scheduling using the
-push-in first-out queue abstraction~\cite{pifo_hotnets}.
+to express the priority computation for programming scheduling using
+push-in first-out queues~\cite{pifo_hotnets}.
 
 In all these cases, the algorithms are already available as blocks of
 imperative code from online sources; translating them to \pktlanguage syntax
@@ -72,7 +72,7 @@ actions within tables, and how tables are chained---all to implement a single
 data-plane algorithm. The \pktlanguage compiler automates this process; to
 demonstrate this, we developed a backend for \pktlanguage that generates the
 equivalent P4 code. We list the number of lines of code for these
-auto-generated P4 programs are listed in Table~\ref{tab:algos}.
+auto-generated P4 programs in Table~\ref{tab:algos}.
 %%
 %%Data-plane algorithms on software platforms today (NPUs, Click, the Linux qdisc
 %%subsystem~\cite{qdisc})  are programmed in languages resembling
@@ -106,11 +106,11 @@ baseline switching chip~\cite{gibb_parsing}, to estimate the area overhead for p
 
 \paragraph{Designing stateless atoms}
 Stateless atoms are easier to design because arbitrary stateless operations can
-be broken into multiple pipeline stages without violating
+be broken up into multiple pipeline stages without violating
 atomicity~(\S\ref{ss:atoms}). We design a stateless atom that can support
 simple arithmetic (add, subtract, left shift, right shift), logical (and, or,
 xor), relational ({\tt >=}, {\tt <=}, {\tt ==}, {\tt !=}), and conditional
-instructions (C's ``{\tt ?}'' operator) on a set of packet fields. Any packet
+instructions (C's ``{\tt ?}'' operator) on a pair of packet fields. Any packet
 field can also be substituted with a constant operand. This stateless atom
 meets timing at 1 GHz and occupies an area of 1384 \si{\micro\meter\squared}
 (Table~\ref{tab:templates}).
@@ -146,6 +146,7 @@ and stateful atoms per pipeline stage and 30 pipeline stages. While the number
 examples in Table~\ref{tab:algos}, and incur modest area overhead
 as we show next.
 }
+
 \new{
 We estimate the area overhead of these seven targets relative to a 200
 \si{\milli\metre\squared} chip~\cite{gibb_parsing}, which is at the lower end
@@ -154,11 +155,11 @@ Table~\ref{tab:templates} by 300 for both the stateless and stateful atoms. For
 300 atoms, the area overhead is 0.2 \% for the stateless atom and 0.9 \% for
 the Pairs atom, the largest among our stateful atoms.  The area overhead
 combining both stateless and staeful atoms for all our targets is at most 1.1\%---a
-modest price for the programmability it enables.
+modest price for the programmability it provides.
 }
 \begin{table}[!t]
   \begin{scriptsize}
-  \begin{tabular}{|p{0.13\textwidth}|p{0.18\textwidth}|p{0.04\textwidth}|p{0.04\textwidth}|}
+  \begin{tabular}{|p{0.13\textwidth}|p{0.18\textwidth}|p{0.04\textwidth}|p{0.02\textwidth}|}
     \hline
     Atom & Description & Area (\si{\micro\metre\squared}) at 1 GHz & Min. delay (ps) \\
     \hline
@@ -182,8 +183,8 @@ modest price for the programmability it enables.
   \end{scriptsize}
   \caption{Atom areas and minimum critical-path delays in a 32-nm
   standard-cell library.  All atoms meet timing at 1 GHz. Each of the seven
-  compiler targets contains one of the seven stateful atoms (Read/Write to Pairs)
-  and the single stateless atom.}
+  compiler targets contains 300 instances of one of the seven stateful atoms (Read/Write to Pairs)
+  and 300 instances of the single stateless atom.}
   \label{tab:templates}
 \end{table}
 
@@ -197,7 +198,7 @@ machine.
 
 We say an algorithm can run at line rate on a \absmachine machine if every
 codelet within the data-plane algorithm can be mapped (\S\ref{ss:code_gen}) to
-either the stateful or stateless atom provided by the \absmachine machine.
+either the stateful or stateless atoms provided by the \absmachine machine.
 Because our stateful atoms are arranged in a containment hierarchy, we list the
 \textit{most expressive} stateful atom/target required for each data-plane
 algorithm in Table~\ref{tab:algos}.
@@ -206,11 +207,11 @@ As Table~\ref{tab:algos} shows, the choice of stateful atom determines
  what algorithms can run on a switch. For instance, with only the
 ability to read or write state, only the Bloom Filter algorithm can run at line
 rate, because it only requires the ability to test and set membership bits.
-Adding the ability to increment state values (the RAW atom) permits Heavy
+Adding the ability to increment state (the RAW atom) permits Heavy
 Hitters to run at line rate, because it employs a count-min sketch that is
 incremented on each packet.
 
-\subsection{Lessons learned}
+\subsection{Lessons for programmable switches}
 \label{ss:lessons}
 \paragraph{Atoms with a single state variable support many algorithms}
 
@@ -317,19 +318,21 @@ that target, while the choice of algorithms dictates what instructions are
 required in the target. Indeed, other programmable substrates (GPUs, CPUs,
 DSPs) go through an iterative process to design a good instruction set.
 }
+
 \new{
- A compiler can help with this process. To show how, we describe how we
-designed the atoms in Table~\ref{tab:templates}. We pick a data-plane
-algorithm, partially execute the \pktlanguage compiler to generate a pipeline
-of codelets, inspect the stateful codelets, and create an atom that expresses
+ A compiler can aid this process. To show how, we describe how we
+designed the stateful atoms in Table~\ref{tab:templates}. We pick a data-plane
+algorithm, partially execute the \pktlanguage compiler to generate a codelet pipeline,
+inspect the stateful codelets, and create an atom that expresses
 all the computations required by the stateful codelets. We check that an atom
-can express the computations required by fully executing the compiler on the
+can express all these computations by fully executing the compiler on the
 data-plane algorithm with that atom as the target. We then move on to the next
 algorithm, extending our atom through a process of trial-and-error to capture
-more computations, and using the compiler to verify our intuitions on atom
-design. In the process,  we generate a hierarchy of atoms, each of which works
+more computations, and using the compiler to verify our intuitions on extending
+atoms. In the process,  we generate a hierarchy of atoms, each of which works
 for a subset of algorithms.
 }
+
 \new{
 Our atom design process is manual and ad hoc at this point, but it already
 shows how  a compiler can aid in instruction-set design for programmable
