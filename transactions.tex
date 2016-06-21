@@ -80,7 +80,6 @@ Figure~\ref{fig:flowlet_code} shows flowlet switching in \pktlanguage and
 demonstrates its core language constructs. All packet processing happens in the
 context of a packet transaction (the function \texttt{flowlet} starting at line
 17). The function's argument type {\tt Packet} declares the fields in a packet
-\ac{why not call them ``class fields'' instead to distinguish from packet headers}
 (lines 5--12)\footnote{We use fields to refer to both packet headers such as
 source port ({\tt sport}) and destination port ({\tt dport}) and packet
 metadata ({\tt id}).} that can be referenced by the function body (lines
@@ -89,9 +88,7 @@ global variables (e.g., \texttt{last\_time} and \texttt{saved\_hop} on lines 14
 and 15, respectively). The function body may use \textit{intrinsics} such as
 \texttt{hash2} on line 23 to directly access hardware accelerators on the
 switch such as hash generators.  The \pktlanguage compiler uses an intrinsic's
-signature when analyzing dependencies, but otherwise treats it as a blackbox.
-\ac{variable read / write dependencies?}
-%TODO: Rethink intrinsic description
+signature to analyze read/write dependencies (\S\ref{ss:pipelining}), but otherwise considers it a blackbox.
 
 \new{
 \paragraph{Packet transaction semantics}
@@ -99,18 +96,12 @@ Semantically, the programmer sees the switch invoking the packet transaction
 serially in the order in which packets arrive, with no concurrent packet
 processing.  Put differently, the packet transaction modifies the passed-in
 packet argument and runs to completion, before starting on the next packet.
-Practically, the switch exploits parallelism within and across pipeline
-stages to sustain line rate. The \pktlanguage compiler bridges
-these two views: it converts the packet transaction in
-Figure~\ref{fig:flowlet_code} to the atom pipeline in
-Figure~\ref{fig:flowlet_pipeline}, and guarantees the semantics of a packet
-transaction.
-% TODO: This could come all the way at the beginning of this section.
-\ac{I find this para a bit weird. Is the goal to describe how the compiler
-works? Or is it to justify the transaction programming model? Seems to be 
-doing a half-baked job of either.}
+These semantics allow the programmer to program under the illusion that a
+single, extremely fast, processor is executing the packet processing code for
+all packets without worrying about how the code should be parallelised within
+and across pipeline stages to run at line rate.
 }
-
+%Anirudh->Alvin: Is this better?
 
 \subsection{The \pktlanguage language}
 \label{ss:constraints}
@@ -127,18 +118,17 @@ the index \texttt{pkt.id}, which is constant for a given packet, but can change
 between packets. This restriction mirrors restrictions on the stateful memories
 attached to atoms (\S\ref{s:atomConstraints}), which require multiple ports to
 support distinct read and write addresses every clock cycle.
-\ac{is this more like all array indexes need to be known during compile time?} 
+%\ac{is this more like all array indexes need to be known during compile time?} 
+%No, the index isn't known at compile time. We should be able to verify that its constant
+%per packet, at compile time.
 
 \begin{table}
-  \begin{tabular}{p{0.9\columnwidth}}
-    No iteration (while, for, do-while).\\
-    No goto, break, or continue.\\ \ac{just say unstructured control flow?}\\
-    No pointers.\\ \ac{no heap already implies no pointers and dynamic mem allocation. combine these two lines?}
-    No dynamic memory allocation / heap.\\
-    Array index is constant for each transaction execution.\\
-    No access to the unparsed portion of the packet.\\
-    \ac{how do I know which fields are parsed?}\\
-%    No arrays in packet fields.\\
+  \begin{tabular}{p{0.95\columnwidth}}
+   No iteration (while, for, do-while).\\
+   No unstructured control flow (goto, break, continue).\\
+   No heap, dynamic memory allocation, or pointers.\\
+   Array index is constant for each transaction execution.\\
+   No access to unparsed portions of the packet (payload).\\
   \end{tabular}
   \caption{Restrictions in \pktlanguage}
   \label{tab:restrict}
@@ -152,7 +142,7 @@ l \in \text{literals} \quad v \in \text{variables} \quad &bop& \in \text{binary 
 uop \in \text{unary ops} \\
 %
 e \in \text{exprs} &::=& e.f \sep l \sep v \sep e~bop~e \sep uop~e \sep e[e] \sep \\
-                   & &   f(e_1, \ldots) \\
+                   & &   f(e_1, e_2, \ldots) \\
 %
 s \in \text{stmts} &::=& e = e \sep {\tt if}~(e)~\{ s \}~{\tt else}~ \{ s \} \sep s~;~s \\
 %
@@ -160,7 +150,7 @@ t \in \text{pktTxns} &::=& name(v) \{ s \} \\
 %
 %vlist \in varList &::=& var;vlist \sep vlist \\
 %
-d \in \text{pktDecls} &::=& \text{\tt struct Packet} \{ v_1, \ldots \} \\
+d \in \text{pktDecls} &::=& \text{\tt struct Packet} \{ v_1, v_2, \ldots \} \\
 %
 sv \in \text{stateVarInits} &::=& v = e \sep sv~;~sv \\
 %
@@ -174,19 +164,23 @@ p \in \text{\pktlanguage progs} &::=& \{ d ; sv; t \}
 
 \subsection{Triggering packet transactions}
 \label{ss:guards}
-Packet transactions specify \textit{how} to process packet headers and/or
-state.  To specify {\em when} to run packet transactions, programmers use a {\em
-guards}: predicates on packet fields that trigger the transaction whenever a
-packet matches the guard. An example guard {\tt (pkt.tcp\_dst\_port == 80)} would
-trigger heavy-hitter detection on all packets on TCP destination port 80.
-\ac{I think i's better to give the full guard+trigger in the example rather than 
-just the guard?} 
+Packet transactions specify \textit{how} to process packet headers state.  To
+specify {\em when} to run packet transactions, programmers use {\em guards}:
+predicates on packet fields that trigger a transaction whenever a packet
+matches the guard. An example guard {\tt (pkt.tcp\_dst\_port == 80)} would
+trigger heavy-hitter detection~\cite{opensketch} on all packets on TCP
+destination port 80.
+
 Guards can be realized using an exact match in a match-action table, with the
 actions being the atoms compiled from a packet transaction. Guards
 can take various forms, e.g., exact, ternary, longest-prefix, and range-based
 matches, depending on the matches supported by the match-action
 pipeline. Because guards map straightforwardly to the match key in a
 match-action table, we focus only on compiling packet transactions.
+
+%\ac{I think i's better to give the full guard+trigger in the example rather than 
+%just the guard?} 
+% Might get too verbose to explain clearly. Added a citation to the trigger 
 
 % Anirudh->Alvin: Guards are outside the Domino language. They are whatever
 % match semantics is supported by the switch.
@@ -201,17 +195,14 @@ algorithms, each processing its own subset of packets. To address this, we
 envision a policy language that specifies pairs of guards and transactions.
 Realizing a policy is straightforward when all guards are disjoint. When guards
 overlap, multiple transactions need to execute on the same subset of packets,
-requiring a mechanism to compose transactions. One semantics for composition is
-to concatenate the two transaction bodies in an order specified by the user,
-providing the illusion of a larger transaction that combines two transactions serially.
-We leave a detailed exploration of this and alternative semantics to future
-work, and focus only on compiling a single packet transaction.
-\ac{why not just execute txns one after another sequentially?}
+requiring a mechanism to compose transactions.
+
+One composition semantics is to run the two transactions one after another
+sequentially in a user-specified order. This can be achieved by concatenating
+the two transaction bodies to create a larger transaction.  We leave a detailed
+exploration of multiple transactions to future work, and focus only on
+compiling a single packet transaction.
 
 %%\ac{would interleaving stmts from multiple transactions be a potential
 %%optimization here (as in db transactions)?}
 %% Possibly: I don't quite know how to reason about the semantics yet :) We should talk about this, sometime!
-
-%%\ac{is the user going to 
-%%provide how transactions will be concatenated?}
-%% Yes, the user specifies the order of concatenation. The how is basically paste one trans. body, and then the other, and call it a larger transaction.
