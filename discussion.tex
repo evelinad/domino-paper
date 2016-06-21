@@ -28,7 +28,8 @@ our compiler precludes these optimizations.  Developing an {\em optimizing}
 compiler for packet transactions is an area for future work.
 \item Supporting multiple packet transactions in \pktlanguage also requires
 further work. In particular, when a switch executes multiple transactions,
-there may be opportunities for whole-program optimization in the compiler. For
+there may be opportunities for whole-program compilation~\cite{whole_program}, which
+goes beyond compiling individual transactions. For
 instance, the compiler may detect computations that are common across
 transactions and execute them only once. It could also interleave statements
 between transactions provided the interleaving doesn't violate the semantics of
