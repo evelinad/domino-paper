@@ -111,23 +111,20 @@ for deterministic performance.  Memory allocation, unbounded iteration counts,
 and unstructured control flow cause variable performance, which may prevent an
 algorithm from achieving line rate.  Additionally, \pktlanguage constrains
 array modifications by requiring that all accesses to a given array within one
-execution of a transaction, i.e., one packet, must be constant. 
-%use the same array index.
+execution of a transaction, i.e., one packet, must use the same array index. 
+
 For example, all read and write accesses to the array \texttt{last\_time} use
-the index \texttt{pkt.id}, which is constant for a given packet, but can change
+the index \texttt{pkt.id}, which takes on only one value for a given packet, but can change
 between packets. This restriction mirrors restrictions on the stateful memories
 attached to atoms (\S\ref{s:atomConstraints}), which require multiple ports to
 support distinct read and write addresses every clock cycle.
-%\ac{is this more like all array indexes need to be known during compile time?} 
-%No, the index isn't known at compile time. We should be able to verify that its constant
-%per packet, at compile time.
 
 \begin{table}
   \begin{tabular}{p{0.95\columnwidth}}
    No iteration (while, for, do-while).\\
    No unstructured control flow (goto, break, continue).\\
    No heap, dynamic memory allocation, or pointers.\\
-   Array index is constant for each transaction execution.\\
+   Each transaction execution accesses an array at exactly one index.\\
    No access to unparsed portions of the packet (payload).\\
   \end{tabular}
   \caption{Restrictions in \pktlanguage}
