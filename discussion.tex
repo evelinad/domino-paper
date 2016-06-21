@@ -5,6 +5,7 @@ meant only for software routers and run them on emerging programmble line-rate
 switching chips. However, more work must be done before packet transactions
 are ready for production use.
 }
+
 \new{
 \begin{CompactEnumerate}
 \item With packet transactions, we strove for the strongest and simplest
@@ -19,31 +20,24 @@ for packet processing. Another possibility is for the implementation to
 be eventually consistent with the transactional model, perhaps by updating
 state over many clock cycles and guaranteeing that it will be correct only if
 there are no subsequent state updates.
-\item Our current implementation doesn't handle multiple transactions and the
-associated issues of composing transactions. A policy language to
-specify multiple transactions executing on different, possibly overlapping,
-subsets of packets is an area for future work.
-%% \item Our compiler doesn't provide completeness: the guarantee that for any
-%% algorithm, if there exists any way to map an algorithm to a line-rate switch,
-%% it will be found. We haven't required this for the examples in our evaluation
-%% because the compiler does find a solution if one exists. However, as we scale
-%% to larger code examples, having this guarantee would be useful.
-% This is confusing. The writing makes it sound like SKETCH is complete, but the compiler isn't.
-% Removing for now.
 \item Our compiler doesn't aggressively optimize. For instance, it may be
 possible to fuse two stateful codelets that independently increment two
 separate counters into the same instance of the Pairs atom. However, by
 carrying out a one-to-one mapping from codelets to the atoms implementing them,
 our compiler precludes these optimizations.  Developing an {\em optimizing}
 compiler for packet transactions is an area for future work.
+\item Supporting multiple packet transactions in \pktlanguage also requires
+further work. In particular, when a switch executes multiple transactions,
+there may be opportunities for whole-program optimization in the compiler. For
+instance, the compiler may detect computations that are common across
+transactions and execute them only once. It could also interleave statements
+between transactions provided the interleaving doesn't violate the semantics of
+composing transactions (\S\ref{ss:multiple}).
 \item Finally, our design process for atoms is largely manual.  Formalizing
 this design process and automating it into an atom-design tool would be useful
 for switch designers. For instance, given a corpus of data-plane algorithms,
 can we automatically mine this corpus for stateful and stateless codelets, and
 design an atom (or atoms) that captures the computations required by some (or
 all) of them?
-%%\ac{would interleaving stmts from multiple transactions be a potential
-%%optimization here (as in db transactions)?}
-%% Possibly: I don't quite know how to reason about the semantics yet :) We should talk about this, sometime!
 \end{CompactEnumerate}
 }
