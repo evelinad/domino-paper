@@ -316,7 +316,7 @@ parameters that result in the atom implementing the provided specification.
 We use the SKETCH program synthesizer~\cite{sketch_asplos} for this purpose, as
 the atom templates can be easily expressed using SKETCH. SKETCH also
 provides efficient search algorithms and has been used for similar purposes in
-other domains~\cite{bitstreaming, qbs}. As an
+other domains~\cite{lifejoin, qbs}. As an
 illustration, assume we want to map the codelet {\tt x=x+1} to the atom
 template shown in Figure~\ref{fig:alu_in_sketch}. SKETCH will search for
 possible parameter values so that the resulting atom is functionally identical
@@ -326,6 +326,11 @@ finds the solution with {\tt choice=0} and {\tt constant=1}.  In contrast, if
 the codelet {\tt x=x*x} was supplied as the specification, SKETCH will return
 an error as no parameters exist.
 
+Using SKETCH for code generation frees the compiler developer from implementing
+a custom code generator for every new \absmachine machine.  Instead, the
+compiler developer only has to express the new \absmachine machine's
+atom templates in SKETCH, which could then generate code for the new
+\absmachine machine as well. 
 %%To minimize search time, the range
 %%of possible inputs and parameter values need to be specified in the template
 %%(e.g., all 8 bit integers), and our experiments show that the search finishes
