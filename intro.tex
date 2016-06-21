@@ -6,8 +6,8 @@ networks perform many tasks in addition to standard packet forwarding. The set
 of requirements for switches has only increased with time as network operators
 seek greater control over performance.  Performance may be improved using both
 data-plane and control-plane mechanisms. This paper focuses on data-plane
-algorithms. These algorithms process and transform packets, creating and
-maintaining state in the switch. Examples include active queue
+algorithms. These algorithms process and transform packets, reading and
+writing state in the switch. Examples include active queue
 management~\cite{red,avq,codel}, scheduling~\cite{pifo_hotnets}, congestion
 control with switch feedback~\cite{xcp, rcp}, network
 measurement~\cite{opensketch, bitmap_george}, and data-plane traffic
@@ -26,7 +26,7 @@ chips~\cite{trident, tomahawk, mellanox}, network operators deploying these
 switches~\cite{google,facebook,vl2}, and researchers developing new data-plane
 algorithms~\cite{rcp, conga, xcp, bitmap_george}.
 
-To run data-plane algorithms after a switch has been built, researchers and
+To run new data-plane algorithms after a switch has been built, researchers and
 companies have attempted to build programmable switches for many years,
 starting from efforts on active networks~\cite{active-nets} to network
 processors~\cite{ixp4xx} to software routers~\cite{click, dpdk}. All these
@@ -46,7 +46,7 @@ In terms of programmability, these chips today allow the network operator to
 program packet parsing and forwarding, i.e., a programmer can program the set
 of protocol formats to be matched and the set of actions to be executed when
 matching packet headers in a match-action table. Languages such as P4~\cite{p4}
-are emerging as a way to express such {\em match-action processing} in a
+are emerging as a way to express such match-action processing in a
 hardware-independent manner.
 
 There is a gap between this form of programmability and the needs of data-plane
@@ -54,7 +54,6 @@ algorithms. By contrast to packet forwarding, which doesn't modify state in the
 data plane, many data-plane algorithms create and modify {\em algorithmic
 state} in the switch as part of packet processing.
 
-% TODO: Run this by Hari.
 For such algorithms, programmability must directly capture the algorithm's
 intent without requiring the algorithm to be shoehorned into hardware
 primitives like a sequence of match-action tables. Indeed, the ability to
@@ -66,9 +65,9 @@ By studying the requirements of data-plane algorithms and the constraints of
 line-rate hardware, we introduce a new abstraction to program and implement
 data-plane algorithms: a {\em packet transaction} (\S\ref{s:transactions}). A
 packet transaction is a sequential code block that is atomic and isolated from
-other such code blocks, i.e., any visible state is equivalent to a serial
+other such code blocks, with the semantics that any visible state is equivalent to a serial
 execution of packet transactions across packets in the order of packet
-arrival.  Packet transactions allow the programmer to focus on the operations
+arrival.  Packet transactions let the programmer focus on the operations
 needed for each packet without worrying about other concurrent packets.
 
 Packet transactions have an \textit{all-or-nothing} guarantee: all packet
@@ -86,7 +85,7 @@ switches~(\S\ref{s:absmachine}).  \absmachine models two important constraints
 share state between different packet-processing units, and the requirement that
 any switch state modifications be visible to the next packet entering the
 switch. Based on these constraints, we introduce {\em atoms} to represent a
-programmable switch's packet-processing units, i.e., its instruction set.
+programmable switch's packet-processing units.
 }
 
 \new{
