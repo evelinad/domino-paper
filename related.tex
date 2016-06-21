@@ -1,6 +1,6 @@
 \section{Related work}
 \label{s:related}
-\textbf{Abstract machines for line-rate switches:}
+\textbf{Abstract machines for line-rate switches.}
 NetASM~\cite{netasm} is an abstract machine and intermediate representation
 (IR) for programmable data planes that is portable across network
 devices: FPGAs, virtual switches, and line-rate switches.  \absmachine is a
@@ -11,7 +11,7 @@ NetASM doesn't have to. For instance, \absmachine machines don't permit sharing
 state between atoms and use atom templates to limit computations that can
 happen at line rate.
 
-\textbf{Programmable data planes:}
+\textbf{Programmable data planes.}
 Eden~\cite{eden} provides a programmable data plane using commodity switches by
 programming end hosts alone. \pktlanguage targets programmable switches that
 provide more flexibility relative to an end-host-only solution. For instance,
@@ -30,7 +30,7 @@ switches~\cite{xpliant, tofino}.  FPGA-based platforms like the Corsa DP
 faster, but still 5$\times$--10$\times$ slower than programmable
 switches~\cite{xpliant, tofino}.
 
-\textbf{Packet-processing languages:} Many programming languages~\cite{frenetic, maple} target the network control plane.
+\textbf{Packet-processing languages.} Many programming languages~\cite{frenetic, maple} target the network control plane.
 \pktlanguage focuses on the data plane instead, which requires different
 programming constructs and compilation techniques.
 
