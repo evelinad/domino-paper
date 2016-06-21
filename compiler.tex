@@ -283,13 +283,13 @@ moved into the read flank.}
 
 To determine if a codelet pipeline can be compiled to a \absmachine machine,
 we consider two constraints specified by any \absmachine machine: resource
-limits, i.e., the pipeline width and depth, and computational limits on atoms
+limits, i.e., the number of atoms in a stage (pipeline width) and number of
+stages (pipeline depth), and computational limits on atoms
 , i.e., the atom templates provided by a \absmachine machine.
 
 \textbf{Resource limits:} To handle resource limits, we scan each pipeline
 stage in the codelet pipeline starting from the first to check for pipeline
-width violations \ac{what does width mean again? Number of pipeline stages?}.  
-If we violate the pipeline width, we insert as many new
+width violations. If we violate the pipeline width, we insert as many new
 stages as required and spread codelets evenly across these stages.  We continue
 until the number of codelets in all stages is under the pipeline width,
 rejecting the program if we exceed the pipeline depth.
@@ -314,8 +314,7 @@ parameters that result in the atom implementing the provided specification.
 We use the SKETCH program synthesizer~\cite{sketch_asplos} for this purpose, as
 the atom templates can be easily expressed using SKETCH. SKETCH also
 provides efficient search algorithms and has been used for similar purposes in
-other domains~\cite{bitstreaming, chlorophyll}. \ac{Sketch is not used in 
-chlorophyll. Can you cite my PLDI 13 paper instead on QBS?}  As an
+other domains~\cite{bitstreaming, qbs}. As an
 illustration, assume we want to map the codelet {\tt x=x+1} to the atom
 template shown in Figure~\ref{fig:alu_in_sketch}. SKETCH will search for
 possible parameter values so that the resulting atom is functionally identical
