@@ -80,9 +80,9 @@ Figure~\ref{fig:flowlet_code} shows flowlet switching in \pktlanguage and
 demonstrates its core language constructs. All packet processing happens in the
 context of a packet transaction (the function \texttt{flowlet} starting at line
 17). The function's argument type {\tt Packet} declares the fields in a packet
-(lines 5--12)\footnote{We use fields to refer to both packet headers such as
-source port ({\tt sport}) and destination port ({\tt dport}) and packet
-metadata ({\tt id}).} that can be referenced by the function body (lines
+(lines 5--12)\footnote{A field is either a packet header, e.g.,
+source port ({\tt sport}) and destination port ({\tt dport}), or packet
+ metadata ({\tt id}).} that can be referenced by the function body (lines
 18--32).  The function body can also modify persistent switch state using
 global variables (e.g., \texttt{last\_time} and \texttt{saved\_hop} on lines 14
 and 15, respectively). The function body may use \textit{intrinsics} such as
@@ -92,13 +92,13 @@ signature to analyze read/write dependencies (\S\ref{ss:pipelining}), but otherw
 
 \new{
 \paragraph{Packet transaction semantics}
-Semantically, the programmer sees the switch invoking the packet transaction
+Semantically, the programmer views the switch as invoking the packet transaction
 serially in the order in which packets arrive, with no concurrent packet
 processing.  Put differently, the packet transaction modifies the passed-in
 packet argument and runs to completion, before starting on the next packet.
 These semantics allow the programmer to program under the illusion that a
-single, extremely fast, processor is executing the packet processing code for
-all packets without worrying about how the code should be parallelised within
+single, extremely fast, processor is serially executing the packet processing code for
+all packets. The programmer doesn't worry about parallelizing the code within
 and across pipeline stages to run at line rate.
 }
 
@@ -148,25 +148,25 @@ t \in \text{packet txns} &::=& name(v) \{ s \} \\
 %
 %vlist \in varList &::=& var;vlist \sep vlist \\
 %
-d \in \text{packet decls} &::=& \text{\tt struct Packet} \{ v_1, v_2, \ldots \} \\
+d \in \text{packet decls} &::=& \{ v_1, v_2, \ldots \} \\
 %
 sv \in \text{state var inits} &::=& v = e \sep sv~;~sv \\
 %
 p \in \text{\pktlanguage programs} &::=& \{ d ; sv; t \}
 \end{eqnarray*}
 \end{scriptsize}
-\caption{\pktlanguage grammar. Type annotations are elided for variable declarations.}
+\caption{\pktlanguage grammar. Type annotations (void, struct, and int) are elided for simplicity.}
 \label{fig:grammar}
 \end{figure}
 
 
 \subsection{Triggering packet transactions}
 \label{ss:guards}
-Packet transactions specify \textit{how} to process packet headers state.  To
+Packet transactions specify \textit{how} to process packet headers and state.  To
 specify {\em when} to run packet transactions, programmers use {\em guards}:
-predicates on packet fields that trigger a transaction whenever a packet
-matches the guard. An example guard {\tt (pkt.tcp\_dst\_port == 80)} would
-trigger heavy-hitter detection~\cite{opensketch} on all packets with TCP
+predicates on packet fields that trigger a transaction if a packet
+matches the guard. For example, {\tt (pkt.tcp\_dst\_port == 80)} would
+trigger heavy-hitter detection~\cite{opensketch} on packets with TCP
 destination port 80.
 
 Guards can be realized using an exact match in a match-action table, with the
@@ -174,21 +174,12 @@ actions being the atoms compiled from a packet transaction. Guards
 can take various forms, e.g., exact, ternary, longest-prefix, and range-based
 matches, depending on the matches supported by the match-action
 pipeline. Because guards map straightforwardly to the match key in a
-match-action table, we focus only on compiling packet transactions.
-
-%\ac{I think i's better to give the full guard+trigger in the example rather than 
-%just the guard?} 
-% Might get too verbose to explain clearly. Added a citation to the trigger 
-
-% Anirudh->Alvin: Guards are outside the Domino language. They are whatever
-% match semantics is supported by the switch.
-% This is a practical requirement to express data-plane algorithms on a real
-% switch, but not something very interesting to talk about.
+match-action table, we focus only on compiling packet transactions in this paper.
 
 \subsection{Handling multiple transactions}
 \label{ss:multiple}
 So far, we have discussed a single packet transaction corresponding to a single
-data-plane algorithm. In practice, a switch can run multiple data-plane
+data-plane algorithm. In practice, a switch would run multiple data-plane
 algorithms, each processing its own subset of packets. To address this, we
 envision a policy language that specifies pairs of guards and transactions.
 Realizing a policy is straightforward when all guards are disjoint. When guards
@@ -199,8 +190,4 @@ One composition semantics is to run the two transactions one after another
 sequentially in a user-specified order. This can be achieved by concatenating
 the two transaction bodies to create a larger transaction.  We leave a detailed
 exploration of multiple transactions to future work, and focus only on
-compiling a single packet transaction.
-
-%%\ac{would interleaving stmts from multiple transactions be a potential
-%%optimization here (as in db transactions)?}
-%% Possibly: I don't quite know how to reason about the semantics yet :) We should talk about this, sometime!
+compiling a single packet transaction here.
