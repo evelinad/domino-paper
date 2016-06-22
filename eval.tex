@@ -90,8 +90,9 @@ design of stateless and stateful atoms separately. Finally, we discuss how
 these stateless and stateful atoms are combined together in our compiler
 targets.
 
-\new{
-\paragraph{Atom feasibility}
+\medskip
+\noindent
+\textbf{Atom feasibility.}
 We synthesize a digital circuit corresponding to an atom template by
 writing the atom template in Verilog, and using the Synopsys Design
 Compiler~\cite{synopsys_dc} to compile the Verilog code. The Design Compiler checks
@@ -100,11 +101,13 @@ standard-cell library, and outputs its gate area. We use this gate area,
 along with the area of a 200 \si{\milli\metre\squared}
 baseline switching chip~\cite{gibb_parsing}, to estimate the area overhead for provisioning a
 \absmachine machine with multiple instances of this atom.
-}
+
 % (a library of primitive gates designed using a
 %transistor with a feature size of 32 nm)
 
-\paragraph{Designing stateless atoms}
+\medskip
+\noindent
+\textbf{Designing stateless atoms.}
 Stateless atoms are easier to design because arbitrary stateless operations can
 be broken up into multiple pipeline stages without violating
 atomicity~(\S\ref{ss:atoms}). We design a stateless atom that can support
@@ -115,7 +118,9 @@ field can also be substituted with a constant operand. This stateless atom
 meets timing at 1 GHz and occupies an area of 1384 \si{\micro\meter\squared}
 (Table~\ref{tab:templates}).
 
-\paragraph{Designing stateful atoms}
+\medskip
+\noindent
+\textbf{Designing stateful atoms.}
 The choice of stateful atoms determines the algorithms a line-rate switch can
 support. A more complex stateful atom can support more data-plane algorithms,
 but may not meet timing and occupies more area. To illustrate this effect, we
@@ -130,8 +135,10 @@ propagation delay increases with the atom's
 complexity~(Table~\ref{tab:templates}).
 
 %TODO: Get Hari to read this.
-\new{
-\paragraph{The compiler targets}
+
+\medskip
+\noindent
+\textbf{The compiler targets.}
 We design seven \absmachine machines that serve as compiler targets. A single
 \absmachine machine has 600 atoms.
 \begin{CompactEnumerate}
@@ -145,7 +152,6 @@ and stateful atoms per pipeline stage and 30 pipeline stages. While the number
 300 and the pipeline layout are arbitrary, they are sufficient for all
 examples in Table~\ref{tab:algos}, and incur modest area overhead
 as we show next.
-}
 
 \new{
 We estimate the area overhead of these seven targets relative to a 200
@@ -213,14 +219,17 @@ incremented on each packet.
 
 \subsection{Lessons for programmable switches}
 \label{ss:lessons}
-\paragraph{Atoms with a single state variable support many algorithms}
 
+\medskip
+\noindent
+\textbf{Atoms with a single state variable support many algorithms.}
 The algorithms from Bloom Filter through DNS TTL Change Tracking
 in Table~\ref{tab:algos} can run at line rate using the Nested Ifs atom that
 modifies a single state variable.
 
-\paragraph{But, some algorithms modify a pair of state variables atomically}
-
+\medskip
+\noindent
+\textbf{But, some algorithms modify a pair of state variables atomically.}
 An example is CONGA, whose code is given below:
 \begin{verbatim}
   if (p.util < best_path_util[p.src]) {
@@ -240,8 +249,9 @@ packet transaction's semantics. The Pairs atom, where the update to a state
 variable is conditioned on a predicate of a pair of state variables, allows
 CONGA to run at line rate.
 
-\paragraph{There will always be algorithms that cannot sustain line rate}
-
+\medskip
+\noindent
+\textbf{There will always be algorithms that cannot sustain line rate.}
 While the targets and their atoms in Table~\ref{tab:templates} are sufficient
 for several data-plane algorithms, there are algorithms that they can't run at
 line rate.  An example is CoDel, which cannot be implemented because it
@@ -256,37 +266,31 @@ rate.
 %%computations all need to finish within a ns, while the set of algorithms is
 %%infinite.
 
-\paragraph{Atom design is constrained by timing, not area}
-\new{
+\medskip
+\noindent
+\textbf{Atom design is constrained by timing, not area.}
 Atoms are affected by two factors: their area and their timing, i.e., the
 minimum delay on the critical path of the atom's combinational circuit. For
 the few hundred atoms that we require, atom area is insignificant (< 2\%)
 relative to chip area. Further, even for future atoms that are larger, area may
 be controlled by provisioning fewer atom instances.
-}
 
-\new{
 However, atom timing is critical. Table~\ref{tab:templates} shows a 3.4x
 range in minimum critical-path delay between the simplest and the most complex atoms. This increase
 can be explained by looking at the simplified circuit
 diagrams for the first three atoms (Table~\ref{tab:circuits}), which show an
 increase in circuit depth with atom complexity.
-}
 
-\new{
 Because the clock frequency of
 a circuit is at least as small as the reciprocal of this minimum critical-path delay, a more complex
 atom results in a lower clock frequency and a lower line rate. Although all our
 atoms have a minimum critical-path delay under 1 ns (1 GHz), it is easy to extend them
 with functionality that violates timing at 1 GHz.
-}
 
-\new{
 In summary, for a switch designer, the minimum delay on the critical path of atoms
 is the most important metric to optimize. The most programmable line-rate
 switches will have the highest density of useful stateful functionality
 squeezed into a critical path budget of 1 clock cycle.
-}
 
 \begin{table}[!t]
   \begin{scriptsize}
@@ -311,16 +315,15 @@ Const} is a constant operand.}
 \label{tab:circuits}
 \end{table}
 
-\paragraph{Compilers can be used to design instruction sets}
-\new{
+\medskip
+\noindent
+\textbf{Compilers can be used to design instruction sets.}
 Designing an instruction set for a programmable substrate is a chicken-and-egg
 problem: the choice of instructions determines which algorithms can execute on
 that target, while the choice of algorithms dictates what instructions are
 required in the target. Indeed, other programmable substrates (GPUs, CPUs,
 DSPs) go through an iterative process to design a good instruction set.
-}
 
-\new{
  A compiler can aid this process. To show how, we describe how we
 designed the stateful atoms in Table~\ref{tab:templates}. We pick a data-plane
 algorithm, partially execute the \pktlanguage compiler to generate a codelet pipeline,
@@ -332,15 +335,12 @@ algorithm, extending our atom through a process of trial-and-error to capture
 more computations, and using the compiler to verify our intuitions on extending
 atoms. In the process,  we generate a hierarchy of atoms, each of which works
 for a subset of algorithms.
-}
 
-\new{
 Our atom design process is manual and ad hoc at this point, but it already
 shows how  a compiler can aid in instruction-set design for programmable
 switches. Using the same iterative approach involving a compiler, we anticipate
 the atoms in \absmachine machines evolving as data-plane algorithms demand more
 of the hardware.
-}
 
 %%\textbf{Compilation time:}
 %%Compilation time is dominated by SKETCH's search procedure.  To speed up the

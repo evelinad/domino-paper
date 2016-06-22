@@ -90,8 +90,9 @@ and 15, respectively). The function body may use \textit{intrinsics} such as
 switch such as hash generators.  The \pktlanguage compiler uses an intrinsic's
 signature to analyze read/write dependencies (\S\ref{ss:pipelining}), but otherwise considers it a blackbox.
 
-\new{
-\paragraph{Packet transaction semantics}
+\medskip
+\noindent
+\textbf{Packet transaction semantics.}
 Semantically, the programmer views the switch as invoking the packet transaction
 serially in the order in which packets arrive, with no concurrent packet
 processing.  Put differently, the packet transaction modifies the passed-in
@@ -100,7 +101,6 @@ These semantics allow the programmer to program under the illusion that a
 single, extremely fast, processor is serially executing the packet processing code for
 all packets. The programmer doesn't worry about parallelizing the code within
 and across pipeline stages to run at line rate.
-}
 
 \subsection{The \pktlanguage language}
 \label{ss:constraints}

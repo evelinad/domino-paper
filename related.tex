@@ -1,5 +1,7 @@
 \section{Related work}
 \label{s:related}
+\medskip
+\noindent
 \textbf{Abstract machines for line-rate switches.}
 NetASM~\cite{netasm} is an abstract machine and intermediate representation
 (IR) for programmable data planes that is portable across network
@@ -11,6 +13,8 @@ NetASM doesn't have to. For instance, \absmachine machines don't permit sharing
 state between atoms and use atom templates to limit computations that can
 happen at line rate.
 
+\medskip
+\noindent
 \textbf{Programmable data planes.}
 Eden~\cite{eden} provides a programmable data plane using commodity switches by
 programming end hosts alone. \pktlanguage targets programmable switches that
@@ -30,7 +34,9 @@ switches~\cite{xpliant, tofino}.  FPGA-based platforms like the Corsa DP
 faster, but still 5$\times$--10$\times$ slower than programmable
 switches~\cite{xpliant, tofino}.
 
-\textbf{Packet-processing languages.} Many programming languages~\cite{frenetic, maple} target the network control plane.
+\medskip
+\noindent
+\textbf{Programming languages for networks.} Many programming languages~\cite{frenetic, maple} target the network control plane.
 \pktlanguage focuses on the data plane instead, which requires different
 programming constructs and compilation techniques.
 
@@ -48,6 +54,9 @@ programmable data planes such as the RMT and FlexPipe architectures. Their work
 focuses only on compiling stateless data-plane tasks such as forwarding and
 routing, while \pktlanguage handles stateful data-plane algorithms.
 
+\medskip
+\noindent
+\textbf{Abstractions for stateful packet processing.}
 SNAP~\cite{snap} programs stateful data-plane algorithms using a network
 transaction: an atomic block of code that treats the entire network as one
 switch~\cite{onebigswitch}. It then uses a compiler to translate network
