@@ -8,13 +8,12 @@ are ready for production use.
 
 \new{
 \begin{CompactEnumerate}
-\item With packet transactions, we strove for the strongest and simplest
-semantics possible: transactional semantics that provide the notion of an
-atomic and isolated block of code. Although these semantics make it easier to
-reason about performance, they exclude algorithms that cannot run exactly at
-line rate. Are weaker semantics sensible? One possibility is approximating
+\item Packet transactions provide the first transactional semantics
+for line-rate packet processing. These semantics make it easier to
+reason about correctness and performance, but they exclude algorithms that cannot run at
+line rate while respecting these semantics. Are weaker semantics sensible? One possibility is approximating
 transactional semantics by only processing a sampled packet stream.
-This provides an increased time budget for each packet, potentially allowing
+This provides an increased time budget for each packet in the sampled stream, potentially allowing
 the packet to be {\em recirculated} through the pipeline multiple times
 for packet processing.
 \item Our compiler doesn't aggressively optimize. For instance, it is
