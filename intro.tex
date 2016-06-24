@@ -20,22 +20,22 @@ designs are rigid and not reconfigurable in the field. Thus, implementing and
 deploying a new algorithm, or even modifying a deployed one, requires an
 investment in new hardware---a time-consuming and expensive proposition.
 
-This rigidity affects many stakeholders adversely: vendors~\cite{cisco_nexus,
-dell_force10, arista_7050} building network switches with merchant-silicon
+This rigidity affects many stakeholders adversely: vendors~\cite{arista_7050, cisco_nexus,
+dell_force10} building network switches with merchant-silicon
 chips~\cite{trident, tomahawk, mellanox}, network operators deploying these
-switches~\cite{google,facebook,vl2}, and researchers developing new data-plane
-algorithms~\cite{rcp, conga, xcp, bitmap_george}.
+switches~\cite{vl2, facebook, google}, and researchers developing new data-plane
+algorithms~\cite{conga, bitmap_george, xcp, rcp}.
 
 To run new data-plane algorithms after a switch has been built, researchers and
 companies have attempted to build programmable switches for many years,
 starting from efforts on active networks~\cite{active-nets} to network
-processors~\cite{ixp4xx} to software routers~\cite{click, dpdk}. All these
+processors~\cite{ixp4xx} to software routers~\cite{dpdk, click}. All these
 efforts sacrificed performance for programmability, typically running an order
 of magnitude (or worse) slower than hardware line rates. Unfortunately, this
 reduction in performance has meant that these systems are rarely deployed in
 production networks.
 
-Programmable switching chips~\cite{flexpipe, xpliant, tofino} competitive in
+Programmable switching chips~\cite{tofino, flexpipe, xpliant} competitive in
 performance with state-of-the-art fixed-function chips~\cite{trident,
 tomahawk, mellanox} are now becoming available. These chips implement a few
 low-level hardware primitives that can be configured by software into a
