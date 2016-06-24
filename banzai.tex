@@ -99,7 +99,7 @@ increment the counter again from 0 to 1, when it should be incremented to 2.
 Locks over the shared counter are a potential solution.  However, locking
 causes packet $B$ to wait during packet $A$'s increment, and the switch no
 longer sustains the line rate of one packet every clock cycle. CPUs employ
-micro-architectural techniques such as operand forwarding to address this
+micro-architectural techniques such as operand forwarding for this
 problem. But these techniques still suffer pipeline stalls, which prevents
 line-rate performance from being achieved.
 
