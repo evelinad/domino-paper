@@ -117,7 +117,7 @@ same array are allowed only if that packet field is unmodified between accesses.
 
 For example, all read and write accesses to \texttt{last\_time} use the
 index \texttt{pkt.id}. \texttt{pkt.id} is not modified during the
-course of a single execution (packet); it only changes between executions
+course of a single transaction execution (single packet); it only changes between executions
 (packets).  This restriction on arrays mirrors restrictions on the stateful memories
 attached to atoms (\S\ref{s:atomConstraints}), which require multiple ports to
 support distinct read and write addresses every clock cycle.
