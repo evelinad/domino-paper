@@ -365,7 +365,7 @@ line-rate performance.
 Program synthesis was used for code generation in
 Chlorophyll~\cite{chlorophyll}.  Code generation for \pktlanguage also shares
 similar goals to technology mapping~\cite{micheli} and
-instruction selection~\cite{muchnik}.  However, prior work maps a code sequence
+instruction selection~\cite{dragonbook}.  However, prior work maps a code sequence
 to \textit{multiple} instructions/tiles, using heuristics to minimize
 instruction count. Domino's problem is simpler: we map each codelet to a single
 atom using SKETCH.  The simpler problem allows a non-heuristic solution: if
@@ -388,7 +388,7 @@ because there is no backward control transfer ({\tt goto}, {\tt break},
   \hline
   Strongly Connected Components & Lam~\cite{software_pipelining} & Scheduling in space vs. time \\
   \hline
-  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli}, instruction selection~\cite{muchnik} & Optimal vs. best-effort mapping, One-to-one mapping vs. one-to-many mapping \\
+  Code generation using program synthesis & Chlorophyll~\cite{chlorophyll}, technology mapping~\cite{micheli}, instruction selection~\cite{dragonbook} & Optimal vs. best-effort mapping, One-to-one mapping vs. one-to-many mapping \\
   \hline
   \end{tabular}
   \end{scriptsize}
